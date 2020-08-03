@@ -9,7 +9,8 @@ import preprocess from 'svelte-preprocess'
 const mode = process.env.NODE_ENV
 const dev = mode === 'development'
 
-const onwarn = (warning, onwarn) => (warning.code === 'CIRCULAR_DEPENDENCY' && /[/\\]@sapper[/\\]/.test(warning.message)) || onwarn(warning)
+const onwarn = (warning, onwarn) => ((warning.code === 'CIRCULAR_DEPENDENCY' && /[/\\]@sapper[/\\]/.test(warning.message)) ||
+warning.code === 'THIS_IS_UNDEFINED') || onwarn(warning)
 
 export default {
   client: {
@@ -61,6 +62,6 @@ export default {
     external: Object.keys(pkg.dependencies).concat(require('module').builtinModules),
 
     preserveEntrySignatures: 'strict',
-    onwarn // Use Sapper's error handling
+    onwarn
   }
 }

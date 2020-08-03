@@ -1,6 +1,6 @@
 <script lang="ts">
   // Will be filled in by state management later
-  const isLoggedIn = false;
+  import user from '../stores/user'
 
   const links = [
     {
@@ -34,7 +34,7 @@
     <a class="pseudo button" href={link.href}>{link.title}</a>
   {/each}
   <div class="right">
-    {#if isLoggedIn}
+    {#if $user.isLoggedIn}
       <button class="transparent">
         <i class="fas fa-chevron-down"></i>
       </button>

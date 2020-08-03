@@ -6,6 +6,9 @@ body {
 }
 
 /* Custom button things */
+button, .button, input[type="submit"] {
+  background-color: var(--bold-blue);
+}
 button.transparent {
   background: transparent;
 }
