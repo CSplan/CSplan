@@ -1,7 +1,6 @@
 <script lang="ts">
-  // Will be filled in by state management later
+  import quickActions from './quickActions.svelte' // TODO: create this component
   import user from '../stores/user'
-
   const links = [
     {
       title: 'Home',
@@ -35,9 +34,9 @@
   {/each}
   <div class="right">
     {#if $user.isLoggedIn}
-      <button class="transparent">
-        <i class="fas fa-chevron-down"></i>
-      </button>
+      <span>{$user.user.email}</span>
+      <!-- Quick actions dropdown -->
+      <svelte:component this={quickActions}></svelte:component>
       <button class="transparent">
         <i class="fas fa-cog"></i>
       </button>
