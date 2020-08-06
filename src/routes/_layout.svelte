@@ -2,7 +2,7 @@
   import { onMount } from 'svelte'
   import user from '../stores/user'
   class AuthError extends Error {
-    constructor({ message = '', code = ''}) {
+    constructor({ message = '', code = '' }) {
       super(message)
       this.code = code
     }
@@ -13,10 +13,10 @@
     if (!$user.isLoggedIn && localStorage.getItem('isLoggedIn')) {
       try {
         const res = await fetch('http://localhost:3000/whoami', {
-        headers: {
-          'CSRF-Token': localStorage.getItem('CSRF-Token')
-        },
-        credentials: 'include'
+          headers: {
+            'CSRF-Token': localStorage.getItem('CSRF-Token')
+          },
+          credentials: 'include'
         })
         if (res.status === 200) {
           user.login(JSON.parse(localStorage.getItem('user')))
@@ -30,7 +30,7 @@
         if (err.code === 'NOT_LOGGED_IN') {
           user.logout()
         } else {
-          alert('Either you\'re offline or the API is down. Check /api-status for more information.')
+          alert('Either you\'re offline or the API is down. Check /status for more information.')
         }
       }
     }

@@ -1,4 +1,4 @@
-<script lang="ts">
+<script>
   import { goto } from '@sapper/app'
   import navbar from '../components/navbar.svelte'
   import user from '../stores/user'
@@ -7,17 +7,8 @@
   const { generateKeypair, wrapPrivateKey } = rsa
   const { ABencode } = encoding
 
-  // Type definitions
-  interface LoginResponse {
-    CSRFtoken: string
-    id: string
-    verified: boolean
-  }
-  interface ErrorResponse {
-    title: string
-    message: string
-    status: number
-  }
+  // If the user is already logged in, redirect them
+  $: $user.isLoggedIn && goto('/')
 
   // Form data
   let fields = {
@@ -30,21 +21,21 @@
   let stateMsg = ''
 
   // Form state
-  enum states {
-    resting,
-    submitting,
-    error,
-    success
+  const states = {
+    resting: 0,
+    submitting: 1,
+    error: 2,
+    success: 3
   }
   let state = states.resting
 
-  function updateField(e: Event & {target: HTMLInputElement }) {
+  function updateField(e) {
     const field = e.target.getAttribute('data-field')
     fields[field] = e.target.value
   }
 
   async function register() {
-    const form = document.querySelector('#registerForm') as HTMLFormElement
+    const form = document.querySelector('#registerForm')
     if (!form.checkValidity()) {
       return
     }
@@ -54,14 +45,14 @@
     // Register step with API
     try {
       const res = await fetch('http://localhost:3000/register', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify(fields)
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(fields)
       })
       if (res.status !== 201) {
-        const resBody: ErrorResponse = await res.json()
+        const resBody = await res.json()
         throw new Error(resBody.message || 'Unknown error')
       }
     } catch (err) {
@@ -80,14 +71,12 @@
         credentials: 'include',
         body: JSON.stringify(fields)
       })
-      const resBody: LoginResponse|ErrorResponse = await res.json()
+      const resBody = await res.json()
       if (res.status !== 200) {
-        const errBody = resBody as ErrorResponse
-        throw new Error(errBody.message || "Unknown error")
+        throw new Error(resBody.message || 'Unknown error')
       }
-      const body = resBody as LoginResponse
-      localStorage.setItem('CSRF-Token', body.CSRFtoken)
-      user.login({ id: body.id, email: fields.email })
+      localStorage.setItem('CSRF-Token', resBody.CSRFtoken)
+      user.login({ id: resBody.id, email: fields.email })
     } catch (err) {
       state = states.error
       error = err.message
@@ -116,7 +105,7 @@
       })
       if (res.status !== 204) {
         const resBody = await res.json()
-        throw new Error(resBody.message || "Unknown error")
+        throw new Error(resBody.message || 'Unknown error')
       }
 
       // Add to IDB
@@ -127,12 +116,11 @@
         publicKey,
         privateKey
       })
-      req.addEventListener('success', () => {
+      req.onsuccess = () => {
         state = states.success
         goto('/')
-      })
-    }
-    catch (err) {
+      }
+    } catch (err) {
       state = states.error
       error = err instanceof Error ? err.message : err
       return

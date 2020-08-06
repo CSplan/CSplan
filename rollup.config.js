@@ -4,13 +4,11 @@ import svelte from 'rollup-plugin-svelte'
 import { terser } from 'rollup-plugin-terser'
 import sapper from 'sapper/config/rollup.js'
 import pkg from './package.json'
-import preprocess from 'svelte-preprocess'
 
 const mode = process.env.NODE_ENV
 const dev = mode === 'development'
 
-const onwarn = (warning, onwarn) => ((warning.code === 'CIRCULAR_DEPENDENCY' && /[/\\]@sapper[/\\]/.test(warning.message)) ||
-warning.code === 'THIS_IS_UNDEFINED') || onwarn(warning)
+const onwarn = (warning, onwarn) => ((warning.code === 'CIRCULAR_DEPENDENCY' && /[/\\]@sapper[/\\]/.test(warning.message))) || onwarn(warning)
 
 export default {
   client: {
@@ -24,8 +22,7 @@ export default {
       svelte({
         dev,
         hydratable: true,
-        emitCss: true,
-        preprocess: preprocess()
+        emitCss: true
       }),
       resolve({
         browser: true,
@@ -51,8 +48,7 @@ export default {
       }),
       svelte({
         generate: 'ssr',
-        dev,
-        preprocess: preprocess()
+        dev
       }),
       resolve({
         dedupe: ['svelte']

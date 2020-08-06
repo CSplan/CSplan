@@ -3,9 +3,10 @@ const DB_VER = 1
 let db
 
 /**
- * @returns {Promise<IDBDatabase>}
+ * Get an IDBDatabase instance to request transactions
+ * @returns {Promise<IDBDatabase>} IDBDatabase
  */
-function getDB () {
+function getDB() {
   return new Promise((resolve, reject) => {
     if (db instanceof IDBDatabase) {
       resolve(db)
@@ -31,7 +32,12 @@ function getDB () {
   })
 }
 
-function clearStore (storeName) {
+/**
+ * Clear a specified object store
+ * @param {string} storeName
+ * @returns {Promise<void>}
+ */
+function clearStore(storeName) {
   return new Promise((resolve, reject) => {
     const store = db.transaction(storeName, 'readwrite').objectStore(storeName)
     const req = store.clear()

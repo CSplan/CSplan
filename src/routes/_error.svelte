@@ -1,8 +1,8 @@
 <script>
   import navbar from '../components/navbar.svelte'
 
-  export let error;
-  export let status;
+  export let error
+  export let status
 </script>
 
 <svelte:component this={navbar}></svelte:component>

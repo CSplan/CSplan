@@ -1,5 +1,5 @@
 /* Custom color things */
-body {
+:root {
   --bold-blue: rgb(0, 119, 255);
   --primary-purple: #7b1fa2;
   --light-purple: #ae52d4;

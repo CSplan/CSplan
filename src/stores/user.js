@@ -1,7 +1,7 @@
 import { writable } from 'svelte/store'
 import { getDB, clearStore } from '../db'
 
-function create () {
+function create() {
   const userStore = {
     user: {
       id: '',
@@ -13,12 +13,12 @@ function create () {
 
   return {
     subscribe,
-    login (user) {
+    login(user) {
       localStorage.setItem('user', JSON.stringify(user))
       localStorage.setItem('isLoggedIn', 'true')
       update(store => ({ ...store, user, isLoggedIn: true }))
     },
-    async logout () {
+    async logout() {
       // Clear localstorage
       localStorage.removeItem('isLoggedIn')
       localStorage.removeItem('user')

@@ -1,4 +1,4 @@
-<script lang="ts">
+<script>
   import quickActions from './quickActions.svelte' // TODO: create this component
   import user from '../stores/user'
   const links = [
@@ -49,6 +49,9 @@
 </nav>
 
 <style>
+  :root {
+    --user-name-margin: 0.5rem;
+  }
   /* Navbar styling */
   nav {
     padding: 0 0.5rem;
@@ -65,6 +68,10 @@
     }
     .menu .right {
       margin-left: auto;
+    }
+    /* Extra right margin for the user's name */
+    .menu .right span {
+      margin-right: var(--user-name-marginq);
     }
   }
   /* Mobile styles */
@@ -83,13 +90,15 @@
       width: 100%;
       display: flex;
       flex-direction: column;
+      text-align: center; /* Show the user's name/email in the center of the menu without enabling full center alignment */
+    }
+    /* Extra bottom margin for the user's name */
+    .menu .right span {
+      margin-bottom: var(--user-name-margin);
     }
   }
   /* Tighter item spacing */
   a {
-    margin-right: 0;
-  }
-  button {
     margin-right: 0;
   }
 
