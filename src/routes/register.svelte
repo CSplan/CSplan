@@ -4,7 +4,7 @@
   import user from '../stores/user'
   import { getDB } from '../db'
   import { rsa, makeSalt, encoding } from 'cs-crypto'
-  const { generateKeypair, wrapPrivateKey } = rsa
+  const { generateKeypair, wrapPrivateKey, exportPublicKey } = rsa
   const { ABencode } = encoding
 
   // If the user is already logged in, redirect them
@@ -39,9 +39,19 @@
     if (!form.checkValidity()) {
       return
     }
+    // Compare password fields
+    const confirmPasswdField = document.querySelector('[data-field="confirmPassword"]')
+    console.log(fields.password, fields.confirmPassword)
+    if (fields.password !== fields.confirmPassword) {
+      confirmPasswdField.setCustomValidity('Password confirmation isn\'t the same as password')
+      return
+    } else {
+      // Empty string marks the field as valid
+      confirmPasswdField.setCustomValidity('')
+    }
+
     state = states.submitting
     stateMsg = 'Creating your Account'
-    
     // Register step with API
     try {
       const res = await fetch('http://localhost:3000/register', {
@@ -52,8 +62,8 @@
         body: JSON.stringify(fields)
       })
       if (res.status !== 201) {
-        const resBody = await res.json()
-        throw new Error(resBody.message || 'Unknown error')
+        const body = await res.json()
+        throw new Error(body.message || `Unknown error (status ${res.status}`)
       }
     } catch (err) {
       state = states.error
@@ -89,11 +99,7 @@
       const PBKDF2salt = makeSalt(16)
       console.log(privateKey)
       const encryptedPrivateKey = (await wrapPrivateKey(privateKey, fields.password, PBKDF2salt, 'AES-GCM')).split(':')[1]
-      // TODO: add export key functionality to cs-crypto
-      const encodedPublicKey = ABencode(await crypto.subtle.exportKey(
-        'spki',
-        publicKey
-      ))
+      const encodedPublicKey = await exportPublicKey(publicKey)
       const res = await fetch('http://localhost:3000/keys', {
         method: 'POST',
         headers: {
@@ -133,14 +139,14 @@
   <div class="card">
     <header>Register</header>
     <form id="registerForm" on:submit|preventDefault={register}>
-      <input data-field="email" type="email" required autocomplete="username" placeholder="Email" on:input={updateField}>
+      <input data-field="email" type="email" required autocomplete="email" placeholder="Email" on:input={updateField}>
       <input data-field="password" type={ showPassword ? 'text' : 'password'} required autocomplete="new-password" placeholder="Password" on:input={updateField}>
       <input data-field="confirmPassword" type={ showPassword ? 'text' : 'password'} required autocomplete="new-password" placeholder="Confirm Password" on:input={updateField}>
       <label>
         <input type="checkbox" bind:checked={showPassword}>
         <span class="checkable">Show Password</span>
       </label>
-      <input type="submit" disabled={fields.password !== fields.confirmPassword}>
+      <input type="submit">
     </form>
     <footer>
     {#if state === states.submitting}
@@ -160,9 +166,9 @@
     align-items: center;
   }
   .card {
-    padding: 1rem;
-    margin-top: 12rem;
+    margin-top: 20vh;
     max-width: 300px;
+    padding: 1rem;
   }
   .card * {
     margin: 0.5rem 0;

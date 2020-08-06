@@ -1,5 +1,5 @@
 <script>
-  import quickActions from './quickActions.svelte' // TODO: create this component
+  import quickActions from './quickActions.svelte'
   import user from '../stores/user'
   const links = [
     {
@@ -71,7 +71,7 @@
     }
     /* Extra right margin for the user's name */
     .menu .right span {
-      margin-right: var(--user-name-marginq);
+      margin-right: var(--user-name-margin);
     }
   }
   /* Mobile styles */

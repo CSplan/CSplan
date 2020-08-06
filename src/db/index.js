@@ -33,6 +33,25 @@ function getDB() {
 }
 
 /**
+ * @param {string} storeName 
+ * @param {object} data 
+ */
+function addToStore(storeName, data) {
+  return new Promise((resolve, reject) => {
+    const store = db.transaction(storeName, 'readwrite').objectStore(storeName)
+    const req = store.add(data)
+    
+    req.addEventListener('error', () => {
+      reject(req.error)
+    })
+
+    req.addEventListener('success', () => {
+      resolve(req.result)
+    })
+  })
+}
+
+/**
  * Clear a specified object store
  * @param {string} storeName
  * @returns {Promise<void>}
@@ -54,5 +73,6 @@ function clearStore(storeName) {
 
 export {
   getDB,
+  addToStore,
   clearStore
 }

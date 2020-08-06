@@ -48,7 +48,7 @@
   div.dropdown {
     display: none;
     background: #333;
-    padding: 0.5rem;
+    padding: 0.25rem;
     position: absolute;
     top: 2.5em;
     right: 0;
