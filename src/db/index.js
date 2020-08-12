@@ -18,6 +18,7 @@ function getDB() {
       db = req.result
       // Keys store is indexed by id
       db.createObjectStore('keys', { keyPath: 'id' })
+      db.createObjectStore('lists', { keyPath: 'id' })
       resolve(db)
     })
 
@@ -71,8 +72,24 @@ function clearStore(storeName) {
   })
 }
 
+function getByKey(storeName, key) {
+  return new Promise((resolve, reject) => {
+    const store = db.transaction(storeName, 'readwrite').objectStore(storeName)
+    const req = store.get(key)
+
+    req.addEventListener('error', () => {
+      reject(req.error)
+    })
+
+    req.addEventListener('success', () => {
+      resolve(req.result)
+    })
+  })
+}
+
 export {
   getDB,
   addToStore,
-  clearStore
+  clearStore,
+  getByKey
 }

@@ -41,7 +41,6 @@
     }
     // Compare password fields
     const confirmPasswdField = document.querySelector('[data-field="confirmPassword"]')
-    console.log(fields.password, fields.confirmPassword)
     if (fields.password !== fields.confirmPassword) {
       confirmPasswdField.setCustomValidity('Password confirmation isn\'t the same as password')
       return
@@ -97,7 +96,6 @@
     try {
       const { privateKey, publicKey } = await generateKeypair(2048)
       const PBKDF2salt = makeSalt(16)
-      console.log(privateKey)
       const encryptedPrivateKey = (await wrapPrivateKey(privateKey, fields.password, PBKDF2salt, 'AES-GCM')).split(':')[1]
       const encodedPublicKey = await exportPublicKey(publicKey)
       const res = await fetch('http://localhost:3000/keys', {
