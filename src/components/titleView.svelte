@@ -1,9 +1,6 @@
 <script>
   import { goto } from '@sapper/app'
   import { lists, ordered } from '../stores/lists'
-  import { aes, rsa } from 'cs-crypto' 
-  import { getByKey, getDB } from '../db'
-  import user from '../stores/user'
 
   // Props
   export let editMode = false
@@ -14,34 +11,11 @@
       title: '',
       items: []
     }
-
-    // Encrypt the new list
-    await getDB()
-    const { publicKey } = await getByKey('keys', $user.user.id)
-    const key = await aes.generateKey('AES-GCM')
-    const encrypted = await aes.deepEncrypt(list, key)
-    const wrapped = (await rsa.wrapKey(key, publicKey)).split(':')[1] // Wrap the AES key
-
-    const res = await fetch('http://localhost:3000/todos', {
-      method: 'POST',
-      body: JSON.stringify({
-        ...encrypted,
-        meta: {
-          cryptoKey: wrapped
-        }
-      }),
-      headers: {
-        'Content-Type': 'application/json',
-        'CSRF-Token': localStorage.getItem('CSRF-Token')
-      },
-      credentials: 'include'
-    })
-
-    // Add the key and id to the template list, and store in state + IDB
-    const body = await res.json()
-    list.cryptoKey = key
-    list.id = body.id
-    await lists.addList(list)
+    await lists.create(list)
+      .catch((err) => {
+        // TODO: proper error handling 
+        alert(err)
+      })
   }
 </script>
 
@@ -51,7 +25,7 @@
 {#each $ordered as list}
   <div class="row {!list.title.length && 'empty'}" on:click={() => !editMode && goto(`/todos/${list.id}`)}>
     <i class="fas fa-minus"></i>
-    <header contenteditable={editMode} on:input={(e) => lists.updateList({ ...list, title: e.target.textContent})}>{list.title}</header>
+    <header contenteditable={editMode} on:input={(e) => lists.update(list.id, { title: e.target.textContent })}>{list.title}</header>
   </div>
 {/each}
 {:else}

@@ -1,35 +1,34 @@
 const DB_NAME = 'CSplan'
 const DB_VER = 1
-let db
+/** @type {IDBDatabase} */
+let cachedIDB
 
 /**
  * Get an IDBDatabase instance to request transactions
  * @returns {Promise<IDBDatabase>} IDBDatabase
  */
-function getDB() {
+export function getDB() {
   return new Promise((resolve, reject) => {
-    if (db instanceof IDBDatabase) {
-      resolve(db)
+    if (cachedIDB instanceof IDBDatabase) {
+      resolve(cachedIDB)
     }
 
     const req = indexedDB.open(DB_NAME, DB_VER)
 
-    req.addEventListener('upgradeneeded', () => {
-      db = req.result
+    req.onupgradeneeded = () => {
+      cachedIDB = req.result
       // Keys store is indexed by id
-      db.createObjectStore('keys', { keyPath: 'id' })
-      db.createObjectStore('lists', { keyPath: 'id' })
-      resolve(db)
-    })
+      cachedIDB.createObjectStore('keys', { keyPath: 'id' })
+      cachedIDB.createObjectStore('lists', { keyPath: 'id' })
+      resolve(cachedIDB)
+    }
 
-    req.addEventListener('error', () => {
+    req.onerror = () => {
       reject(req.error)
-    })
-
-    req.addEventListener('success', () => {
-      db = req.result
+    }
+    req.onsuccess = () => {
       resolve(req.result)
-    })
+    }
   })
 }
 
@@ -37,18 +36,18 @@ function getDB() {
  * @param {string} storeName 
  * @param {object} data 
  */
-function addToStore(storeName, data) {
+export async function addToStore(storeName, data) {
+  const db = await getDB()
   return new Promise((resolve, reject) => {
     const store = db.transaction(storeName, 'readwrite').objectStore(storeName)
     const req = store.add(data)
     
-    req.addEventListener('error', () => {
+    req.onerror = () => {
       reject(req.error)
-    })
-
-    req.addEventListener('success', () => {
+    } 
+    req.onsuccess = () => {
       resolve(req.result)
-    })
+    }
   })
 }
 
@@ -57,39 +56,60 @@ function addToStore(storeName, data) {
  * @param {string} storeName
  * @returns {Promise<void>}
  */
-function clearStore(storeName) {
+export async function clearStore(storeName) {
+  const db = await getDB()
   return new Promise((resolve, reject) => {
     const store = db.transaction(storeName, 'readwrite').objectStore(storeName)
     const req = store.clear()
 
-    req.addEventListener('error', () => {
+    req.onerror = () => {
       reject(req.error)
-    })
-
-    req.addEventListener('success', () => {
+    }
+    req.onsuccess = () => {
       resolve(req.result)
-    })
+    }
   })
 }
 
-function getByKey(storeName, key) {
+/**
+ * Retrieve a record from an object store by key
+ * @param {string} storeName
+ * @param {string} key
+ * @returns {Promise<object>}
+ */
+export async function getByKey(storeName, key) {
+  const db = await getDB()
   return new Promise((resolve, reject) => {
     const store = db.transaction(storeName, 'readwrite').objectStore(storeName)
     const req = store.get(key)
 
-    req.addEventListener('error', () => {
+    req.onerror = () => {
       reject(req.error)
-    })
-
-    req.addEventListener('success', () => {
+    }
+    req.onsuccess = () => {
       resolve(req.result)
-    })
+    }
   })
 }
 
-export {
-  getDB,
-  addToStore,
-  clearStore,
-  getByKey
+/**
+ * Update an object store's record with an object including a key
+ * @param {string} storeName 
+ * @param {string} key 
+ * @param {object} dataWithKey 
+ * @returns {Promise<void>}
+ */
+export async function updateWithKey(storeName, dataWithKey) {
+  const db = await getDB()
+  return new Promise((resolve, reject) => {
+    const store = db.transaction(storeName, 'readwrite').objectStore(storeName)
+    const req = store.put(dataWithKey)
+
+    req.onerror = () => {
+      reject(req.error)
+    }
+    req.onsuccess = () => {
+      resolve(req.result)
+    }
+  })
 }

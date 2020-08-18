@@ -1,6 +1,7 @@
 <script>
   import { onMount } from 'svelte'
   import user from '../stores/user'
+  import { route } from '../route'
   class AuthError extends Error {
     constructor({ message = '', code = '' }) {
       super(message)
@@ -12,7 +13,7 @@
   onMount(async () => {
     if (!$user.isLoggedIn && localStorage.getItem('isLoggedIn')) {
       try {
-        const res = await fetch('http://localhost:3000/whoami', {
+        const res = await fetch(route('/whoami'), {
           headers: {
             'CSRF-Token': localStorage.getItem('CSRF-Token')
           },
