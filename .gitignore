@@ -1,5 +1,6 @@
 .DS_Store
 /node_modules/
+!/node_modules/cs-crypto
 /src/node_modules/@sapper/
 yarn-error.log
 /__sapper__/

@@ -3,9 +3,8 @@
   import navbar from '../components/navbar.svelte'
   import user from '../stores/user'
   import { route } from '../route'
-  import { rsa, encoding } from 'cs-crypto'
+  import { rsa, ABdecode } from 'cs-crypto'
   const { unwrapPrivateKey, importPublicKey } = rsa
-  const { ABdecode } = encoding
   import { getDB, addToStore } from '../db'
   $: $user.isLoggedIn && goto('/')
 

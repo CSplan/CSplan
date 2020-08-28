@@ -1,11 +1,11 @@
 <script>
+  import '../../types/auth'
   import { goto } from '@sapper/app'
   import navbar from '../components/navbar.svelte'
   import user from '../stores/user'
-  import { getDB } from '../db'
-  import { rsa, makeSalt, encoding } from 'cs-crypto'
-  const { generateKeypair, wrapPrivateKey, exportPublicKey } = rsa
-  const { ABencode } = encoding
+  import { route } from '../route'
+  import { addToStore } from '../db'
+  import { rsa, aes, makeSalt, ABencode, ABdecode } from 'cs-crypto'
 
   // If the user is already logged in, redirect them
   $: $user.isLoggedIn && goto('/')
@@ -50,45 +50,52 @@
     }
 
     state = states.submitting
-    stateMsg = 'Creating your Account'
-    // Register step with API
+
+    stateMsg = 'Generating your Authentication Key'
     try {
-      const res = await fetch('http://localhost:3000/register', {
+      const salt = makeSalt(16)
+      const authKey = await deriveKey('AES-GCM', fields.password, salt, true)
+      const exportedKey = await exportKey(authKey, salt)
+      await fetch(route('/register'), {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application-json'
+        },
+        credentials: 'include',
+        body: JSON.stringify({
+          email: fields.email,
+          key: exportedKey
+        })
+      })
+      let res = await fetch(route('/challenge?action=request'), {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
         },
-        body: JSON.stringify(fields)
+        body: JSON.stringify({
+          email: fields.email
+        })
       })
-      if (res.status !== 201) {
-        const body = await res.json()
-        throw new Error(body.message || `Unknown error (status ${res.status}`)
-      }
-    } catch (err) {
-      state = states.error
-      error = err.message
-      return
-    }
-
-    stateMsg = 'Authenticating with Backend'
-    try {
-      const res = await fetch('http://localhost:3000/login', {
+      /** @type {Challenge} */
+      const challenge = await res.json()
+      // Decrypt the challenge data
+      const solved = await decrypt(challenge.data, authKey)
+      res = await fetch(route(`/challenge/${challenge.id}?action=submit`, {
         method: 'POST',
         headers: {
-          'Content-Type': 'application/json' 
+          'Content-Type': 'application/json'
         },
         credentials: 'include',
-        body: JSON.stringify(fields)
-      })
-      const resBody = await res.json()
-      if (res.status !== 200) {
-        throw new Error(resBody.message || 'Unknown error')
-      }
-      localStorage.setItem('CSRF-Token', resBody.CSRFtoken)
-      user.login({ id: resBody.id, email: fields.email })
+        body: JSON.stringify({
+          data: solved
+        })
+      }))
+      const tokens = await res.json()
+      console.log(tokens)
+      return
     } catch (err) {
       state = states.error
-      error = err.message
+      error = err instanceof Error ? err.message : err
       return
     }
 
@@ -96,34 +103,58 @@
     try {
       const { privateKey, publicKey } = await generateKeypair(2048)
       const PBKDF2salt = makeSalt(16)
-      const encryptedPrivateKey = (await wrapPrivateKey(privateKey, fields.password, PBKDF2salt, 'AES-GCM')).split(':')[1]
+      const encodedSalt = ABencode(PBKDF2salt)
       const encodedPublicKey = await exportPublicKey(publicKey)
-      const res = await fetch('http://localhost:3000/keys', {
+      
+      stateMsg = 'Creating your account'
+      let res = await fetch(route('/register'), {
         method: 'POST',
         headers: {
-          'Content-Type': 'application/json',
-          'CSRF-Token': localStorage.getItem('CSRF-Token')
+          'Content-Type': 'application/json'
         },
-        credentials: 'include',
-        body: JSON.stringify({ publicKey: encodedPublicKey, privateKey: encryptedPrivateKey, PBKDF2salt: ABencode(PBKDF2salt) })
+        body: JSON.stringify({
+          email: fields.email,
+          keys: {
+            PBKDF2salt: encodedSalt,
+            publicKey: encodedPublicKey
+          }
+        })
       })
-      if (res.status !== 204) {
-        const resBody = await res.json()
-        throw new Error(resBody.message || 'Unknown error')
+      let body = await res.json()
+      if (res.status !== 201) {
+        throw new Error(body.message || 'Failed to register.')
       }
 
       // Add to IDB
-      const db = await getDB()
-      const store = db.transaction('keys', 'readwrite').objectStore('keys')
-      const req = store.add({
-        id: $user.user.id,
+      stateMsg = 'Storing your master keypair'
+      await addToStore('keys', {
+        id: body.id,
         publicKey,
         privateKey
       })
-      req.onsuccess = () => {
-        state = states.success
-        goto('/')
-      }
+
+      // Request a challenge from the API
+      res = await fetch(route('/challenge?action=request'), {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          email: fields.email
+        })
+      })
+      body = await res.json()
+
+      // Solve the challenge
+      const decoded = ABdecode(body.data)
+      const decrypted = await crypto.subtle.decrypt(
+        {
+          name: 'RSA-OAEP'
+        },
+        privateKey,
+        decoded
+      )
+      console.log(decrypted)
     } catch (err) {
       state = states.error
       error = err instanceof Error ? err.message : err
