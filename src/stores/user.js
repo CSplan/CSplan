@@ -2,6 +2,7 @@ import { writable } from 'svelte/store'
 import { getDB, clearStore } from '../db'
 
 // This store ONLY manages local state, all API interaction must be handled by components before calling these functions
+// TODO: this flow is stupid
 function create() {
   const userStore = {
     user: {

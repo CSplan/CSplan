@@ -80,7 +80,7 @@ export async function clearStore(storeName) {
 export async function getByKey(storeName, key) {
   const db = await getDB()
   return new Promise((resolve, reject) => {
-    const store = db.transaction(storeName, 'readwrite').objectStore(storeName)
+    const store = db.transaction(storeName, 'readonly').objectStore(storeName)
     const req = store.get(key)
 
     req.onerror = () => {
@@ -95,7 +95,6 @@ export async function getByKey(storeName, key) {
 /**
  * Update an object store's record with an object including a key
  * @param {string} storeName 
- * @param {string} key 
  * @param {object} dataWithKey 
  * @returns {Promise<void>}
  */
@@ -104,6 +103,27 @@ export async function updateWithKey(storeName, dataWithKey) {
   return new Promise((resolve, reject) => {
     const store = db.transaction(storeName, 'readwrite').objectStore(storeName)
     const req = store.put(dataWithKey)
+
+    req.onerror = () => {
+      reject(req.error)
+    }
+    req.onsuccess = () => {
+      resolve(req.result)
+    }
+  })
+}
+
+/**
+ * Delete a record from an object store
+ * @param {string} storeName 
+ * @param {string} key 
+ * @returns {Promise<void>}
+ */
+export async function deleteFromStore(storeName, key) {
+  const db = await getDB()
+  return new Promise((resolve, reject) => {
+    const store = db.transaction(storeName, 'readwrite').objectStore(storeName)
+    const req = store.delete(key)
 
     req.onerror = () => {
       reject(req.error)

@@ -1,7 +1,7 @@
 import { writable, derived, get } from 'svelte/store'
 import { route } from '../route'
 import user from './user'
-import { getDB, addToStore, getByKey, updateWithKey } from '../db'
+import { getDB, addToStore, getByKey, updateWithKey, deleteFromStore } from '../db'
 import userStore from './user'
 import { aes, rsa } from 'cs-crypto'
 import { unwrapKey } from 'cs-crypto/lib/rsa'
@@ -167,6 +167,32 @@ function create() {
       // Update the list's checksum
       update((store) => {
         store[id] = list
+        return store
+      })
+    },
+    async delete(id) {
+      // Validate
+      let list = get(this)[id]
+      if (!list) {
+        throw new ReferenceError('List passed by ID does not exist')
+      }
+      // Delete with API
+      const res = await fetch(route(`/todos/${id}`), {
+        method: 'DELETE',
+        headers: {
+          'CSRF-Token': localStorage.getItem('CSRF-Token')
+        }
+      })
+      if (res.status !== 204) {
+        const body = await res.json()
+        throw new Error(body.message || 'Failed to delete todo list.')
+      }
+
+      // Delete from IDB
+      await deleteFromStore('lists', id)
+      // Delete from store
+      update((store) => {
+        delete store[id]
         return store
       })
     },

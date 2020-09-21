@@ -3,9 +3,6 @@
   import { goto } from '@sapper/app'
   import { lists, ordered } from '../stores/lists'
 
-  // Props
-  export let editMode = false
-
   // Initialize the list store
   onMount(lists.init)
 
@@ -21,20 +18,28 @@
         alert(err)
       })
   }
+
+  async function toggleEditable(id) {
+    lists.update(id, { editable: !$lists[id].editable })
+    if (!$lists[id].editable) {
+      await lists.commit(id)
+    }
+  }
 </script>
 
 <div class="card">
 {#if $ordered.length > 0}
 {#each $ordered as list}
   <div class="row {!list.title.length && 'empty'}">
-    <header contenteditable={editMode} on:input={(e) => lists.update(list.id, { title: e.target.textContent })}>{list.title}</header>
+    <header contenteditable={list.editable} on:input={(e) => lists.update(list.id, { title: e.target.textContent })}>{list.title}</header>
     <div class="icons">
       <i class="fas fa-clipboard-list clickable"></i>
-      <i class="fas fa-times clickable" on:click|preventDefault={() => console.log('delete time')}></i>
+      <i class="fas fa-edit clickable {list.editable && 'bold'}" on:click={toggleEditable(list.id)}></i>
+      <i class="fas fa-times clickable" on:click={lists.delete(list.id)}></i>
     </div>
   </div>
 {/each}
-  <div class="row" on:click={newList}><i class="fas fa-plus"></i></div>
+  <div class="row clickable" on:click={newList}><i class="fas fa-plus"></i></div>
 {:else}
   <div class="row noborder">
     <header>It's empty here...</header>
