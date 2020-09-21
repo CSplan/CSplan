@@ -5,10 +5,8 @@
   import user from '../stores/user'
   import { route } from '../route'
   import { addToStore } from '../db'
-  import { rsa, aes, makeSalt, ABencode, ABdecode } from 'cs-crypto'
+  import { ABdecode, ABencode, aes, makeSalt, rsa } from 'cs-crypto'
 
-  // If the user is already logged in, redirect them
-  $: $user.isLoggedIn && goto('/')
 
   // Form data
   let fields = {
@@ -28,6 +26,10 @@
     success: 3
   }
   let state = states.resting
+
+    // If the user is already logged in, redirect them
+    $: $user.isLoggedIn && state === states.resting && goto('/')
+
 
   function updateField(e) {
     const field = e.target.getAttribute('data-field')
@@ -51,15 +53,17 @@
 
     state = states.submitting
 
-    stateMsg = 'Generating your Authentication Key'
+    // Authenticate
     try {
+      stateMsg = 'Generating your Authentication Key'
       const salt = makeSalt(16)
-      const authKey = await deriveKey('AES-GCM', fields.password, salt, true)
-      const exportedKey = await exportKey(authKey, salt)
-      await fetch(route('/register'), {
+      const authKey = await aes.deriveKey('AES-GCM', fields.password, salt, true)
+      const exportedKey = await aes.exportKey(authKey, salt)
+      stateMsg = 'Creating your account'
+      let res = await fetch(route('/register'), {
         method: 'POST',
         headers: {
-          'Content-Type': 'application-json'
+          'Content-Type': 'application/json'
         },
         credentials: 'include',
         body: JSON.stringify({
@@ -67,73 +71,13 @@
           key: exportedKey
         })
       })
-      let res = await fetch(route('/challenge?action=request'), {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          email: fields.email
-        })
-      })
-      /** @type {Challenge} */
-      const challenge = await res.json()
-      // Decrypt the challenge data
-      const solved = await decrypt(challenge.data, authKey)
-      res = await fetch(route(`/challenge/${challenge.id}?action=submit`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        credentials: 'include',
-        body: JSON.stringify({
-          data: solved
-        })
-      }))
-      const tokens = await res.json()
-      console.log(tokens)
-      return
-    } catch (err) {
-      state = states.error
-      error = err instanceof Error ? err.message : err
-      return
-    }
-
-    stateMsg = 'Generating your master keypair'
-    try {
-      const { privateKey, publicKey } = await generateKeypair(2048)
-      const PBKDF2salt = makeSalt(16)
-      const encodedSalt = ABencode(PBKDF2salt)
-      const encodedPublicKey = await exportPublicKey(publicKey)
-      
-      stateMsg = 'Creating your account'
-      let res = await fetch(route('/register'), {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          email: fields.email,
-          keys: {
-            PBKDF2salt: encodedSalt,
-            publicKey: encodedPublicKey
-          }
-        })
-      })
       let body = await res.json()
       if (res.status !== 201) {
-        throw new Error(body.message || 'Failed to register.')
+        throw new Error(body.message || 'Failed to register your account.')
       }
+      const userid = body.id
 
-      // Add to IDB
-      stateMsg = 'Storing your master keypair'
-      await addToStore('keys', {
-        id: body.id,
-        publicKey,
-        privateKey
-      })
-
-      // Request a challenge from the API
+      stateMsg = 'Logging in'
       res = await fetch(route('/challenge?action=request'), {
         method: 'POST',
         headers: {
@@ -143,19 +87,68 @@
           email: fields.email
         })
       })
+      /** @type {Challenge} */
       body = await res.json()
-
-      // Solve the challenge
-      const decoded = ABdecode(body.data)
-      const decrypted = await crypto.subtle.decrypt(
+      const [iv, encrypted] = [ABdecode(body.data).slice(0, 12), ABdecode(body.data).slice(12)]
+      // Decrypt the challenge data
+      const solved = await crypto.subtle.decrypt(
         {
-          name: 'RSA-OAEP'
+          name: 'AES-GCM',
+          iv
         },
-        privateKey,
-        decoded
+        authKey,
+        encrypted
       )
-      console.log(decrypted)
+
+      res = await fetch(route(`/challenge/${body.id}?action=submit`), {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        credentials: 'include',
+        body: JSON.stringify({
+          data: ABencode(solved)
+        })
+      })
+			const { CSRFtoken } = await res.json()
+			
+			// Store user info and CSRF token
+      user.login({
+        email: fields.email,
+        id: userid
+			})
+      localStorage.setItem('CSRF-Token', CSRFtoken)
+      
+      // Generate the user's master RSA keypair
+      stateMsg = 'Generating your master RSA keypair'
+      const { publicKey, privateKey } = await rsa.generateKeypair(2048)
+      const PBKDF2salt = makeSalt(16)
+      const encryptedPrivateKey = (await rsa.wrapPrivateKey(privateKey, fields.password, PBKDF2salt, 'AES-GCM')).split(':')[1]
+      // Store them locally
+      await addToStore('keys', {
+        id: userid,
+        publicKey,
+        privateKey
+      })
+      // And store them on the API
+      res = await fetch(route('/keys'), {
+        method: 'POST',
+        body: JSON.stringify({
+          publicKey: await rsa.exportPublicKey(publicKey),
+          privateKey: encryptedPrivateKey,
+          PBKDF2salt: ABencode(PBKDF2salt)
+        }),
+        headers: {
+          'Content-Type': 'application/json',
+          'CSRF-Token': localStorage.getItem('CSRF-Token')
+        }
+      })
+      if (res.status !== 201) {
+        const body = await res.json()
+        throw new Error(body.message || 'Failed to store master RSA keypair.')
+      }
     } catch (err) {
+      user.logout()
       state = states.error
       error = err instanceof Error ? err.message : err
       return

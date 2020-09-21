@@ -1,14 +1,18 @@
 <script>
+  import { onMount } from 'svelte'
   import { goto } from '@sapper/app'
   import { lists, ordered } from '../stores/lists'
 
   // Props
   export let editMode = false
 
+  // Initialize the list store
+  onMount(lists.init)
+
   async function newList() {
     // Start with a blank template
     const list = {
-      title: '',
+      title: 'hi',
       items: []
     }
     await lists.create(list)
@@ -20,14 +24,17 @@
 </script>
 
 <div class="card">
-<pre>{JSON.stringify($lists, null, 2)}</pre>
 {#if $ordered.length > 0}
 {#each $ordered as list}
-  <div class="row {!list.title.length && 'empty'}" on:click={() => !editMode && goto(`/todos/${list.id}`)}>
-    <i class="fas fa-minus"></i>
+  <div class="row {!list.title.length && 'empty'}">
     <header contenteditable={editMode} on:input={(e) => lists.update(list.id, { title: e.target.textContent })}>{list.title}</header>
+    <div class="icons">
+      <i class="fas fa-clipboard-list clickable"></i>
+      <i class="fas fa-times clickable" on:click|preventDefault={() => console.log('delete time')}></i>
+    </div>
   </div>
 {/each}
+  <div class="row" on:click={newList}><i class="fas fa-plus"></i></div>
 {:else}
   <div class="row noborder">
     <header>It's empty here...</header>
@@ -48,7 +55,19 @@
   .row {
     color: initial;
     text-align: center;
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
     position: relative;
+  }
+  .row .icons {
+    position: absolute;
+    right: 0;
+    margin: 0.25rem;
+  }
+  .row .icons i:hover {
+    transform: scale(1.25)
   }
   .row:hover {
     background: whitesmoke;
@@ -57,8 +76,8 @@
   .row:not(:last-child) {
     border-bottom: #ccc 1px solid;
   }
-  /* Give the correct pointer effect for a clickable div */
-  div:not(.empty) {
+  /* Give the correct pointer effect for a clickable item */
+  .clickable {
     cursor: pointer;
   }
   .row.noborder {
@@ -67,15 +86,7 @@
   .row.empty {
     min-height: 3rem;
   }
-  button {
-    margin: 1rem 0;
-  }
-
-  /* Position enum icons */
-  .row i {
-    top: calc(25% + 0.25rem);
-    position: absolute;
-    left: 0.5rem;
-    color: rgb(60, 60, 60);
+  button, i {
+    margin: 0.5rem;
   }
 </style>

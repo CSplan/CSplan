@@ -5,6 +5,7 @@
   let editMode = false
   async function toggleEditMode() {
     editMode = !editMode
+    // If the user is exiting edit mode, commit the changes they made
     if (!editMode) {
       await lists.commitUnsaved()
     }

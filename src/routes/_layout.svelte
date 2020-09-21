@@ -19,8 +19,12 @@
           },
           credentials: 'include'
         })
+        const body = await res.json()
         if (res.status === 200) {
-          user.login(JSON.parse(localStorage.getItem('user')))
+          user.login({
+            ...JSON.parse(localStorage.getItem('user')),
+            id: body.id
+          })
         } else {
           throw new AuthError({
             code: 'NOT_LOGGED_IN'

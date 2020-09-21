@@ -10,7 +10,7 @@ const dev = mode === 'development'
 
 const onwarn = (warning, onwarn) => ((warning.code === 'CIRCULAR_DEPENDENCY' && /[/\\]@sapper[/\\]/.test(warning.message))) || onwarn(warning)
 
-export default {
+module.exports = {
   client: {
     input: sapper.client.input(),
     output: sapper.client.output(),

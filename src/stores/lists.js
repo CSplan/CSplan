@@ -1,8 +1,11 @@
 import { writable, derived, get } from 'svelte/store'
 import { route } from '../route'
+import user from './user'
 import { getDB, addToStore, getByKey, updateWithKey } from '../db'
 import userStore from './user'
 import { aes, rsa } from 'cs-crypto'
+import { unwrapKey } from 'cs-crypto/lib/rsa'
+import {  deepDecrypt } from 'cs-crypto/lib/aes'
 const { generateKey, deepEncrypt } = aes
 const { wrapKey } = rsa
 
@@ -12,6 +15,55 @@ function create() {
 
   return {
     subscribe,
+    async init() {
+      // Get all todo lists from the API
+      let res = await fetch(route('/todos'), {
+        method: 'GET',
+        headers: {
+          'CSRF-Token': localStorage.getItem('CSRF-Token'),
+          'Content-Type': 'application/json'
+        }
+      })
+      let body = await res.json()
+      if (res.status !== 200) {
+        throw new Error(body.message || 'Failed init.')
+      }
+
+      // Iterate through each list
+      for (const list of body) {
+        // See if the cache matches the list
+        const cached = await getByKey('lists', list.id)
+        if (cached && cached.checksum === list.meta.checksum) {
+          // Add the cached version to state and continue
+          update((store) => {
+            store[list.id] = cached
+            return store
+          })
+          continue
+        }
+
+        // Decrypt the list's AES key
+        const { privateKey } = await getByKey('keys', get(user).user.id)
+        const cryptoKey = await unwrapKey('AES-GCM:'+list.meta.cryptoKey, privateKey)
+        // Use the list's key to decrypt all information (and do some restructuring)
+        const decrypted = {
+          id: list.id,
+          ...await deepDecrypt({
+            title: list.title,
+            items: list.items
+          }, cryptoKey),
+          cryptoKey,
+          checksum: list.meta.checksum
+        }
+        // Cache the decrypted list
+        await updateWithKey('lists', decrypted)
+        // Add to store
+        update((store) => {
+          store[list.id] = decrypted
+          return store
+        })
+      }
+    },
     async create(list) {
       // Validate the list
       if (typeof list !== 'object') {
@@ -85,7 +137,6 @@ function create() {
       if (!list) {
         throw new ReferenceError('List passed by ID does not exist')
       }
-      console.log(list)
       const encrypted = await deepEncrypt({
         title: list.title,
         items: list.items

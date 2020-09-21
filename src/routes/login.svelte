@@ -3,7 +3,7 @@
   import navbar from '../components/navbar.svelte'
   import user from '../stores/user'
   import { route } from '../route'
-  import { rsa, ABdecode } from 'cs-crypto'
+  import { rsa, ABdecode, ABencode, aes } from 'cs-crypto'
   const { unwrapPrivateKey, importPublicKey } = rsa
   import { getDB, addToStore } from '../db'
   $: $user.isLoggedIn && goto('/')
@@ -36,51 +36,82 @@
     }
 
     try {
-      const res = await fetch(route('/login'), {
+
+      // Request a challenge for the user
+      let res = await fetch(route('/challenge?action=request'), {
         method: 'POST',
+        body: JSON.stringify({
+          email: fields.email
+        }),
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      })
+      /** @type {Challenge} */
+      let body = await res.json()
+      if (res.status !== 200) {
+        throw new Error(body.message || 'Failed to request an authentication challenge.')
+      }
+      // Run PBKDF2 using the user's password and salt
+      const authKey = await aes.deriveKey('AES-GCM', fields.password, ABdecode(body.salt))
+      // Slice iv and encrypted challenge data
+      const [iv, encrypted] = [ABdecode(body.data).slice(0, 12), ABdecode(body.data).slice(12)]
+      // Decrypt the challenge data (and encode for transport)
+      const decrypted = ABencode(await crypto.subtle.decrypt(
+        {
+          name: 'AES-GCM',
+          iv
+        },
+        authKey,
+        encrypted
+      ).catch((err) => {
+        throw new Error('Invalid password.') // Show decryption errors as 'invalid password'
+      }))
+      // Submit the challenge
+      res = await fetch(route(`/challenge/${body.id}?action=submit`), {
+        method: 'POST',
+        body: JSON.stringify({
+          data: decrypted
+        }),
         headers: {
           'Content-Type': 'application/json'
         },
-        credentials: 'include',
-        body: JSON.stringify(fields)
+        credentials: 'include'
       })
-      const body = await res.json()
+      body = await res.json()
       if (res.status !== 200) {
-        throw new Error(body.message || `Unknown error (status ${res.status}`)
+        throw new Error(body.message || 'Failed to submit challenge.')
       }
-
-      // Update application state
+      // Store the CSRF token in localstorage
       localStorage.setItem('CSRF-Token', body.CSRFtoken)
-      user.login({ id: body.id, email: fields.email })
-    } catch (err) {
-      state = states.error
-      error = err.message
-      return
-    }
+      user.login({
+        email: fields.email,
+        id: body.id
+      })
 
-    // Retrieve and decrypt keys
-    try {
-      const res = await fetch(route('/keys'), {
+      // Retrieve and decrypt the user's master RSA keypair
+      res = await fetch(route('/keys'), {
         method: 'GET',
         headers: {
           'CSRF-Token': localStorage.getItem('CSRF-Token')
-        },
-        credentials: 'include'
+        }
       })
-      const body = await res.json()
-      
-      // Import the user's master keypair
-      const publicKey = await importPublicKey(body.publicKey)
-      const PBKDF2salt = ABdecode(body.PBKDF2salt)
-      const privateKey = await unwrapPrivateKey('AES-GCM:' + body.privateKey, fields.password, PBKDF2salt)
-
-      await getDB()
-      await addToStore('keys', {
-        id: $user.user.id,
+      body = await res.json()
+      if (res.status !== 200) {
+        throw new Error(body.message || 'Failed to retrieve master RSA keypair.')
+      }
+      // Decrypt the user's private key
+      const privateKey = await rsa.unwrapPrivateKey('AES-GCM:'+body.privateKey, fields.password, ABdecode(body.PBKDF2salt))
+      const publicKey = await rsa.importPublicKey(body.publicKey)
+      // Store in IDB
+      addToStore('keys', {
+        id: $user.id,
         publicKey,
         privateKey
       })
-      goto('/') // TODO: redirect to user dashboard page
+
+      // Go home an authenticated manperson
+      goto('/')
     } catch (err) {
       state = states.error
       error = err.message
