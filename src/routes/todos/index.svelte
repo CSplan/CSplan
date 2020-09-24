@@ -2,23 +2,57 @@
   import navbar from '../../components/navbar.svelte'
   import TitleView from '../../components/titleView.svelte'
   import lists from '../../stores/lists'
-  let editMode = false
-  async function toggleEditMode() {
-    editMode = !editMode
-    // If the user is exiting edit mode, commit the changes they made
-    if (!editMode) {
+
+  // Save state management
+  let saveStates = {
+    resting: 0,
+    saving: 1,
+    success: 2,
+    failed: 3
+  }
+  let saveState = saveStates.resting
+  async function save() {
+    saveState = saveStates.saving
+    try {
       await lists.commitUnsaved()
+    } catch (err) {
+      saveState = saveStates.failed
+      return
     }
+    // Show a checkmark and clear after .1s
+    saveState = saveStates.success
+    setTimeout(() => {
+      saveState = saveStates.resting
+    }, 100)
+  }
+
+  // Subscribe to changes in save states and update the button's icon accordingly
+  /** @type {HTMLElement} */
+  let saveButton
+  $: saveButton = process.browser ? document.querySelector('[data-role="save-icon"]') : null
+  $: switch (process.browser ? saveState : null) { // Pass null to avoid matching any case if there is no DOM
+  case saveStates.resting:
+    saveButton.className = 'fas fa-save'
+    break
+  case saveStates.saving:
+    saveButton.className = 'fas fa-circle'
+    break
+  case saveStates.success:
+    saveButton.className = 'fas fa-check'
+    break
+  case saveStates.failed:
+    saveButton.className = 'fas fa-times'
+    break
   }
 </script>
 
 <svelte:component this={navbar}></svelte:component>
 
 <main>
-  <button class={editMode ? 'bold' : 'transparent off'} on:click={toggleEditMode}>
-    <i class="fas fa-edit"></i>
+  <button class="bold" on:click={save}>
+    <i data-role="save-icon" class="fas fa-save"></i>
   </button>
-  <svelte:component this={TitleView} {editMode}></svelte:component>
+  <svelte:component this={TitleView}></svelte:component>
 </main>
 
 <style>
@@ -34,12 +68,5 @@
     left: 15rem;
     top: 3rem;
     border-radius: 10%;
-  }
-
-  button.off {
-    border: black solid 2px;
-  }
-  button.off i {
-    color: black;
   }
 </style>

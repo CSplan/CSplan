@@ -3,6 +3,8 @@
   import { goto } from '@sapper/app'
   import { lists, ordered } from '../stores/lists'
 
+  const dev = process.env.NODE_ENV === 'development'
+
   // Initialize the list store
   onMount(lists.init)
 
@@ -29,9 +31,15 @@
 
 <div class="card">
 {#if $ordered.length > 0}
-{#each $ordered as list}
+{#each $ordered as list, i}
   <div class="row {!list.title.length && 'empty'}">
-    <header contenteditable={list.editable} on:input={(e) => lists.update(list.id, { title: e.target.textContent })}>{list.title}</header>
+    <div class="icons-left">
+      <div class="column">
+        <i class="fas fa-arrow-up clickable" on:click={lists.move(list.id, list.index-1)}></i>
+        <i class="fas fa-arrow-down clickable" on:click={lists.move(list.id, list.index+1)}></i>
+      </div>
+    </div>
+    <header data-id={list.id} contenteditable={list.editable} on:input={(e) => lists.update(list.id, { title: e.target.textContent })}>{list.title}</header>
     <div class="icons">
       <i class="fas fa-clipboard-list clickable"></i>
       <i class="fas fa-edit clickable {list.editable && 'bold'}" on:click={toggleEditable(list.id)}></i>
@@ -40,6 +48,9 @@
   </div>
 {/each}
   <div class="row clickable" on:click={newList}><i class="fas fa-plus"></i></div>
+  {#if dev}
+  <pre>{JSON.stringify($lists, null, 2)}</pre>
+  {/if}
 {:else}
   <div class="row noborder">
     <header>It's empty here...</header>
@@ -69,6 +80,11 @@
   .row .icons {
     position: absolute;
     right: 0;
+    margin: 0.25rem;
+  }
+  .row .icons-left {
+    position: absolute;
+    left: 0;
     margin: 0.25rem;
   }
   .row .icons i:hover {

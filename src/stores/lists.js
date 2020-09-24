@@ -35,8 +35,9 @@ function create() {
         const cached = await getByKey('lists', list.id)
         if (cached && cached.checksum === list.meta.checksum) {
           // Add the cached version to state and continue
+          await updateWithKey('lists', { id: list.id, index: list.meta.index }) // Update our index
           update((store) => {
-            store[list.id] = cached
+            store[list.id] = { ...cached, index: list.meta.index }
             return store
           })
           continue
@@ -53,7 +54,8 @@ function create() {
             items: list.items
           }, cryptoKey),
           cryptoKey,
-          checksum: list.meta.checksum
+          checksum: list.meta.checksum,
+          index: list.meta.index
         }
         // Cache the decrypted list
         await updateWithKey('lists', decrypted)
@@ -137,10 +139,15 @@ function create() {
       if (!list) {
         throw new ReferenceError('List passed by ID does not exist')
       }
-      const encrypted = await deepEncrypt({
-        title: list.title,
-        items: list.items
-      }, list.cryptoKey)
+      const encrypted = {
+        ...await deepEncrypt({
+          title: list.title,
+          items: list.items
+        }, list.cryptoKey),
+        meta: {
+          index: list.index
+        }
+      }
 
       // Commit
       const res = await fetch(route(`/todos/${id}`), {
@@ -203,6 +210,28 @@ function create() {
           await this.commit(list.id)
         }
       }
+    },
+    async move(id, index) {
+      const oldIndex = get(this)[id].index
+      const oldOrdered = get(ordered)
+      // Validate the index
+      if (index >= oldOrdered.length || index < 0 || index === oldIndex) {
+        return
+      }
+
+      // Magic shifting calculations (see my svelte repl for detailed comments)
+      if (index > oldIndex){
+        for (let i = oldIndex; i <= index; i++) {
+          this.update(oldOrdered[i].id, { index: oldOrdered[i].index - 1 })
+        }
+      } else {
+        for (let i = index; i < oldIndex; i++) {
+          this.update(oldOrdered[i].id, { index: oldOrdered[i].index + 1 })
+        }
+      }
+
+      // Move the selected item to the new index
+      this.update(id, { index })
     }
   }
 }
