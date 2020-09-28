@@ -2,7 +2,11 @@
   import navbar from '../../components/navbar.svelte'
   import TitleView from '../../components/titleView.svelte'
   import lists from '../../stores/lists'
+  import { onMount } from 'svelte'
 
+  // Notify reactive assignments when the DOM is mounted
+  let isMounted = false
+  onMount(() => isMounted = true)
   // Save state management
   let saveStates = {
     resting: 0,
@@ -29,8 +33,8 @@
   // Subscribe to changes in save states and update the button's icon accordingly
   /** @type {HTMLElement} */
   let saveButton
-  $: saveButton = process.browser ? document.querySelector('[data-role="save-icon"]') : null
-  $: switch (process.browser ? saveState : null) { // Pass null to avoid matching any case if there is no DOM
+  $: saveButton = isMounted ? document.querySelector('[data-role="save-icon"]') : null
+  $: if (isMounted) switch (saveState) { // Pass null to avoid matching any case if there is no DOM
   case saveStates.resting:
     saveButton.className = 'fas fa-save'
     break

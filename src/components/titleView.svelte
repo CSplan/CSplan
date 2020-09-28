@@ -27,28 +27,46 @@
       await lists.commit(id)
     }
   }
+
+  function ondragstart(evt) {
+    // Store the item's id in the data transfer
+    evt.dataTransfer.setData("text/plain", evt.target.getAttribute('data-id'))
+  }
+
+  function ondragover(evt) {
+    evt.preventDefault()
+    // Set a blue higlight
+    evt.target.style.border = 'var(--bold-blue) 2px solid'
+    evt.target.style['border-radius'] = '0.3rem'
+  }
+
+  function ondragleave(evt) {
+    evt.preventDefault()
+    evt.target.style = ''
+  }
+
+  async function ondrop(evt) {
+    evt.target.style = ''
+    const index = parseInt(evt.target.getAttribute('data-index'))
+    const id = evt.dataTransfer.getData("text/plain")
+    await lists.move(id, index)
+  }
 </script>
 
 <div class="card">
 {#if $ordered.length > 0}
 {#each $ordered as list, i}
-  <div class="row {!list.title.length && 'empty'}">
-    <div class="icons-left">
-      <div class="column">
-        <i class="fas fa-arrow-up clickable" on:click={lists.move(list.id, list.index-1)}></i>
-        <i class="fas fa-arrow-down clickable" on:click={lists.move(list.id, list.index+1)}></i>
-      </div>
-    </div>
+  <div data-id={list.id} data-index={i} class="row {!list.title.length && 'empty'}" draggable="true" on:dragstart={ondragstart} on:dragover={ondragover} on:dragleave={ondragleave} on:dragexit={ondragleave} on:drop={ondrop}>
     <header data-id={list.id} contenteditable={list.editable} on:input={(e) => lists.update(list.id, { title: e.target.textContent })}>{list.title}</header>
     <div class="icons">
-      <i class="fas fa-clipboard-list clickable"></i>
+      <i class="fas fa-clipboard-list clickable" on:click={goto(`/todos/${list.id}`)}></i>
       <i class="fas fa-edit clickable {list.editable && 'bold'}" on:click={toggleEditable(list.id)}></i>
       <i class="fas fa-times clickable" on:click={lists.delete(list.id)}></i>
     </div>
   </div>
 {/each}
   <div class="row clickable" on:click={newList}><i class="fas fa-plus"></i></div>
-  {#if dev}
+  {#if false}
   <pre>{JSON.stringify($lists, null, 2)}</pre>
   {/if}
 {:else}
