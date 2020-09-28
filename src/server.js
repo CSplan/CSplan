@@ -1,29 +1,42 @@
 import sirv from 'sirv'
 import polka from 'polka'
-import compression from 'compression'
+import spdy from 'spdy'
 import * as sapper from '@sapper/server'
+import fs from 'fs'
 
-const router = polka() // Initialize the router realy so dynamic middleware may be loaded
 const { PORT, NODE_ENV } = process.env
 const dev = NODE_ENV === 'development'
+
+// Initialize spdy server and router
+const server = spdy.createServer({
+  cert: fs.readFileSync(`${process.env.CERTSDIR}/CSplan.crt`),
+  key: fs.readFileSync(`${process.env.CERTSDIR}/CSplan.key`),
+  spdy: {
+    protocols: ['h2']
+  }
+})
+const router = polka({ server })
 
 // Enable the http proxy if runnning in development
 if (dev) {
   const { createProxyMiddleware } = require('http-proxy-middleware')
   const proxy = createProxyMiddleware({
-    target: 'http://localhost:3000',
+    target: 'https://localhost:3000',
     pathRewrite: {
       '/api': ''
-    }
+    },
+    secure: false // Allow self signed certificates in dev
   })
-  router.use('/api', proxy) // Proxy request that starts with /api
+  router
+    .use('/api', proxy) // Proxy request that starts with /api
+    .use(sirv('static', { dev })) // Only serve static files in dev (nginx handles this in prod)
 }
 router
   .use(
-    compression({ threshold: 0 }),
-    sirv('static', { dev }),
     sapper.middleware()
-  )
-  .listen(PORT, err => {
-    if (err) console.error(err)
+  ).listen(PORT, (err) => {
+    if (err) {
+      console.error(err)
+    }
   })
+

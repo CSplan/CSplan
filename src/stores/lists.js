@@ -219,19 +219,20 @@ function create() {
         return
       }
 
+
       // Magic shifting calculations (see my svelte repl for detailed comments)
       if (index > oldIndex){
         for (let i = oldIndex; i <= index; i++) {
-          this.update(oldOrdered[i].id, { index: oldOrdered[i].index - 1 })
+          await this.update(oldOrdered[i].id, { index: oldOrdered[i].index - 1 })
         }
       } else {
         for (let i = index; i < oldIndex; i++) {
-          this.update(oldOrdered[i].id, { index: oldOrdered[i].index + 1 })
+          await this.update(oldOrdered[i].id, { index: oldOrdered[i].index + 1 })
         }
       }
 
       // Move the selected item to the new index
-      this.update(id, { index })
+      await this.update(id, { index })
     }
   }
 }

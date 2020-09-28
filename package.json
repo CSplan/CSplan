@@ -15,6 +15,7 @@
     "cs-crypto": "^0.6.5",
     "polka": "next",
     "sirv": "^1.0.0",
+    "spdy": "^4.0.2",
     "svelte-preprocess": "^4.0.9"
   },
   "devDependencies": {
