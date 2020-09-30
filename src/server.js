@@ -4,7 +4,8 @@ import spdy from 'spdy'
 import * as sapper from '@sapper/server'
 import fs from 'fs'
 
-const { PORT, NODE_ENV } = process.env
+const { NODE_ENV } = process.env
+const PORT = '3030'
 const dev = NODE_ENV === 'development'
 
 // Initialize spdy server and router

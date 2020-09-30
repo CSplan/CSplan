@@ -1,5 +1,6 @@
 <script>
   import { onMount } from 'svelte'
+  import { flip } from 'svelte/animate'
   import { goto } from '@sapper/app'
   import { lists, ordered } from '../stores/lists'
   import { contenteditableKeypress } from '../misc/contenteditable'
@@ -57,8 +58,8 @@
   </div>
 {:then}
   {#if $ordered.length > 0}
-  {#each $ordered as list, i}
-    <div data-id={list.id} data-index={i} class="row {!list.title.length && 'empty'}" draggable="true" on:dragstart={ondragstart} on:dragover={ondragover} on:dragleave={ondragleave} on:dragexit={ondragleave} on:drop={ondrop}>
+  {#each $ordered as list, i (list.id)}
+    <div animate:flip={{ duration: 200 }} data-id={list.id} data-index={i} class="row {!list.title.length && 'empty'}" draggable="true" on:dragstart={ondragstart} on:dragover={ondragover} on:dragleave={ondragleave} on:dragexit={ondragleave} on:drop={ondrop} >
       <header data-id={list.id} contenteditable on:keypress={contenteditableKeypress} on:blur={() => lists.commit(list.id)} on:input={(e) => lists.update(list.id, { title: e.target.textContent })}>{list.title}</header>
       <div class="icons">
         <i class="fas fa-clipboard-list clickable" on:click={goto(`/todos/${list.id}`)}></i>
