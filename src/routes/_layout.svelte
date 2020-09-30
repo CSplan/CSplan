@@ -12,6 +12,7 @@
   // Authenticate the user before providing clientside login information
   onMount(async () => {
     if (!$user.isLoggedIn && localStorage.getItem('isLoggedIn')) {
+      user.login(JSON.parse(localStorage.getItem('user'))) // Temporarily pretend the user is authenticated while we await verification
       try {
         const res = await fetch(route('/whoami'), {
           headers: {

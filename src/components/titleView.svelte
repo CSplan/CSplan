@@ -2,9 +2,9 @@
   import { onMount } from 'svelte'
   import { goto } from '@sapper/app'
   import { lists, ordered } from '../stores/lists'
-  import spinner from './spinner.svelte'
+  import { contenteditableKeypress } from '../misc/contenteditable'
   import Modal, { toggleModal } from './createListModal.svelte'
-import Spinner from './spinner.svelte'
+  import Spinner from './spinner.svelte'
 
   // State pulled from child components
   let isLoading = false
@@ -52,17 +52,16 @@ import Spinner from './spinner.svelte'
   <div class="row">
     <div class="column">
       <header>Loading Content...</header>
-      <svelte:component this={spinner} size="3rem"></svelte:component>
+      <Spinner size="3rem" vm="0.5rem"/>
     </div>
   </div>
 {:then}
   {#if $ordered.length > 0}
   {#each $ordered as list, i}
     <div data-id={list.id} data-index={i} class="row {!list.title.length && 'empty'}" draggable="true" on:dragstart={ondragstart} on:dragover={ondragover} on:dragleave={ondragleave} on:dragexit={ondragleave} on:drop={ondrop}>
-      <header data-id={list.id} contenteditable={list.editable} on:input={(e) => lists.update(list.id, { title: e.target.textContent })}>{list.title}</header>
+      <header data-id={list.id} contenteditable on:keypress={contenteditableKeypress} on:blur={() => lists.commit(list.id)} on:input={(e) => lists.update(list.id, { title: e.target.textContent })}>{list.title}</header>
       <div class="icons">
         <i class="fas fa-clipboard-list clickable" on:click={goto(`/todos/${list.id}`)}></i>
-        <i class="fas fa-edit clickable {list.editable && 'bold'}" on:click={toggleEditable(list.id)}></i>
         <i class="fas fa-times clickable" on:click={lists.delete(list.id)}></i>
       </div>
     </div>
@@ -104,11 +103,6 @@ import Spinner from './spinner.svelte'
   .row .icons {
     position: absolute;
     right: 0;
-    margin: 0.25rem;
-  }
-  .row .icons-left {
-    position: absolute;
-    left: 0;
     margin: 0.25rem;
   }
   .row .icons i:hover {

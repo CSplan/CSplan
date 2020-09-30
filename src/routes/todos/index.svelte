@@ -52,7 +52,7 @@
 
 <svelte:component this={navbar}></svelte:component>
 
-<main>
+<main class="container">
   <button class="bold" on:click={save}>
     <i data-role="save-icon" class="fas fa-save"></i>
   </button>
@@ -60,17 +60,11 @@
 </main>
 
 <style>
-  main {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    position: relative;
-  }
-
   button {
     position: absolute;
     left: 15rem;
     top: 3rem;
     border-radius: 10%;
   }
+  
 </style>

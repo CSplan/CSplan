@@ -32,7 +32,8 @@
     listSkeleton.items.push({
       title: '',
       description: '',
-      category: ''
+      category: '',
+      done: false
     })
     listSkeleton = listSkeleton // Trigger reactivity render
     // Try to focus element every 50ms (we don't have an event fired when it is rendered, so this is the most precision available)
