@@ -1,8 +1,6 @@
 import { writable, derived, get } from 'svelte/store'
 import { route } from '../route'
-import user from './user'
 import { getDB, addToStore, getByKey, updateWithKey, deleteFromStore } from '../db'
-import userStore from './user'
 import { aes, rsa } from 'cs-crypto'
 import { unwrapKey } from 'cs-crypto/lib/rsa'
 import {  deepDecrypt } from 'cs-crypto/lib/aes'
@@ -35,7 +33,7 @@ function create() {
         const cached = await getByKey('lists', list.id)
         if (cached && cached.checksum === list.meta.checksum) {
           // Add the cached version to state and continue
-          await updateWithKey('lists', { id: list.id, index: list.meta.index }) // Update our index
+          await updateWithKey('lists', { ...cached, id: list.id, index: list.meta.index }) // Update our index
           update((store) => {
             store[list.id] = { ...cached, index: list.meta.index }
             return store
@@ -44,7 +42,8 @@ function create() {
         }
 
         // Decrypt the list's AES key
-        const { privateKey } = await getByKey('keys', get(user).user.id)
+        const { id } = JSON.parse(localStorage.getItem('user'))
+        const { privateKey } = await getByKey('keys', id)
         const cryptoKey = await unwrapKey('AES-GCM:'+list.meta.cryptoKey, privateKey)
         // Use the list's key to decrypt all information (and do some restructuring)
         const decrypted = {
@@ -73,7 +72,7 @@ function create() {
       }
 
       // Get the user's ID
-      const user = get(userStore).user
+      const user = JSON.parse(localStorage.getItem('user'))
       // Get user's master public key
       const { publicKey } = await getByKey('keys', user.id)
       // Generate a new AES-256 key

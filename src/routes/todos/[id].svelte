@@ -5,30 +5,40 @@
 </script>
 
 <script>
-  import lists from '../../stores/lists'
   import { getByKey } from '../../db'
   import { onMount } from 'svelte'
   import navbar from '../../components/navbar.svelte'
 
-  // TODO: this is horrible
   export let id
-  let list = {}
-  let listFound = false
-    list = $lists[id]
-  if (!list) {
-    getByKey('lists', id).then(
-      (l) => {
-        list = l
-      },
-      (err) => {
-        // 404
-        goto('/')
-      }
-    )
-  }
-    
-  listFound = true
+  let listPromise
+  onMount(() => listPromise = getList(id))
 
+  // TODO: this is horrible
+  async function getList(id) {
+    // Try to get from IDB
+    const list = await getByKey('lists', id)
+    return list
+  }
 </script>
 
 <svelte:component this={navbar}></svelte:component>
+
+{#await listPromise then list}
+{#if list && list.id}
+<div class="card">
+  <header>{list.title}</header>
+  {#each list.items as item}
+  <div>
+    <header>{item.title}</header>
+  </div>
+  {/each}
+</div>
+{/if}
+{/await}
+
+<style>
+  .card {
+    margin-top: 10vh;
+    min-width: 800px;
+  }
+</style>
