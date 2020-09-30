@@ -1,8 +1,9 @@
 <script>
   export let size = '1.25rem'
+  export let vm = '0rem'
 </script>
 
-<i class="fas fa-circle-notch" style="--size: {size};"></i>
+<i class="fas fa-circle-notch" style="--size: {size}; --vm: {vm};"></i>
 
 <style>
   @keyframes spin {
@@ -10,6 +11,7 @@
     to {transform: rotate(359deg);}
   }
   i.fa-circle-notch {
+    margin: var(--vm) 0;
     font-size: var(--size);
     animation-name: spin;
     animation-duration: 1.5s;
