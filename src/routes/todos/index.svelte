@@ -66,5 +66,10 @@
     top: 3rem;
     border-radius: 10%;
   }
+  @media screen and (max-width: 960px) {
+    main.container {
+      max-width: 100%;
+    }
+  }
   
 </style>

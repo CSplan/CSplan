@@ -1,8 +1,8 @@
 <script>
-  import { onMount, onDestroy } from 'svelte'
+  import { onMount, onDestroy, tick } from 'svelte'
   import lists from '../stores/lists'
   import Spinner from './spinner.svelte'
-  import { contenteditableKeypress } from '../misc/contenteditable'
+  import { contenteditableKeypress, formElementIsFocused } from '../misc/contenteditable'
   import { fade } from 'svelte/transition'
 
   export let id
@@ -31,11 +31,13 @@
     document.addEventListener('keypress', handleKeypress)
   })
   onDestroy(() => {
-    document.removeEventListener('keypress', handleKeypress)
+    process.browser && document.removeEventListener('keypress', handleKeypress)
   })
 
   function handleKeypress(evt) {
-    if (evt.key.toLowerCase() === 's') {
+    if (formElementIsFocused()) {
+      return
+    } else if (evt.key.toLowerCase() === 's') {
       saveAndCommit()
     }
   }
@@ -47,11 +49,19 @@
       items: updatedItems
     })
     list = $lists[id] // Trigger render update
+    // Immediately commit the change if on mobile for a better UX
+    if (screen.width < 960) {
+      await saveAndCommit()
+    }
   }
 
   async function addItem() {
     list.items.push({...itemSkeleton}) // js randomly implementing pointers amirite
     list.items = list.items
+    // Wait for the DOM to update and focus the new item 
+    await tick()
+    document.querySelector(`[data-index="${list.items.length - 1}"]`).focus()
+
     await saveAndCommit()
   }
   async function deleteItem(index) {
@@ -87,7 +97,7 @@
   {#each list.items as item, i}
   <div class="row item-title marginless">
     <i class="clickable checkbox { item.done ? 'fas fa-check-circle' : 'far fa-circle'}" on:click={() => toggleItem(i)}></i>
-    <header contenteditable on:keypress={contenteditableKeypress} bind:textContent={list.items[i].title} on:blur={saveAndCommit}>{item.title}</header>
+    <header data-index={i} contenteditable on:keypress={contenteditableKeypress} bind:textContent={list.items[i].title} on:blur={saveAndCommit}>{item.title}</header>
     <div class="icons">
       <i class="fas fa-times clickable" on:click={() => deleteItem(i)}></i>
     </div>
@@ -121,9 +131,25 @@
     margin-left: 0.5rem;
   }
   .card {
-    margin-top: 10vh;
-    min-width: 800px;
+    margin-top: 10vh !important;
   }
+  .row header {
+    max-width: 100%;
+    word-break: break-word;
+    margin-right: 2rem;
+  }
+  @media screen and (min-width: 960px) {
+    .card {
+      min-width: 800px;
+      max-width: 1200px;
+    }
+  }
+  @media screen and (max-width: 960px) {
+    .card {
+      margin: 2rem;
+    }
+  }
+
   i.checkbox {
     font-size: 1.75rem;
   }

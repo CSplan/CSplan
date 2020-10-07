@@ -20,7 +20,7 @@
 
 <script>
   import lists from '../stores/lists'
-  import { createEventDispatcher } from 'svelte'
+  import { createEventDispatcher, tick } from 'svelte'
   const dispatch = createEventDispatcher()
 
   // Data skeleton for new list
@@ -28,7 +28,7 @@
     title: '',
     items: []
   }
-  function newListItem() {
+  async function newListItem() {
     listSkeleton.items.push({
       title: '',
       description: '',
@@ -36,14 +36,9 @@
       done: false
     })
     listSkeleton = listSkeleton // Trigger reactivity render
-    // Try to focus element every 50ms (we don't have an event fired when it is rendered, so this is the most precision available)
-    function timeoutFocus() {
-      setTimeout(() => {
-        const el = document.querySelector(`[data-item="${listSkeleton.items.length - 1}"]`)
-        el ? el.focus() : timeoutFocus()
-      }, 50)
-    }
-    timeoutFocus()
+    // Wait for the DOM to update and then focus the element
+    await tick()
+    document.querySelector(`[data-item="${listSkeleton.items.length - 1}"]`).focus()
   }
 
   async function createList() {

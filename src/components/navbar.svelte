@@ -1,6 +1,7 @@
 <script>
   import quickActions from './quickActions.svelte'
   import user from '../stores/user'
+  import lists from '../stores/lists'
   const links = [
     {
       title: 'Home',
@@ -53,14 +54,16 @@
     --user-name-margin: 0.5rem;
   }
   /* Navbar styling */
-  nav {
+  nav, .menu {
     padding: 0 0.5rem;
     background: #333;
     color: whitesmoke;
-    position: static;
   }
   /* Desktop styles */
   @media screen and (min-width: 960px) {
+    nav {
+      position: static;
+    }
     .menu {
       display: flex;
       flex-direction: row;
