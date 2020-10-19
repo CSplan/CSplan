@@ -151,8 +151,8 @@
       user.logout()
       state = states.error
       error = err instanceof Error ? err.message : err
-      return
     }
+    goto('/')
   }
 </script>
 

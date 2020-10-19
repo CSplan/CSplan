@@ -56,7 +56,7 @@
   <button class="bold" on:click={save}>
     <i data-role="save-icon" class="fas fa-save"></i>
   </button>
-  <svelte:component this={TitleView}></svelte:component>
+  <TitleView/>
 </main>
 
 <style>

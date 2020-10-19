@@ -12,8 +12,8 @@
       href: '/todos'
     },
     {
-      title: 'Categories',
-      href: '/categories'
+      title: 'Tags',
+      href: '/tags'
     },
     {
       title: 'Shared',

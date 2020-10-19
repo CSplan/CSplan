@@ -100,6 +100,7 @@
   }
   div.modal .card {
     padding: 1rem;
+    top: 35%;
   }
 
   div.modal .card :not(:last-child) {

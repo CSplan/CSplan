@@ -16,6 +16,11 @@ button.transparent {
   background: transparent;
 }
 
+/* Cards should be square */
+.card {
+  border-radius: 0 !important;
+}
+
 /* Give the correct pointer effect for a clickable item */
 .clickable {
   cursor: pointer;
