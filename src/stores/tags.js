@@ -1,4 +1,4 @@
-import { writable } from 'svelte/store'
+import { writable, derived } from 'svelte/store'
 import route from '../route'
 import '../../types/tags'
 import { deepEncrypt, generateKey } from 'cs-crypto/lib/aes'
@@ -41,7 +41,7 @@ function create() {
         }
       }
 
-      // Store on API
+      // Store with API
       const res = await fetch(route('/tags'), {
         method: 'POST',
         body: encrypted,
@@ -76,6 +76,9 @@ function create() {
 
 export const tags = create()
 
-export const ordered = Object.values(tags)
+// TODO: implement tag indexes
+export const ordered = derived(tags, ($tags) => {
+  return Object.values($tags)
+})
 
 export default tags

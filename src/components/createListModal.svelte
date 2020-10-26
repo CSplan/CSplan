@@ -87,17 +87,8 @@
     }
   }
 
-  /* Modal overlay styling */
-  label[for="createListModal"].overlay {
-    cursor: default;
-    background: rgba(0.2, 0.2, 0.2, 0.75);
-  }
-  label[for="createListModal"].overlay i.fa-times {
-    position: absolute;
-    top: 2rem;
-    left: 2rem;
-    color: white;
-  }
+  /* Modal styling */
+
   div.modal .card {
     padding: 1rem;
     top: 35%;

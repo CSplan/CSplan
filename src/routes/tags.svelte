@@ -3,22 +3,49 @@
   import { onMount } from "svelte";
   import Navbar from "../components/navbar.svelte";
   import { ordered, tags} from '../stores/tags'
+  import Loading from '../components/loading.svelte';
+import ColorPicker from '../components/colorPicker.svelte';
 
-  onMount(() => {
-    tags.init().catch((err) => {
-      // TODO: proper error handling
-      alert(err)
-    })
+  const states = {
+    init: 0,
+    resting: 1,
+    error: 2
+  }
+  let state = states.init
+  let stateMsg = ''
+
+
+  onMount(async () => {
+    try {
+      tags.init()
+    } catch (err) {
+      state = state.error
+      stateMsg = err
+      return
+    }
+    state = states.resting
   })
 </script>
 
 <Navbar/>
+
+{#if state === states.init}
+  <Loading/>
+{:else if state === states.resting}
 <main class="align-center">
   {#each $ordered as tag}
   <Tag id={tag.id}></Tag>
   {/each}
   <Tag/>
+  <div class="card add-tag-button clickable">
+    <i class="fas fa-plus"></i>
+  </div>
 </main>
+{:else if state === states.error}
+  <main class="container">
+    <pre>{stateMsg}</pre>
+  </main>
+{/if}
 
 
 <style>
@@ -26,5 +53,30 @@
     display: flex;
     flex-direction: column;
     align-items: center;
+  }
+
+  /* Add tag styles */
+  @media screen and (min-width: 1200px) {
+    .add-tag-button {
+      min-width: 800px !important;
+    }
+  }
+  .add-tag-button {
+    padding: 0.3rem 0;
+    margin-top: 1rem;
+    margin-bottom: 2rem;
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+  }
+  .add-tag-button i {
+    margin: 0.3rem;
+  }
+  .add-tag-button:hover {
+    background: whitesmoke;
+  }
+  .add-tag-button:not(:last-child) {
+    display: none;
   }
 </style>

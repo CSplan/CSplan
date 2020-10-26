@@ -1,5 +1,6 @@
 <script>
   export let id
+  import tags from '../stores/tags';
   import { contenteditableKeypress } from '../misc/contenteditable'
 </script>
 
@@ -7,9 +8,15 @@
   <header contenteditable on:keypress={contenteditableKeypress}>Title</header>
 </div>
 
+<!-- Add card button (visible only below the last card) -->
+
 <style>
   .card {
     font-size: 1.25rem;
+    margin-bottom: 0;
+  }
+  .card header {
+    padding: 0.5rem;
   }
   .card:first-child {
     margin-top: 2rem;
@@ -19,8 +26,8 @@
   }
   @media screen and (min-width: 1200px) {
     .card {
-      min-width: 300px;
-      max-width: 800px;
+      min-width: 800px;
+      max-width: 1200px;
     }
   }
 </style>
