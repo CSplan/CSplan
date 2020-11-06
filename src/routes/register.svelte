@@ -169,7 +169,7 @@
         <input type="checkbox" bind:checked={showPassword}>
         <span class="checkable">Show Password</span>
       </label>
-      <input type="submit">
+      <input type="submit" value="Submit">
     </form>
     <footer>
     {#if state === states.submitting}

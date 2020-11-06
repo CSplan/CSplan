@@ -97,7 +97,10 @@
   {#each list.items as item, i}
   <div class="row item-title marginless">
     <i class="clickable checkbox { item.done ? 'fas fa-check-circle' : 'far fa-circle'}" on:click={() => toggleItem(i)}></i>
-    <header data-index={i} contenteditable on:keypress={contenteditableKeypress} bind:textContent={list.items[i].title} on:blur={saveAndCommit}>{item.title}</header>
+    <div class="content">
+      <header data-index={i} contenteditable on:keypress={contenteditableKeypress} bind:textContent={list.items[i].title} on:blur={saveAndCommit}>{item.title}</header>
+      <p class="hide-empty" contenteditable bind:textContent={list.items[i].description} on:blur={saveAndCommit}>{item.description}</p>  
+    </div>
     <div class="icons">
       <i class="fas fa-times clickable" on:click={() => deleteItem(i)}></i>
     </div>
@@ -133,7 +136,7 @@
   .card {
     margin-top: 10vh !important;
   }
-  .row header {
+  .row header, .row p {
     max-width: 100%;
     word-break: break-word;
     margin-right: 2rem;
@@ -163,6 +166,27 @@
     align-items: center;
     position: relative;
     width: 100%;
+  }
+  .row .content {
+    color: initial;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    text-align: left;
+  }
+  .row .content * {
+    border: none;
+    padding: 0;
+    margin-top: 0;
+    margin-bottom: 0;
+  }
+
+  /* Slight padding above the title and below the description (only if it isn't empty)*/
+  .row .content header {
+    padding-top: 0.2rem;
+  }
+  .row .content p:not(:empty) {
+    padding-bottom: 0.2rem;
   }
   .row.centered {
     justify-content: center;

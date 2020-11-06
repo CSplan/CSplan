@@ -20,6 +20,7 @@ export function getDB() {
       // Keys store is indexed by id
       cachedIDB.createObjectStore('keys', { keyPath: 'id' })
       cachedIDB.createObjectStore('lists', { keyPath: 'id' })
+      cachedIDB.createObjectStore('tags', { keyPath: 'id' })
       resolve(cachedIDB)
     }
 

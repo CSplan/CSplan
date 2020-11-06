@@ -29,6 +29,9 @@ function create() {
 
       // Iterate through each list
       for (const list of body) {
+        if (!list.id) {
+          continue
+        }
         // See if the cache matches the list
         const cached = await getByKey('lists', list.id)
         if (cached && cached.checksum === list.meta.checksum) {

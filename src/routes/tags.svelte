@@ -1,10 +1,10 @@
 <script>
   import Tag from '../components/tag.svelte'
+  import Modal, { toggleTagModal } from '../components/createTagModal.svelte'
   import { onMount } from "svelte";
   import Navbar from "../components/navbar.svelte";
   import { ordered, tags} from '../stores/tags'
   import Loading from '../components/loading.svelte';
-import ColorPicker from '../components/colorPicker.svelte';
 
   const states = {
     init: 0,
@@ -14,11 +14,11 @@ import ColorPicker from '../components/colorPicker.svelte';
   let state = states.init
   let stateMsg = ''
 
-
   onMount(async () => {
     try {
-      tags.init()
+      await tags.init()
     } catch (err) {
+      console.log(err)
       state = state.error
       stateMsg = err
       return
@@ -29,15 +29,16 @@ import ColorPicker from '../components/colorPicker.svelte';
 
 <Navbar/>
 
+<Modal/>
+
 {#if state === states.init}
   <Loading/>
 {:else if state === states.resting}
 <main class="align-center">
   {#each $ordered as tag}
-  <Tag id={tag.id}></Tag>
+    <Tag id={tag.id}></Tag>
   {/each}
-  <Tag/>
-  <div class="card add-tag-button clickable">
+  <div class="card add-tag-button clickable" on:click={toggleTagModal}>
     <i class="fas fa-plus"></i>
   </div>
 </main>

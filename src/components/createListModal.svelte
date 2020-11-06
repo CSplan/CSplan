@@ -47,7 +47,7 @@
     })
     toggleModal()
     await lists.create(listSkeleton)
-      listSkeleton = {
+    listSkeleton = {
       title: '',
       items: []
     }
@@ -56,6 +56,10 @@
     })
   }
 </script>
+
+<svelte:head>
+  <link rel="stylesheet" href="/css/modals.css">
+</svelte:head>
 
 <!-- Modal to create a new list-->
 <div class="modal">
@@ -79,31 +83,3 @@
     <input type="submit" value="Create" on:click|preventDefault={createList}>
   </form>
 </div>
-
-<style>
-  @media screen and (min-width: 1200px) {
-    .card {
-      min-width: 800px;
-    }
-  }
-
-  /* Modal styling */
-
-  div.modal .card {
-    padding: 1rem;
-    top: 35%;
-  }
-
-  div.modal .card :not(:last-child) {
-    margin: 0.75rem 0;
-  }
-  div.modal .card :last-child {
-    margin: 0;
-  }
-  div.modal .card input[type="submit"] {
-    width: 100%;
-  }
-  i.ml-05 {
-    margin-left: 0.5rem;
-  }
-</style>

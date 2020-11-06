@@ -1,28 +1,18 @@
 import sirv from 'sirv'
 import polka from 'polka'
-import spdy from 'spdy'
 import * as sapper from '@sapper/server'
-import fs from 'fs'
 
 const { NODE_ENV } = process.env
 const PORT = '3030'
 const dev = NODE_ENV === 'development'
 
-// Initialize spdy server and router
-const server = spdy.createServer({
-  cert: fs.readFileSync(`${process.env.CERTSDIR}/CSplan.crt`),
-  key: fs.readFileSync(`${process.env.CERTSDIR}/CSplan.key`),
-  spdy: {
-    protocols: ['h2']
-  }
-})
-const router = polka({ server })
+const router = polka()
 
 // Enable the http proxy if runnning in development
 if (dev) {
   const { createProxyMiddleware } = require('http-proxy-middleware')
   const proxy = createProxyMiddleware('/api', {
-    target: 'https://localhost:3000',
+    target: 'http://localhost:3000',
     pathRewrite: {
       '/api': ''
     },

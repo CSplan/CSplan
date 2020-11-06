@@ -2,11 +2,28 @@
   export let id
   import tags from '../stores/tags';
   import { contenteditableKeypress } from '../misc/contenteditable'
+  import { onMount } from 'svelte';
+
+  const states = {
+    loading: 0,
+    resting: 1
+  }
+  let state = states.loading
+
+  let hasTag = false
+  let tag
+
+  onMount(() => {
+    tag = $tags[id]
+    hasTag = true
+  })
 </script>
 
+{#if hasTag}
 <div class="card">
-  <header contenteditable on:keypress={contenteditableKeypress}>Title</header>
+  <header contenteditable on:keypress={contenteditableKeypress}>{tag.name}</header>
 </div>
+{/if}
 
 <!-- Add card button (visible only below the last card) -->
 
