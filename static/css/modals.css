@@ -1,0 +1,25 @@
+/* Modal sizing */
+@media screen and (min-width: 1200px) {
+  .card {
+    min-width: 800px;
+  }
+}
+
+/* Modal styling */
+.modal .card {
+  padding: 1rem;
+  top: 35%;
+}
+
+.modal .card :not(:last-child) {
+  margin: 0.75rem 0;
+}
+.modal .card :last-child {
+  margin: 0;
+}
+.modal .card input[type="submit"] {
+  width: 100%;
+}
+i.ml-05 {
+  margin-left: 0.5rem;
+}

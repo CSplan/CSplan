@@ -15,6 +15,19 @@
 
 <Navbar/>
 
+<a class="back-button" href="/todos" rel="preload">
+  <i class="fas fa-arrow-left"></i>
+</a>
+
 <main class="container">
   <TodoList {id}/>
 </main>
+
+<style>
+  .back-button i {
+    padding: 1.25rem;
+  }
+  .back-button i:hover {
+    transform: scale(1.25);
+  }
+</style>

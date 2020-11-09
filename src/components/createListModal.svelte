@@ -67,7 +67,7 @@
   <label for="createListModal" class="overlay" on:click|preventDefault>
     <i class="fas fa-times clickable" on:click={toggleModal}></i>
   </label>
-  <form class="card">
+  <form class="card" spellcheck="false">
     <input type="text" placeholder="Title" bind:value={listSkeleton.title}>
     <header>Items
       <i class="fas fa-plus clickable ml-05" on:click={newListItem}></i>

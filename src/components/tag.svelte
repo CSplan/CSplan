@@ -22,10 +22,11 @@
 {#if hasTag}
 <div class="card">
   <header contenteditable on:keypress={contenteditableKeypress}>{tag.name}</header>
+  <div class="icons">
+    <i class="fas fa-times clickable"></i>
+  </div>
 </div>
 {/if}
-
-<!-- Add card button (visible only below the last card) -->
 
 <style>
   .card {
@@ -46,5 +47,14 @@
       min-width: 800px;
       max-width: 1200px;
     }
+  }
+
+  .icons {
+    position: absolute;
+    right: 0;
+    margin: 0.25rem;
+  }
+  .icons i:hover {
+    transform: scale(1.25)
   }
 </style>

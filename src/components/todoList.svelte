@@ -98,8 +98,8 @@
   <div class="row item-title marginless">
     <i class="clickable checkbox { item.done ? 'fas fa-check-circle' : 'far fa-circle'}" on:click={() => toggleItem(i)}></i>
     <div class="content">
-      <header data-index={i} contenteditable on:keypress={contenteditableKeypress} bind:textContent={list.items[i].title} on:blur={saveAndCommit}>{item.title}</header>
-      <p class="hide-empty" contenteditable bind:textContent={list.items[i].description} on:blur={saveAndCommit}>{item.description}</p>  
+      <header data-index={i} contenteditable spellcheck="false" on:keypress={contenteditableKeypress} bind:textContent={list.items[i].title} on:blur={saveAndCommit}>{item.title}</header>
+      <p class="hide-empty" contenteditable spellcheck="false" bind:textContent={list.items[i].description} on:blur={saveAndCommit}>{item.description}</p>  
     </div>
     <div class="icons">
       <i class="fas fa-times clickable" on:click={() => deleteItem(i)}></i>
@@ -197,7 +197,7 @@
     margin: 0.25rem;
   }
   .row .icons i:hover {
-    transform: scale(1.25)
+    transform: scale(1.25);
   }
   .row:hover {
     background: whitesmoke;

@@ -1,8 +1,10 @@
 export function contenteditableKeypress(evt) {
   // Unfocus the contenteditable element if the enter key is pressed
   if (evt.key === 'Enter') {
+    evt.target.blur()
     evt.preventDefault()
-    document.activeElement.blur()
+    // Trim the last break added by the keypress
+    evt.target.innerHTML = evt.target.innerHTML.replace(/<br>$/, '')
   }
 }
 
