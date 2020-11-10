@@ -124,7 +124,7 @@ function create() {
         id: list.id
       }
     },
-    async update(id, list) {
+    update(id, list) {
       update((store) => {
         const old = store[id]
         store[id] = {
@@ -183,7 +183,7 @@ function create() {
       // Validate
       let list = get(this)[id]
       if (!list) {
-        throw new ReferenceError('List passed by ID does not exist')
+        return
       }
       // Delete with API
       const res = await fetch(route(`/todos/${id}`), {

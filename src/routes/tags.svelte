@@ -35,7 +35,7 @@
   <Loading/>
 {:else if state === states.resting}
 <main class="align-center">
-  {#each $ordered as tag}
+  {#each $ordered as tag (tag.id)}
     <Tag id={tag.id}></Tag>
   {/each}
   <div class="card add-tag-button clickable" on:click={toggleTagModal}>

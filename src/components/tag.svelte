@@ -4,12 +4,6 @@
   import { contenteditableKeypress } from '../misc/contenteditable'
   import { onMount } from 'svelte';
 
-  const states = {
-    loading: 0,
-    resting: 1
-  }
-  let state = states.loading
-
   let hasTag = false
   let tag
 
@@ -21,9 +15,9 @@
 
 {#if hasTag}
 <div class="card">
-  <header contenteditable on:keypress={contenteditableKeypress}>{tag.name}</header>
+  <header contenteditable spellcheck="false" on:keypress={contenteditableKeypress} on:input={(e) => tags.update(id, { name: e.target.textContent })} on:blur={tags.commit(id)}>{tag.name}</header>
   <div class="icons">
-    <i class="fas fa-times clickable"></i>
+    <i class="fas fa-times clickable" on:click={tags.delete(id)}></i>
   </div>
 </div>
 {/if}
@@ -32,9 +26,14 @@
   .card {
     font-size: 1.25rem;
     margin-bottom: 0;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
   }
   .card header {
-    padding: 0.5rem;
+    margin: 0.5rem;
+    padding: 0;
+    border-bottom: none;
   }
   .card:first-child {
     margin-top: 2rem;
@@ -53,6 +52,9 @@
     position: absolute;
     right: 0;
     margin: 0.25rem;
+  }
+  .icons i {
+    margin: 0.5rem;
   }
   .icons i:hover {
     transform: scale(1.25)

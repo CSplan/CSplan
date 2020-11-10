@@ -1,9 +1,9 @@
-import { writable, derived } from 'svelte/store'
+import { writable, derived, get } from 'svelte/store'
 import route from '../route'
 import '../../types/tags'
 import { deepDecrypt, deepEncrypt, generateKey } from 'cs-crypto/lib/aes'
 import { unwrapKey, wrapKey } from 'cs-crypto/lib/rsa'
-import { addToStore, getByKey, updateWithKey } from '../db'
+import { addToStore, deleteFromStore, getByKey, updateWithKey } from '../db'
 
 function create() {
   const tagsStore = {}
@@ -77,7 +77,6 @@ function create() {
       }
 
       // Store with API
-      console.log(encrypted)
       const res = await fetch(route('/tags'), {
         method: 'POST',
         body: JSON.stringify(encrypted),
@@ -104,6 +103,83 @@ function create() {
       await addToStore('tags', tag)
       update((store) => {
         store[tag.id] = tag
+        return store
+      })
+    },
+    update(id, tag) {
+      update((store) => {
+        const old = store[id]
+        store[id] = {
+          ...old,
+          ...tag,
+          uncommitted: 1 // Flag that there are pending changes
+        }
+        return store
+      })
+    },
+    async commit(id) {
+      let tag = get(this)[id]
+      if (!tag) {
+        throw new ReferenceError('Invalid ID passed, tag does not exist')
+      }
+
+      // Encrypt and commit to API
+      const encrypted = {
+        ...await deepEncrypt({
+          name: tag.name,
+          color: tag.color || '#FFFFFF' // TODO: tag color should be guaranteed, 
+          // this guard is here because tag colors are not implemented and should be removed in the future
+        }, tag.cryptoKey)
+      }
+      const res = await fetch(route(`/tags/${id}`), {
+        method: 'PATCH',
+        headers: {
+          'CSRF-Token': localStorage.getItem('CSRF-Token'),
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(encrypted)
+      })
+      const body = await res.json()
+      if (res.status !== 200) {
+        throw new Error(body.message)
+      }
+      tag = {
+        ...tag,
+        checksum: body.meta.checksum
+      }
+      // Commit to IDB
+      await updateWithKey('tags', tag)
+      // Commit to local state
+      update((store) => {
+        store[id] = tag
+        return store
+      })
+    },
+    async delete(id) {
+      const tag = get(this)[id]
+      if (!tag) {
+        return
+      }
+
+      // Delete from API
+      const res = await fetch(route(`/tags/${id}`), {
+        method: 'DELETE',
+        headers: {
+          'CSRF-Token': localStorage.getItem('CSRF-Token')
+        }
+      })
+      if (res.status !== 204) {
+        const body = await res.json()
+        throw new Error(body.message)
+      }
+
+      // Delete from IDB
+      await deleteFromStore('tags', id).catch((err) => {
+        throw new Error(`Failed to delete from IndexedDB: ${err}`) // TODO: this is the standard of error reporting ALL stores should implement
+      })
+      // Delete from local state
+      update((store) => {
+        delete store[id]
         return store
       })
     }
