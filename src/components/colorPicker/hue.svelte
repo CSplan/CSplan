@@ -143,7 +143,7 @@
 
 <svelte:window on:mouseup={() => cursorIsHeld = false} on:mousemove={mousemove}/>
 
-<canvas {id} class="hue-slider" on:mousedown={() => cursorIsHeld = true}/>
+<canvas {id} class="hue-slider" on:mousedown={() => cursorIsHeld = true} on:mousedown={mousemove}/>
 
 <style>
   .hue-slider {

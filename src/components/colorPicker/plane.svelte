@@ -1,28 +1,14 @@
-<!-- This component makes up the rectangular plane for selected color saturation and luminance, where x corresponds to saturdation and y to luminance -->
-<script context="module">
-  // Rendering context
-  /** @type {HTMLCanvasElement} */
-  let canvas
-  /** @type {CanvasRenderingContext2D} */
-  let ctx
-
-  /** @type {DOMRect} */
-  let rect = null // Cache bounding client rect of the canvas, as this computation is costly to the drawing loop
-  export function getDimensions() {
-    rect = canvas.getBoundingClientRect()
-    // Canvas width and height has to be manually updated
-    canvas.height = rect.height
-    canvas.width = rect.width
-  }
-</script>
-
+<!-- This component makes up the rectangular plane for selected color lightness -->
 <script>
   import { onMount } from 'svelte'
-import { xlink_attr } from 'svelte/internal';
+  import { Canvas } from './canvas'
 
+  /** @type {import('./canvas'.CanvasInfo)} */
+  let canvas
 
   export let id = ''
   export let hue = 0
+  export let lightness = 0
   // Height, width, diagonal
   let h = 0
   let w = 0
@@ -33,12 +19,9 @@ import { xlink_attr } from 'svelte/internal';
 
   onMount(() => {
     // Query canvas
-    canvas = document.querySelector(`#${id}`)
-    ctx = canvas.getContext('2d')
-    // Update dimensions
-    getDimensions()
-    h = rect.height
-    w = rect.width
+    canvas = new Canvas(`#${id}`)
+    h = canvas.rect.height
+    w = canvas.rect.width
     diag = Math.sqrt(h**2 + w**2)
     // Start the drawing loop
     draw()
@@ -50,19 +33,19 @@ import { xlink_attr } from 'svelte/internal';
   }
 
   function drawPlane() {
-    const gradient = ctx.createRadialGradient(0, h, 0, 0, h, diag)
-    const luminance = 0
-    if (luminance < 50) {
-      for (let i = luminance; i <= 50; i++) {
+    const l = Math.round(lightness * 100)
+    const gradient = canvas.ctx.createRadialGradient(0, h, 0, 0, h, diag)
+    if (l < 50) {
+      for (let i = l; i <= 50; i++) {
         gradient.addColorStop(i/50, `hsl(${hue}, 100%, ${i}%)`)
       }
     } else {
-      for (let i = luminance; i >= 50; i--) {
+      for (let i = l; i >= 50; i--) {
         gradient.addColorStop((100 - i)/50, `hsl(${hue}, 100%, ${i}%)`)
       }
     }
-    ctx.fillStyle = gradient
-    ctx.fillRect(0, 0, w, h)
+    canvas.ctx.fillStyle = gradient
+    canvas.ctx.fillRect(0, 0, w, h)
   }
 </script>
 
