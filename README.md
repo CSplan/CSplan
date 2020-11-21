@@ -1,4 +1,4 @@
-# csplan
+# CSplan
 Frontend for CSplan.
 
 ## Roadmap
