@@ -1,64 +1,48 @@
-<script context="module">
-  // Rendering context
-  /** @type {HTMLCanvasElement} */
+<script>
+  import { createEventDispatcher, onDestroy, onMount, tick } from 'svelte'
+import { SliderCanvas } from './canvas';
+
+  /** @type {import('./canvas'.SliderCanvas)} */
   let canvas
   /** @type {CanvasRenderingContext2D} */
   let ctx
 
-  /** @type {DOMRect} */
-  let rect = null // Cache bounding client rect of the canvas, as this computation is costly to the drawing loop
-  export function getDimensions() {
-    rect = canvas.getBoundingClientRect()
-    // Canvas width and height has to be manually updated
-    canvas.height = rect.height
-    canvas.width = rect.width
-  }
-</script>
-
-<script>
-  import { createEventDispatcher, onDestroy, onMount, tick } from 'svelte'
-
-  // Y value of cursor position
-  let posY = 0
-  let cursorIsHeld = false
-
-  // Height, width, border radius
+  // Exported ID and other color values
+  export let id = ''
+  // Height, width, radius
   let h = 0
   let w = 0
   let r = 0
   $: r = w/2
-  // ID unique to color picker slider
-  export let id = 'color-picker-hue-slider'
+  // Position of slider
+  let posY = 0
+  let moveCursor = false
+
 
   function mousemove(evt) {
-    if (!cursorIsHeld) {
+    if (!moveCursor) {
       return
     }
-    const y = evt.pageY - rect.top
+    const y = evt.pageY - canvas.rect.top
     if (y < r) {
       posY = r
-    } else if (y > rect.height - r) {
-      posY = rect.height - r
+    } else if (y > canvas.rect.height - r) {
+      posY = canvas.rect.height - r
     } else {
       posY = y
     }
   }
 
-  const byteToHex = {}
   const dispatch = createEventDispatcher()
   onMount(() => {
-    canvas = document.querySelector(`#${id}`)
-    ctx = canvas.getContext('2d')
+    canvas = new SliderCanvas(`#${id}`)
     // Get height, width, and calculate border radius
-    getDimensions()
-    h = rect.height
-    w = rect.width
+    canvas.getDimensions()
+    h = canvas.rect.height
+    w = canvas.rect.width
     r = w/2
-    posY = r
-    // Precompute hex -> octet pairings
-    for (let b = 0; b <= 0xff; b++) {
-      byteToHex[b] = b.toString(16).padStart(2, '0')
-    }
+    posY = h/2
+    ctx = canvas.ctx
     // Start the rendering loop
     draw()
   })
@@ -79,34 +63,18 @@
   }
 
   function drawSlider() {
-    ctx.beginPath()
-    // Draw inner rectangle
-    ctx.rect(0, r, w, h - 2*r)
-    // Followed by two pairs of arcs to make rounded corners
-    // Upper arcs
-    ctx.moveTo(0, r)
-    ctx.arcTo(0, 0, r, 0, r)
-    ctx.arcTo(w, 0, w, r, r)
-    // Bottom arcs
-    ctx.moveTo(0, h - r)
-    ctx.arcTo(0, h, r, h, r)
-    ctx.arcTo(w, h, w, h - r, r)
-
     // Create and fill a HSL gradient
     const gradient = ctx.createLinearGradient(r, r, r, h - r)
     for (let i = 0; i < 330; i++) {
       gradient.addColorStop(i/330, `hsl(${i}, 100%, 50%)`)
     }
     ctx.fillStyle = gradient
-    ctx.fill()
+    canvas.drawSlider()
   }
 
   function drawCursor() {
-    ctx.beginPath()
-    ctx.arc(r, posY, r, 0, 2*Math.PI)
-    ctx.arc(r, posY, r/2, 0, 2*Math.PI, true)
     ctx.fillStyle = 'white'
-    ctx.fill()
+    canvas.drawCursor(posY)
   }
 
   function emitColor() {
@@ -141,9 +109,9 @@
   }
 </script>
 
-<svelte:window on:mouseup={() => cursorIsHeld = false} on:mousemove={mousemove}/>
+<svelte:window on:mouseup={() => moveCursor = false} on:mousemove={mousemove}/>
 
-<canvas {id} class="hue-slider" on:mousedown={() => cursorIsHeld = true} on:mousedown={mousemove}/>
+<canvas {id} class="hue-slider" on:mousedown={() => moveCursor = true} on:mousedown={mousemove}/>
 
 <style>
   .hue-slider {

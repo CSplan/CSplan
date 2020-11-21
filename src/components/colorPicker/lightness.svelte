@@ -7,13 +7,13 @@
 
   /** @type {import('./canvas'.SliderCanvas)}*/
   let canvas
-  /** @type {CanvasRenderingContext2D)} */
+  /** @type {CanvasRenderingContext2D} */
   let ctx
 
   const dispatch = createEventDispatcher()
 
+  // Exported ID and other color values
   export let id = ''
-  export let hue = 0
   // Height, width, radius
   let h = 0
   let w = 0
@@ -53,24 +53,32 @@
     draw()
   })
 
+  let oldY = posY
   function draw() {
+    if (posY === oldY) {
+      requestAnimationFrame(draw)
+      return
+    } else {
+      oldY = posY
+    }
+
     drawSlider()
-    drawCursor()
     emitLightness()
+    drawCursor()
     requestAnimationFrame(draw)
   }
 
   function drawSlider() {
     // Lightness gradient
     const gradient = ctx.createLinearGradient(r, r, r, h - r)
-    for (let i = 0; i <= 100; i++) {
-      gradient.addColorStop(i/100, `hsl(${hue}, 100%, ${100 - i}%)`)
-    }
+    gradient.addColorStop(0, 'white')
+    gradient.addColorStop(1, 'black')
     ctx.fillStyle = gradient
     canvas.drawSlider()
   }
   function drawCursor() {
-    ctx.fillStyle = `hsl(${hue}, 100%, ${lightness > 0.6 ? 100 - (lightness * 100) : 100}%)`
+    const f = 355 - Math.round(lightness * 255)
+    ctx.fillStyle = `rgb(${f}, ${f}, ${f})`
     canvas.drawCursor(posY)
   }
   function emitLightness() {
