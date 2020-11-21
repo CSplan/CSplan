@@ -1,10 +1,12 @@
 <script>
   import HueSlider from './hue.svelte'
+  import Plane from './plane.svelte'
   export let id = 'color-picker'
   let hue = 0
 </script>
 
 <div class="card grid">
+  <Plane id="{id}-color-plane" {hue}/>
   <HueSlider id="{id}-hue-slider" on:colorchange={(e) => hue = e.detail}/>
 </div>
 

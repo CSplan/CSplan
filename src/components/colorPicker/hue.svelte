@@ -18,59 +18,11 @@
 <script>
   import { createEventDispatcher, onDestroy, onMount, tick } from 'svelte'
 
-  // Human-friendly curve of HSL stops
-  const stops = [
-    {
-      pos: 0,
-      value: 0
-    },
-    {
-      pos: 0.1,
-      value: 30
-    },
-    {
-      pos: 0.2,
-      value: 45
-    },
-    {
-      pos: 0.3,
-      value: 60
-    },
-    {
-      pos: 0.45,
-      value: 120
-    },
-    {
-      pos: 0.5,
-      value: 180
-    },
-    {
-      pos: 0.6,
-      value: 200
-    },
-    {
-      pos: 0.7,
-      value: 240
-    },
-    {
-      pos: 0.8,
-      value: 270
-    },
-    {
-      pos: 0.9,
-      value: 285
-    },
-    {
-      pos: 1,
-      value: 300
-    }
-  ]
-
   // Y value of cursor position
   let posY = 0
   let cursorIsHeld = false
 
-  // Get height, width, border radius
+  // Height, width, border radius
   let h = 0
   let w = 0
   let r = 0
