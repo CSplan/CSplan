@@ -1,7 +1,7 @@
 <!-- This component makes up the rectangular plane for selected color lightness -->
 <script>
   import { onMount } from 'svelte'
-  import { Canvas, PlaneCanvas } from './canvas'
+  import { PlaneCanvas } from './canvas'
 
   let canvasEl
   /** @type {import('./canvas'.PlaneCanvas)} */
@@ -10,6 +10,7 @@
   let ctx
 
   export let hue = 0
+  export let saturation = 0
   export let lightness = 0
   // Height, width, diagonal
   let h = 0
@@ -25,7 +26,7 @@
   $: r = cursorRadius
 
   // Handle mouse movement/clicks
-  function mousemove(evt) {
+  function updateCursor(evt) {
     if (!moveCursor) {
       return
     }
@@ -64,16 +65,18 @@
   let oldX = null
   let oldY = null
   let oldHue = null
+  let oldSaturation = null
   let oldLightness = null
   function draw() {
     // If the cursor position, hue, and lightness have all stayed the same, skip redrawing
-    if (posX === oldX && posY === oldY && hue === oldHue && lightness === oldLightness) {
+    if (posX === oldX && posY === oldY && hue === oldHue && saturation === oldSaturation && lightness === oldLightness) {
       requestAnimationFrame(draw)
       return
     } else {
       oldX = posX
       oldY = posY
       oldHue = hue
+      oldSaturation = saturation
       oldLightness = lightness
     }
     drawPlane()
@@ -86,11 +89,11 @@
     const gradient = canvas.ctx.createRadialGradient(0, h, 0, 0, h, diag)
     if (l < 50) {
       for (let i = l; i <= 50; i++) {
-        gradient.addColorStop(i/50, `hsl(${hue}, 100%, ${i}%)`)
+        gradient.addColorStop(i/50, `hsl(${hue}, ${Math.round(saturation * 100)}%, ${i}%)`)
       }
     } else {
       for (let i = l; i >= 50; i--) {
-        gradient.addColorStop((100 - i)/50, `hsl(${hue}, 100%, ${i}%)`)
+        gradient.addColorStop((100 - i)/50, `hsl(${hue}, ${Math.round(saturation * 100)}%, ${i}%)`)
       }
     }
     ctx.fillStyle = gradient
@@ -102,9 +105,9 @@
   }
 </script>
 
-<svelte:window on:mousemove={mousemove} on:mouseup={() => moveCursor = false}/>
+<svelte:window on:mousemove={updateCursor} on:mouseup={() => moveCursor = false}/>
 
-<canvas bind:this={canvasEl} class="color-plane" on:mousedown={() => moveCursor = true} on:mousedown={mousemove}></canvas>
+<canvas bind:this={canvasEl} class="color-plane" on:mousedown={() => moveCursor = true} on:mousedown={updateCursor}></canvas>
 
 <style>
   .color-plane {
