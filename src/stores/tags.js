@@ -51,7 +51,6 @@ function create() {
           cryptoKey,
           checksum: tag.meta.checksum
         }
-        console.log(decrypted)
 
         await updateWithKey('tags', decrypted)
         update((store) => {

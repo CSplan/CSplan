@@ -16,8 +16,11 @@
 // Basic constructor for repetitive tasks such as setting up canvas elements and dimensions
 /** @type {CanvasInfo} */
 export class Canvas {
-  constructor(domID) {
-    this.canvas = document.querySelector(domID)
+  /**
+   * @param {HTMLCanvasElement} canvasEl 
+   */
+  constructor(canvasEl) {
+    this.canvas = canvasEl
     this.ctx = this.canvas.getContext('2d')
     this.getDimensions()
   }
@@ -33,8 +36,8 @@ export class Canvas {
 }
 
 export class PlaneCanvas extends Canvas {
-  constructor(domID) {
-    super(domID)
+  constructor(canvasEl) {
+    super(canvasEl)
   }
   drawCursor(posX = 0, posY = 0, r = 0) {
     const { ctx } = this
@@ -47,8 +50,8 @@ export class PlaneCanvas extends Canvas {
 
 /** @type {SliderCanvasInfo} */
 export class SliderCanvas extends Canvas {
-  constructor(domID) {
-    super(domID)
+  constructor(canvasEl) {
+    super(canvasEl)
     this.r = this.w/2
   }
   drawSlider() {

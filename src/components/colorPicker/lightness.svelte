@@ -5,6 +5,7 @@
   import { createEventDispatcher, onMount } from 'svelte'
   import { SliderCanvas } from './canvas'
 
+  let canvasEl
   /** @type {import('./canvas'.SliderCanvas)}*/
   let canvas
   /** @type {CanvasRenderingContext2D} */
@@ -12,8 +13,6 @@
 
   const dispatch = createEventDispatcher()
 
-  // Exported ID and other color values
-  export let id = ''
   // Height, width, radius
   let h = 0
   let w = 0
@@ -42,7 +41,7 @@
   // DOM elements and references
   onMount(() => {
     // Setup canvas
-    canvas = new SliderCanvas(`#${id}`)
+    canvas = new SliderCanvas(canvasEl)
     h = canvas.rect.height
     w = canvas.rect.width
     r = w/2
@@ -99,7 +98,7 @@
   }
 </script>
 
-<canvas {id} class="lightness-slider" on:mousedown={(e) => moveCursor = true} on:mousedown={mousemove}/>
+<canvas bind:this={canvasEl} class="lightness-slider" on:mousedown={(e) => moveCursor = true} on:mousedown={mousemove}/>
 
 <svelte:window on:mousemove={mousemove} on:mouseup={() => moveCursor = false}/>
 

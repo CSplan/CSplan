@@ -1,14 +1,14 @@
 <script>
-  import { createEventDispatcher, onDestroy, onMount, tick } from 'svelte'
-import { SliderCanvas } from './canvas';
+  import { createEventDispatcher, onMount } from 'svelte'
+  import { SliderCanvas } from './canvas';
 
+  /** @type {HTMLCanvasElement} */
+  let canvasEl
   /** @type {import('./canvas'.SliderCanvas)} */
   let canvas
   /** @type {CanvasRenderingContext2D} */
   let ctx
 
-  // Exported ID and other color values
-  export let id = ''
   // Height, width, radius
   let h = 0
   let w = 0
@@ -17,7 +17,6 @@ import { SliderCanvas } from './canvas';
   // Position of slider
   let posY = 0
   let moveCursor = false
-
 
   function mousemove(evt) {
     if (!moveCursor) {
@@ -35,7 +34,7 @@ import { SliderCanvas } from './canvas';
 
   const dispatch = createEventDispatcher()
   onMount(() => {
-    canvas = new SliderCanvas(`#${id}`)
+    canvas = new SliderCanvas(canvasEl)
     // Get height, width, and calculate border radius
     canvas.getDimensions()
     h = canvas.rect.height
@@ -111,7 +110,7 @@ import { SliderCanvas } from './canvas';
 
 <svelte:window on:mouseup={() => moveCursor = false} on:mousemove={mousemove}/>
 
-<canvas {id} class="hue-slider" on:mousedown={() => moveCursor = true} on:mousedown={mousemove}/>
+<canvas bind:this={canvasEl} class="hue-slider" on:mousedown={() => moveCursor = true} on:mousedown={mousemove}/>
 
 <style>
   .hue-slider {

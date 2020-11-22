@@ -3,12 +3,12 @@
   import { onMount } from 'svelte'
   import { Canvas, PlaneCanvas } from './canvas'
 
+  let canvasEl
   /** @type {import('./canvas'.PlaneCanvas)} */
   let canvas
   /** @type {CanvasRenderingContext2D} */
   let ctx
 
-  export let id = ''
   export let hue = 0
   export let lightness = 0
   // Height, width, diagonal
@@ -20,7 +20,9 @@
   let posY = 0
   let moveCursor = false
   // Cursor radius
-  const r = 15
+  export let cursorRadius
+  let r = 0
+  $: r = cursorRadius
 
   // Handle mouse movement/clicks
   function mousemove(evt) {
@@ -47,11 +49,14 @@
 
   onMount(() => {
     // Query canvas
-    canvas = new PlaneCanvas(`#${id}`)
+    canvas = new PlaneCanvas(canvasEl)
     ctx = canvas.ctx
     h = canvas.rect.height
     w = canvas.rect.width
     diag = Math.sqrt(h**2 + w**2)
+    // Initially position the cursor in the top right corner
+    posX = w - r
+    posY = r
     // Start the drawing loop
     draw()
   })
@@ -99,7 +104,7 @@
 
 <svelte:window on:mousemove={mousemove} on:mouseup={() => moveCursor = false}/>
 
-<canvas {id} class="color-plane" on:mousedown={() => moveCursor = true} on:mousedown={mousemove}></canvas>
+<canvas bind:this={canvasEl} class="color-plane" on:mousedown={() => moveCursor = true} on:mousedown={mousemove}></canvas>
 
 <style>
   .color-plane {
