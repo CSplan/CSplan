@@ -32,6 +32,19 @@ export class Canvas {
   }
 }
 
+export class PlaneCanvas extends Canvas {
+  constructor(domID) {
+    super(domID)
+  }
+  drawCursor(posX = 0, posY = 0, r = 0) {
+    const { ctx } = this
+    ctx.beginPath()
+    ctx.arc(posX, posY, r, 0, 2*Math.PI)
+    ctx.arc(posX, posY, r/2, 0, 2*Math.PI, true)
+    ctx.fill()
+  }
+}
+
 /** @type {SliderCanvasInfo} */
 export class SliderCanvas extends Canvas {
   constructor(domID) {

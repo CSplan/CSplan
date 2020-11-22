@@ -46,7 +46,7 @@
     h = canvas.rect.height
     w = canvas.rect.width
     r = w/2
-    posY = h/2
+    posY = h - r
     ctx = canvas.ctx
     
     // Start drawing loop
@@ -77,7 +77,10 @@
     canvas.drawSlider()
   }
   function drawCursor() {
-    const f = 355 - Math.round(lightness * 255)
+    let f = 255
+    if (f - 255 * lightness < 30) {
+      f = 10 * (255 - (255 * lightness))
+    }
     ctx.fillStyle = `rgb(${f}, ${f}, ${f})`
     canvas.drawCursor(posY)
   }

@@ -41,7 +41,7 @@ import { SliderCanvas } from './canvas';
     h = canvas.rect.height
     w = canvas.rect.width
     r = w/2
-    posY = h/2
+    posY = r
     ctx = canvas.ctx
     // Start the rendering loop
     draw()
