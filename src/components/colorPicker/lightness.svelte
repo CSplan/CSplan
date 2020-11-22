@@ -14,51 +14,53 @@
   const dispatch = createEventDispatcher()
 
   // Height, width, radius
+  export let sideways = false
   let h = 0
   let w = 0
   let r = 0
-  $: r = w/2
+  $: r = sideways ? h/2 : w/2
   // Position of slider
-  let posY = 0
+  let pos = 0
   let moveCursor = false
   // Lightness data for calculating cursor color
   let lightness = 0
 
-  function mousemove(evt) {
+  function updateCursor(evt) {
     if (!moveCursor) {
       return
     }
-    const y = evt.pageY - canvas.rect.top
-    if (y < r) {
-      posY = r
-    } else if (y > canvas.rect.height - r) {
-      posY = canvas.rect.height - r
+    const slider = sideways ? evt.pageX - canvas.rect.left : evt.pageY - canvas.rect.top
+    const max = sideways ? w - r : h - r
+    if (slider < r) {
+      pos = r
+    } else if (slider > max) {
+      pos = max
     } else {
-      posY = y
+      pos = slider
     }
   }
 
   // DOM elements and references
   onMount(() => {
     // Setup canvas
-    canvas = new SliderCanvas(canvasEl)
+    canvas = new SliderCanvas(canvasEl, sideways)
     h = canvas.rect.height
     w = canvas.rect.width
-    r = w/2
-    posY = h - r
+    r = sideways ? h/2 : w/2
+    pos = sideways ? w - r : h - r
     ctx = canvas.ctx
     
     // Start drawing loop
     draw()
   })
 
-  let oldY = posY
+  let oldPos = pos
   function draw() {
-    if (posY === oldY) {
+    if (pos === oldPos) {
       requestAnimationFrame(draw)
       return
     } else {
-      oldY = posY
+      oldPos = pos
     }
 
     drawSlider()
@@ -69,7 +71,7 @@
 
   function drawSlider() {
     // Lightness gradient
-    const gradient = ctx.createLinearGradient(r, r, r, h - r)
+    const gradient = sideways ? ctx.createLinearGradient(r, r, w - r, r) : ctx.createLinearGradient(r, r, r, h - r)
     gradient.addColorStop(0, 'white')
     gradient.addColorStop(1, 'black')
     ctx.fillStyle = gradient
@@ -81,10 +83,10 @@
       f = 10 * (255 - (255 * lightness))
     }
     ctx.fillStyle = `rgb(${f}, ${f}, ${f})`
-    canvas.drawCursor(posY)
+    canvas.drawCursor(pos)
   }
   function emitLightness() {
-    const pixel = ctx.getImageData(r, posY, 1, 1)
+    const pixel = sideways ? ctx.getImageData(pos, r, 1, 1) : ctx.getImageData(r, pos, 1, 1)
     const rgb = Array.prototype.slice.call(pixel.data, 0, 3)
     lightness = parseLightness(rgb)
     dispatch('lightnesschange', lightness)
@@ -98,12 +100,15 @@
   }
 </script>
 
-<canvas bind:this={canvasEl} class="lightness-slider" on:mousedown={(e) => moveCursor = true} on:mousedown={mousemove}/>
+<canvas bind:this={canvasEl} class="lightness-slider" on:mousedown={(e) => moveCursor = true} on:mousedown={updateCursor}/>
 
-<svelte:window on:mousemove={mousemove} on:mouseup={() => moveCursor = false}/>
+<svelte:window on:mousemove={updateCursor} on:mouseup={() => moveCursor = false}/>
 
 <style>
   .lightness-slider {
     height: 100%;
+    width: 100%;
+    grid-column: 1;
+    grid-row: 3;
   }
 </style>

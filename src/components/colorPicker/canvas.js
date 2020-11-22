@@ -50,33 +50,51 @@ export class PlaneCanvas extends Canvas {
 
 /** @type {SliderCanvasInfo} */
 export class SliderCanvas extends Canvas {
-  constructor(canvasEl) {
+  constructor(canvasEl, sideways = false) {
     super(canvasEl)
-    this.r = this.w/2
+    this.sideways = sideways
+    this.r = sideways ? this.h/2 : this.w/2
   }
   drawSlider() {
     const { ctx, h, w, r } = this
     ctx.beginPath()
     // Draw inner rectangle
-    ctx.rect(0, r, w, h - 2*r)
-    // Followed by two pairs of arcs to make rounded corners
-    // Upper arcs
-    ctx.moveTo(0, r)
-    ctx.arcTo(0, 0, r, 0, r)
-    ctx.arcTo(w, 0, w, r, r)
-    // Bottom arcs
-    ctx.moveTo(0, h - r)
-    ctx.arcTo(0, h, r, h, r)
-    ctx.arcTo(w, h, w, h - r, r)
+    if (this.sideways) {
+      ctx.rect(r, 0, w - 2*r, h)
+      // Left arcs
+      ctx.moveTo(r, h)
+      ctx.arcTo(0, h, 0, h/2, r)
+      ctx.arcTo(0, 0, r, 0, r)
+      // Right arcs
+      ctx.moveTo(w - r, 0)
+      ctx.arcTo(w, 0, w, h/2, r)
+      ctx.arcTo(w, h, w - r, h, r)
+    } else {
+      ctx.rect(0, r, w, h - 2*r)
+      // Followed by two pairs of arcs to make rounded corners
+      // Upper arcs
+      ctx.moveTo(0, r)
+      ctx.arcTo(0, 0, r, 0, r)
+      ctx.arcTo(w, 0, w, r, r)
+      // Bottom arcs
+      ctx.moveTo(0, h - r)
+      ctx.arcTo(0, h, r, h, r)
+      ctx.arcTo(w, h, w, h - r, r)
+    }
     ctx.fill()
   }
-  drawCursor(posY = 0) {
+  drawCursor(pos = 0) {
     const { ctx, r } = this
     ctx.beginPath()
-    // Draw outer circle (white)
-    ctx.arc(r, posY, r, 0, 2*Math.PI)
-    // Draw inner circle (transparent)
-    ctx.arc(r, posY, r/2, 0, 2*Math.PI, true)
+    if (this.sideways) {
+      ctx.arc(pos, r, r, 0, 2*Math.PI)
+      ctx.arc(pos, r, r/2, 0, 2*Math.PI, true)
+    } else {
+      // Draw outer circle (white)
+      ctx.arc(r, pos, r, 0, 2*Math.PI)
+      // Draw inner circle (transparent)
+      ctx.arc(r, pos, r/2, 0, 2*Math.PI, true)
+    }
     ctx.fill()
   }
 }

@@ -10,50 +10,51 @@
   let ctx
 
   // Height, width, radius
+  export let sideways = false
   let h = 0
   let w = 0
   let r = 0
-  $: r = w/2
+  $: r = sideways ? h/2 : w/2
   // Position of slider
-  let posY = 0
+  let pos = 0
   let moveCursor = false
 
-  function mousemove(evt) {
+  function updateCursor(evt) {
     if (!moveCursor) {
       return
     }
-    const y = evt.pageY - canvas.rect.top
-    if (y < r) {
-      posY = r
-    } else if (y > canvas.rect.height - r) {
-      posY = canvas.rect.height - r
+    const slider = sideways ? evt.pageX - canvas.rect.left : evt.pageY - canvas.rect.top
+    const max = sideways ? w - r : h - r
+    if (slider < r) {
+      pos = r
+    } else if (slider > max) {
+      pos = max
     } else {
-      posY = y
+      pos = slider
     }
   }
 
   const dispatch = createEventDispatcher()
   onMount(() => {
-    canvas = new SliderCanvas(canvasEl)
+    canvas = new SliderCanvas(canvasEl, sideways)
     // Get height, width, and calculate border radius
-    canvas.getDimensions()
     h = canvas.rect.height
     w = canvas.rect.width
-    r = w/2
-    posY = r
+    r = sideways ? h/2 : w/2
+    pos = r
     ctx = canvas.ctx
     // Start the rendering loop
     draw()
   })
 
-  let oldY = posY
+  let oldPos = pos
   function draw() {
     // Skip redrawing if the cursor position hasn't changed
-    if (posY === oldY) {
+    if (pos === oldPos) {
       requestAnimationFrame(draw)
       return
     } else {
-      oldY = posY
+      oldPos = pos
     }
     drawSlider()
     drawCursor()
@@ -63,7 +64,7 @@
 
   function drawSlider() {
     // Create and fill a HSL gradient
-    const gradient = ctx.createLinearGradient(r, r, r, h - r)
+    const gradient = sideways ? ctx.createLinearGradient(r, r, w - r, r) : ctx.createLinearGradient(r, r, r, h - r)
     for (let i = 0; i < 330; i++) {
       gradient.addColorStop(i/330, `hsl(${i}, 100%, 50%)`)
     }
@@ -73,11 +74,11 @@
 
   function drawCursor() {
     ctx.fillStyle = 'white'
-    canvas.drawCursor(posY)
+    canvas.drawCursor(pos)
   }
 
   function emitColor() {
-    const pixel = ctx.getImageData(r, posY, 1, 1)
+    const pixel = sideways ? ctx.getImageData(pos, r, 1, 1) : ctx.getImageData(r, pos, 1, 1)
     const rgb = Array.prototype.slice.call(pixel.data, 0, 3)
     dispatch('colorchange', parseHue(rgb))
   }
@@ -108,13 +109,15 @@
   }
 </script>
 
-<svelte:window on:mouseup={() => moveCursor = false} on:mousemove={mousemove}/>
+<svelte:window on:mouseup={() => moveCursor = false} on:mousemove={updateCursor}/>
 
-<canvas bind:this={canvasEl} class="hue-slider" on:mousedown={() => moveCursor = true} on:mousedown={mousemove}/>
+<canvas bind:this={canvasEl} class="hue-slider" on:mousedown={() => moveCursor = true} on:mousedown={updateCursor}/>
 
 <style>
   .hue-slider {
-    grid-column: 2;
     height: 100%;
+    width: 100%;
+    grid-column: 1;
+    grid-row: 2;
   }
 </style>

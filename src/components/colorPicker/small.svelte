@@ -9,13 +9,14 @@
   // Slider width MUST be declared in px, because radii for all cursors is calculated as r/2
   const sliderWidth = 16
   const cursorRadius = sliderWidth/2
+  const sideways = true
 </script>
 
 <div class="card grid" style="--slider-width: {sliderWidth}px;">
   <Plane {hue} {lightness} {cursorRadius} {saturation}/>
-  <HueSlider on:colorchange={(e) => hue = e.detail}/>
-  <LightnessSlider on:lightnesschange={(e) => lightness = e.detail}/>
-  <SaturationSlider {hue} {lightness} on:saturationchange={(e) => saturation = e.detail}/>
+  <HueSlider on:colorchange={(e) => hue = e.detail} {sideways}/>
+  <LightnessSlider on:lightnesschange={(e) => lightness = e.detail} {sideways}/>
+  <SaturationSlider {hue} {lightness} on:saturationchange={(e) => saturation = e.detail} {sideways}/>
 </div>
 
 <style>
