@@ -70,7 +70,7 @@
   }
   function drawSlider() {
     // Create saturation gradient
-    const gradient = sideways ? ctx.createLinearGradient(w - r, r, r, r, ) : ctx.createLinearGradient(r, r, r, h - r)
+    const gradient = sideways ? ctx.createLinearGradient(w - r, r, r, r) : ctx.createLinearGradient(r, h - r, r, r)
     for (let i = 0; i <= 100; i++) {
       gradient.addColorStop(i/100, `hsl(${hue}, ${i}%, 50%)`)
     }

@@ -1,5 +1,5 @@
 <script>
-import Small from '../components/colorPicker/small.svelte'
+import Medium from '../components/colorPicker/medium.svelte'
 import Navbar from '../components/navbar.svelte'
 
 
@@ -8,5 +8,5 @@ import Navbar from '../components/navbar.svelte'
 <Navbar/>
 
 <main class="container">
-  <Small/>
+  <Medium/>
 </main>
