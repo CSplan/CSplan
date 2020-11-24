@@ -108,7 +108,5 @@
   .lightness-slider {
     height: 100%;
     width: 100%;
-    grid-column: 1;
-    grid-row: 3;
   }
 </style>

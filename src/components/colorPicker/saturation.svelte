@@ -63,7 +63,6 @@
       oldPos = pos
       oldHue = hue
     }
-    console.log('drawing...')
     drawSlider()
     drawCursor()
     emitSaturation()
@@ -71,7 +70,7 @@
   }
   function drawSlider() {
     // Create saturation gradient
-    const gradient = sideways ? ctx.createLinearGradient(r, r, w - r, r) : ctx.createLinearGradient(r, r, r, h - r)
+    const gradient = sideways ? ctx.createLinearGradient(w - r, r, r, r, ) : ctx.createLinearGradient(r, r, r, h - r)
     for (let i = 0; i <= 100; i++) {
       gradient.addColorStop(i/100, `hsl(${hue}, ${i}%, 50%)`)
     }
@@ -103,13 +102,11 @@
 
 <svelte:window on:mouseup={() => moveCursor = false} on:mousemove={updateCursor}/>
 
-<canvas bind:this={canvasEl} on:mousedown={() => moveCursor = true} on:mousedown={updateCursor}/>
+<canvas bind:this={canvasEl} class="saturation-slider" on:mousedown={() => moveCursor = true} on:mousedown={updateCursor}/>
 
 <style>
   canvas {
     height: 100%;
     width: 100%;
-    grid-column: 1;
-    grid-row: 4;
   }
 </style>

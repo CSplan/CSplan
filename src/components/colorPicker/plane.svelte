@@ -107,12 +107,11 @@
 
 <svelte:window on:mousemove={updateCursor} on:mouseup={() => moveCursor = false}/>
 
-<canvas bind:this={canvasEl} class="color-plane" on:mousedown={() => moveCursor = true} on:mousedown={updateCursor}></canvas>
+<canvas bind:this={canvasEl} class="color-plane" on:mousedown={() => moveCursor = true} on:mousedown={updateCursor}/>
 
 <style>
   .color-plane {
-    grid-row: 1;
-    grid-column: 1;
     height: 100%;
+    width: 100%;
   }
 </style>

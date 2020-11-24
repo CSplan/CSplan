@@ -58,7 +58,7 @@ export class SliderCanvas extends Canvas {
   drawSlider() {
     const { ctx, h, w, r } = this
     ctx.beginPath()
-    // Draw inner rectangle
+    // Draw inner rectangle followed by two pairs of arcs to make rounded corners
     if (this.sideways) {
       ctx.rect(r, 0, w - 2*r, h)
       // Left arcs
@@ -71,7 +71,6 @@ export class SliderCanvas extends Canvas {
       ctx.arcTo(w, h, w - r, h, r)
     } else {
       ctx.rect(0, r, w, h - 2*r)
-      // Followed by two pairs of arcs to make rounded corners
       // Upper arcs
       ctx.moveTo(0, r)
       ctx.arcTo(0, 0, r, 0, r)
