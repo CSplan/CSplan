@@ -3,16 +3,20 @@
   import LightnessSlider from './lightness.svelte'
   import SaturationSlider from './saturation.svelte'
   import Plane from './plane.svelte'
+  import Sample from './sample.svelte'
+
   let hue = 0
   let saturation = 0
   let lightness = 0
+  let hex = ''
   // Slider width MUST be declared in px, because radii for all cursors is calculated as r/2
-  const sliderWidth = 24
+  const sliderWidth = 22
   const cursorRadius = sliderWidth/2
 </script>
 
 <div class="card grid grid-small" style="--slider-width: {sliderWidth}px;">
-  <Plane {hue} {saturation} {lightness} {cursorRadius} gridColumn=0 gridRow=0/>
+  <Plane {hue} {saturation} {lightness} {cursorRadius} gridColumn=0 gridRow=0 on:colorchange={(e) => hex = e.detail}/>
+  <Sample {hex}/>
   <HueSlider on:colorchange={(e) => hue = e.detail} class="test"/>
   <LightnessSlider on:lightnesschange={(e) => lightness = e.detail}/>
   <SaturationSlider {hue} {lightness} on:saturationchange={(e) => saturation = e.detail}/>
@@ -46,5 +50,10 @@
   .grid-small :global(.saturation-slider) {
     grid-column: 4;
     grid-row: 1 / span 2;
+  }
+
+  .grid-small :global(.sample) {
+    grid-column: 1;
+    grid-row: 2;
   }
 </style>

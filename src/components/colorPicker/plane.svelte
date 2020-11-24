@@ -1,6 +1,6 @@
 <!-- This component makes up the rectangular plane for selected color lightness -->
 <script>
-  import { onMount } from 'svelte'
+  import { createEventDispatcher, onMount } from 'svelte'
   import { PlaneCanvas } from './canvas'
 
   let canvasEl
@@ -32,21 +32,26 @@
     }
     const x = evt.pageX - canvas.rect.left
     const y = evt.pageY - canvas.rect.top
+    const xMax = canvas.rect.width - 1
+    const yMax = canvas.rect.height - 1
     if (x < 0) {
       posX = 0
-    } else if (x > canvas.rect.width) {
-      posX = canvas.rect.width
+    } else if (x > xMax) {
+      posX = xMax
     } else {
       posX = x
     }
     if (y < 0) {
       posY = 0
-    } else if (y > canvas.rect.height) {
-      posY = canvas.rect.height
+    } else if (y > yMax) {
+      posY = yMax
     } else {
       posY = y
     }
   }
+
+  const byteToHex = {}
+  const dispatch = createEventDispatcher()
 
   onMount(() => {
     // Query canvas
@@ -58,6 +63,10 @@
     // Initially position the cursor in the top right corner
     posX = w - r
     posY = r
+    // Precompute octet -> hex pairings for color conversions from binary
+    for (let b = 0; b <= 0xff; b++) {
+      byteToHex[b] = b.toString(16).padStart(2, '0')
+    }
     // Start the drawing loop
     draw()
   })
@@ -80,6 +89,7 @@
       oldLightness = lightness
     }
     drawPlane()
+    emitColorChange()
     drawCursor()
     requestAnimationFrame(draw)
   }
@@ -102,6 +112,12 @@
   function drawCursor() {
     ctx.fillStyle = 'white'
     canvas.drawCursor(posX, posY, r)
+  }
+  function emitColorChange() {
+    const pixel = ctx.getImageData(posX, posY, 1, 1)
+    const rgb = Array.prototype.slice.call(pixel.data, 0, 3)
+    const hex = '#' + rgb.map(b => byteToHex[b]).join('')
+    dispatch('colorchange', hex)
   }
 </script>
 
