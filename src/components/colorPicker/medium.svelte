@@ -4,6 +4,7 @@
   import SaturationSlider from './saturation.svelte'
   import Plane from './plane.svelte'
   import Sample from './sample.svelte'
+import Palette from './palette.svelte';
 
   let hue = 0
   let saturation = 0
@@ -16,7 +17,7 @@
 
 <div class="card grid grid-small" style="--slider-width: {sliderWidth}px;">
   <Plane {hue} {saturation} {lightness} {cursorRadius} gridColumn=0 gridRow=0 on:colorchange={(e) => hex = e.detail}/>
-  <Sample {hex}/>
+  <Palette/>
   <HueSlider on:colorchange={(e) => hue = e.detail} class="test"/>
   <LightnessSlider on:lightnesschange={(e) => lightness = e.detail}/>
   <SaturationSlider {hue} {lightness} on:saturationchange={(e) => saturation = e.detail}/>
@@ -38,6 +39,10 @@
   .grid-small :global(.color-plane) {
     grid-column: 1;
     grid-row: 1;
+  }
+  .grid-small :global(.palette) {
+    grid-column: 1;
+    grid-row: 2;
   }
   .grid-small :global(.hue-slider) {
     grid-column: 2;

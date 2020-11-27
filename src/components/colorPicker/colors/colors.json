@@ -1,3 +1,13 @@
 {
-  "skyBlue": "#82eeff"
+  "pastel": {
+    "red": "#fe5755",
+    "orange": "#fea552",
+    "yellow": "#fef76c",
+    "lightGreen": "#9cfe6a",
+    "green": "#70fe7e",
+    "aqua": "#70feca",
+    "skyBlue": "#82eeff",
+    "blue": "#738afe",
+    "indigo": "#9170fe"
+  }
 }

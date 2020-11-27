@@ -11,6 +11,7 @@
     "start": "node __sapper__/build"
   },
   "dependencies": {
+    "@rollup/plugin-json": "^4.1.0",
     "@types/marked": "^1.1.0",
     "compression": "^1.7.1",
     "cs-crypto": "^0.6.5",

@@ -1,3 +1,4 @@
+import json from '@rollup/plugin-json'
 import resolve from '@rollup/plugin-node-resolve'
 import replace from '@rollup/plugin-replace'
 import svelte from 'rollup-plugin-svelte'
@@ -28,6 +29,7 @@ module.exports = {
         browser: true,
         dedupe: ['svelte']
       }),
+      json(),
 
       !dev && terser({
         module: true
@@ -52,7 +54,8 @@ module.exports = {
       }),
       resolve({
         dedupe: ['svelte']
-      })
+      }),
+      json()
     ],
     // Dyncamically detect external modules
     external: Object.keys(pkg.dependencies).concat(require('module').builtinModules),
