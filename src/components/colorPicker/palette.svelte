@@ -2,8 +2,6 @@
   import colors from './colors/colors'
   
   const pastels = Object.values(colors.pastel)
-  
-
 </script>
 
 <div class="palette">
@@ -15,7 +13,7 @@
 <style>
   .palette {
     height: 100%;
-    max-width: 100%;
+    width: 100%;
     display: grid;
     column-gap: 0.25rem;
     grid-auto-flow: column;
