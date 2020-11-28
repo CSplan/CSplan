@@ -36,7 +36,7 @@
   <div class="container" style="--offset: {$offset}">
 
   <div class="content">
-    <svelte:component this={customPicker}/>
+    <svelte:component this={customPicker} on:colorchange/>
     <div class="side-menu">
       <i class="fas fa-chevron-right clickable" on:click={() => offset.set(100)}/>
     </div>
@@ -46,7 +46,7 @@
     <div class="side-menu">
       <i class="fas fa-chevron-left clickable" on:click={() => offset.set(0)}/>
     </div>
-    <Palette/>
+    <Palette on:colorchange/>
   </div>
 
   </div>

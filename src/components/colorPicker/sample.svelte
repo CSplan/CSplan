@@ -1,4 +1,4 @@
-<!-- TO BE DELETED - color sample viewer being used to select a color palette -->
+<!-- DEVELOPMENT COMPONENT - TO BE DELETED - color sample viewer being used to select a color palette -->
 <script>
   import { onMount } from 'svelte'
   import { Canvas } from './canvas';

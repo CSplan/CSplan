@@ -8,5 +8,5 @@ import Navbar from '../components/navbar.svelte'
 <Navbar/>
 
 <main class="container">
-  <ColorPicker/>
+  <ColorPicker on:colorchange={(e) => console.log(e.detail)}/>
 </main>
