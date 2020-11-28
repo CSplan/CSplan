@@ -21,14 +21,12 @@
 
 <style>
   .grid {
-    margin-top: 10rem;
-    padding: 0.5rem;
     display: grid;
     grid-template-rows: 1fr repeat(3, var(--slider-width));
     row-gap: 0.5rem;
     column-gap: 0.75rem;
-    width: 250px;
-    height: 200px;
+    width: 100%;
+    height: 100%;
   }
   /* It's best to clearly and explicitly define grid coordinates for each canvas in one place */
   .grid-small :global(.color-plane) {
