@@ -2,26 +2,39 @@
   import { tweened } from 'svelte/motion'
   import { cubicOut } from 'svelte/easing'
 
-  import Medium from './medium.svelte'
+  import Regular from './normal.svelte'
   import Small from './small.svelte'
   import Palette from './palette.svelte'
 
   
   // Initialize custom color picker with size specified by parameter (default medium)
-  export let size = 'medium'
+  export let size = 'small'
+  size = size.toLowerCase()
   let width = 0
   let height = 0
+  let sliderWidth = 0
   let customPicker
-  switch (size.toLowerCase()) {
+  switch (size) {
+  case 'large':
+    customPicker = Regular
+    width = 600
+    height = 300
+    sliderWidth = 30
+    break
+  default:
+    console.error('Invalid size provided, defaulting to medium')
+    // Falls through to medium case, DRY!
   case 'medium':
-    customPicker = Medium
-    width = 375
+    customPicker = Regular
+    width = 400
     height = 200
+    sliderWidth = 22
     break
   case 'small':
     customPicker = Small
-    width = 250
-    height = 160
+    width = 280
+    height = 180
+    sliderWidth = 16
     break
   }
 
@@ -36,7 +49,7 @@
   <div class="container" style="--offset: {$offset}">
 
   <div class="content">
-    <svelte:component this={customPicker} on:colorchange/>
+    <svelte:component this={customPicker} on:colorchange {sliderWidth}/>
     <div class="side-menu">
       <i class="fas fa-chevron-right clickable" on:click={() => offset.set(100)}/>
     </div>
@@ -46,7 +59,7 @@
     <div class="side-menu">
       <i class="fas fa-chevron-left clickable" on:click={() => offset.set(0)}/>
     </div>
-    <Palette on:colorchange/>
+    <Palette on:colorchange innerGap={Math.max(width/60, 5)}/>
   </div>
 
   </div>

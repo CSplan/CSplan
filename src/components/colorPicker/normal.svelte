@@ -8,13 +8,13 @@
   let saturation = 0
   let lightness = 0
   // Slider width MUST be declared in px, because radii for all cursors is calculated as r/2
-  const sliderWidth = 22
+  export let sliderWidth = 22
   const cursorRadius = sliderWidth/2
 </script>
 
 <div class="grid grid-medium" style="--slider-width: {sliderWidth}px;">
-  <Plane {hue} {saturation} {lightness} {cursorRadius} gridColumn=0 gridRow=0 on:colorchange/>
-  <HueSlider on:colorchange={(e) => hue = e.detail} class="test"/>
+  <Plane {hue} {saturation} {lightness} {cursorRadius}/>
+  <HueSlider on:colorchange={(e) => hue = e.detail}/>
   <LightnessSlider on:lightnesschange={(e) => lightness = e.detail}/>
   <SaturationSlider {hue} {lightness} on:saturationchange={(e) => saturation = e.detail}/>
 </div>

@@ -9,5 +9,16 @@
     "skyBlue": "#82eeff",
     "blue": "#738afe",
     "indigo": "#9170fe"
+  },
+  "bright": {
+    "red": "#fe1f02",
+    "orange": "#fe7702",
+    "yellow": "#fee902",
+    "lightGreen": "#a1f200",
+    "green": "#03b200",
+    "aqua": "#00f2ba",
+    "skyBlue": "#00d0fe",
+    "blue": "#000bd6",
+    "indigo": "#5800b6"
   }
 }
