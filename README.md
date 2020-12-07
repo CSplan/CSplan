@@ -3,8 +3,8 @@ Frontend for CSplan.
 
 ## Roadmap
 - [x] Tag state management
-- [ ] Color Picker
-- [ ] Tag color management
+- [x] Color Picker
+- [x] Tag color management
 - [ ] Ability to tag list items
 - [ ] Homepage
 - [ ] Info pages
