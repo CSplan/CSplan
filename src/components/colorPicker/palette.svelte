@@ -1,19 +1,19 @@
 <script>
 import { createEventDispatcher } from 'svelte'
 
-  import colors from './colors/colors'
+import colors from './colors/colors'
 
-  export let innerGap = 5;
+export let innerGap = 5
   
-  const pastels = Object.values(colors.pastel)
-  const brights = Object.values(colors.bright)
-  const colorGroups = [
-    pastels,
-    brights
-  ]
+const pastels = Object.values(colors.pastel)
+const brights = Object.values(colors.bright)
+const colorGroups = [
+  pastels,
+  brights
+]
 
-  // Dispatch color selection (done by clicking on buttons)
-  const dispatch = createEventDispatcher()
+// Dispatch color selection (done by clicking on buttons)
+const dispatch = createEventDispatcher()
 </script>
 
 <div class="palette" style="--gap: {innerGap}px">

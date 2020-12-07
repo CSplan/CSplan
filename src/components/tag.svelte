@@ -1,10 +1,10 @@
 <script>
   export let id
-  import tags from '../stores/tags';
+  import tags from '../stores/tags'
   import ColorPicker from './colorPicker/colorPicker.svelte'
   import { contenteditableKeypress } from '../misc/contenteditable'
-  import { onMount } from 'svelte';
-  import { parseLightness } from './colorPicker/parseLightness';
+  import { onMount } from 'svelte'
+  // import { parseLightness } from './colorPicker/parseLightness'
 
   let hasTag = false
   let tag

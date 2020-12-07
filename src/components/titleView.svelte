@@ -1,7 +1,6 @@
 <script>
   import { onMount } from 'svelte'
   import { flip } from 'svelte/animate'
-  import { goto } from '@sapper/app'
   import { lists, ordered } from '../stores/lists'
   import { contenteditableKeypress } from '../misc/contenteditable'
   import Modal, { toggleModal } from './createListModal.svelte'
@@ -14,16 +13,9 @@
   let initPromise
   onMount(() => initPromise = lists.init())
 
-  async function toggleEditable(id) {
-    lists.update(id, { editable: !$lists[id].editable })
-    if (!$lists[id].editable) {
-      await lists.commit(id)
-    }
-  }
-
   function ondragstart(evt) {
     // Store the item's id in the data transfer
-    evt.dataTransfer.setData("text/plain", evt.target.getAttribute('data-id'))
+    evt.dataTransfer.setData('text/plain', evt.target.getAttribute('data-id'))
   }
 
   function ondragover(evt) {
@@ -41,7 +33,7 @@
   async function ondrop(evt) {
     evt.target.style = ''
     const index = parseInt(evt.target.getAttribute('data-index'))
-    const id = evt.dataTransfer.getData("text/plain")
+    const id = evt.dataTransfer.getData('text/plain')
     await lists.move(id, index)
   }
 </script>
@@ -62,7 +54,9 @@
     <div animate:flip={{ duration: 200 }} data-id={list.id} data-index={i} class="row {!list.title.length && 'empty'}" draggable="true" on:dragstart={ondragstart} on:dragover={ondragover} on:dragleave={ondragleave} on:dragexit={ondragleave} on:drop={ondrop} >
       <header data-id={list.id} contenteditable on:keypress={contenteditableKeypress} on:blur={() => lists.commit(list.id)} on:input={(e) => lists.update(list.id, { title: e.target.textContent })} on:dblclick={() => lists.update(list.id, { title: '' })} spellcheck="false">{list.title}</header>
       <div class="icons">
-        <i class="fas fa-clipboard-list clickable" on:click={goto(`/todos/${list.id}`)}></i>
+        <a href="/lists/{list.id}" rel="preload">
+          <i class="fas fa-clipboard-list clickable"/>
+        </a>
         <i class="fas fa-times clickable" on:click={lists.delete(list.id)}></i>
       </div>
     </div>
@@ -70,7 +64,7 @@
     {#if isLoading}
       <div class="row"><Spinner size="1.5rem" vm="0.5rem"/></div>
     {:else}
-      <div class="row clickable" on:click={toggleModal}><i class="fas fa-plus"></i></div>
+      <div class="row clickable add-button-container" on:click={toggleModal}><i class="fas fa-plus"></i></div>
     {/if}
   {:else}
     <div class="row noborder">
@@ -109,6 +103,9 @@
   .row .icons i:hover {
     transform: scale(1.25)
   }
+  .icons>i, .icons>a {
+    margin: 0.5rem;
+  }
   .row:hover {
     background: whitesmoke;
   }
@@ -122,7 +119,10 @@
   .row.empty {
     min-height: 3rem;
   }
-  button, i {
+  button {
     margin: 0.5rem;
+  }
+  .add-button-container {
+    padding: 0.5rem;
   }
 </style>

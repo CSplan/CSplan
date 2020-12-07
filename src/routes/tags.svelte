@@ -1,10 +1,10 @@
 <script>
   import Tag from '../components/tag.svelte'
   import Modal, { toggleTagModal } from '../components/createTagModal.svelte'
-  import { onMount } from "svelte";
-  import Navbar from "../components/navbar.svelte";
-  import { ordered, tags} from '../stores/tags'
-  import Loading from '../components/loading.svelte';
+  import { onMount } from 'svelte'
+  import Navbar from '../components/navbar.svelte'
+  import { ordered, tags } from '../stores/tags'
+  import Loading from '../components/loading.svelte'
 
   const states = {
     init: 0,

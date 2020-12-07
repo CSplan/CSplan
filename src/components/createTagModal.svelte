@@ -10,7 +10,7 @@
 
 <script>
   import { onMount } from 'svelte'
-  import tags from '../stores/tags';
+  import tags from '../stores/tags'
 
   onMount(() => {
     el = document.querySelector('#createTagModal')

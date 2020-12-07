@@ -5,7 +5,7 @@
   import Regular from './normal.svelte'
   import Small from './small.svelte'
   import Palette from './palette.svelte'
-import { createEventDispatcher } from 'svelte';
+import { createEventDispatcher } from 'svelte'
 
   
   // Initialize custom color picker with size specified by parameter (default medium)

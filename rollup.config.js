@@ -21,8 +21,10 @@ module.exports = {
         'process.env.NODE_ENV': JSON.stringify(mode)
       }),
       svelte({
-        dev,
-        hydratable: true,
+        compilerOptions: {
+          dev,
+          hydratable: true  
+        },
         emitCss: true
       }),
       resolve({
@@ -49,8 +51,10 @@ module.exports = {
         'process.env.NODE_ENV': JSON.stringify(mode)
       }),
       svelte({
-        generate: 'ssr',
-        dev
+        compilerOptions: {
+          generate: 'ssr',
+          dev  
+        }
       }),
       resolve({
         dedupe: ['svelte']

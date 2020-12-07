@@ -43,7 +43,7 @@
   }
 
   async function toggleItem(index) {
-    const updatedItems = [ ...$lists[id].items ]
+    const updatedItems = [...$lists[id].items]
     updatedItems[index].done = !updatedItems[index].done
     await lists.update(id, {
       items: updatedItems
@@ -56,7 +56,7 @@
   }
 
   async function addItem() {
-    list.items.push({...itemSkeleton}) // js randomly implementing pointers amirite
+    list.items.push({ ...itemSkeleton }) // js randomly implementing pointers amirite
     list.items = list.items
     // Wait for the DOM to update and focus the new item 
     await tick()

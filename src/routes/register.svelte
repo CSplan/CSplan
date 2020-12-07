@@ -6,7 +6,7 @@
   import { route } from '../route'
   import { addToStore } from '../db'
   import { ABdecode, ABencode, aes, makeSalt, rsa } from 'cs-crypto'
-  import { onMount } from 'svelte';
+  import { onMount } from 'svelte'
 
 
   // Form data
@@ -37,12 +37,6 @@
 
   // If the user is already logged in, redirect them
   $: $user.isLoggedIn && state === states.resting && goto('/')
-
-
-  function updateField(e) {
-    const field = e.target.getAttribute('data-field')
-    fields[field] = e.target.value
-  }
 
   async function register() {
     const form = document.querySelector('#registerForm')
@@ -118,13 +112,13 @@
           data: ABencode(solved)
         })
       })
-			const { CSRFtoken } = await res.json()
+      const { CSRFtoken } = await res.json()
 			
-			// Store user info and CSRF token
+      // Store user info and CSRF token
       user.login({
         email: fields.email,
         id: userid
-			})
+      })
       localStorage.setItem('CSRF-Token', CSRFtoken)
       
       // Generate the user's master RSA keypair

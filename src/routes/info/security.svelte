@@ -1,6 +1,6 @@
 
 <script>
-  import { onMount } from 'svelte';
+  import { onMount } from 'svelte'
   import Navbar from '../../components/navbar.svelte'
 
   const dev = process.env.NODE_ENV === 'development'

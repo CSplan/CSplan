@@ -4,8 +4,7 @@
   import user from '../stores/user'
   import { route } from '../route'
   import { rsa, ABdecode, ABencode, aes } from 'cs-crypto'
-  const { unwrapPrivateKey, importPublicKey } = rsa
-  import { getDB, addToStore } from '../db'
+  import { addToStore } from '../db'
   $: $user.isLoggedIn && goto('/')
 
   // Form state management
@@ -64,7 +63,7 @@
         },
         authKey,
         encrypted
-      ).catch((err) => {
+      ).catch(() => {
         throw new Error('Invalid password.') // Show decryption errors as 'invalid password'
       }))
       // Submit the challenge

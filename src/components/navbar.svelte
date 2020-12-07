@@ -1,7 +1,6 @@
 <script>
   import quickActions from './quickActions.svelte'
   import user from '../stores/user'
-  import lists from '../stores/lists'
   const links = [
     {
       title: 'Home',
@@ -9,7 +8,7 @@
     },
     {
       title: 'Todo Lists',
-      href: '/todos'
+      href: '/lists'
     },
     {
       title: 'Tags',

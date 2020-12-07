@@ -1,6 +1,6 @@
 <script>
   import { createEventDispatcher, onMount } from 'svelte'
-  import { SliderCanvas } from './canvas';
+  import { SliderCanvas } from './canvas'
 
   /** @type {HTMLCanvasElement} */
   let canvasEl

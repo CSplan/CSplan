@@ -1,7 +1,7 @@
 <!-- DEVELOTO BE DELETED - color sample viewer being used to select a color palette -->
 <script>
   import { onMount } from 'svelte'
-  import { Canvas } from './canvas';
+  import { Canvas } from './canvas'
 
   let canvasEl
   /** @type {import('./canvas'.PlaneCanvas)} */
