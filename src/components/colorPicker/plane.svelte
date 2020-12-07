@@ -76,6 +76,10 @@
   let oldHue = null
   let oldSaturation = null
   let oldLightness = null
+  // Number of frames to wait before emitting color changes,
+  // Setting this to 2 prevents a bug of initially emitting a color change without any user input
+  // Note that this is a DEPRECATED WORKAROUND: the ideal solution to this problem is to initially set the position of each slider as well as the plane based on coordinates stored alongside the tag in the DB, so that the initial color emitted by the color picker is the same color previously set by the user
+  let waitFrames = 2
   function draw() {
     // If the cursor position, hue, and lightness have all stayed the same, skip redrawing
     if (posX === oldX && posY === oldY && hue === oldHue && saturation === oldSaturation && lightness === oldLightness) {
@@ -89,7 +93,11 @@
       oldLightness = lightness
     }
     drawPlane()
-    emitColorChange()
+    if (!waitFrames) {
+      emitColorChange()
+    } else {
+      waitFrames--
+    }
     drawCursor()
     requestAnimationFrame(draw)
   }
