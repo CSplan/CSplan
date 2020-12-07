@@ -13,8 +13,8 @@
 </script>
 
 <div class="grid grid-small" style="--slider-width: {sliderWidth}px;">
-  <Plane {hue} {saturation} {lightness} {cursorRadius} gridColumn=0 gridRow=0/>
-  <HueSlider on:colorchange={(e) => hue = e.detail} {sideways} class="test"/>
+  <Plane {hue} {saturation} {lightness} {cursorRadius} on:colorchange/>
+  <HueSlider on:colorchange={(e) => hue = e.detail} {sideways}/>
   <LightnessSlider on:lightnesschange={(e) => lightness = e.detail} {sideways}/>
   <SaturationSlider {hue} {lightness} on:saturationchange={(e) => saturation = e.detail} {sideways}/>
 </div>

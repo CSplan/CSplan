@@ -16,18 +16,20 @@ export function getDB() {
     const req = indexedDB.open(DB_NAME, DB_VER)
 
     req.onupgradeneeded = () => {
-      cachedIDB = req.result
+      const db = req.result
       // Keys store is indexed by id
-      cachedIDB.createObjectStore('keys', { keyPath: 'id' })
-      cachedIDB.createObjectStore('lists', { keyPath: 'id' })
-      cachedIDB.createObjectStore('tags', { keyPath: 'id' })
-      resolve(cachedIDB)
+      db.createObjectStore('keys', { keyPath: 'id', autoIncrement: false })
+      db.createObjectStore('lists', { keyPath: 'id', autoIncrement: false })
+      db.createObjectStore('tags', { keyPath: 'id', autoIncrement: false })
+      cachedIDB = db
+      resolve(db)
     }
 
     req.onerror = () => {
       reject(req.error)
     }
     req.onsuccess = () => {
+      cachedIDB = req.result
       resolve(req.result)
     }
   })

@@ -5,10 +5,11 @@
   import Regular from './normal.svelte'
   import Small from './small.svelte'
   import Palette from './palette.svelte'
+import { createEventDispatcher } from 'svelte';
 
   
   // Initialize custom color picker with size specified by parameter (default medium)
-  export let size = 'small'
+  export let size = 'medium'
   size = size.toLowerCase()
   let width = 0
   let height = 0
@@ -32,7 +33,7 @@
     break
   case 'small':
     customPicker = Small
-    width = 280
+    width = 250
     height = 180
     sliderWidth = 16
     break
@@ -45,7 +46,7 @@
   })
 </script>
 
-<div class="card" style="--width: {width}px; --height: {height}px">
+<div class="card color-picker" style="--width: {width}px; --height: {height}px">
   <div class="container" style="--offset: {$offset}">
 
   <div class="content">
@@ -68,7 +69,6 @@
 <style>
   /* Card containing everything */
   .card {
-    margin-top: 10rem;
     width: var(--width);
     height: var(--height);
 

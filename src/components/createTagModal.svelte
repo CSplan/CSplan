@@ -18,7 +18,7 @@
 
   const tagSkeleton = {
     name: '',
-    color: ''
+    color: '#FFFFFF'
   }
   let tag = { ...tagSkeleton }
   async function createTag() {

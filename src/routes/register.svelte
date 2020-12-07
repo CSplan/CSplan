@@ -6,6 +6,7 @@
   import { route } from '../route'
   import { addToStore } from '../db'
   import { ABdecode, ABencode, aes, makeSalt, rsa } from 'cs-crypto'
+  import { onMount } from 'svelte';
 
 
   // Form data
@@ -26,9 +27,16 @@
     success: 3
   }
   let state = states.resting
+  
+  // Form elements
+  /** @type {HTMLElement} */
+  let passwordField
+  /** @type {HTMlElement} */
+  let confirmPasswordField
 
-    // If the user is already logged in, redirect them
-    $: $user.isLoggedIn && state === states.resting && goto('/')
+
+  // If the user is already logged in, redirect them
+  $: $user.isLoggedIn && state === states.resting && goto('/')
 
 
   function updateField(e) {
@@ -148,6 +156,8 @@
         throw new Error(body.message || 'Failed to store master RSA keypair.')
       }
     } catch (err) {
+      console.error(err)
+      console.log(stateMsg)
       user.logout()
       state = states.error
       error = err instanceof Error ? err.message : err
@@ -155,6 +165,16 @@
     }
     goto('/')
   }
+
+  // Mount
+  onMount(() => {
+    passwordField.oninput = (e) => {
+      fields.password = e.target.value
+    }
+    confirmPasswordField.oninput = (e) => {
+      fields.confirmPassword = e.target.value
+    }
+  })
 </script>
 
 <svelte:component this={navbar}></svelte:component>
@@ -162,9 +182,9 @@
   <div class="card">
     <header>Register</header>
     <form id="registerForm" on:submit|preventDefault={register}>
-      <input data-field="email" type="email" required autocomplete="email" placeholder="Email" on:input={updateField}>
-      <input data-field="password" type={ showPassword ? 'text' : 'password'} required autocomplete="new-password" placeholder="Password" on:input={updateField}>
-      <input data-field="confirmPassword" type={ showPassword ? 'text' : 'password'} required autocomplete="new-password" placeholder="Confirm Password" on:input={updateField}>
+      <input data-field="email" type="email" required autocomplete="email" placeholder="Email" bind:value={fields.email}>
+      <input data-field="password" type={ showPassword ? 'text' : 'password'} required autocomplete="new-password" placeholder="Password" bind:this={passwordField}>
+      <input data-field="confirmPassword" type={ showPassword ? 'text' : 'password'} required autocomplete="new-password" placeholder="Confirm Password" bind:this={confirmPasswordField}>
       <label>
         <input type="checkbox" bind:checked={showPassword}>
         <span class="checkable">Show Password</span>

@@ -4,6 +4,7 @@
 <script>
   import { createEventDispatcher, onMount } from 'svelte'
   import { SliderCanvas } from './canvas'
+  import { parseLightness } from './parseLightness'
 
   let canvasEl
   /** @type {import('./canvas'.SliderCanvas)}*/
@@ -91,13 +92,7 @@
     lightness = parseLightness(rgb)
     dispatch('lightnesschange', lightness)
   }
-  function parseLightness(rgb) {
-    const r = rgb[0]
-    const g = rgb[1]
-    const b = rgb[2]
-    
-    return (Math.max(r, g, b) + Math.min(r, g, b)) / 510
-  }
+
 </script>
 
 <canvas bind:this={canvasEl} class="lightness-slider" on:mousedown={(e) => moveCursor = true} on:mousedown={updateCursor}/>

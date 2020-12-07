@@ -3,18 +3,16 @@
     "red": "#fe5755",
     "orange": "#fea552",
     "yellow": "#fef76c",
-    "lightGreen": "#9cfe6a",
-    "green": "#70fe7e",
-    "aqua": "#70feca",
+    "green": "#57fe7c",
     "skyBlue": "#82eeff",
     "blue": "#738afe",
-    "indigo": "#9170fe"
+    "indigo": "#9170fe",
+    "violet": "#e97efe"
   },
   "bright": {
     "red": "#fe1f02",
     "orange": "#fe7702",
     "yellow": "#fee902",
-    "lightGreen": "#a1f200",
     "green": "#03b200",
     "aqua": "#00f2ba",
     "skyBlue": "#00d0fe",

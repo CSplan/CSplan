@@ -1,9 +1,4 @@
 /* Modal sizing */
-@media screen and (min-width: 1200px) {
-  .card {
-    min-width: 800px;
-  }
-}
 
 /* Modal styling */
 .modal .card {
