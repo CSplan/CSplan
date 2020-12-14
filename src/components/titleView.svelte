@@ -59,9 +59,9 @@
     <div animate:flip={{ duration: 200 }} class="row {!list.title.length && 'empty'}" data-index={i} data-id={list.id}>
       <div class="handle" data-index={i} data-id={list.id} draggable="true" on:dragstart={ondragstart} on:dragover={ondragover} on:dragleave={ondragleave} on:dragexit={ondragleave} on:drop={ondrop}/>
     
-      
-      <header contenteditable on:keypress={contenteditableKeypress} bind:textContent={list.title} spellcheck="false" on:drop|preventDefault on:blur={store.update(list.id, { list })}>{list.title}</header>
+      <header contenteditable on:keypress={contenteditableKeypress} spellcheck="false" on:drop|preventDefault on:blur={e => store.update(list.id, { title: e.target.textContent })}>{list.title}</header>
 
+      <div class="row-end">
       <div class="handle" data-index={i} data-id={list.id} draggable="true"
       on:dragstart={ondragstart}
       on:dragover={ondragover}
@@ -76,6 +76,7 @@
         <i class="fas fa-times clickable" on:click={store.delete(list.id)}></i>
       </div>
     </div>
+  </div>
   {/each}
     {#if isLoading}
       <div class="row"><Spinner size="1.5rem" vm="0.5rem"/></div>
@@ -101,30 +102,33 @@
   .card {
     margin-top: 10vh;
     min-width: 800px;
-    max-width: 80%
+    max-width: 80%;
   }
   .row {
+    --side-margin: 5rem;
     color: initial;
     text-align: center;
     display: grid;
-    grid-template-columns: minmax(5rem, 1fr) max-content minmax(5rem, 1fr);
+    grid-template-columns: minmax(5rem, 1fr) minmax(0, auto) minmax(5rem, 1fr);
     grid-auto-flow: column;
-    position: relative;
-    max-width: 100%;
+    width: 100%;
+  }
+  .row-end {
+    width: 100%;
+    display: grid;
+    grid-auto-flow: column;
+    grid-template-columns: 1fr max-content;
   }
   .row header {
-    overflow: hidden;
-    white-space: nowrap;
-    padding: 0.5rem;
+    word-break: break-all;
+    max-width: 100%;
   }
   .row-bottom {
     text-align: center;
     padding: 0.3rem;
   }
   .row .icons {
-    position: absolute;
-    right: 0;
-    margin: 0.25rem;
+    width: 100%;
   }
   .row .icons i:hover {
     transform: scale(1.25)
