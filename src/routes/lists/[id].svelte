@@ -15,7 +15,7 @@
 
 <Navbar/>
 
-<a class="back-button" href="/todos" rel="preload">
+<a class="back-button" href="/lists" rel="preload">
   <i class="fas fa-arrow-left"></i>
 </a>
 

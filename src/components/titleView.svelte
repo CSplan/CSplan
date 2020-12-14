@@ -1,7 +1,7 @@
 <script>
   import { onMount } from 'svelte'
   import { flip } from 'svelte/animate'
-  import { lists, ordered } from '../stores/lists'
+  import { lists as store, ordered } from '../stores/lists'
   import { contenteditableKeypress } from '../misc/contenteditable'
   import Modal, { toggleModal } from './createListModal.svelte'
   import Spinner from './spinner.svelte'
@@ -9,10 +9,7 @@
   // State pulled from child components
   let isLoading = false
 
-  // Initialize the list store
-  let initPromise
-  onMount(() => initPromise = lists.init())
-
+  // Drag and drop code
   function ondragstart(evt) {
     // Store the item's id in the data transfer
     evt.dataTransfer.setData('text/plain', evt.target.getAttribute('data-id'))
@@ -21,21 +18,29 @@
   function ondragover(evt) {
     evt.preventDefault()
     // Set a blue higlight
-    evt.target.style.border = 'var(--bold-blue) 2px solid'
-    evt.target.style['border-radius'] = '0.3rem'
+    evt.target.parentNode.style.border = 'var(--bold-blue) 2px solid'
+    evt.target.parentNode.style['border-radius'] = '0.3rem'
   }
 
   function ondragleave(evt) {
     evt.preventDefault()
-    evt.target.style = ''
+    evt.target.parentNode.style = ''
   }
 
   async function ondrop(evt) {
-    evt.target.style = ''
+    evt.preventDefault()
+    evt.target.parentNode.style = ''
     const index = parseInt(evt.target.getAttribute('data-index'))
     const id = evt.dataTransfer.getData('text/plain')
-    await lists.move(id, index)
+    await store.move(id, index)
+    await store.commit(id)
   }
+
+  // Initialize the list store
+  let initPromise
+  onMount(() => {
+    initPromise = store.init()
+  })
 </script>
 
 <Modal on:loadingChange={(e) => isLoading = e.detail.isLoading}/>
@@ -51,20 +56,31 @@
 {:then}
   {#if $ordered.length > 0}
   {#each $ordered as list, i (list.id)}
-    <div animate:flip={{ duration: 200 }} data-id={list.id} data-index={i} class="row {!list.title.length && 'empty'}" draggable="true" on:dragstart={ondragstart} on:dragover={ondragover} on:dragleave={ondragleave} on:dragexit={ondragleave} on:drop={ondrop} >
-      <header data-id={list.id} contenteditable on:keypress={contenteditableKeypress} on:blur={() => lists.commit(list.id)} on:input={(e) => lists.update(list.id, { title: e.target.textContent })} on:dblclick={() => lists.update(list.id, { title: '' })} spellcheck="false">{list.title}</header>
+    <div animate:flip={{ duration: 200 }} class="row {!list.title.length && 'empty'}" data-index={i} data-id={list.id}>
+      <div class="handle" data-index={i} data-id={list.id} draggable="true" on:dragstart={ondragstart} on:dragover={ondragover} on:dragleave={ondragleave} on:dragexit={ondragleave} on:drop={ondrop}/>
+    
+      
+      <header contenteditable on:keypress={contenteditableKeypress} bind:textContent={list.title} spellcheck="false" on:drop|preventDefault on:blur={store.update(list.id, { list })}>{list.title}</header>
+
+      <div class="handle" data-index={i} data-id={list.id} draggable="true"
+      on:dragstart={ondragstart}
+      on:dragover={ondragover}
+      on:dragleave={ondragleave}
+      on:dragexit={ondragleave}
+      on:drop={ondrop}/>
+    
       <div class="icons">
         <a href="/lists/{list.id}" rel="preload">
           <i class="fas fa-clipboard-list clickable"/>
         </a>
-        <i class="fas fa-times clickable" on:click={lists.delete(list.id)}></i>
+        <i class="fas fa-times clickable" on:click={store.delete(list.id)}></i>
       </div>
     </div>
   {/each}
     {#if isLoading}
       <div class="row"><Spinner size="1.5rem" vm="0.5rem"/></div>
     {:else}
-      <div class="row clickable add-button-container" on:click={toggleModal}><i class="fas fa-plus"></i></div>
+      <div class="row-bottom clickable" on:click={toggleModal}><i class="fas fa-plus"></i></div>
     {/if}
   {:else}
     <div class="row noborder">
@@ -85,15 +101,25 @@
   .card {
     margin-top: 10vh;
     min-width: 800px;
+    max-width: 80%
   }
   .row {
     color: initial;
     text-align: center;
-    display: flex;
-    flex-direction: row;
-    justify-content: center;
-    align-items: center;
+    display: grid;
+    grid-template-columns: minmax(5rem, 1fr) max-content minmax(5rem, 1fr);
+    grid-auto-flow: column;
     position: relative;
+    max-width: 100%;
+  }
+  .row header {
+    overflow: hidden;
+    white-space: nowrap;
+    padding: 0.5rem;
+  }
+  .row-bottom {
+    text-align: center;
+    padding: 0.3rem;
   }
   .row .icons {
     position: absolute;
@@ -106,7 +132,7 @@
   .icons>i, .icons>a {
     margin: 0.5rem;
   }
-  .row:hover {
+  .row:hover, .row-bottom:hover {
     background: whitesmoke;
   }
   /* Create separators */
@@ -121,8 +147,5 @@
   }
   button {
     margin: 0.5rem;
-  }
-  .add-button-container {
-    padding: 0.5rem;
   }
 </style>
