@@ -9,31 +9,47 @@
   // State pulled from child components
   let isLoading = false
 
-  // Drag and drop code
-  function ondragstart(evt) {
+  // Update event handlers
+  function onblur(evt, id) {
+    store.update(id, evt.target.textContent)
+  }
+
+  // Drag and drop event handlers
+  function ondragstart(evt, id) {
     // Store the item's id in the data transfer
-    evt.dataTransfer.setData('text/plain', evt.target.getAttribute('data-id'))
+    evt.dataTransfer.setData('text/plain', id)
   }
 
   function ondragover(evt) {
     evt.preventDefault()
     // Set a blue higlight
-    evt.target.parentNode.style.border = 'var(--bold-blue) 2px solid'
-    evt.target.parentNode.style['border-radius'] = '0.3rem'
+    const row = getRow(evt)
+    row.style.border = 'var(--bold-blue) 2px solid'
+    row.style['border-radius'] = '0.3rem'
   }
 
   function ondragleave(evt) {
     evt.preventDefault()
-    evt.target.parentNode.style = ''
+    getRow(evt).style = ''
   }
 
-  async function ondrop(evt) {
+  async function ondrop(evt, index) {
     evt.preventDefault()
-    evt.target.parentNode.style = ''
-    const index = parseInt(evt.target.getAttribute('data-index'))
+    getRow(evt).style = ''
     const id = evt.dataTransfer.getData('text/plain')
     await store.move(id, index)
     await store.commit(id)
+  }
+
+  // Return the first parent element of evt.target to contain the attribute [data-role="row"]
+  // Used to highlight the correct element in drag and drop events
+  function getRow(evt) {
+    let el
+    el = evt.target.parentNode
+    while (el.getAttribute('data-role') !== 'row') {
+      el = el.parentNode
+    }
+    return el
   }
 
   // Initialize the list store
@@ -56,18 +72,15 @@
 {:then}
   {#if $ordered.length > 0}
   {#each $ordered as list, i (list.id)}
-    <div animate:flip={{ duration: 200 }} class="row {!list.title.length && 'empty'}" data-index={i} data-id={list.id}>
-      <div class="handle" data-index={i} data-id={list.id} draggable="true" on:dragstart={ondragstart} on:dragover={ondragover} on:dragleave={ondragleave} on:dragexit={ondragleave} on:drop={ondrop}/>
+    <div animate:flip={{ duration: 200 }} class="row {!list.title.length && 'empty'}" data-role="row">
+      <div class="handle" draggable="true"
+      on:dragstart={e => ondragstart(e, list.id)} on:dragover={ondragover} on:dragleave={ondragleave} on:dragexit={ondragleave} on:drop={e => ondrop(e, i)}/>
     
-      <header contenteditable on:keypress={contenteditableKeypress} spellcheck="false" on:drop|preventDefault on:blur={e => store.update(list.id, { title: e.target.textContent })}>{list.title}</header>
+      <header contenteditable on:keypress={contenteditableKeypress} spellcheck="false" on:drop|preventDefault on:blur={e => onblur(e, list.id)}>{list.title}</header>
 
       <div class="row-end">
-      <div class="handle" data-index={i} data-id={list.id} draggable="true"
-      on:dragstart={ondragstart}
-      on:dragover={ondragover}
-      on:dragleave={ondragleave}
-      on:dragexit={ondragleave}
-      on:drop={ondrop}/>
+      <div class="handle" draggable="true"
+      on:dragstart={e => ondragstart(e, list.id)} on:dragover={ondragover} on:dragleave={ondragleave} on:dragexit={ondragleave} on:drop={e => ondrop(e, i)}/>
     
       <div class="icons">
         <a href="/lists/{list.id}" rel="preload">
