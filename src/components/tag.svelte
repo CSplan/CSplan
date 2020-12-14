@@ -1,12 +1,12 @@
 <script>
   export let id
   import tags from '../stores/tags'
+  import { states } from './js/states'
   import ColorPicker from './colorPicker/colorPicker.svelte'
   import { contenteditableKeypress } from '../misc/contenteditable'
   import { onMount } from 'svelte'
-  // import { parseLightness } from './colorPicker/parseLightness'
 
-  let hasTag = false
+  let state = states.loading
   let tag
   let mountColorPicker = false
   let showColorPicker = false
@@ -23,48 +23,76 @@
 
   function deleteThis() {
     // Unmount component HTML to avoid any errors caused by values disappearing asynchronously
-    hasTag = false
+    state = states.destroyed
     tags.delete(id)
   }
 
   onMount(() => {
     tag = $tags[id]
-    hasTag = true
+    state = states.resting
   })
 </script>
 
-<svelte:window on:click={() => showColorPicker && toggleColorPicker()}/>
+<svelte:window on:click={() => showColorPicker && toggleColorPicker()} />
 
-{#if hasTag}
-<div class="card" style="--background-color: {$tags[id].color}">
-  <header contenteditable spellcheck="false" on:keypress={contenteditableKeypress} on:input={(e) => tags.update(id, { name: e.target.textContent })} on:blur={tags.commit(id)}>{tag.name}</header>
-  <div class="icons">
-    <i class="fas fa-palette clickable toggle {showColorPicker ? 'show' : ''}" on:click|self={toggleColorPicker} on:click|stopPropagation>
-      {#if mountColorPicker} 
-        <ColorPicker on:colorchange={(e) => tags.update(id, { color: e.detail })}/>
-      {/if}
-    </i>
-    <i class="fas fa-times clickable" on:click={deleteThis}></i>
+{#if state === states.resting || state === states.updating}
+  <div class="card" style="--background-color: {$tags[id].color}">
+    <div class="handle" />
+
+    <header
+      contenteditable
+      spellcheck="false"
+      on:keypress={contenteditableKeypress}
+      on:input={(e) => tags.update(id, { name: e.target.textContent })}
+      on:blur={tags.commit(id)}>
+      {tag.name}
+    </header>
+
+    <div class="end">
+      <div class="handle" />
+
+      <div class="icons" on:click|stopPropagation>
+        <div class="toggle {showColorPicker ? 'show' : ''}">
+          <i class="fas fa-palette clickable"
+          on:click|self={toggleColorPicker}/>
+          {#if mountColorPicker}
+            <ColorPicker
+              on:colorchange={(e) => tags.update(id, { color: e.detail })} />
+          {/if}
+        </div>
+
+        <i class="fas fa-times clickable" on:click={deleteThis} />
+      </div>
+    </div>
   </div>
-</div>
 {/if}
 
 <style>
   .card {
+    --min-handle: 3rem;
     font-size: 1.25rem;
     margin-bottom: 0;
-    display: flex;
-    flex-direction: row;
-    align-items: center;
-    overflow: visible;
+    display: grid;
+    grid-auto-flow: column;
+    grid-template-columns: minmax(var(--min-handle), 1fr) minmax(0, auto) minmax(var(--min-handle), 1fr);
     background-color: var(--background-color);
     transition: none;
+
+    /* Let color picker overflow tag boundaries when shown */
+    overflow: visible;
   }
   .card header {
     margin: 0.5rem;
     padding: 0;
+    word-break: break-all;
     border-bottom: none;
   }
+  .end {
+    display: grid;
+    grid-auto-flow: column;
+    grid-template-columns: 1fr max-content;
+  }
+
   .card:first-child {
     margin-top: 2rem;
   }
@@ -73,20 +101,24 @@
   }
   @media screen and (min-width: 1200px) {
     .card {
-      min-width: 800px;
-      max-width: 1200px;
+      width: 800px;
     }
   }
 
   .icons {
-    position: absolute;
-    right: 0;
-    margin: 0.25rem;
+    width: 100%;
     display: flex;
     flex-direction: row;
+    align-items: center;
   }
-  .icons>i {
-    margin: 0.25rem;
+  .icons > * {
+    margin: 0.5rem;
+  }
+  .icons > i:not(first-child) {
+    margin-left: 0;
+  }
+  .icons > i:hover, .icons > div > i:hover {
+    transform: scale(1.25);
   }
 
   .toggle {

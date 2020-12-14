@@ -5,7 +5,7 @@
   "license": "UNLICENSED",
   "scripts": {
     "dev": "PORT=3030 sapper dev",
-    "lint": "eslint --fix",
+    "lint": "eslint --fix src/",
     "build": "sapper build",
     "export": "sapper export",
     "start": "node __sapper__/build"
