@@ -24,6 +24,8 @@
     error: 3
   }
   let saveState = saveStates.resting
+  const fadeDuration = 250
+
   onMount(async () => {
     await lists.init()
     list = $lists[id]
@@ -70,24 +72,29 @@
     list.items = list.items // Trigger render update
   }
 
-  let timeout
+  let cooldown = false
   async function saveAndCommit() {
+    if (saveState !== saveStates.resting || cooldown) {
+      return
+    }
+    cooldown = true
     // Wait .5s before showing a loading icon
-    timeout = setTimeout(() => {
-      saveState = saveStates.saving
-    }, 500)
-    await lists.update(id, {
+    lists.update(id, {
       ...list
     })
+    let timeout = setTimeout(() => {
+      saveState = saveStates.saving
+    }, 500)
     await lists.commit(id)
-    saveState = saveStates.success
     clearTimeout(timeout)
-    timeout = 0
+    saveState = saveStates.success
     setTimeout(() => {
-      if (!timeout) {
-        saveState = saveStates.resting
-      }
-    }, 300)
+      saveState = saveStates.resting
+    }, fadeDuration)
+    // To avoid DOM errors, we need to wait for 2*fadeDuration before allowing the user to save again (fade in + fade out)
+    setTimeout(() => {
+      cooldown = false
+    }, 2*fadeDuration)
   }
 </script>
 
@@ -110,11 +117,11 @@
     <i class="fas fa-plus"></i>
   </div>
   <div class="corner">
-  {#if saveState === saveStates.saving}
-    <Spinner size="1.5rem"/>
-  {:else if saveState === saveStates.success}
-    <i class="fas fa-check bold" transition:fade={{ duration: 300 }}></i>
-  {/if}
+    {#if saveState === saveStates.saving}
+      <Spinner size="1.5rem"/>
+    {:else if saveState === saveStates.success}
+      <i class="fas fa-check bold" transition:fade={{ duration: fadeDuration }}></i>
+    {/if}
   </div>
 </div>
 {/if}
