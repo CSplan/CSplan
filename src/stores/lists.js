@@ -35,6 +35,9 @@ function create() {
         // See if the cache matches the list
         const cached = await getByKey('lists', list.id)
         if (cached && cached.checksum === list.meta.checksum) {
+          if (process.env.NODE_ENV === 'development') {
+            console.log(`%cUsing cache for list ${list.id}`, 'color: lightblue;')
+          }
           // Add the cached version to state and continue
           await updateWithKey('lists', { ...cached, id: list.id, index: list.meta.index }) // Update our index
           update((store) => {

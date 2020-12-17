@@ -58,13 +58,28 @@ main.container.vcenter {
 }
 
 /* Highlight empty contenteditable fields */
+@keyframes pulse {
+  0% {
+    opacity: 0;
+  }
+  50% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+  }
+}
 [contenteditable]:empty:not(.hide-empty):not(:focus) {
-  border-bottom: #222 2px solid !important;
-  min-width: 16px;
+  border-bottom: #22222F 2px solid !important;
+  width: 1rem;
+  animation: pulse linear 1.5s infinite;
 }
 [contenteditable]:empty.hide-empty:not(:focus) {
   padding: 0 !important;
   margin: 0 !important;
+}
+[contenteditable]:empty:not(.hide-empty):not(:focus)::before {
+  content: "";
 }
 
 /* Modal styles */

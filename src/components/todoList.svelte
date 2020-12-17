@@ -82,7 +82,7 @@
     lists.update(id, {
       ...list
     })
-    let timeout = setTimeout(() => {
+    const timeout = setTimeout(() => {
       saveState = saveStates.saving
     }, 500)
     await lists.commit(id)
@@ -100,20 +100,35 @@
 
 {#if hasList}
 <div class="card">
-  <header class="title">{list.title}</header>
+  <header class="title" contenteditable spellcheck="false" on:keypress={contenteditableKeypress} bind:textContent={list.title}>{list.title}</header>
   {#each list.items as item, i}
   <div class="row item-title marginless">
     <i class="clickable checkbox { item.done ? 'fas fa-check-circle' : 'far fa-circle'}" on:click={() => toggleItem(i)}></i>
+
+
     <div class="content">
       <header data-index={i} contenteditable spellcheck="false" on:keypress={contenteditableKeypress} bind:textContent={list.items[i].title} on:blur={saveAndCommit}>{item.title}</header>
-      <p class="hide-empty" contenteditable spellcheck="false" bind:textContent={list.items[i].description} on:blur={saveAndCommit}>{item.description}</p>  
+      <p class="hide-empty" contenteditable spellcheck="false" bind:textContent={list.items[i].description} on:blur={saveAndCommit}>{item.description}</p>
     </div>
+
+    <div class="spacer"/>
+
     <div class="icons">
       <i class="fas fa-times clickable" on:click={() => deleteItem(i)}></i>
     </div>
+
+    <div class="tags">
+      <span class="tag" style="background-color: lightgreen;">
+        <pre contenteditable spellcheck="false" on:keypress={contenteditableKeypress}>test</pre>
+        <i class="fas fa-times clickable"></i>
+      </span>
+      <span class="tag">
+        <i class="fas fa-plus clickable"></i>
+      </span>
+    </div>
   </div>
   {/each}
-  <div class="row centered clickable" on:click={addItem}>
+  <div class="row-bottom centered clickable" on:click={addItem}>
     <i class="fas fa-plus"></i>
   </div>
   <div class="corner">
@@ -134,15 +149,6 @@
     margin-bottom: 0.5rem;
   }
 
-  div.item-title {
-    display: inline-flex;
-    flex-direction: row;
-    align-items: center;
-    margin-left: 0.5rem;
-  }
-  .card {
-    margin-top: 10vh !important;
-  }
   .row header, .row p {
     max-width: 100%;
     word-break: break-word;
@@ -165,14 +171,60 @@
   }
 
   .row {
+    width: 100%;
     color: initial;
     text-align: center;
+    display: grid;
+    grid-auto-flow: column;
+    grid-template-columns: min-content minmax(0, auto) 1fr minmax(0, auto);
+    grid-template-rows: max-content minmax(0, auto);
+  }
+  .row * {
+    grid-row: 1 / span 1;
+  }
+
+  /* Tag styles */
+  .tags {
+    grid-column: 2 / span 4;
+    grid-row: 2 / span 1;
     display: flex;
     flex-direction: row;
-    justify-content: left;
+  }
+  .tag {
+    font-size: small;
+    border-radius: 0;
+    margin: 0 0.25rem;
+    margin-bottom: 0.25rem;
+    padding: 0 0.3rem;
+    display: inline-flex;
+    flex-direction: row;
     align-items: center;
-    position: relative;
-    width: 100%;
+  }
+  .tag:first-child {
+    margin-left: 0;
+  }
+  .tag:last-child {
+    margin-right: 0;
+  }
+
+  /* Tag element (text + buttons) styling */
+  .tag * {
+    background-color: inherit;
+    margin: 0 0.2rem;
+    padding: 0;
+  }
+  .tag *:first-child {
+    margin-left: 0;
+  }
+  .tag *:last-child {
+    margin-right: 0;
+  }
+
+  .row-bottom {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
   }
   .row .content {
     color: initial;
@@ -195,14 +247,6 @@
   .row .content p:not(:empty) {
     padding-bottom: 0.2rem;
   }
-  .row.centered {
-    justify-content: center;
-  }
-  .row .icons {
-    position: absolute;
-    right: 0;
-    margin: 0.25rem;
-  }
   .row .icons i:hover {
     transform: scale(1.25);
   }
@@ -210,7 +254,7 @@
     background: whitesmoke;
   }
   /* Create separators */
-  .row:not(:last-child) {
+  .row {
     border-bottom: #ccc 1px solid;
   }
   i {
