@@ -1,23 +1,31 @@
 <script>
-  import { createEventDispatcher } from 'svelte'
+  import { createEventDispatcher, onMount } from 'svelte'
+  import tags, { ordered } from '../stores/tags'
 
   const dispatch = createEventDispatcher()
 
   let showTagForm = false
+  export let currentTags = []
 
-  let sampleTags = [...Array(5).fill({
-    name: 'Sample Tag',
-    color: 'lightgreen'
-  }), {
-    name: 'Other Tag',
-    color: 'lightblue'
-  }]
+  let searchOptions = []
+  let inputEl
 
-  let searchOptions = sampleTags
+  function toggleForm() {
+    showTagForm = !showTagForm
+    if (showTagForm) {
+      inputEl.focus()
+    } else {
+      inputEl.value = ''
+    }
+  }
 
   function searchTags(evt) {
     const results = []
-    for (const tag of sampleTags) {
+    for (const tag of $ordered) {
+      if (currentTags.includes(tag.id)) {
+        continue
+      }
+
       const index = tag.name.toLowerCase().search(evt.target.value.toLowerCase())
       if (index >= 0) {
         if (!Array.isArray(results[index])) {
@@ -38,15 +46,25 @@
   }
 
   function addTag(tag) {
-    dispatch('newtag', tag)
+    dispatch('newtag', tag.id)
     showTagForm = false
-  } 
+  }
+
+  onMount(async () => {
+    await tags.init()
+    for (const tag of $ordered) {
+      if (!currentTags.includes(tag.id)) {
+        searchOptions.push(tag)
+      }
+    }
+    searchOptions = searchOptions
+  })
 </script>
 
 <div>
-  <i class="fas fa-plus clickable" on:click={() => showTagForm = !showTagForm}/>
+  <i class="fas fa-plus clickable" on:click={toggleForm}/>
   <form class="tag-select {showTagForm ? 'show' : ''}" on:submit|preventDefault>
-    <input type="text" autocomplete="on" on:input={searchTags}>
+    <input type="text" autocomplete="on" on:input={searchTags} bind:this={inputEl}>
     <div class="options">
       {#each searchOptions as opt}
         <pre class="clickable" style="background-color: {opt.color};" on:click={addTag(opt)}>{opt.name}</pre>
@@ -68,7 +86,6 @@
   .tag-select .options {
     min-width: 100%;
     margin: 0;
-    margin-top: 0.3rem;
     background-color: white;
     position: absolute;
     top: 100%;
@@ -80,9 +97,8 @@
     transition: none;
   }
   .options pre {
-    border-radius: 0;
     background-color: inherit;
-    margin: 0;
+    margin: 0.3rem;
     padding: 0.2rem;
   }
   .options pre:hover {

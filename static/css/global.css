@@ -77,6 +77,7 @@ main.container.vcenter {
 [contenteditable]:empty.hide-empty:not(:focus) {
   padding: 0 !important;
   margin: 0 !important;
+  line-height: 0.5;
 }
 [contenteditable]:empty:not(.hide-empty):not(:focus)::before {
   content: "";

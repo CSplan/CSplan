@@ -1,9 +1,10 @@
 <script>
-  import { onMount, onDestroy, tick } from 'svelte'
+  import { onMount, tick } from 'svelte'
   import lists from '../stores/lists'
+  import tags from '../stores/tags'
   import Spinner from './spinner.svelte'
   import TagForm from './tagForm.svelte'
-  import { contenteditableKeypress, formElementIsFocused } from '../misc/contenteditable'
+  import { contenteditableKeypress } from '../misc/contenteditable'
   import { fade } from 'svelte/transition'
 
   export let id
@@ -13,7 +14,7 @@
     title: '',
     description: '',
     category: '',
-    done: false    
+    done: false
   }
 
   let list
@@ -31,35 +32,20 @@
     await lists.init()
     list = $lists[id]
     hasList = true
-    document.addEventListener('keypress', handleKeypress)
   })
-  onDestroy(() => {
-    process.browser && document.removeEventListener('keypress', handleKeypress)
-  })
-
-  function handleKeypress(evt) {
-    if (formElementIsFocused()) {
-      return
-    } else if (evt.key.toLowerCase() === 's') {
-      saveAndCommit()
-    }
-  }
 
   async function toggleItem(index) {
-    const updatedItems = [...$lists[id].items]
+    const updatedItems = list.items
     updatedItems[index].done = !updatedItems[index].done
     await lists.update(id, {
       items: updatedItems
     })
     list = $lists[id] // Trigger render update
-    // Immediately commit the change if on mobile for a better UX
-    if (screen.width < 960) {
-      await saveAndCommit()
-    }
+    await saveAndCommit()
   }
 
   async function addItem() {
-    list.items.push({ ...itemSkeleton }) // js randomly implementing pointers amirite
+    list.items.push({ ...itemSkeleton, tags: [] }) // js randomly implementing pointers amirite
     list.items = list.items
     // Wait for the DOM to update and focus the new item 
     await tick()
@@ -67,6 +53,25 @@
 
     await saveAndCommit()
   }
+
+  async function tagItem(index, id) {
+    list.items[index].tags.push(id)
+    console.log(list.items)
+    list = list
+    await saveAndCommit()
+  }
+  async function untagItem(index, id) {
+    const tags = list.items[index].tags
+    for (let i = 0; i < tags.length; i++) {
+      if (tags[i] == id) {
+        tags.splice(i, 1)
+        list.items[index].tags = tags
+        break
+      }
+    }
+    await saveAndCommit()
+  }
+
   async function deleteItem(index) {
     list.items.splice(index, 1)
     await saveAndCommit()
@@ -97,22 +102,12 @@
       cooldown = false
     }, 2*fadeDuration)
   }
-
-
-  // TODO: delete
-  let sampleTags = [...Array(5).fill({
-    name: 'Sample Tag',
-    color: 'lightgreen'
-  }), {
-    name: 'Other Tag',
-    color: 'lightblue'
-  }]
 </script>
 
 {#if hasList}
 <div class="card">
   <header class="title" contenteditable spellcheck="false" on:keypress={contenteditableKeypress} bind:textContent={list.title}>{list.title}</header>
-  {#each list.items as item, i}
+  {#each list.items as item, i (i)}
   <div class="row item-title marginless">
     <i class="clickable checkbox { item.done ? 'fas fa-check-circle' : 'far fa-circle'}" on:click={() => toggleItem(i)}></i>
 
@@ -129,14 +124,16 @@
     </div>
 
     <div class="tags">
-      {#each sampleTags as tag}
-      <span class="tag" style="background-color: {tag.color};">
-          <pre contenteditable spellcheck="false" on:keypress={contenteditableKeypress}>{tag.name}</pre>
-          <i class="fas fa-times clickable"></i>
+      {#each item.tags as id (id)}
+      {#if $tags[id]}
+      <span class="tag" style="background-color: {$tags[id].color};">
+          <pre contenteditable spellcheck="false" on:keypress={contenteditableKeypress}>{$tags[id].name}</pre>
+          <i class="fas fa-times clickable" on:click={untagItem(i, id)}></i>
       </span>
+      {/if}
       {/each}
       <span class="tag">
-        <TagForm on:newtag={e => { sampleTags.push(e.detail); sampleTags = sampleTags }}/>
+        <TagForm on:newtag={e => tagItem(i, e.detail)} currentTags={item.tags}/>
       </span>
     </div>
   </div>

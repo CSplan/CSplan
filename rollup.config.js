@@ -2,6 +2,7 @@ import json from '@rollup/plugin-json'
 import resolve from '@rollup/plugin-node-resolve'
 import replace from '@rollup/plugin-replace'
 import svelte from 'rollup-plugin-svelte'
+import gzip from 'rollup-plugin-gzip'
 import { terser } from 'rollup-plugin-terser'
 import sapper from 'sapper/config/rollup.js'
 import pkg from './package.json'
@@ -35,7 +36,8 @@ module.exports = {
 
       !dev && terser({
         module: true
-      })
+      }),
+      gzip()
     ],
 
     preserveEntrySignatures: false,

@@ -17,6 +17,7 @@
     "cs-crypto": "^0.6.5",
     "marked": "^1.2.0",
     "polka": "next",
+    "rollup-plugin-gzip": "^2.5.0",
     "rollup-plugin-svelte": "^7.0.0",
     "sirv": "^1.0.0",
     "svelte-preprocess": "^4.0.9"

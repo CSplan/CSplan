@@ -5,6 +5,8 @@ import { deepDecrypt, deepEncrypt, generateKey } from 'cs-crypto/lib/aes'
 import { unwrapKey, wrapKey } from 'cs-crypto/lib/rsa'
 import { addToStore, deleteFromStore, getByKey, updateWithKey } from '../db'
 
+let initialized = false
+
 function create() {
   const tagsStore = {}
   const { subscribe, update } = writable(tagsStore)
@@ -12,6 +14,9 @@ function create() {
   return {
     subscribe,
     async init() {
+      if (initialized) {
+        return
+      }
       // Fetch tags from API
       const res = await fetch(route('/tags'), {
         method: 'GET',
@@ -58,6 +63,7 @@ function create() {
           return store
         })
       }
+      initialized = true
     },
     async create(tag) {
       if (typeof tag !== 'object') {
