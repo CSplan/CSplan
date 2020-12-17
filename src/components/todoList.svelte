@@ -2,6 +2,7 @@
   import { onMount, onDestroy, tick } from 'svelte'
   import lists from '../stores/lists'
   import Spinner from './spinner.svelte'
+  import TagForm from './tagForm.svelte'
   import { contenteditableKeypress, formElementIsFocused } from '../misc/contenteditable'
   import { fade } from 'svelte/transition'
 
@@ -96,6 +97,16 @@
       cooldown = false
     }, 2*fadeDuration)
   }
+
+
+  // TODO: delete
+  let sampleTags = [...Array(5).fill({
+    name: 'Sample Tag',
+    color: 'lightgreen'
+  }), {
+    name: 'Other Tag',
+    color: 'lightblue'
+  }]
 </script>
 
 {#if hasList}
@@ -118,12 +129,14 @@
     </div>
 
     <div class="tags">
-      <span class="tag" style="background-color: lightgreen;">
-        <pre contenteditable spellcheck="false" on:keypress={contenteditableKeypress}>test</pre>
-        <i class="fas fa-times clickable"></i>
+      {#each sampleTags as tag}
+      <span class="tag" style="background-color: {tag.color};">
+          <pre contenteditable spellcheck="false" on:keypress={contenteditableKeypress}>{tag.name}</pre>
+          <i class="fas fa-times clickable"></i>
       </span>
+      {/each}
       <span class="tag">
-        <i class="fas fa-plus clickable"></i>
+        <TagForm on:newtag={e => { sampleTags.push(e.detail); sampleTags = sampleTags }}/>
       </span>
     </div>
   </div>
@@ -154,6 +167,9 @@
     word-break: break-word;
     margin-right: 2rem;
   }
+  .card {
+    overflow: visible;
+  }
   @media screen and (min-width: 960px) {
     .card {
       min-width: 800px;
@@ -176,7 +192,7 @@
     text-align: center;
     display: grid;
     grid-auto-flow: column;
-    grid-template-columns: min-content minmax(0, auto) 1fr minmax(0, auto);
+    grid-template-columns: min-content minmax(0, auto) minmax(0, 1fr) minmax(0, auto);
     grid-template-rows: max-content minmax(0, auto);
   }
   .row * {
@@ -185,40 +201,42 @@
 
   /* Tag styles */
   .tags {
-    grid-column: 2 / span 4;
+    grid-column: 2 / span 2;
     grid-row: 2 / span 1;
     display: flex;
     flex-direction: row;
+    flex-wrap: wrap;
   }
   .tag {
+    max-width: 100%;
+    word-break: break-all;
+    --margin: 0.25rem;
     font-size: small;
     border-radius: 0;
-    margin: 0 0.25rem;
-    margin-bottom: 0.25rem;
+    margin-right: var(--margin);
+    margin-bottom: var(--margin);
     padding: 0 0.3rem;
     display: inline-flex;
     flex-direction: row;
     align-items: center;
-  }
-  .tag:first-child {
-    margin-left: 0;
   }
   .tag:last-child {
     margin-right: 0;
   }
 
   /* Tag element (text + buttons) styling */
-  .tag * {
+  .tag>* {
     background-color: inherit;
     margin: 0 0.2rem;
     padding: 0;
   }
-  .tag *:first-child {
+  .tag>*:first-child {
     margin-left: 0;
   }
-  .tag *:last-child {
+  .tag>*:last-child {
     margin-right: 0;
   }
+
 
   .row-bottom {
     display: flex;

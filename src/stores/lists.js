@@ -7,6 +7,9 @@ import {  deepDecrypt } from 'cs-crypto/lib/aes'
 const { generateKey, deepEncrypt } = aes
 const { wrapKey } = rsa
 
+// Memoize init (init can safely be called when it's uncertain if the store is initialized without incurring wasted operations)
+let initialized = false
+
 function create() {
   const listStore = {}
   const { subscribe, update } = writable(listStore)
@@ -14,6 +17,9 @@ function create() {
   return {
     subscribe,
     async init() {
+      if (initialized) {
+        return
+      }
       // Get all todo lists from the API
       let res = await fetch(route('/todos'), {
         method: 'GET',
@@ -70,6 +76,7 @@ function create() {
           return store
         })
       }
+      initialized = true
     },
     async create(list) {
       // Validate the list
