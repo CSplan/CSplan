@@ -161,7 +161,7 @@
   .row header, .row .content p {
     max-width: 100%;
     word-break: break-word;
-    margin-right: 2rem;
+    line-height: 1;
   }
   .card {
     overflow: visible;

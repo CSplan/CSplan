@@ -114,7 +114,7 @@
 <style>
   .card {
     margin-top: 10vh;
-    min-width: 800px;
+    min-width: 50%;
     max-width: 80%;
   }
   .row {

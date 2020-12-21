@@ -8,15 +8,13 @@
     },
     {
       title: 'Todo Lists',
-      href: '/lists'
+      href: '/lists',
+      needsLogin: true
     },
     {
       title: 'Tags',
-      href: '/tags'
-    },
-    {
-      title: 'Shared',
-      href: '/shared'
+      href: '/tags',
+      needsLogin: true
     }
   ]
 </script>
@@ -30,7 +28,11 @@
   
   <div class="menu">
   {#each links as link}
+    {#if link.needsLogin && $user.isLoggedIn}
+      <a class="pseudo button" rel="prefetch" href={link.href}>{link.title}</a>
+    {:else if !link.needsLogin}
     <a class="pseudo button" rel="prefetch" href={link.href}>{link.title}</a>
+    {/if}
   {/each}
   <div class="right">
     {#if $user.isLoggedIn}
@@ -57,12 +59,12 @@
     padding: 0 0.5rem;
     background: #333;
     color: whitesmoke;
+  } 
+  nav {
+    position: relative;
   }
   /* Desktop styles */
   @media screen and (min-width: 960px) {
-    nav {
-      position: static;
-    }
     .menu {
       display: flex;
       flex-direction: row;
@@ -78,9 +80,6 @@
   }
   /* Mobile styles */
   @media screen and (max-width: 960px) {
-    nav {
-      overflow-y: hidden;
-    }
     .menu {
       display: flex;
       flex-direction: column;

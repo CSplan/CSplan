@@ -103,8 +103,8 @@
       const privateKey = await rsa.unwrapPrivateKey('AES-GCM:'+body.privateKey, fields.password, ABdecode(body.PBKDF2salt))
       const publicKey = await rsa.importPublicKey(body.publicKey)
       // Store in IDB
-      addToStore('keys', {
-        id: $user.id,
+      await addToStore('keys', {
+        id: $user.user.id,
         publicKey,
         privateKey
       })
