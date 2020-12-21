@@ -1,5 +1,5 @@
 <script>
-  import { createEventDispatcher, onMount } from 'svelte'
+  import { createEventDispatcher, onMount, tick } from 'svelte'
   import tags, { ordered } from '../stores/tags'
   import { scale } from 'svelte/transition'
 
@@ -8,11 +8,31 @@
   let showTagForm = false
   export let currentTags = []
 
+  let defaultSearchOptions = []
   let searchOptions = []
+  let searchText = ''
   let inputEl
+  $: {
+    defaultSearchOptions = []
+    for (const tag of $ordered) {
+      if (!currentTags.includes(tag.id)) {
+        defaultSearchOptions.push(tag)
+      }
+    }
+    defaultSearchOptions = defaultSearchOptions
+  }
 
-  function toggleForm() {
+  $: {
+    if (!searchText.length) {
+      searchOptions = defaultSearchOptions
+    } else {
+      searchOptions = searchTags()
+    }
+  }
+
+  async function toggleForm() {
     showTagForm = !showTagForm
+    await tick()
     if (showTagForm) {
       inputEl.focus()
     } else {
@@ -20,14 +40,14 @@
     }
   }
 
-  function searchTags(evt) {
+  function searchTags() {
     const results = []
     for (const tag of $ordered) {
       if (currentTags.includes(tag.id)) {
         continue
       }
 
-      const index = tag.name.toLowerCase().search(evt.target.value.toLowerCase())
+      const index = tag.name.toLowerCase().search(searchText.toLowerCase())
       if (index >= 0) {
         if (!Array.isArray(results[index])) {
           results[index] = []
@@ -43,7 +63,7 @@
         }
       }
     }
-    searchOptions = final
+    return final
   }
 
   function addTag(tag) {
@@ -53,12 +73,6 @@
 
   onMount(async () => {
     await tags.init()
-    for (const tag of $ordered) {
-      if (!currentTags.includes(tag.id)) {
-        searchOptions.push(tag)
-      }
-    }
-    searchOptions = searchOptions
   })
 </script>
 
@@ -66,7 +80,7 @@
   <i class="fas {showTagForm ? 'fa-times' : 'fa-plus'} clickable" on:click={toggleForm}/>
   {#if showTagForm}
     <form class="tag-select" on:submit|preventDefault transition:scale={{ duration: 200 }}>
-      <input type="text" autocomplete="on" placeholder="Search Tags" on:input={searchTags} bind:this={inputEl}>
+      <input type="text" autocomplete="on" placeholder="Search Tags" bind:this={inputEl} bind:value={searchText}>
       <div class="options">
         {#if searchOptions.length > 0}
           {#each searchOptions as opt}

@@ -56,7 +56,6 @@
 
   async function tagItem(index, id) {
     list.items[index].tags.push(id)
-    console.log(list.items)
     list = list
     await saveAndCommit()
   }
