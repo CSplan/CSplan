@@ -2,6 +2,7 @@ import json from '@rollup/plugin-json'
 import resolve from '@rollup/plugin-node-resolve'
 import replace from '@rollup/plugin-replace'
 import svelte from 'rollup-plugin-svelte'
+import typescript from '@rollup/plugin-typescript'
 import gzip from 'rollup-plugin-gzip'
 import { terser } from 'rollup-plugin-terser'
 import sapper from 'sapper/config/rollup.js'
@@ -32,6 +33,7 @@ module.exports = {
         browser: true,
         dedupe: ['svelte']
       }),
+      typescript(),
       json(),
 
       !dev && terser({
@@ -61,6 +63,7 @@ module.exports = {
       resolve({
         dedupe: ['svelte']
       }),
+      typescript(),
       json()
     ],
     // Dyncamically detect external modules
