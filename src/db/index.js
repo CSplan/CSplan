@@ -21,8 +21,6 @@ export function getDB() {
       db.createObjectStore('keys', { keyPath: 'id', autoIncrement: false })
       db.createObjectStore('lists', { keyPath: 'id', autoIncrement: false })
       db.createObjectStore('tags', { keyPath: 'id', autoIncrement: false })
-      cachedIDB = db
-      resolve(db)
     }
 
     req.onerror = () => {
