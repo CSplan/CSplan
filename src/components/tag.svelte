@@ -3,7 +3,7 @@
   import tags from '../stores/tags'
   import { states } from './js/states'
   import ColorPicker from './colorPicker/colorPicker.svelte'
-  import { contenteditableKeypress } from '../misc/contenteditable'
+  import { CEkeypress } from '../misc/contenteditable'
   import { onMount } from 'svelte'
 
   let state = states.loading
@@ -42,7 +42,7 @@
     <header
       contenteditable
       spellcheck="false"
-      on:keypress={contenteditableKeypress}
+      on:keypress={CEkeypress}
       on:input={(e) => tags.update(id, { name: e.target.textContent })}
       on:blur={tags.commit(id)}>
       {tag.name}

@@ -1,11 +1,14 @@
-export function contenteditableKeypress(evt) {
+export function CEkeypress(evt) {
   // Unfocus the contenteditable element if the enter key is pressed
   if (evt.key === 'Enter') {
     evt.target.blur()
     evt.preventDefault()
-    // Trim the last break added by the keypress
-    evt.target.innerHTML = evt.target.innerHTML.replace(/<br>$/, '')
   }
+}
+
+export function CEtrim(evt) {
+  // Trim any trailing breaks
+  evt.target.innerHTML = evt.target.innerHTML.replace(/<br>$/, '')
 }
 
 export function formElementIsFocused() {

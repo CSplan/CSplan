@@ -30,7 +30,7 @@
   
   <div class="menu">
   {#each links as link}
-    <a class="pseudo button" href={link.href}>{link.title}</a>
+    <a class="pseudo button" rel="prefetch" href={link.href}>{link.title}</a>
   {/each}
   <div class="right">
     {#if $user.isLoggedIn}

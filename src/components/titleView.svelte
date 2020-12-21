@@ -2,7 +2,7 @@
   import { onMount } from 'svelte'
   import { flip } from 'svelte/animate'
   import { lists as store, ordered } from '../stores/lists'
-  import { contenteditableKeypress } from '../misc/contenteditable'
+  import { CEkeypress } from '../misc/contenteditable'
   import Modal, { toggleModal } from './createListModal.svelte'
   import Spinner from './spinner.svelte'
 
@@ -76,14 +76,14 @@
       <div class="handle" draggable="true"
       on:dragstart={e => ondragstart(e, list.id)} on:dragover={ondragover} on:dragleave={ondragleave} on:dragexit={ondragleave} on:drop={e => ondrop(e, i)}/>
     
-      <header contenteditable on:keypress={contenteditableKeypress} spellcheck="false" on:drop|preventDefault on:blur={e => onblur(e, list.id)}>{list.title}</header>
+      <header contenteditable on:keypress={CEkeypress} spellcheck="false" on:drop|preventDefault on:blur={e => onblur(e, list.id)}>{list.title}</header>
 
       <div class="row-end">
       <div class="handle" draggable="true"
       on:dragstart={e => ondragstart(e, list.id)} on:dragover={ondragover} on:dragleave={ondragleave} on:dragexit={ondragleave} on:drop={e => ondrop(e, i)}/>
     
       <div class="icons">
-        <a href="/lists/{list.id}" rel="preload">
+        <a href="/lists/{list.id}" rel="prefetch">
           <i class="fas fa-clipboard-list clickable"/>
         </a>
         <i class="fas fa-times clickable" on:click={store.delete(list.id)}></i>
@@ -94,13 +94,13 @@
     {#if isLoading}
       <div class="row"><Spinner size="1.5rem" vm="0.5rem"/></div>
     {:else}
-      <div class="row-bottom clickable" on:click={toggleModal}><i class="fas fa-plus"></i></div>
+      <div class="row-center clickable" on:click={toggleModal}><i class="fas fa-plus"></i></div>
     {/if}
   {:else}
-    <div class="row noborder">
+    <div class="row-center noborder">
       <header>It's empty here...</header>
     </div>
-    <div class="row">
+    <div class="row-center">
       <button class="bold" on:click={toggleModal}>
         Create a Todo List
       </button>
@@ -136,9 +136,8 @@
     word-break: break-all;
     max-width: 100%;
   }
-  .row-bottom {
+  .row-center {
     text-align: center;
-    padding: 0.3rem;
   }
   .row .icons {
     width: 100%;
@@ -149,7 +148,7 @@
   .icons>i, .icons>a {
     margin: 0.5rem;
   }
-  .row:hover, .row-bottom:hover {
+  .row:hover, .row-center:hover {
     background: whitesmoke;
   }
   /* Create separators */

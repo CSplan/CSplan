@@ -69,17 +69,12 @@ main.container.vcenter {
     opacity: 0;
   }
 }
-[contenteditable]:empty:not(.hide-empty):not(:focus) {
+[contenteditable]:empty:not(.no-empty-effect):not(:focus) {
   border-bottom: #22222F 2px solid !important;
   width: 1rem;
   animation: pulse linear 1.5s infinite;
 }
-[contenteditable]:empty.hide-empty:not(:focus) {
-  padding: 0 !important;
-  margin: 0 !important;
-  line-height: 0.5;
-}
-[contenteditable]:empty:not(.hide-empty):not(:focus)::before {
+[contenteditable]:empty:not(.no-empty-effect):not(:focus)::before {
   content: "";
 }
 

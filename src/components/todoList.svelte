@@ -4,7 +4,7 @@
   import tags from '../stores/tags'
   import Spinner from './spinner.svelte'
   import TagForm from './tagForm.svelte'
-  import { contenteditableKeypress } from '../misc/contenteditable'
+  import { CEkeypress, CEtrim } from '../misc/contenteditable'
   import { fade } from 'svelte/transition'
 
   export let id
@@ -106,15 +106,15 @@
 
 {#if hasList}
 <div class="card">
-  <header class="title" contenteditable spellcheck="false" on:keypress={contenteditableKeypress} bind:textContent={list.title}>{list.title}</header>
+  <header class="title" contenteditable spellcheck="false" on:keypress={CEkeypress} on:blur={CEtrim} bind:textContent={list.title}>{list.title}</header>
   {#each list.items as item, i (i)}
   <div class="row item-title marginless">
     <i class="clickable checkbox { item.done ? 'fas fa-check-circle' : 'far fa-circle'}" on:click={() => toggleItem(i)}></i>
 
 
     <div class="content">
-      <header data-index={i} contenteditable spellcheck="false" on:keypress={contenteditableKeypress} bind:textContent={list.items[i].title} on:blur={saveAndCommit}>{item.title}</header>
-      <p class="hide-empty" contenteditable spellcheck="false" bind:textContent={list.items[i].description} on:blur={saveAndCommit}>{item.description}</p>
+      <header data-index={i} contenteditable spellcheck="false" on:keypress={CEkeypress} on:blur={CEtrim} bind:textContent={list.items[i].title} on:blur={saveAndCommit}>{item.title}</header>
+      <p class="no-empty-effect" contenteditable spellcheck="false" bind:textContent={list.items[i].description} on:blur={CEtrim} on:blur={saveAndCommit}>{item.description}</p>
     </div>
 
     <div class="spacer"/>
@@ -127,12 +127,12 @@
       {#each item.tags as id (id)}
       {#if $tags[id]}
       <span class="tag" style="background-color: {$tags[id].color};">
-          <pre contenteditable spellcheck="false" on:keypress={contenteditableKeypress}>{$tags[id].name}</pre>
+          <p contenteditable spellcheck="false" on:keypress={CEkeypress} on:blur={CEtrim}>{$tags[id].name}</p>
           <i class="fas fa-times clickable" on:click={untagItem(i, id)}></i>
       </span>
       {/if}
       {/each}
-      <span class="tag">
+      <span class="tag tag-form">
         <TagForm on:newtag={e => tagItem(i, e.detail)} currentTags={item.tags}/>
       </span>
     </div>
@@ -159,7 +159,7 @@
     margin-bottom: 0.5rem;
   }
 
-  .row header, .row p {
+  .row header, .row .content p {
     max-width: 100%;
     word-break: break-word;
     margin-right: 2rem;
@@ -217,6 +217,9 @@
     flex-direction: row;
     align-items: center;
   }
+  .tag.tag-form {
+    padding: 0;
+  }
   .tag:last-child {
     margin-right: 0;
   }
@@ -254,12 +257,16 @@
     margin-top: 0;
     margin-bottom: 0;
   }
+  .row .content p:empty:not(:focus)::before {
+    content: "Description";
+    color: rgba(0, 0, 0, 0.3);
+  }
 
   /* Slight padding above the title and below the description (only if it isn't empty)*/
   .row .content header {
-    padding-top: 0.2rem;
+    padding: 0.2rem 0;
   }
-  .row .content p:not(:empty) {
+  .row .content p {
     padding-bottom: 0.2rem;
   }
   .row .icons i:hover {

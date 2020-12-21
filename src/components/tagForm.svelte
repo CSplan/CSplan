@@ -1,6 +1,7 @@
 <script>
   import { createEventDispatcher, onMount } from 'svelte'
   import tags, { ordered } from '../stores/tags'
+  import { scale } from 'svelte/transition'
 
   const dispatch = createEventDispatcher()
 
@@ -62,15 +63,21 @@
 </script>
 
 <div>
-  <i class="fas fa-plus clickable" on:click={toggleForm}/>
-  <form class="tag-select {showTagForm ? 'show' : ''}" on:submit|preventDefault>
-    <input type="text" autocomplete="on" on:input={searchTags} bind:this={inputEl}>
-    <div class="options">
-      {#each searchOptions as opt}
-        <pre class="clickable" style="background-color: {opt.color};" on:click={addTag(opt)}>{opt.name}</pre>
-      {/each}
-    </div>
-  </form>
+  <i class="fas {showTagForm ? 'fa-times' : 'fa-plus'} clickable" on:click={toggleForm}/>
+  {#if showTagForm}
+    <form class="tag-select" on:submit|preventDefault transition:scale={{ duration: 200 }}>
+      <input type="text" autocomplete="on" placeholder="Search Tags" on:input={searchTags} bind:this={inputEl}>
+      <div class="options">
+        {#if searchOptions.length > 0}
+          {#each searchOptions as opt}
+            <p class="clickable" style="background-color: {opt.color};" on:click={addTag(opt)}>{opt.name}</p>
+          {/each}
+        {:else}
+          <p>No Tags Found</p>
+        {/if}
+      </div>
+    </form>
+  {/if}
 </div>
 
 <style>
@@ -78,10 +85,6 @@
   .tag-select {
     display: inline-block;
     position: relative;
-    visibility: hidden;
-  }
-  .tag-select.show {
-    visibility: visible;
   }
   .tag-select .options {
     min-width: 100%;
@@ -96,12 +99,20 @@
   .tag-select input {
     transition: none;
   }
-  .options pre {
+  .options p {
     background-color: inherit;
-    margin: 0.3rem;
-    padding: 0.2rem;
+    padding: 0;
+    margin: 0;
   }
-  .options pre:hover {
+  .options p:hover {
     filter: hue-rotate(100deg);
+  }
+  .options p {
+    padding: 0.3rem;
+  }
+
+  /* 0.6em margin matches 0.6em vertical padding on the form*/
+  i {
+    margin: 0.6em 0;
   }
 </style>
