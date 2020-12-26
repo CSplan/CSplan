@@ -17,6 +17,10 @@
   <i class="fas fa-chevron-down"></i>
   <div class={`dropdown ${dropdown ? 'show' : ''}`}>
     <div class="buttons">
+      <a href="/settings">
+        <i class="fas fa-cog"/>
+        Settings
+      </a>
       <button class="transparent" on:click={user.logout}>
         Log Out
       </button>
@@ -50,8 +54,9 @@
     background: #333;
     padding: 0.25rem;
     position: absolute;
-    top: 2.5em;
+    top: 100%;
     right: 0;
+    border: 2px solid #aaa;
   }
   .dropdown.show {
     display: block;
@@ -61,7 +66,30 @@
     flex-direction: column;
     align-items: center;
   }
-  .buttons button {
-    white-space: nowrap; /* Text stays on one line */
+  .buttons>* {
+    padding: 0.3rem 0.9rem;
+    margin: 0.3rem 0;
+    border-radius: 0.3rem;
+    white-space: nowrap;
+    width: 100%;
+    color: white;
+  }
+  .buttons>*:not(:last-child) {
+    margin-bottom: 0;
+  }
+  .buttons>*:hover {
+    box-shadow: inset 0 0 0 99em rgba(255,255,255,0.2);
+  }
+
+  /* Icon animations */
+  @keyframes spin {
+    from {transform: rotate(0deg);}
+    to {transform: rotate(359deg);}
+  }
+  .buttons>*:hover>i.fa-cog {
+    animation-name: spin;
+    animation-duration: 1.5s;
+    animation-iteration-count: infinite;
+    animation-timing-function: linear;
   }
 </style>

@@ -6,6 +6,44 @@ interface keyedObject {
   id: string
 }
 
+const enum Scopes {
+  All,
+  User
+}
+
+type StoreTemplate = {
+  name: string,
+  scope: Scopes,
+  options: IDBObjectStoreParameters
+}
+
+const stores: StoreTemplate[] = [
+  {
+    name: 'keys',
+    scope: Scopes.User,
+    options: {
+      keyPath: 'id',
+      autoIncrement: false
+    }
+  },
+  {
+    name: 'lists',
+    scope: Scopes.User,
+    options: {
+      keyPath: 'id',
+      autoIncrement: false
+    }
+  },
+  {
+    name: 'tags',
+    scope: Scopes.User,
+    options: {
+      keyPath: 'id',
+      autoIncrement: false
+    }
+  }
+]
+
 // Get an IDBDatabase instance to request transactions
 export function getDB(): Promise<IDBDatabase> {
   return new Promise((resolve, reject) => {
@@ -17,10 +55,10 @@ export function getDB(): Promise<IDBDatabase> {
 
     req.onupgradeneeded = () => {
       const db = req.result
-      // Keys store is indexed by id
-      db.createObjectStore('keys', { keyPath: 'id', autoIncrement: false })
-      db.createObjectStore('lists', { keyPath: 'id', autoIncrement: false })
-      db.createObjectStore('tags', { keyPath: 'id', autoIncrement: false })
+      // Create stores from the declared templates
+      for (const store of stores) {
+        db.createObjectStore(store.name, store.options)
+      }
     }
 
     req.onerror = () => {
@@ -46,6 +84,15 @@ export async function addToStore(storeName: string, data: keyedObject): Promise<
       resolve()
     }
   })
+}
+
+// Clear all stores containing user information
+export async function clearUserStores(): Promise<void> {
+  for (const store of stores) {
+    if (store.scope === Scopes.User) {
+      await clearStore(store.name)
+    }
+  }
 }
 
 // Clear a specified object store

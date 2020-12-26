@@ -3,11 +3,11 @@ export function toggleModal(el) {
   el.checked = !el.checked
   // Handle escape key presses to exit modal
   if (el.checked) {
-    document.addEventListener('keydown', (evt) => {
+    addEventListener('keydown', (evt) => {
       modalKeydown(evt, el)
     })
   } else {
-    document.removeEventListener('keydown', (evt) => {
+    removeEventListener('keydown', (evt) => {
       modalKeydown(evt, el)
     })
   }

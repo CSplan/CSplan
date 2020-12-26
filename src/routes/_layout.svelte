@@ -43,4 +43,8 @@
   })
 </script>
 
+<svelte:head>
+  <title>CSplan</title>
+</svelte:head>
+
 <slot></slot>

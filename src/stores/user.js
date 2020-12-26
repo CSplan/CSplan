@@ -1,5 +1,5 @@
 import { writable } from 'svelte/store'
-import { getDB, clearStore } from '../db'
+import { clearUserStores } from '../db'
 
 // This store ONLY manages local state, all API interaction must be handled by components before calling these functions
 // TODO: this flow is stupid
@@ -21,13 +21,12 @@ function create() {
       update(store => ({ ...store, user, isLoggedIn: true }))
     },
     async logout() {
+      await clearUserStores()
       // Clear localstorage
       localStorage.removeItem('isLoggedIn')
       localStorage.removeItem('user')
       localStorage.removeItem('CSRF-Token')
       // Clear IDB
-      await getDB()
-      clearStore('keys')
       // Reset in-memory state
       set(userStore)
     }

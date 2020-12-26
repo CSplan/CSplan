@@ -1,6 +1,6 @@
 <script>
-  import quickActions from './quickActions.svelte'
   import user from '../stores/user'
+  import QuickActions from './quickActions.svelte'
   const links = [
     {
       title: 'Home',
@@ -31,17 +31,14 @@
     {#if link.needsLogin && $user.isLoggedIn}
       <a class="pseudo button" rel="prefetch" href={link.href}>{link.title}</a>
     {:else if !link.needsLogin}
-    <a class="pseudo button" rel="prefetch" href={link.href}>{link.title}</a>
+      <a class="pseudo button" rel="prefetch" href={link.href}>{link.title}</a>
     {/if}
   {/each}
   <div class="right">
     {#if $user.isLoggedIn}
       <span>{$user.user.email}</span>
       <!-- Quick actions dropdown -->
-      <svelte:component this={quickActions}></svelte:component>
-      <button class="transparent">
-        <i class="fas fa-cog"></i>
-      </button>
+      <QuickActions/>
     {:else}
       <a class="pseudo button login" href="/login">Log In</a>
       <a class="pseudo button register" href="/register">Register</a>
@@ -56,7 +53,7 @@
   }
   /* Navbar styling */
   nav, .menu {
-    padding: 0 0.5rem;
+    padding: 0;
     background: #333;
     color: whitesmoke;
   } 
