@@ -72,10 +72,6 @@ module.exports = {
         dedupe: ['svelte']
       }),
       typescript(),
-      scss({
-        output: 'static/css/bundle.css',
-        outputStyle: dev ? 'expanded' : 'compressed'
-      }),
       json()
     ],
     // Dyncamically detect external modules
