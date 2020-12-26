@@ -75,7 +75,7 @@ export async function addToStore(storeName: string, data: keyedObject): Promise<
   const db = await getDB()
   return new Promise((resolve, reject) => {
     const store = db.transaction(storeName, 'readwrite').objectStore(storeName)
-    const req = store.add(data)
+    const req = store.put(data)
     
     req.onerror = () => {
       reject(req.error)

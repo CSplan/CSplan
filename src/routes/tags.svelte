@@ -35,9 +35,20 @@
   <Loading/>
 {:else if state === states.resting}
 <main class="align-center">
-  {#each $ordered as tag (tag.id)}
-    <Tag id={tag.id}></Tag>
-  {/each}
+  {#if $ordered.length > 0}
+    {#each $ordered as tag (tag.id)}
+      <Tag id={tag.id}></Tag>
+    {/each}
+
+  {:else}
+    <div class="card">
+      <header>It's empty here...</header>
+      <p>
+        Tags are objects with names and colors that can be applied to items on your lists.
+        Click the button below to make one.
+      </p>
+    </div>
+  {/if}
   <div class="card add-tag-button clickable" on:click={toggleTagModal}>
     <i class="fas fa-plus"></i>
   </div>
@@ -54,6 +65,10 @@
     display: flex;
     flex-direction: column;
     align-items: center;
+  }
+
+  .card {
+    margin-top: 1.5rem;
   }
 
   /* Add tag styles */

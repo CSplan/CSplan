@@ -2,7 +2,9 @@ import json from '@rollup/plugin-json'
 import resolve from '@rollup/plugin-node-resolve'
 import replace from '@rollup/plugin-replace'
 import svelte from 'rollup-plugin-svelte'
+import preprocess from 'svelte-preprocess'
 import typescript from '@rollup/plugin-typescript'
+import scss from 'rollup-plugin-scss'
 import gzip from 'rollup-plugin-gzip'
 import { terser } from 'rollup-plugin-terser'
 import sapper from 'sapper/config/rollup.js'
@@ -27,6 +29,7 @@ module.exports = {
           dev,
           hydratable: true  
         },
+        preprocess: preprocess(),
         emitCss: true
       }),
       resolve({
@@ -34,6 +37,10 @@ module.exports = {
         dedupe: ['svelte']
       }),
       typescript(),
+      scss({
+        output: 'static/css/bundle.css',
+        outputStyle: dev ? 'expanded' : 'compressed'
+      }),
       json(),
 
       !dev && terser({
@@ -58,12 +65,17 @@ module.exports = {
         compilerOptions: {
           generate: 'ssr',
           dev  
-        }
+        },
+        preprocess: preprocess()
       }),
       resolve({
         dedupe: ['svelte']
       }),
       typescript(),
+      scss({
+        output: 'static/css/bundle.css',
+        outputStyle: dev ? 'expanded' : 'compressed'
+      }),
       json()
     ],
     // Dyncamically detect external modules

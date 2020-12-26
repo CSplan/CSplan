@@ -32,7 +32,7 @@
     listSkeleton.items.push({
       title: '',
       description: '',
-      category: '',
+      tags: [],
       done: false
     })
     listSkeleton = listSkeleton // Trigger reactivity render
