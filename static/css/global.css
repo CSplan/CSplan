@@ -1,5 +1,6 @@
 /* Custom color things */
 :root {
+  --background-dark: #22223F;
   --bold-blue: rgb(0, 119, 255);
   --primary-purple: #7b1fa2;
   --light-purple: #ae52d4;

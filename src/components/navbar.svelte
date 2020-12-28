@@ -54,7 +54,7 @@
   /* Navbar styling */
   nav, .menu {
     padding: 0;
-    background: #333;
+    background: var(--background-dark);
     color: whitesmoke;
   } 
   nav {

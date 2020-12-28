@@ -77,7 +77,7 @@
 </script>
 
 <div>
-  <i class="fas {showTagForm ? 'fa-times' : 'fa-plus'} clickable" on:click={toggleForm}/>
+  <i class="fas fa-plus clickable toggle-button {showTagForm ? 'rotated' : ''}" on:click={toggleForm}/>
   {#if showTagForm}
     <form class="tag-select" on:submit|preventDefault transition:scale={{ duration: 200 }}>
       <input type="text" autocomplete="on" placeholder="Search Tags" bind:this={inputEl} bind:value={searchText}>
@@ -94,7 +94,13 @@
   {/if}
 </div>
 
-<style>
+<style lang="scss">
+  .toggle-button {
+    transition: 0.2s transform;
+    &.rotated {
+      transform: rotate(45deg);
+    }
+  }
   /* Add tag button */
   .tag-select {
     display: inline-block;

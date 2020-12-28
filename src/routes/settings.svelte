@@ -20,8 +20,9 @@
 
   @mixin settings-grid {
     display: grid;
-    grid-template-columns: max-content 1fr;
-    grid-template-rows: max-content 1fr;
+    grid-template-columns: max-content auto;
+    grid-template-rows: max-content 1fr 10%;
+    color: white;
 
     padding: $v-gap $h-gap;
     column-gap: $h-gap;
@@ -30,14 +31,12 @@
 
   .container {
     @include settings-grid();
-    background-color: $dark-bg;
-    color: white;
     height: 100vh;
     overflow-y: hidden;
   }
 
   .current-menu { 
-    grid-column: 2 / span 1;
+    grid-column: 2/ span 1;
     grid-row: 1 / span 2;
   }
 </style>

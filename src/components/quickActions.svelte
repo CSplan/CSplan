@@ -51,7 +51,7 @@
   }
   div.dropdown {
     display: none;
-    background: #333;
+    background: var(--background-dark);
     padding: 0.25rem;
     position: absolute;
     top: 100%;

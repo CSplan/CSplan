@@ -56,7 +56,7 @@
 
 <div class="side-menu">
   {#each items as item}
-    <button class="transparent" disabled={item.disabled || false} title={item.disabled ? 'Coming soon' : ''}>
+    <button class="transparent" disabled={item.disabled || false} title={item.disabled ? 'Coming soon' : ''} on:click={item.onclick}>
       <i class={item.icon}/>
       <span>{item.name}</span>
     </button>
@@ -75,10 +75,10 @@
 
   .side-menu {
     @include side-menu-position();
-    background-color: $menu-bg;
     width: 15rem;
     padding: 0.6rem;
-    border-radius: 0.5rem;
+    background-color: var(--background-dark);
+    border: 1px solid #aaa;
 
     display: flex;
     flex-direction: column;
@@ -91,7 +91,7 @@
       padding-right: $hpad;
       
       &:disabled {
-        background-color: rgba(100, 100, 100, 0.5);
+        background-color: rgba(100, 100, 100, 0.25);
         cursor: not-allowed;
       }
       i {
