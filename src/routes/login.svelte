@@ -1,11 +1,25 @@
-<script>
+<script lang="ts">
   import { goto } from '@sapper/app'
   import navbar from '../components/navbar.svelte'
   import user from '../stores/user'
   import { route } from '../route'
-  import { rsa, ABdecode, ABencode, aes } from 'cs-crypto'
+  import { rsa, ABdecode, ABencode, aes, Algorithms } from 'cs-crypto'
   import { addToStore } from '../db'
   import { onMount } from 'svelte'
+  import * as listen from '@very-amused/argon2-wasm/lib/listen'
+  import type { Argon2HashParams, Challenge, SolvedChallenge, ErrorResponse, ChallengeResponse } from './register.svelte'
+  import { Argon2_Actions, Argon2_ErrorCodes } from '@very-amused/argon2-wasm/lib/argon2'
+  import type { Argon2_Request, Argon2_Response } from '@very-amused/argon2-wasm/lib/argon2'
+
+
+
+  // Elements
+  let form: HTMLFormElement
+  let email: HTMLInputElement
+  let password: HTMLInputElement
+  // Web Worker
+  let worker: Worker
+  const workerID = 0
 
   // Form state management
   const states = {
@@ -20,13 +34,10 @@
   let showPassword = false
 
   async function login() {
-    const form = document.querySelector('#loginForm')
     if (!form.checkValidity()) {
       return
     }
 
-    const email = form.querySelector('#email').value
-    const password = form.querySelector('#password').value
     state = states.submitting
   
     try {
@@ -40,16 +51,37 @@
           'Content-Type': 'application/json'
         }
       })
-      /** @type {Challenge} */
-      let body = await res.json()
+      const challenge: Challenge = await res.json()
       if (res.status !== 200) {
-        throw new Error(body.message || 'Failed to request an authentication challenge.')
+        const err = <ErrorResponse>(<any>challenge)
+        throw new Error(err.message || 'Failed to request an authentication challenge.')
       }
     
-      // Run PBKDF2 using the user's password and salt
-      const authKey = await aes.deriveKey('AES-GCM', password, ABdecode(body.salt))
+      // Run argon2i using the specified params
+      const salt = ABdecode(challenge.salt)
+      worker.postMessage(<Argon2_Request>{
+        action: Argon2_Actions.Hash2i,
+        body: {
+          password: password.value,
+          salt,
+          timeCost: challenge.hashParams.timeCost,
+          memoryCost: challenge.hashParams.memoryCost,
+          hashLen: 32
+        }
+      })
+      const message = await listen.nextMessage(worker, workerID)
+      const keyMaterial = <Uint8Array>message.body
+      const authKey = await crypto.subtle.importKey(
+        'raw',
+        keyMaterial,
+        Algorithms.AES_GCM,
+        false,
+        ['wrapKey', 'unwrapKey', 'decrypt']
+      )
       // Slice iv and encrypted challenge data
-      const [iv, encrypted] = [ABdecode(body.data).slice(0, 12), ABdecode(body.data).slice(12)]
+      const challengeData = ABdecode(challenge.data)
+      const [iv, encrypted] = [challengeData.slice(0, 12), challengeData.slice(12)]
+
       // Decrypt the challenge data (and encode for transport)
       const decrypted = ABencode(await crypto.subtle.decrypt(
         {
@@ -58,11 +90,9 @@
         },
         authKey,
         encrypted
-      ).catch(() => {
-        throw new Error('Invalid password.') // Show decryption errors as 'invalid password'
-      }))
+      ))
       // Submit the challenge
-      res = await fetch(route(`/challenge/${body.id}?action=submit`), {
+      res = await fetch(route(`/challenge/${challenge.id}?action=submit`), {
         method: 'POST',
         body: JSON.stringify({
           data: decrypted
@@ -72,15 +102,16 @@
         },
         credentials: 'include'
       })
-      body = await res.json()
+      const challengeResponse: ChallengeResponse = await res.json()
       if (res.status !== 200) {
-        throw new Error(body.message || 'Failed to submit challenge.')
+        const err = <ErrorResponse>(<any>challengeResponse)
+        throw new Error(err.message || 'Failed to submit challenge.')
       }
       // Store the CSRF token in localstorage
-      localStorage.setItem('CSRF-Token', body.CSRFtoken)
+      localStorage.setItem('CSRF-Token', challengeResponse.CSRFtoken)
       user.login({
         email,
-        id: body.id
+        id: challengeResponse.id
       })
 
       // Retrieve and decrypt the user's master RSA keypair
@@ -88,7 +119,7 @@
       res = await fetch(route('/keys'), {
         method: 'GET',
         headers: {
-          'CSRF-Token': localStorage.getItem('CSRF-Token')
+          'CSRF-Token': localStorage.getItem('CSRF-Token')!
         }
       })
       body = await res.json()
@@ -119,6 +150,27 @@
     }
   }
 
+  onMount(async () => {
+    // Initialize worker
+    const wasmRoot = '/argon2'
+    const workerScript = process.env.NODE_ENV === 'development' ? 'worker.js' : 'worker.min.js'
+    worker = new Worker(`${wasmRoot}/${workerScript}`)
+    // Load argon2 binary
+    listen.initResponseListener(worker, workerID)
+    worker.postMessage(<Argon2_Request>{
+      action: Argon2_Actions.LoadArgon2,
+      body: {
+        wasmRoot,
+        simd: true
+      }
+    })
+    const message: Argon2_Response = await listen.nextMessage(worker, workerID)
+    if (message.code !== Argon2_ErrorCodes.ARGON2_OK) {
+      state = states.error
+      error = `Failed to load argon2. Something is down, please try again later. (code ${message.code})`
+    }
+  })
+
   onMount(() => {
     if ($user.isLoggedIn) {
       goto('/')
@@ -130,9 +182,9 @@
 <main>
   <div class="card">
     <header>Log In</header>
-    <form id="loginForm" on:submit|preventDefault={login}>
-      <input id="email" type="email" required autocomplete="email" placeholder="Email">
-      <input id="password" type={showPassword ? 'text' : 'password'} required autocomplete="current-password" placeholder="Password">
+    <form bind:this={form} on:submit|preventDefault={login}>
+      <input bind:this={email} type="email" required autocomplete="email" placeholder="Email">
+      <input bind:this={password} type={showPassword ? 'text' : 'password'} required autocomplete="current-password" placeholder="Password">
       <label>
         <input type="checkbox" bind:checked={showPassword}>
         <span class="checkable">Show Password</span>
@@ -168,7 +220,7 @@
     padding-bottom: 0.5rem;
     text-align: center;
   }
-  #loginForm {
+  form {
     display: flex;
     flex-direction: column;
     margin-bottom: 0;

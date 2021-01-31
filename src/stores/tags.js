@@ -1,6 +1,6 @@
 import { writable, derived, get } from 'svelte/store'
 import route from '../route'
-import '../../types/tags'
+import '../../types_old/tags'
 import { deepDecrypt, deepEncrypt, generateKey } from 'cs-crypto/lib/aes'
 import { unwrapKey, wrapKey } from 'cs-crypto/lib/rsa'
 import { addToStore, deleteFromStore, getByKey, updateWithKey } from '../db'
@@ -90,7 +90,7 @@ function create() {
           'CSRF-Token': localStorage.getItem('CSRF-Token')
         }
       })
-      /** @type {import('../../types/tags').TagResponse} */
+      /** @type {import('../../types_old/tags').TagResponse} */
       const body = await res.json()
       if (res.status !== 201) {
         throw new Error(body.message)

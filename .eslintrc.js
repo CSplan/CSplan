@@ -12,12 +12,9 @@ module.exports =  {
     sourceType: 'module'
   },
   plugins: [
-    'svelte3'
+    'svelte3',
+    '@typescript-eslint/eslint-plugin'
   ],
-  overrides: [{
-    files: ['*.svelte'],
-    processor: 'svelte3/svelte3'
-  }],
   rules: {
     // General
     indent: ['error', 2],

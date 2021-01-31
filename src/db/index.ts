@@ -3,7 +3,8 @@ const DB_VER = 1
 let cachedIDB: IDBDatabase|null = null
 
 interface keyedObject {
-  id: string
+  id: string,
+  [key: string]: any
 }
 
 const enum Scopes {
