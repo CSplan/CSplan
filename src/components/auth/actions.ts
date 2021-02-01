@@ -80,7 +80,6 @@ export class LoginActions {
   }
 
   protected async hashPassword(password: string, salt: Uint8Array): Promise<Uint8Array> {
-    this.onMessage('Generating authentication key')
     this.worker.postMessage(<Argon2_Request>{
       action: Argon2_Actions.Hash2i,
       body: {
@@ -124,6 +123,7 @@ export class LoginActions {
     if (this.authKeyMaterial !== null) {
       this.onMessage('Using already generated authentication key')
     } else {
+      this.onMessage('Generating authentication key')
       this.authKeyMaterial = await this.hashPassword(password, salt)
     }
      
@@ -176,6 +176,7 @@ export class RegisterActions extends LoginActions {
 
   async register(email: string, password: string, salt: Uint8Array): Promise<void> {
     // Hash the user's password (use whatever hash parameters are set before calling)
+    this.onMessage('Generating authentication key')
     this.authKeyMaterial = await this.hashPassword(password, salt)
     this.hashParams.saltLen = salt.byteLength
 
@@ -213,6 +214,7 @@ export class RegisterActions extends LoginActions {
    * The salt used here MUST be different from the salt used for the authentication key, otherwise CSplan's encryption is rendered useless
    */
   async generateMasterKeypair(password: string, salt: Uint8Array, keysize = 4096) {
+    this.onMessage('Generating master keypair')
     const tempKeyMaterial = await this.hashPassword(password, salt)
     const tempKey = await aes.importKeyMaterial(tempKeyMaterial, Algorithms.AES_GCM)
 
