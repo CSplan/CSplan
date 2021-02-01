@@ -3,11 +3,11 @@
   import navbar from '../components/navbar.svelte'
   import user from '../stores/user'
   import { route } from '../route'
-  import { rsa, ABdecode, ABencode, aes, Algorithms } from 'cs-crypto'
+  import { rsa, encode, decode, aes, Algorithms } from 'cs-crypto'
   import { addToStore } from '../db'
   import { onMount } from 'svelte'
   import * as listen from '@very-amused/argon2-wasm/lib/listen'
-  import type { Argon2HashParams, Challenge, SolvedChallenge, ErrorResponse, ChallengeResponse } from './register.svelte'
+  import type { Argon2HashParams, Challenge, SolvedChallenge, ErrorResponse, ChallengeResponse } from '../components/auth/register.svelte'
   import { Argon2_Actions, Argon2_ErrorCodes } from '@very-amused/argon2-wasm/lib/argon2'
   import type { Argon2_Request, Argon2_Response } from '@very-amused/argon2-wasm/lib/argon2'
 

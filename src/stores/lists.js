@@ -2,10 +2,6 @@ import { writable, derived, get } from 'svelte/store'
 import { route } from '../route'
 import { getDB, addToStore, getByKey, updateWithKey, deleteFromStore } from '../db'
 import { aes, rsa } from 'cs-crypto'
-import { unwrapKey } from 'cs-crypto/lib/rsa'
-import {  deepDecrypt } from 'cs-crypto/lib/aes'
-const { generateKey, deepEncrypt } = aes
-const { wrapKey } = rsa
 
 // Memoize init (init can safely be called when it's uncertain if the store is initialized without incurring wasted operations)
 let initialized = false
@@ -56,11 +52,11 @@ function create() {
         // Decrypt the list's AES key
         const { id } = JSON.parse(localStorage.getItem('user'))
         const { privateKey } = await getByKey('keys', id)
-        const cryptoKey = await unwrapKey('AES-GCM:'+list.meta.cryptoKey, privateKey)
+        const cryptoKey = await rsa.unwrapKey(list.meta.cryptoKey, privateKey)
         // Use the list's key to decrypt all information (and do some restructuring)
         const decrypted = {
           id: list.id,
-          ...await deepDecrypt({
+          ...await aes.deepDecrypt({
             title: list.title,
             items: list.items
           }, cryptoKey),
@@ -89,12 +85,12 @@ function create() {
       // Get user's master public key
       const { publicKey } = await getByKey('keys', user.id)
       // Generate a new AES-256 key
-      const key = await generateKey('AES-GCM')
+      const key = await aes.generateKey('AES-GCM')
       // Encrypt the list for storage
       const encrypted = {
-        ...await deepEncrypt(list, key),
+        ...await aes.deepEncrypt(list, key),
         meta: {
-          cryptoKey: (await wrapKey(key, publicKey)).split(':')[1]
+          cryptoKey: await rsa.wrapKey(key, publicKey)
         }
       }
 
@@ -152,7 +148,7 @@ function create() {
         throw new ReferenceError('List passed by ID does not exist')
       }
       const encrypted = {
-        ...await deepEncrypt({
+        ...await aes.deepEncrypt({
           title: list.title,
           items: list.items
         }, list.cryptoKey),
@@ -235,16 +231,16 @@ function create() {
       // Magic shifting calculations (see my svelte repl for detailed comments)
       if (index > oldIndex){
         for (let i = oldIndex; i <= index; i++) {
-          await this.update(oldOrdered[i].id, { index: oldOrdered[i].index - 1 })
+          this.update(oldOrdered[i].id, { index: oldOrdered[i].index - 1 })
         }
       } else {
         for (let i = index; i < oldIndex; i++) {
-          await this.update(oldOrdered[i].id, { index: oldOrdered[i].index + 1 })
+          this.update(oldOrdered[i].id, { index: oldOrdered[i].index + 1 })
         }
       }
 
       // Move the selected item to the new index
-      await this.update(id, { index })
+      this.update(id, { index })
     }
   }
 }

@@ -1,8 +1,7 @@
 import { writable, derived, get } from 'svelte/store'
 import route from '../route'
 import '../../types_old/tags'
-import { deepDecrypt, deepEncrypt, generateKey } from 'cs-crypto/lib/aes'
-import { unwrapKey, wrapKey } from 'cs-crypto/lib/rsa'
+import { rsa, aes } from 'cs-crypto'
 import { addToStore, deleteFromStore, getByKey, updateWithKey } from '../db'
 
 let initialized = false
@@ -47,10 +46,10 @@ function create() {
         // Decrypt the AES key
         const user = JSON.parse(localStorage.getItem('user'))
         const { privateKey } = await getByKey('keys', user.id)
-        const cryptoKey = await unwrapKey('AES-GCM:'+tag.meta.cryptoKey, privateKey)
+        const cryptoKey = await rsa.unwrapKey(tag.meta.cryptoKey, privateKey)
         const decrypted = {
           id: tag.id,
-          ...await deepDecrypt({
+          ...await aes.deepDecrypt({
             name: tag.name
           }, cryptoKey),
           cryptoKey,
@@ -71,13 +70,13 @@ function create() {
       }
 
       // Encrypt
-      const key = await generateKey('AES-GCM')
+      const key = await aes.generateKey('AES-GCM')
       const user = JSON.parse(localStorage.getItem('user'))
       const publicKey = (await getByKey('keys', user.id)).publicKey
       const encrypted = {
-        ...await deepEncrypt(tag, key),
+        ...await aes.deepEncrypt(tag, key),
         meta: {
-          cryptoKey: (await wrapKey(key, publicKey)).split(':')[1]
+          cryptoKey: await rsa.wrapKey(key, publicKey)
         }
       }
 
@@ -130,7 +129,7 @@ function create() {
 
       // Encrypt and commit to API
       const encrypted = {
-        ...await deepEncrypt({
+        ...await aes.deepEncrypt({
           name: tag.name,
           color: tag.color || '#FFFFFF' // TODO: tag color should be guaranteed, 
           // this guard is here because tag colors are not implemented and should be removed in the future

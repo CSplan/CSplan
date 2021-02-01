@@ -3,6 +3,7 @@
 /src/node_modules/@sapper/
 yarn-error.log
 /__sapper__/
+*.tgz
 static/**
 !static/css
 !static/css/global.css
