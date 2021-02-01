@@ -1,6 +1,14 @@
 import { writable } from 'svelte/store'
 import { clearUserStores } from '../db'
 
+export type UserStore = {
+  user: {
+    id: string,
+    email: string
+  },
+  isLoggedIn: false
+}
+
 // This store ONLY manages local state, all API interaction must be handled by components before calling these functions
 // TODO: this flow is stupid
 function create() {
@@ -15,7 +23,7 @@ function create() {
 
   return {
     subscribe,
-    login(user) {
+    login(user: UserStore['user']) {
       localStorage.setItem('user', JSON.stringify(user))
       localStorage.setItem('isLoggedIn', 'true')
       update(store => ({ ...store, user, isLoggedIn: true }))
