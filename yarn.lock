@@ -696,9 +696,9 @@ cross-spawn@^7.0.2:
     shebang-command "^2.0.0"
     which "^2.0.1"
 
-cs-crypto@./cs-crypto-v0.7.0.tgz:
+cs-crypto@./cs-wack.tgz:
   version "0.7.0"
-  resolved "./cs-crypto-v0.7.0.tgz#095ee072c28d18a9de192724d5f2d5b9f9eaf728"
+  resolved "./cs-wack.tgz#cb8e9779a3956cc83a144ca9537960927a2a6b49"
 
 currently-unhandled@^0.4.1:
   version "0.4.1"

@@ -1,25 +1,3 @@
-<script lang="ts" context="module">
- import type { Argon2HashParams } from '../crypto/argon2.js'
- export type Challenge = {
-    id: string,
-    data: string,
-    salt: string,
-    hashParams: Argon2HashParams
-  }
-  export type SolvedChallenge = {
-    data: string
-  }
-  export type ErrorResponse = {
-    title: string,
-    message: string,
-    status: number
-  }
-  export type ChallengeResponse = {
-    id: string,
-    CSRFtoken: string
-  }
-</script>
-
 <script lang="ts">
   import { goto } from '@sapper/app'
   import user from '../../stores/user'
@@ -79,7 +57,6 @@
       await actions.generateMasterKeypair(password.value, cryptoSalt)
     } catch (err) {
       console.error(err)
-      console.log(stateMsg)
       user.logout()
       state = states.error
       error = err instanceof Error ? err.message : err

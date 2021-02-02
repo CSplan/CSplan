@@ -98,7 +98,7 @@ export class LoginActions {
     return message.body!
   }
 
-  async authenticate(email: string, password: string, salt: Uint8Array) {
+  async authenticate(email: string, password: string) {
     this.onMessage('Requesting authentication challenge')
     // Request an authentication challenge
     let res = await fetch(route('/challenge?action=request'), {
@@ -116,8 +116,9 @@ export class LoginActions {
     }
     const challenge: Challenge = await res.json()
 
-    // Load argon2 parameters from the challenge
+    // Load argon2 parameters and decode salt from the challenge
     this.hashParams = challenge.hashParams
+    const salt = decode(challenge.salt)
 
     // Hash the user's password (skip if authKey is already present)
     if (this.authKeyMaterial !== null) {
@@ -167,6 +168,42 @@ export class LoginActions {
       id: response.id
     })
   }
+
+  async retrieveMasterKeypair(password: string) {
+    // Fetch the user's master keypair
+    const res = await fetch(route('/keys'), {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+        'CSRF-Token': localStorage.getItem(CSRF_TOKEN_KEY)!
+      },
+      credentials: 'include'
+    })
+    if (res.status !== 200) {
+      const err: ErrorResponse = await res.json()
+      throw new Error(err.message || 'Failed to fetch master keypair')
+    }
+    const keys: MasterKeys = await res.json()
+
+    // Decode master public key
+    const publicKey = await rsa.importPublicKey(keys.publicKey)
+
+    // Decrypt master private key
+    this.hashParams = keys.hashParams
+    this.onMessage('Decryting master keypair')
+    const tempKeyMaterial = await this.hashPassword(password, decode(keys.hashSalt))
+    const tempKey = await aes.importKeyMaterial(tempKeyMaterial, Algorithms.AES_GCM)
+    console.log(keys.privateKey)
+    const privateKey = await rsa.unwrapPrivateKey(keys.privateKey, tempKey)
+
+    // Store keys in IDB
+    const userID = (<UserStore>get(user)).user.id
+    await db.addToStore('keys', {
+      id: userID,
+      publicKey,
+      privateKey
+    })
+  }
 }
 
 export class RegisterActions extends LoginActions {
@@ -206,7 +243,7 @@ export class RegisterActions extends LoginActions {
     localStorage.setItem(CSRF_TOKEN_KEY, response.CSRFtoken)
 
     // The rest of the authentication flow is identical
-    return this.authenticate(email, password, salt)
+    return this.authenticate(email, password)
   }
 
   /** 

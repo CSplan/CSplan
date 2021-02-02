@@ -20,7 +20,7 @@
     "@typescript-eslint/parser": "^4.11.0",
     "@very-amused/argon2-wasm": "^0.1.0",
     "compression": "^1.7.1",
-    "cs-crypto": "./cs-crypto-v0.7.0.tgz",
+    "cs-crypto": "./cs-wack.tgz",
     "marked": "^1.2.0",
     "polka": "next",
     "rollup-plugin-gzip": "^2.5.0",
