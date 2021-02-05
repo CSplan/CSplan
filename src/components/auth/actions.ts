@@ -98,7 +98,7 @@ export class LoginActions {
     return message.body!
   }
 
-  async authenticate(email: string, password: string) {
+  async authenticate(email: string, password: string, reuseAuthKey = false) {
     this.onMessage('Requesting authentication challenge')
     // Request an authentication challenge
     let res = await fetch(route('/challenge?action=request'), {
@@ -121,7 +121,7 @@ export class LoginActions {
     const salt = decode(challenge.salt)
 
     // Hash the user's password (skip if authKey is already present)
-    if (this.authKeyMaterial !== null) {
+    if (reuseAuthKey) {
       this.onMessage('Using already generated authentication key')
     } else {
       this.onMessage('Generating authentication key')
@@ -130,14 +130,21 @@ export class LoginActions {
      
     this.onMessage('Solving authentication challenge')
     // Import authkey material as an AES-GCM key
-    const authKey = await aes.importKeyMaterial(this.authKeyMaterial, Algorithms.AES_GCM)
+    const authKey = await crypto.subtle.importKey(
+      'raw',
+      this.authKeyMaterial!,
+      'AES-CTR',
+      false,
+      ['decrypt']
+    )
     // Decrypt the challenge using authKey
     const challengeData = decode(challenge.data)
-    const [iv, encrypted] = [challengeData.slice(0, 12), challengeData.slice(12)]
+    const [iv, encrypted] = [challengeData.slice(0, 16), challengeData.slice(16)]
     const decrypted = await crypto.subtle.decrypt(
       {
-        name: 'AES-GCM',
-        iv
+        name: 'AES-CTR',
+        counter: iv,
+        length: 64
       },
       authKey,
       encrypted
@@ -153,7 +160,9 @@ export class LoginActions {
         data: encode(new Uint8Array(decrypted))
       })
     })
-    if (res.status !== 200) {
+    if (res.status === 401) {
+      throw new Error('Authentication failure, password is incorrect.')
+    } else if (res.status !== 200) {
       const err: ErrorResponse = await res.json()
       throw new Error(err.message || 'Error submitting challenge.')
     }
@@ -243,7 +252,7 @@ export class RegisterActions extends LoginActions {
     localStorage.setItem(CSRF_TOKEN_KEY, response.CSRFtoken)
 
     // The rest of the authentication flow is identical
-    return this.authenticate(email, password)
+    return this.authenticate(email, password, true)
   }
 
   /** 

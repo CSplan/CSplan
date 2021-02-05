@@ -44,6 +44,7 @@
       console.log(err)
       error = err.message
       state = states.error
+      return
     }
     goto('/')
   }
@@ -58,6 +59,9 @@
     worker = new Worker(`${wasmRoot}/${workerScript}`)
     // Initialize actions with worker
     actions = new LoginActions(worker, workerID)
+    actions.onMessage = (msg: string) => {
+      stateMsg = msg
+    }
     try {
       await actions.loadArgon2({
         wasmRoot,
@@ -81,22 +85,26 @@
     </label>
     <input type="submit" value="Submit">
   </form>
-  <footer>
-    
-  {#if state === states.error}
+
+
+  {#if state === states.submitting}
+    <span class=state>{stateMsg}</span>
+  {:else if state === states.error}
     <span class="error">{error}</span>
   {/if}
-  </footer>
 </div>
 
 <style lang="scss">
   .card {
-    max-width: 300px;
+    width: 20%;
     padding: 1rem;
     margin: 0;
   }
   .card * {
     margin: 0.5rem 0;
+    &:last-child {
+      margin-bottom: 0;
+    }
   }
   .card header {
     padding: 0;
@@ -110,15 +118,16 @@
   }
 
   /* Footer styles */
-  footer {
-    padding: 0;
-    margin: 0 !important;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
+  span.state {
+    text-align: left;
+    max-width: 100%;
   }
   span.error {
-    color: red;
     font-family: monospace;
+    color: rgb(199, 39, 39);
+    font-weight: 500;
+    border: 1px solid #aaa;
+    border-radius: 5px;
+    padding: 0.3rem 0.4rem;
   }
 </style>
