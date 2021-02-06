@@ -6,7 +6,7 @@ module.exports =  {
     node: true,
     es2020: true
   },
-  extends: 'eslint:recommended',
+  extends: 'plugin:@typescript-eslint/recommended',
   parserOptions: {
     ecmaVersion: 2019,
     sourceType: 'module'
@@ -32,6 +32,8 @@ module.exports =  {
       anonymous: 'never',
       asyncArrow: 'always'
     }],
-    'no-return-await': 'error'
+    'no-return-await': 'error',
+    '@typescript-eslint/no-non-null-assertion': 'off',
+    '@typescript-eslint/no-empty-function': 'off'
   }
 }

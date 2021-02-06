@@ -3,7 +3,7 @@ import { Argon2_Actions, Argon2_ErrorCodes, Argon2_LoadParameters, Argon2_Reques
 import { Argon2HashParams } from '../crypto/argon2'
 import { encode, ABconcat, aes, rsa, Algorithms, decode } from 'cs-crypto'
 import * as db from '../../db'
-import user from '../../stores/user'
+import userStore from '../../stores/user'
 import type { UserStore } from '../../stores/user'
 import { get } from 'svelte/store'
 import type { MasterKeys } from '../crypto/masterKey'
@@ -22,6 +22,10 @@ export type ErrorResponse = {
   message: string,
   status: number
 }
+type ChallengeRequest = {
+  email: string,
+  totp?: number
+}
 export type ChallengeResponse = {
   id: string,
   CSRFtoken: string
@@ -31,7 +35,11 @@ type RegisterRequest = {
   key: string,
   hashParams: Argon2HashParams
 }
-
+type AuthUser = {
+  email: string,
+  password: string,
+  totp?: number
+}
 
 // TODO: update master route shaping function to typescript
 function route(path: string) {
@@ -42,10 +50,15 @@ function route(path: string) {
 const AUTHKEY_SIZE = 32
 // TODO: move CSRF tokens to IDB
 const CSRF_TOKEN_KEY = 'CSRF-Token'
+// authenticate may require further action, in which case it will return one of these codes instead of rejecting
+export enum AuthConditions {
+  Success,
+  TOTPRequired
+}
 
 export class LoginActions {
   // eslint-disable-next-line no-unused-vars
-  public onMessage: (message: string) => void = function() {}
+  public onMessage: (message: string) => void = () => {}
   public hashParams: Argon2HashParams = {
     type: 'argon2i',
     timeCost: 1,
@@ -67,7 +80,7 @@ export class LoginActions {
   }
 
   // Load argon2 WASM into the web worker's scope
-  async loadArgon2(params: Argon2_LoadParameters) {
+  async loadArgon2(params: Argon2_LoadParameters): Promise<void> {
     this.worker.postMessage(<Argon2_Request>{
       action: Argon2_Actions.LoadArgon2,
       body: params
@@ -98,19 +111,20 @@ export class LoginActions {
     return message.body!
   }
 
-  async authenticate(email: string, password: string, reuseAuthKey = false) {
+  async authenticate(user: AuthUser, reuseAuthKey = false): Promise<AuthConditions> {
     this.onMessage('Requesting authentication challenge')
     // Request an authentication challenge
+    const challengeRequest: ChallengeRequest = { email: user.email, totp: user.totp }
     let res = await fetch(route('/challenge?action=request'), {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'
       },
-      body: JSON.stringify({
-        email
-      })
+      body: JSON.stringify(challengeRequest)
     })
-    if (res.status !== 200) {
+    if (res.status === 412) {
+      return AuthConditions.TOTPRequired
+    } else if (res.status !== 201) {
       const err: ErrorResponse = await res.json()
       throw new Error(err.message || 'Unknown error requesting an auth challenge')
     }
@@ -125,7 +139,7 @@ export class LoginActions {
       this.onMessage('Using already generated authentication key')
     } else {
       this.onMessage('Generating authentication key')
-      this.authKeyMaterial = await this.hashPassword(password, salt)
+      this.authKeyMaterial = await this.hashPassword(user.password, salt)
     }
      
     this.onMessage('Solving authentication challenge')
@@ -172,13 +186,14 @@ export class LoginActions {
     localStorage.setItem(CSRF_TOKEN_KEY, response.CSRFtoken)
 
     // Login to state
-    user.login({
-      email,
+    userStore.login({
+      email: user.email,
       id: response.id
     })
+    return AuthConditions.Success
   }
 
-  async retrieveMasterKeypair(password: string) {
+  async retrieveMasterKeypair(password: string): Promise<void> {
     // Fetch the user's master keypair
     const res = await fetch(route('/keys'), {
       method: 'GET',
@@ -206,7 +221,7 @@ export class LoginActions {
     const privateKey = await rsa.unwrapPrivateKey(keys.privateKey, tempKey)
 
     // Store keys in IDB
-    const userID = (<UserStore>get(user)).user.id
+    const userID = (<UserStore>get(userStore)).user.id
     await db.addToStore('keys', {
       id: userID,
       publicKey,
@@ -220,10 +235,10 @@ export class RegisterActions extends LoginActions {
     super(worker, workerID)
   }
 
-  async register(email: string, password: string, salt: Uint8Array): Promise<void> {
+  async register(user: AuthUser, salt: Uint8Array): Promise<void> {
     // Hash the user's password (use whatever hash parameters are set before calling)
     this.onMessage('Generating authentication key')
-    this.authKeyMaterial = await this.hashPassword(password, salt)
+    this.authKeyMaterial = await this.hashPassword(user.password, salt)
     this.hashParams.saltLen = salt.byteLength
 
     // Register the user (use whatever hash parameters are set before calling)
@@ -233,7 +248,7 @@ export class RegisterActions extends LoginActions {
         'Content-Type': 'application/json'
       },
       body: JSON.stringify(<RegisterRequest>{
-        email,
+        email: user.email,
         key: encode(ABconcat(salt, this.authKeyMaterial)),
         hashParams: this.hashParams
       })
@@ -245,21 +260,22 @@ export class RegisterActions extends LoginActions {
 
     // Save userID and CSRFtoken
     const response: ChallengeResponse = await res.json()
-    user.login({
-      email,
+    userStore.login({
+      email: user.email,
       id: response.id
     })
     localStorage.setItem(CSRF_TOKEN_KEY, response.CSRFtoken)
 
     // The rest of the authentication flow is identical
-    return this.authenticate(email, password, true)
+    this.authenticate(user, true)
+    return
   }
 
   /** 
    * Generate a master keypair, wrapping the private key with a tempkey derived from password and salt
    * The salt used here MUST be different from the salt used for the authentication key, otherwise CSplan's encryption is rendered useless
    */
-  async generateMasterKeypair(password: string, salt: Uint8Array, keysize = 4096) {
+  async generateMasterKeypair(password: string, salt: Uint8Array, keysize = 4096): Promise<void> {
     this.onMessage('Generating master keypair')
     const tempKeyMaterial = await this.hashPassword(password, salt)
     const tempKey = await aes.importKeyMaterial(tempKeyMaterial, Algorithms.AES_GCM)
@@ -299,7 +315,7 @@ export class RegisterActions extends LoginActions {
 
     // Store keys in IDB
     // TODO: store checksum with master keypair
-    const userID = (<UserStore>get(user)).user.id
+    const userID = (<UserStore>get(userStore)).user.id
     db.addToStore('keys', {
       id: userID,
       publicKey,

@@ -11,13 +11,13 @@
   let stateMsg = ''
 
   // Form state
-  const enum states {
-    resting,
-    submitting,
-    error,
-    success
+  const enum States {
+    Resting,
+    Submitting,
+    Error,
+    Success
   }
-  let state = states.resting
+  let state = States.Resting
   
   // Form elements
   let form: HTMLFormElement
@@ -33,7 +33,7 @@
   let actions: RegisterActions
 
   // If the user is already logged in, redirect them
-  $: $user.isLoggedIn && state === states.resting && goto('/')
+  $: $user.isLoggedIn && state === States.Resting && goto('/')
 
   async function register() {
     // Compare password fields
@@ -49,16 +49,19 @@
       return
     }
 
-    state = states.submitting
+    state = States.Submitting
     try {
       const authSalt = makeSalt(16)
-      await actions.register(email.value, password.value, authSalt)
+      await actions.register({
+        email: email.value,
+        password: password.value
+      }, authSalt)
       const cryptoSalt = makeSalt(16)
       await actions.generateMasterKeypair(password.value, cryptoSalt)
     } catch (err) {
       console.error(err)
       user.logout()
-      state = states.error
+      state = States.Error
       error = err instanceof Error ? err.message : err
       return
     }
@@ -86,11 +89,12 @@
         simd: true
       })
     } catch (err) {
-      state = states.error
+      state = States.Error
       error = err.message
     }
   })
 </script>
+
 
 <div class="card register-form">
   <header>Register</header>
@@ -105,10 +109,10 @@
     <input type="submit" value="Submit">
   </form>
   <footer>
-  {#if state === states.submitting}
+  {#if state === States.Submitting}
     <span>{stateMsg}</span>
     <i class="fas fa-circle-notch fa-2x"></i>
-  {:else if state === states.error}
+  {:else if state === States.Error}
     <span class="error">{error}</span>
   {/if}
   </footer>
