@@ -21,7 +21,7 @@
     "@very-amused/argon2-wasm": "^0.1.0",
     "compression": "^1.7.1",
     "cs-crypto": "./cs-wack.tgz",
-    "marked": "^1.2.0",
+    "marked": "^2.0.0",
     "polka": "next",
     "rollup-plugin-gzip": "^2.5.0",
     "rollup-plugin-scss": "^2.6.1",
