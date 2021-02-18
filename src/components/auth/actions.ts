@@ -17,11 +17,6 @@ export type Challenge = {
 export type SolvedChallenge = {
   data: string
 }
-export type ErrorResponse = {
-  title: string,
-  message: string,
-  status: number
-}
 type ChallengeRequest = {
   email: string,
   totp?: number
@@ -57,7 +52,6 @@ export enum AuthConditions {
 }
 
 export class LoginActions {
-  // eslint-disable-next-line no-unused-vars
   public onMessage: (message: string) => void = () => {}
   public hashParams: Argon2HashParams = {
     type: 'argon2i',

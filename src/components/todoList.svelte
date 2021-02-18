@@ -13,7 +13,7 @@
   const itemSkeleton = {
     title: '',
     description: '',
-    category: '',
+    tags: [],
     done: false
   }
 
@@ -150,12 +150,11 @@
 </div>
 {/if}
 
-<style>
+<style lang="scss">
   header.title {
     font-size: 24px;
     padding: 0.5rem;
     text-align: center;
-    margin-bottom: 0.5rem;
   }
 
   .row header, .row .content p {
@@ -186,10 +185,19 @@
     width: 100%;
     color: initial;
     text-align: center;
+    padding: 0.5rem;
     display: grid;
     grid-auto-flow: column;
     grid-template-columns: min-content minmax(0, auto) minmax(0, 1fr) minmax(0, auto);
     grid-template-rows: max-content minmax(0, auto);
+  }
+  .row {
+    .content, .tags {
+      padding: 0 0.5rem;
+    }
+  }
+  .row-bottom {
+    padding: 0.5rem;
   }
   .row * {
     grid-row: 1 / span 1;
@@ -277,9 +285,6 @@
   /* Create separators */
   .row {
     border-bottom: #ccc 1px solid;
-  }
-  i {
-    margin: 0.5rem;
   }
 
   .corner {
