@@ -105,6 +105,7 @@
   .tag-select {
     display: inline-block;
     position: relative;
+    z-index: 1;
   }
   .tag-select .options {
     min-width: 100%;
@@ -112,12 +113,12 @@
     background-color: white;
     position: absolute;
     top: 100%;
-    z-index: 1;
     text-align: left;
     border: 1px solid #aaa;
   }
   .tag-select input {
     transition: none;
+    border-radius: 0;
   }
   .options p {
     background-color: inherit;

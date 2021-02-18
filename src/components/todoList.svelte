@@ -34,6 +34,29 @@
     hasList = true
   })
 
+  // Editing logic
+  let editMode = false
+  async function toggleEditMode() {
+    editMode = !editMode
+    if (!editMode) {
+      await saveAndCommit()
+    }
+  }
+
+  function updateTitle(evt) {
+    CEtrim(evt)
+    list.title = evt.target.textContent
+  }
+  function updateItemTitle(evt, i) {
+    CEtrim(evt)
+    list.items[i].title = evt.target.textContent
+  }
+  function updateItemDescription(evt, i) {
+    CEtrim(evt)
+    list.items[i].description = evt.target.textContent
+  }
+
+  // Normal logic
   async function toggleItem(index) {
     const updatedItems = list.items
     updatedItems[index].done = !updatedItems[index].done
@@ -101,39 +124,53 @@
       cooldown = false
     }, 2*fadeDuration)
   }
+
+  onMount(async () => {
+    await tags.init()
+  })
 </script>
 
 {#if hasList}
-<div class="card">
-  <header class="title" contenteditable spellcheck="false" on:keypress={CEkeypress} on:blur={CEtrim} bind:textContent={list.title}>{list.title}</header>
+<div class="card {editMode ? 'editable' : ''}">
+  <section class="title">
+    <div class="spacer"/>
+    <header class="title" contenteditable={editMode} spellcheck="false" on:keypress={CEkeypress} on:blur={updateTitle}>{list.title}</header>
+    <div class="spacer"/>
+    <i class="edit-mode-toggle fas fa-pencil-alt clickable" style="color: {editMode ? 'var(--bold-blue)' : 'initial'}" on:click={toggleEditMode}/>
+  </section>
+
   {#each list.items as item, i (i)}
-  <div class="row item-title marginless">
+  <div class="row item-title marginless {item.tags.length > 0 ? 'has-tags' : ''}">
     <i class="clickable checkbox { item.done ? 'fas fa-check-circle' : 'far fa-circle'}" on:click={() => toggleItem(i)}></i>
 
 
-    <div class="content">
-      <header data-index={i} contenteditable spellcheck="false" on:keypress={CEkeypress} on:blur={CEtrim} bind:textContent={list.items[i].title} on:blur={saveAndCommit}>{item.title}</header>
-      <p class="no-empty-effect" contenteditable spellcheck="false" bind:textContent={list.items[i].description} on:blur={CEtrim} on:blur={saveAndCommit}>{item.description}</p>
-    </div>
+    <section class="content">
+      <header data-index={i} contenteditable={editMode} spellcheck="false" on:keypress={CEkeypress} on:blur={e => updateItemTitle(e, i)}>{item.title}</header>
+      <p class="no-empty-effect" contenteditable={editMode} spellcheck="false" on:blur={(e) => updateItemDescription(e, i)}>{item.description}</p>
+    </section>
 
     <div class="spacer"/>
 
+    {#if editMode}
     <div class="icons">
       <i class="fas fa-times clickable" on:click={() => deleteItem(i)}></i>
     </div>
+    {/if}
 
     <div class="tags">
       {#each item.tags as id (id)}
       {#if $tags[id]}
       <span class="tag" style="background-color: {$tags[id].color};">
-          <p contenteditable spellcheck="false" on:keypress={CEkeypress} on:blur={CEtrim}>{$tags[id].name}</p>
+          <p spellcheck="false">{$tags[id].name}</p>
           <i class="fas fa-times clickable" on:click={untagItem(i, id)}></i>
       </span>
       {/if}
       {/each}
-      <span class="tag tag-form">
-        <TagForm on:newtag={e => tagItem(i, e.detail)} currentTags={item.tags}/>
-      </span>
+      {#if editMode}
+        <span class="tag tag-form">
+          <TagForm on:newtag={e => tagItem(i, e.detail)} currentTags={item.tags}/>
+        </span>
+      {/if}
     </div>
   </div>
   {/each}
@@ -153,7 +190,6 @@
 <style lang="scss">
   header.title {
     font-size: 24px;
-    padding: 0.5rem;
     text-align: center;
   }
 
@@ -164,7 +200,47 @@
   }
   .card {
     overflow: visible;
+    section.content {
+      header {
+        margin: auto 0;
+      }
+      p {
+        margin-top: 0.25rem;
+        /* Hide empty descriptions*/
+        &:empty {
+          display: none;
+        }
+      }
+    }
+
+    /* Edit mode styles */
+    &.editable {
+      section.content {
+        p {
+          &:empty {
+            display: block;
+            &::before {
+              content: "Description";
+              color: rgba(0, 0, 0, 0.3);
+            }
+          }
+        }
+      }
+    }
+
+    section.title {
+      display: grid;
+      grid-template-columns: minmax(5rem, 1fr) max-content minmax(5rem, 1fr) max-content;
+      grid-auto-flow: column;
+      border-bottom: 1px solid #aaa;
+      padding: 0.5rem;
+      header {
+        padding: 0;
+        border-bottom: none;
+      }
+    }
   }
+
   @media screen and (min-width: 960px) {
     .card {
       min-width: 800px;
@@ -210,38 +286,36 @@
     display: flex;
     flex-direction: row;
     flex-wrap: wrap;
+    align-items: center;
   }
   .tag {
     max-width: 100%;
     word-break: break-all;
     --margin: 0.25rem;
-    font-size: small;
     border-radius: 0;
-    margin-right: var(--margin);
-    margin-bottom: var(--margin);
+    font-size: small;
+    margin: 0.25rem;
+    margin-bottom: 0;
+    margin-left: 0;
     padding: 0 0.3rem;
     display: inline-flex;
     flex-direction: row;
     align-items: center;
+    min-height: 1.6rem;
   }
   .tag.tag-form {
     padding: 0;
-  }
-  .tag:last-child {
     margin-right: 0;
   }
 
   /* Tag element (text + buttons) styling */
   .tag>* {
     background-color: inherit;
-    margin: 0 0.2rem;
+    margin: 0 0.2em;
     padding: 0;
   }
   .tag>*:first-child {
     margin-left: 0;
-  }
-  .tag>*:last-child {
-    margin-right: 0;
   }
 
 
@@ -264,18 +338,8 @@
     margin-top: 0;
     margin-bottom: 0;
   }
-  .row .content p:empty:not(:focus)::before {
-    content: "Description";
-    color: rgba(0, 0, 0, 0.3);
-  }
 
   /* Slight padding above the title and below the description (only if it isn't empty)*/
-  .row .content header {
-    padding: 0.2rem 0;
-  }
-  .row .content p {
-    padding-bottom: 0.2rem;
-  }
   .row .icons i:hover {
     transform: scale(1.25);
   }
