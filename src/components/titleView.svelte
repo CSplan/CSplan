@@ -10,8 +10,9 @@
   let isLoading = false
 
   // Update event handlers
-  function onblur(evt, id) {
-    store.update(id, evt.target.textContent)
+  async function onblur(evt, id) {
+    store.update(id, { title: evt.target.textContent })
+    await store.commit(id)
   }
 
   // Drag and drop event handlers

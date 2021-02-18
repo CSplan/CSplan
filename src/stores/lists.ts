@@ -37,17 +37,13 @@ type ListPartial = {
 type ListUpdate = {
   title?: string,
   items?: Item[],
-  meta?: {
-    index?: number
-  }
+  index?: number
 }
 type ListMeta = {
   id: string,
-  meta: {
-    index: number,
-    cryptoKey: CryptoKey,
-    checksum: string
-  }
+  index: number,
+  cryptoKey: CryptoKey,
+  checksum: string
 }
 // Local flags to assist with state management
 type ListFlags = {
@@ -101,8 +97,7 @@ function create() {
         }
         // See if the cache matches the list
         const cached = <List>await getByKey('lists', list.id)
-        if (typeof cached === 'object' && typeof cached.meta === 'object' && 
-        cached.meta.checksum === list.meta.checksum) {
+        if (cached && cached.checksum === list.meta.checksum) {
           if (process.env.NODE_ENV === 'development') {
             console.log(`%cUsing cache for list ${list.id}`, 'color: lightblue;')
           }
@@ -126,11 +121,9 @@ function create() {
             title: list.title,
             items: list.items
           }, cryptoKey)),
-          meta: {
-            index: list.meta.index,
-            checksum: list.meta.checksum,
-            cryptoKey
-          }
+          index: list.meta.index,
+          checksum: list.meta.checksum,
+          cryptoKey
         }
         // Cache the decrypted list
         await updateWithKey('lists', decrypted)
@@ -153,15 +146,15 @@ function create() {
       // Get user's master public key
       const { publicKey } = <MasterKeys><unknown>await getByKey('keys', user.id) // TODO: fix unideal casting
       // Generate a new AES-256 key
-      const key = await aes.generateKey('AES-GCM')
-      // Encrypt the list for storage
+      const cryptoKey = await aes.generateKey('AES-GCM')
+      // Encrypt and format the list for storage
       const encrypted: EncryptedListPartial = {
         ...<EncryptedListPartial><unknown>(await aes.deepEncrypt({
           title: list.title,
           items: list.items
-        }, key)),
+        }, cryptoKey)),
         meta: {
-          cryptoKey: await rsa.wrapKey(key, publicKey)
+          cryptoKey: await rsa.wrapKey(cryptoKey, publicKey)
         }
       }
 
@@ -184,11 +177,11 @@ function create() {
       const final: List = {
         ...list,
         id,
-        meta: {
-          ...meta,
-          cryptoKey: key
-        }
+        index: meta.index,
+        checksum: meta.checksum,
+        cryptoKey
       }
+      console.log(list, final)
 
       // Add the list to IDB, then update the local state
       await addToStore('lists', final)
@@ -203,24 +196,11 @@ function create() {
       }
     },
     update(id: string, updates: ListUpdate) {
-      // Make sure updates.meta isn't undefined for spread usage
-      updates.meta = updates.meta || {}
       update((store: Store) => {
         const old = store[id]
-        const meta = old.meta
-        if (updates.meta) {
-          if (typeof updates.meta.index === 'number') {
-            meta.index = updates.meta.index
-          }
-        }
         const final: List = {
           ...old,
-          title: updates.title || old.title,
-          items: updates.items || old.items,
-          meta,
-          flags: {
-            uncommitted: true
-          }
+          ...updates
         }
         store[id] = final
         return store
@@ -233,14 +213,15 @@ function create() {
         throw new ReferenceError('List passed by ID does not exist')
       }
 
-      // If only requested to update the cache (such as with index updates)
+      // Encrypt the entire list and send the changes as a PATCH request
+      // TODO: use flags.changes to make more precise and efficient patches
       const encrypted: EncryptedListPartial = {
         ...<EncryptedListPartial><unknown>(await aes.deepEncrypt({
           title: list.title,
           items: list.items
-        }, list.meta.cryptoKey)),
+        }, list.cryptoKey)),
         meta: {
-          index: list.meta.index
+          index: list.index
         }
       }
 
@@ -257,19 +238,16 @@ function create() {
         const err: ErrorResponse = await res.json()
         throw new Error(err.message || `Failed to update list with API (status ${res.status})`)
       }
-      const { meta: serverMeta }: EncryptedListMeta = await res.json()
+      const { meta }: EncryptedListMeta = await res.json()
 
-      // Update IDB and state with the new checksum
+      // Update the list's checksum
       // Remove uncommitted flag
       if (list.flags) {
         delete list.flags.uncommitted
       }
       const final: List = {
         ...list,
-        meta: {
-          ...list.meta,
-          checksum: serverMeta.checksum
-        }
+        checksum: meta.checksum
       }
       await updateWithKey('lists', final)
 
@@ -314,7 +292,7 @@ function create() {
       }
     },
     async move(id: string, index: number): Promise<void> {
-      const oldIndex = (<Store>get(this))[id].meta.index
+      const oldIndex = (<Store>get(this))[id].index
       const oldOrdered = <List[]>get(ordered)
       // Validate the index
       console.log(oldIndex, index)
@@ -327,20 +305,20 @@ function create() {
       const IDBupdates: List[] = []
       if (index > oldIndex){
         for (let i = oldIndex; i <= index; i++) {
-          oldOrdered[i].meta.index -= 1
-          this.update(oldOrdered[i].id, { meta: { index: oldOrdered[i].meta.index } })
+          oldOrdered[i].index -= 1
+          this.update(oldOrdered[i].id, { index: oldOrdered[i].index })
           IDBupdates.push(oldOrdered[i])
         }
       } else {
         for (let i = index; i < oldIndex; i++) {
-          oldOrdered[i].meta.index += 1
-          this.update(oldOrdered[i].id, { meta: { index: oldOrdered[i].meta.index } })
+          oldOrdered[i].index += 1
+          this.update(oldOrdered[i].id, { index: oldOrdered[i].index })
           IDBupdates.push(oldOrdered[i])
         }
       }
 
       // Move the selected item to the new index
-      this.update(id, { meta: { index } })
+      this.update(id, { index })
 
       // Fulfill IDBupdates
       for (const list of IDBupdates) {
@@ -354,7 +332,7 @@ export const lists = create()
 
 // Sort lists by the index property
 export const ordered = derived(lists, ($lists: Store) => {
-  return Object.values($lists).sort((l1, l2) => l1.meta.index - l2.meta.index)
+  return Object.values($lists).sort((l1, l2) => l1.index - l2.index)
 })
 
 export default lists
