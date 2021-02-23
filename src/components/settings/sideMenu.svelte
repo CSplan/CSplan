@@ -14,7 +14,7 @@
       name: 'Back',
       icon: 'fas fa-chevron-left',
       endOfSection: true,
-      onclick(evt: MouseEvent) {
+      onclick() {
         goto('/')
       }
     },

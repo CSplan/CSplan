@@ -1,4 +1,3 @@
-// eslint-disable-next-line no-undef
 module.exports =  {
   parser: '@typescript-eslint/parser',
   env: {
@@ -13,7 +12,13 @@ module.exports =  {
   },
   plugins: [
     'svelte3',
-    '@typescript-eslint/eslint-plugin'
+    '@typescript-eslint'
+  ],
+  overrides: [
+    {
+      files: ['*.svelte'],
+      processor: 'svelte3/svelte3'
+    }
   ],
   rules: {
     // General
@@ -32,9 +37,20 @@ module.exports =  {
       anonymous: 'never',
       asyncArrow: 'always'
     }],
+    // Misc
     'no-return-await': 'error',
+    'unused-export-let': 'off',
+    // Typescript specific rules
+    '@typescript-eslint/no-unused-vars': 'error',
     '@typescript-eslint/no-non-null-assertion': 'off',
     '@typescript-eslint/no-empty-function': 'off',
-    '@typescript-eslint/ban-ts-comment': 'warn'
+    '@typescript-eslint/ban-ts-comment': 'warn',
+    '@typescript-eslint/explicit-function-return-type': ['error', {
+      allowExpressions: true
+    }]
+  },
+  settings: {
+    'svelte3/typescript': require('typescript'),
+    'svelte3/ignore-styles': attributes => attributes.lang && attributes.lang !== 'css'
   }
 }

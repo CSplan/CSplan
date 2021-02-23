@@ -2,8 +2,8 @@
   import { goto } from '@sapper/app'
   import user from '../../stores/user'
   import { makeSalt } from 'cs-crypto'
-  import { onDestroy, onMount, tick } from 'svelte'
-  import { RegisterActions } from './actions.js';
+  import { onMount, tick } from 'svelte'
+  import { RegisterActions } from './actions.js'
 
   // Form data
   let showPassword = false

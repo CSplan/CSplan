@@ -1,11 +1,11 @@
 <script lang="ts">
-  import { createEventDispatcher } from "svelte";
+  import { createEventDispatcher } from 'svelte'
 
   let codeInput: HTMLInputElement
 
   const dispatch = createEventDispatcher()
 
-  function dispatchCode(evt: Event) {
+  function dispatchCode() {
     codeInput.setCustomValidity('')
     if (codeInput.value.length < 6) {
       codeInput.setCustomValidity('Code must be at least 6 digits.')

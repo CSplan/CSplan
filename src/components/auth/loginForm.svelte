@@ -1,11 +1,9 @@
-<script lang="ts">
+<script lang="typescript">
   import { LoginActions, AuthConditions } from './actions'
   import TwoFactorForm from './2faForm.svelte'
   import { onMount } from 'svelte'
   import user from '../../stores/user'
-  import route from '../../route'
   import { goto } from '@sapper/app'
-  import { Argon2_Actions } from '@very-amused/argon2-wasm/lib/argon2'
 
   // Elements
   let form: HTMLFormElement
@@ -49,10 +47,10 @@
         totp
       })
       switch (condition) {
-        case AuthConditions.TOTPRequired:
-          // Show TOTP form and wait for submission
-          state = States.TwoFactor
-          return
+      case AuthConditions.TOTPRequired:
+        // Show TOTP form and wait for submission
+        state = States.TwoFactor
+        return
       }
       await actions.retrieveMasterKeypair(password.value)
     } catch (err) {

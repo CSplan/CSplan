@@ -1,4 +1,4 @@
-<script>
+<script lang="ts">
   import HueSlider from './hue.svelte'
   import LightnessSlider from './lightness.svelte'
   import SaturationSlider from './saturation.svelte'

@@ -15,11 +15,10 @@ if (dev) {
     target: 'http://localhost:3000',
     pathRewrite: {
       '/api': ''
-    },
-    secure: false // Allow self signed certificates in dev
+    }
   })
   router
-    .use(proxy) // Proxy request that starts with /api
+    .use(proxy) // Proxy requests that start with /api
     .use(sirv('static', { dev })) // Only serve static files in dev (nginx handles this in prod)
 }
 router

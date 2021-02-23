@@ -1,30 +1,32 @@
-/**
- * @typedef {Object} CanvasInfo
- * @property {HTMLCanvasElement} canvas
- * @property {CanvasRenderingContext2D} ctx
- * @property {DOMRect} rect
- * @property {number} h - Canvas height
- * @property {number} w - Canvas width
- */
-
-/**
- * @typedef {Object} SliderCanvasInfo
- * @extends {CanvasInfo}
- * @property {number} r - Cursor/border radius
- */
-
 // Basic constructor for repetitive tasks such as setting up canvas elements and dimensions
 /** @type {CanvasInfo} */
 export class Canvas {
+  canvas: HTMLCanvasElement
+  ctx: CanvasRenderingContext2D
+  // Rectangle, height and width (assigned during getDimension, value assertion is needed because typescript doesn't understand value assignment in methods called from the constructor)
+  rect!: DOMRect
+  h!: number
+  w!: number
+
   /**
    * @param {HTMLCanvasElement} canvasEl 
    */
-  constructor(canvasEl) {
+  constructor(canvasEl: HTMLCanvasElement) {
     this.canvas = canvasEl
-    this.ctx = this.canvas.getContext('2d')
+    const ctx = this.canvas.getContext('2d')
+    if (!ctx) {
+      throw new Error('Invalid or undefined canvas element')
+    }
+    this.ctx = ctx
+
+    // Calculate height and width
     this.getDimensions()
   }
-  getDimensions() {
+
+  /**
+   * Update the canvas height and width
+   */
+  getDimensions(): void {
     this.rect = this.canvas.getBoundingClientRect()
     // Canvas width and height has to be manually updated
     this.canvas.height = this.rect.height
@@ -36,10 +38,10 @@ export class Canvas {
 }
 
 export class PlaneCanvas extends Canvas {
-  constructor(canvasEl) {
+  constructor(canvasEl: HTMLCanvasElement) {
     super(canvasEl)
   }
-  drawCursor(posX = 0, posY = 0, r = 0) {
+  drawCursor(posX = 0, posY = 0, r = 0): void {
     const { ctx } = this
     ctx.beginPath()
     ctx.arc(posX, posY, r, 0, 2*Math.PI)
@@ -48,14 +50,17 @@ export class PlaneCanvas extends Canvas {
   }
 }
 
-/** @type {SliderCanvasInfo} */
 export class SliderCanvas extends Canvas {
-  constructor(canvasEl, sideways = false) {
+  sideways: boolean
+  // Radius for circular slider
+  r: number
+
+  constructor(canvasEl: HTMLCanvasElement, sideways = false) {
     super(canvasEl)
     this.sideways = sideways
     this.r = sideways ? this.h/2 : this.w/2
   }
-  drawSlider() {
+  drawSlider(): void {
     const { ctx, h, w, r } = this
     ctx.beginPath()
     // Draw inner rectangle followed by two pairs of arcs to make rounded corners
@@ -82,7 +87,7 @@ export class SliderCanvas extends Canvas {
     }
     ctx.fill()
   }
-  drawCursor(pos = 0) {
+  drawCursor(pos = 0): void {
     const { ctx, r } = this
     ctx.beginPath()
     if (this.sideways) {

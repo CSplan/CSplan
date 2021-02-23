@@ -1,21 +1,14 @@
-<script>
+<script lang="ts">
   import { createEventDispatcher, onMount } from 'svelte'
   import { SliderCanvas } from './canvas'
 
-  let canvasEl
-  /** @type {import('./canvas'.SliderCanvas)}*/
-  let canvas
-  /** @type {CanvasRenderingContext2D} */
-  let ctx
+  let canvasEl: HTMLCanvasElement
+  let canvas: SliderCanvas
 
   const dispatch = createEventDispatcher()
 
-  // Height, width, radius
+  // Sideways vs regular slider
   export let sideways = false
-  let h = 0
-  let w = 0
-  let r = 0
-  $: r = sideways ? h/2 : w/2
   // Position of slider
   let pos = 0
   let moveCursor = false
@@ -24,7 +17,8 @@
   // Lightness for calculating saturation value
   export let lightness = 0
 
-  function updateCursor(evt) {
+  function updateCursor(evt: MouseEvent): void {
+    const { w, h, r } = canvas
     if (!moveCursor) {
       return
     }
@@ -43,19 +37,15 @@
   onMount(() => {
     // Setup canvas
     canvas = new SliderCanvas(canvasEl, sideways)
-    h = canvas.rect.height
-    w = canvas.rect.width
-    r = sideways ? h/2 : w/2
-    pos = r
-    ctx = canvas.ctx
-    
+    pos = canvas.r
+
     // Start drawing loop
     draw()
   })
 
-  let oldPos = null
-  let oldHue = null
-  function draw() {
+  let oldPos: number|null = null
+  let oldHue: number|null = null
+  function draw(): void {
     if (pos === oldPos && hue === oldHue) {
       requestAnimationFrame(draw)
       return
@@ -68,7 +58,8 @@
     emitSaturation()
     requestAnimationFrame(draw)
   }
-  function drawSlider() {
+  function drawSlider(): void {
+    const { ctx, w, h, r } = canvas
     // Create saturation gradient
     const gradient = sideways ? ctx.createLinearGradient(w - r, r, r, r) : ctx.createLinearGradient(r, h - r, r, r)
     for (let i = 0; i <= 100; i++) {
@@ -77,16 +68,17 @@
     ctx.fillStyle = gradient
     canvas.drawSlider()
   }
-  function drawCursor() {
-    ctx.fillStyle = 'white'
+  function drawCursor(): void {
+    canvas.ctx.fillStyle = 'white'
     canvas.drawCursor(pos)
   }
-  function emitSaturation() {
+  function emitSaturation(): void {
+    const { ctx, r } = canvas
     const pixel = sideways ? ctx.getImageData(pos, r, 1, 1) : ctx.getImageData(r, pos, 1, 1)
-    const rgb = Array.prototype.slice.call(pixel.data, 0, 3)
+    const rgb = Uint8Array.prototype.slice.call(pixel.data, 0, 3)
     dispatch('saturationchange', parseSaturation(rgb))
   }
-  function parseSaturation(rgb) {
+  function parseSaturation(rgb: Uint8Array): number {
     const r = rgb[0]/255
     const g = rgb[1]/255
     const b = rgb[2]/255

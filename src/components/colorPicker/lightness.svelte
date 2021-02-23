@@ -1,32 +1,27 @@
 <!-- Lightness slider used to control the radial gradient shown on the color plane -->
 
 
-<script>
+<script lang="typescript">
   import { createEventDispatcher, onMount } from 'svelte'
   import { SliderCanvas } from './canvas'
   import { parseLightness } from './parseLightness'
 
-  let canvasEl
-  /** @type {import('./canvas'.SliderCanvas)}*/
-  let canvas
-  /** @type {CanvasRenderingContext2D} */
-  let ctx
+  // Canvas info
+  let canvasEl: HTMLCanvasElement
+  let canvas: SliderCanvas
 
   const dispatch = createEventDispatcher()
 
-  // Height, width, radius
+  // Sideways vs vertical slider
   export let sideways = false
-  let h = 0
-  let w = 0
-  let r = 0
-  $: r = sideways ? h/2 : w/2
   // Position of slider
   let pos = 0
   let moveCursor = false
   // Lightness data for calculating cursor color
   let lightness = 0
 
-  function updateCursor(evt) {
+  function updateCursor(evt: MouseEvent): void {
+    const { w, h, r } = canvas
     if (!moveCursor) {
       return
     }
@@ -45,18 +40,15 @@
   onMount(() => {
     // Setup canvas
     canvas = new SliderCanvas(canvasEl, sideways)
-    h = canvas.rect.height
-    w = canvas.rect.width
-    r = sideways ? h/2 : w/2
+    const { w, h, r } = canvas
     pos = sideways ? w - r : h - r
-    ctx = canvas.ctx
     
     // Start drawing loop
     draw()
   })
 
   let oldPos = pos
-  function draw() {
+  function draw(): void {
     if (pos === oldPos) {
       requestAnimationFrame(draw)
       return
@@ -70,7 +62,8 @@
     requestAnimationFrame(draw)
   }
 
-  function drawSlider() {
+  function drawSlider(): void {
+    const { ctx, w, h, r } = canvas 
     // Lightness gradient
     const gradient = sideways ? ctx.createLinearGradient(r, r, w - r, r) : ctx.createLinearGradient(r, r, r, h - r)
     gradient.addColorStop(0, 'white')
@@ -78,24 +71,25 @@
     ctx.fillStyle = gradient
     canvas.drawSlider()
   }
-  function drawCursor() {
+  function drawCursor(): void {
     let f = 255
     if (f - 255 * lightness < 30) {
       f = 10 * (255 - (255 * lightness))
     }
-    ctx.fillStyle = `rgb(${f}, ${f}, ${f})`
+    canvas.ctx.fillStyle = `rgb(${f}, ${f}, ${f})`
     canvas.drawCursor(pos)
   }
-  function emitLightness() {
+  function emitLightness(): void {
+    const { ctx, r } = canvas
     const pixel = sideways ? ctx.getImageData(pos, r, 1, 1) : ctx.getImageData(r, pos, 1, 1)
-    const rgb = Array.prototype.slice.call(pixel.data, 0, 3)
+    const rgb = Uint8Array.prototype.slice.call(pixel.data, 0, 3)
     lightness = parseLightness(rgb)
     dispatch('lightnesschange', lightness)
   }
 
 </script>
 
-<canvas bind:this={canvasEl} class="lightness-slider" on:mousedown={(e) => moveCursor = true} on:mousedown={updateCursor}/>
+<canvas bind:this={canvasEl} class="lightness-slider" on:mousedown={() => moveCursor = true} on:mousedown={updateCursor}/>
 
 <svelte:window on:mousemove={updateCursor} on:mouseup={() => moveCursor = false}/>
 

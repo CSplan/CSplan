@@ -1,19 +1,17 @@
-<script>
+<script lang="ts">
   import { tweened } from 'svelte/motion'
   import { cubicOut } from 'svelte/easing'
 
   import Regular from './normal.svelte'
   import Small from './small.svelte'
   import Palette from './palette.svelte'
-
   
   // Initialize custom color picker with size specified by parameter (default medium)
   export let size = 'medium'
-  size = size.toLowerCase()
   let width = 0
   let height = 0
   let sliderWidth = 0
-  let customPicker
+  let customPicker: typeof Small|typeof Regular
   switch (size) {
   case 'large':
     customPicker = Regular

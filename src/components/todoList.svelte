@@ -253,7 +253,7 @@
     }
   }
 
-  i.checkbox {
+  .checkbox {
     font-size: 1.75rem;
   }
 
@@ -266,17 +266,15 @@
     grid-auto-flow: column;
     grid-template-columns: min-content minmax(0, auto) minmax(0, 1fr) minmax(0, auto);
     grid-template-rows: max-content minmax(0, auto);
-  }
-  .row {
+    * {
+      grid-row: 1 / span 1;
+    }
     .content, .tags {
       padding: 0 0.5rem;
     }
   }
   .row-bottom {
     padding: 0.5rem;
-  }
-  .row * {
-    grid-row: 1 / span 1;
   }
 
   /* Tag styles */

@@ -1,28 +1,21 @@
-<script>
+<script lang="ts">
   import { createEventDispatcher, onMount } from 'svelte'
   import { SliderCanvas } from './canvas'
 
-  /** @type {HTMLCanvasElement} */
-  let canvasEl
-  /** @type {import('./canvas'.SliderCanvas)} */
-  let canvas
-  /** @type {CanvasRenderingContext2D} */
-  let ctx
+  let canvasEl: HTMLCanvasElement
+  let canvas: SliderCanvas
 
   // Height, width, radius
   export let sideways = false
-  let h = 0
-  let w = 0
-  let r = 0
-  $: r = sideways ? h/2 : w/2
   // Position of slider
   let pos = 0
   let moveCursor = false
 
-  function updateCursor(evt) {
+  function updateCursor(evt: MouseEvent): void {
     if (!moveCursor) {
       return
     }
+    const { w, h, r } = canvas
     const slider = sideways ? evt.pageX - canvas.rect.left : evt.pageY - canvas.rect.top
     const max = sideways ? w - r : h - r
     if (slider < r) {
@@ -38,17 +31,13 @@
   onMount(() => {
     canvas = new SliderCanvas(canvasEl, sideways)
     // Get height, width, and calculate border radius
-    h = canvas.rect.height
-    w = canvas.rect.width
-    r = sideways ? h/2 : w/2
-    pos = r
-    ctx = canvas.ctx
+    pos = canvas.r
     // Start the rendering loop
     draw()
   })
 
   let oldPos = pos
-  function draw() {
+  function draw(): void {
     // Skip redrawing if the cursor position hasn't changed
     if (pos === oldPos) {
       requestAnimationFrame(draw)
@@ -62,7 +51,8 @@
     requestAnimationFrame(draw)
   }
 
-  function drawSlider() {
+  function drawSlider(): void {
+    const { ctx, w, h , r } = canvas
     // Create and fill a HSL gradient
     const gradient = sideways ? ctx.createLinearGradient(r, r, w - r, r) : ctx.createLinearGradient(r, r, r, h - r)
     for (let i = 0; i < 330; i++) {
@@ -72,17 +62,18 @@
     canvas.drawSlider()
   }
 
-  function drawCursor() {
-    ctx.fillStyle = 'white'
+  function drawCursor(): void {
+    canvas.ctx.fillStyle = 'white'
     canvas.drawCursor(pos)
   }
 
-  function emitColor() {
+  function emitColor(): void {
+    const { ctx, r } = canvas
     const pixel = sideways ? ctx.getImageData(pos, r, 1, 1) : ctx.getImageData(r, pos, 1, 1)
-    const rgb = Array.prototype.slice.call(pixel.data, 0, 3)
+    const rgb = Uint8Array.prototype.slice.call(pixel.data, 0, 3)
     dispatch('colorchange', parseHue(rgb))
   }
-  function parseHue(rgb) {
+  function parseHue(rgb: Uint8Array): number {
     const r = rgb[0]
     const b = rgb[1]
     const g = rgb[2]
