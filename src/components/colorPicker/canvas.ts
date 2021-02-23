@@ -8,9 +8,6 @@ export class Canvas {
   h!: number
   w!: number
 
-  /**
-   * @param {HTMLCanvasElement} canvasEl 
-   */
   constructor(canvasEl: HTMLCanvasElement) {
     this.canvas = canvasEl
     const ctx = this.canvas.getContext('2d')
