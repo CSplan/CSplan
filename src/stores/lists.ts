@@ -1,4 +1,4 @@
-import { writable, derived, get } from 'svelte/store'
+import { writable, derived, get, Readable } from 'svelte/store'
 import { route } from '../route'
 import { addToStore, getByKey, updateWithKey, deleteFromStore } from '../db'
 import { aes, rsa } from 'cs-crypto'
@@ -52,7 +52,7 @@ type ListFlags = {
   }
 }
 // Lists as stored in IDB and state
-type List = ListPartial & ListMeta & ListFlags
+export type List = ListPartial & ListMeta & ListFlags
 type Item = {
   title: string,
   description: string,
@@ -67,7 +67,7 @@ type Store = {
 // Memoize init (init can safely be called when it's uncertain if the store is initialized without incurring wasted operations)
 let initialized = false
 
-function create(): SMSXStore {
+function create(): Readable<Store> & SMSXStore{
   const listStore = {}
   const { subscribe, update } = writable(listStore)
 
@@ -112,7 +112,7 @@ function create(): SMSXStore {
 
         // Decrypt the list's AES key
         const { id } = JSON.parse(localStorage.getItem('user')!)
-        const { privateKey } = await getByKey('keys', id)
+        const { privateKey } = <MasterKeys><unknown>await getByKey('keys', id)
         const cryptoKey = await rsa.unwrapKey(list.meta.cryptoKey!, privateKey)
         // Use the list's key to decrypt all information (and do some restructuring)
         const decrypted: List = {

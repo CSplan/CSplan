@@ -1,4 +1,4 @@
-import { writable } from 'svelte/store'
+import { Readable, writable } from 'svelte/store'
 import { clearUserStores } from '../db'
 
 export type UserStore = {
@@ -6,12 +6,17 @@ export type UserStore = {
     id: string,
     email: string
   },
-  isLoggedIn: false
+  isLoggedIn: boolean
+}
+
+type UserActions = {
+  login(user: UserStore['user']): void
+  logout(): void
 }
 
 // This store ONLY manages local state, all API interaction must be handled by components before calling these functions
 // TODO: this flow is stupid
-function create() {
+function create(): Readable<UserStore> & UserActions {
   const userStore = {
     user: {
       id: '',

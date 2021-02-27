@@ -23,6 +23,6 @@ Current progress for adding TypeScript and SCSS to components:
 - [x] Color picker
 - [ ] Tag
 - [ ] Title View (lists)
-- [ ] Todo List
+- [x] Todo List
 - [ ] Navbar
 - [ ] List and tag modals

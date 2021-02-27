@@ -1,15 +1,63 @@
-<script>
-  /* eslint-disable */
+<script lang="ts">
   import { onMount, tick } from 'svelte'
-  import { flip } from 'svelte/animate'
+  // import { flip } from 'svelte/animate'
   import lists from '../../stores/lists'
+  import type { List } from '../../stores/lists'
   import tags from '../../stores/tags'
   import Spinner from '../spinner.svelte'
   import TagForm from '../tagForm.svelte'
   import { CEkeypress, CEtrim } from '../../misc/contenteditable'
   import { fade } from 'svelte/transition'
+  import { SimpleStates as States } from '../../misc/state'
 
-  export let id
+  export let id: string
+
+  // #region State
+  let list: List
+  let state = States.Loading
+  // #endregion
+
+  // #region Editing/interactive
+  let editMode = false
+  async function toggleEditMode(): Promise<void> {
+    editMode = !editMode
+    if (!editMode) {
+      await saveAndCommit()
+    }
+  }
+
+  function updateTitle(evt: SafeEvent): void {
+    CEtrim(evt)
+    // If the title is null or empty, set it to the last known value
+    if (!evt.currentTarget.textContent) {
+      evt.currentTarget.textContent = list.title
+      return
+    }
+    list.title = evt.currentTarget.textContent
+  }
+  function updateItemTitle(evt: SafeEvent, i: number): void {
+    CEtrim(evt)
+    if (!evt.currentTarget.textContent) {
+      evt.currentTarget.textContent = list.items[i].title
+      return
+    }
+    list.items[i].title = evt.currentTarget.textContent
+  }
+  function updateItemDescription(evt: SafeEvent, i: number): void {
+    CEtrim(evt)
+    list.items[i].description = evt.currentTarget.textContent || ''
+  }
+
+  // Toggle an item's completion
+  async function toggleItem(index: number): Promise<void> {
+    const updatedItems = list.items
+    updatedItems[index].done = !updatedItems[index].done
+    lists.update(id, {
+      items: updatedItems
+    })
+    list = $lists[id] // Trigger render update
+    await saveAndCommit()
+  }
 
   // Skeleton for new items
   const itemSkeleton = {
@@ -18,76 +66,24 @@
     tags: [],
     done: false
   }
-
-  let list
-  let hasList = false
-  let saveStates = {
-    resting: 0,
-    saving: 1,
-    success: 2,
-    error: 3
-  }
-  let saveState = saveStates.resting
-  const fadeDuration = 250
-
-  onMount(async () => {
-    await lists.init()
-    await tags.init()
-    list = $lists[id]
-    console.log($lists, id)
-    console.log(list)
-    hasList = true
-  })
-
-  // Editing logic
-  let editMode = false
-  async function toggleEditMode() {
-    editMode = !editMode
-    if (!editMode) {
-      await saveAndCommit()
-    }
-  }
-
-  function updateTitle(evt) {
-    CEtrim(evt)
-    list.title = evt.target.textContent
-  }
-  function updateItemTitle(evt, i) {
-    CEtrim(evt)
-    list.items[i].title = evt.target.textContent
-  }
-  function updateItemDescription(evt, i) {
-    CEtrim(evt)
-    list.items[i].description = evt.target.textContent
-  }
-
-  // Normal logic
-  async function toggleItem(index) {
-    const updatedItems = list.items
-    updatedItems[index].done = !updatedItems[index].done
-    await lists.update(id, {
-      items: updatedItems
-    })
-    list = $lists[id] // Trigger render update
-    await saveAndCommit()
-  }
-
-  async function addItem() {
+  // Add a new item, and focus the item's title
+  async function addItem(): Promise<void> {
     list.items.push({ ...itemSkeleton, tags: [] }) // js randomly implementing pointers amirite
     list.items = list.items
     // Wait for the DOM to update and focus the new item 
     await tick()
-    document.querySelector(`[data-index="${list.items.length - 1}"]`).focus()
+    const titleEl: HTMLElement = document.querySelector(`[data-index="${list.items.length - 1}"]`)!
+    titleEl.focus()
 
     await saveAndCommit()
   }
 
-  async function tagItem(index, id) {
+  async function tagItem(index: number, id: string): Promise<void> {
     list.items[index].tags.push(id)
     list = list
     await saveAndCommit()
   }
-  async function untagItem(index, id) {
+  async function untagItem(index: number, id: string): Promise<void> {
     const tags = list.items[index].tags
     for (let i = 0; i < tags.length; i++) {
       if (tags[i] == id) {
@@ -99,15 +95,18 @@
     await saveAndCommit()
   }
 
-  async function deleteItem(index) {
+  async function deleteItem(index: number): Promise<void> {
     list.items.splice(index, 1)
-    await saveAndCommit()
     list.items = list.items // Trigger render update
+    await saveAndCommit()
   }
+  // #endregion
 
+  // #region Save animation
+  const fadeDuration = 250
   let cooldown = false
-  async function saveAndCommit() {
-    if (saveState !== saveStates.resting || cooldown) {
+  async function saveAndCommit(): Promise<void> {
+    if (state !== States.Resting || cooldown) {
       return
     }
     cooldown = true
@@ -116,71 +115,85 @@
       ...list
     })
     const timeout = setTimeout(() => {
-      saveState = saveStates.saving
+      state = States.Saving
     }, 500)
     await lists.commit(id)
     clearTimeout(timeout)
-    saveState = saveStates.success
+    state = States.Saved
     setTimeout(() => {
-      saveState = saveStates.resting
+      state = States.Resting
     }, fadeDuration)
     // To avoid DOM errors, we need to wait for 2*fadeDuration before allowing the user to save again (fade in + fade out)
     setTimeout(() => {
       cooldown = false
     }, 2*fadeDuration)
   }
+  // #endregion
 
-  /**
-   * Drag and drop logic
-  */
-  function ondragstart(evt, index) {
+  // #region Drag and drop
+  function ondragstart(evt: DragEvent, index: number): void {
     // Store the item's id in the data transfer
-    evt.dataTransfer.setData('text/plain', index)
+    evt.dataTransfer!.setData('text/plain', index.toString())
   }
 
-  function ondragover(evt) {
+  function ondragover(evt: DragEvent & SafeEvent): void {
     evt.preventDefault()
-    // Set a blue higlight
+    // Apply a blue higlight
     const row = getRow(evt)
     row.style.border = 'var(--bold-blue) 2px solid'
-    row.style['border-radius'] = '0.3rem'
+    row.style.borderRadius = '0.3rem'
   }
 
-  function ondragleave(evt) {
+  function ondragleave(evt: DragEvent & SafeEvent): void {
     evt.preventDefault()
-    getRow(evt).style = ''
+    // Remove highlight
+    const row = getRow(evt)
+    row.style.border = ''
+    row.style.borderRadius
   }
 
-  // Move the item using .splice
-  async function ondrop(evt, index) {
-    evt.preventDefault()
-    getRow(evt).style = ''
-    const oldIndex = evt.dataTransfer.getData('text/plain')
+  // Move an item using .splice
+  async function ondrop(evt: DragEvent & SafeEvent, index: number): Promise<void> {
+    // Remove highlight
+    ondragleave(evt)
+    
+    // Move the item
+    const oldIndex = parseInt(evt.dataTransfer!.getData('text/plain'))
     const item = list.items[oldIndex]
     list.items.splice(oldIndex, 1)
     list.items.splice(index, 0, item)
-    // Trigger rerender
+
+    // Trigger rerender and save
     list.items = list.items
     await saveAndCommit()
   }
 
   // Return the first parent element of evt.target to contain the attribute [data-role="row"]
   // Used to highlight the correct element in drag and drop events
-  function getRow(evt) {
-    let el
-    el = evt.target.parentNode
+  function getRow(evt: SafeEvent): HTMLElement {
+    let el: HTMLElement = evt.currentTarget as HTMLElement
     while (el.getAttribute('data-role') !== 'row') {
-      el = el.parentNode
+      if (!el.parentNode) {
+        throw new Error('Unable to find row to highlight (drag and drop)')
+      }
+      el = el.parentNode as HTMLElement
     }
     return el
   }
-
+  // #endregion
+  
+  onMount(async () => {
+    await lists.init()
+    await tags.init()
+    list = $lists[id]
+    state = States.Resting
+  })
 </script>
 
 <!-- Don't copy content on drop events -->
 <svelte:window on:drop|preventDefault/>
 
-{#if hasList}
+{#if state !== States.Error && state !== States.Loading}
 <div class="card {editMode ? 'editable' : ''}">
   <section class="title">
     <div class="spacer"/>
@@ -217,7 +230,7 @@
       {#if $tags[id]}
       <span class="tag" style="background-color: {$tags[id].color};">
           <p spellcheck="false">{$tags[id].name}</p>
-          <i class="fas fa-times clickable" on:click={untagItem(i, id)}></i>
+          <i class="fas fa-times clickable" on:click={() => untagItem(i, id)}></i>
       </span>
       {/if}
       {/each}
@@ -236,9 +249,9 @@
     </div>
   {/if}
   <div class="corner">
-    {#if saveState === saveStates.saving}
+    {#if state === States.Saving}
       <Spinner size="1.5rem"/>
-    {:else if saveState === saveStates.success}
+    {:else if state === States.Saved}
       <i class="fas fa-check bold" transition:fade={{ duration: fadeDuration }}></i>
     {/if}
   </div>
@@ -255,49 +268,33 @@
     max-width: 100%;
     word-break: break-word;
   }
-  .card {
-    overflow: visible;
+  .card.editable {
     section.content {
-      header {
-        margin: auto 0;
-      }
       p {
-        /* Hide empty descriptions*/
         &:empty {
-          display: none;
-        }
-      }
-    }
-
-
-    /* Edit mode styles */
-    &.editable {
-      section.content {
-        p {
-          &:empty {
-            display: block;
-            &::before {
-              content: "Description";
-              color: rgba(0, 0, 0, 0.3);
-            }
+          display: block;
+          &::before {
+            content: "Description";
+            color: rgba(0, 0, 0, 0.3);
           }
         }
       }
     }
+  }
 
-    section.title {
-      display: grid;
-      grid-template-columns: minmax(5rem, 1fr) max-content minmax(5rem, 1fr) max-content;
-      grid-auto-flow: column;
-      border-bottom: 1px solid #aaa;
-      padding: 0.5rem;
-      header {
-        padding: 0;
-        border-bottom: none;
-      }
+  section.title {
+    display: grid;
+    grid-template-columns: minmax(5rem, 1fr) max-content minmax(5rem, 1fr) max-content;
+    grid-auto-flow: column;
+    border-bottom: 1px solid #aaa;
+    padding: 0.5rem;
+    header {
+      padding: 0;
+      border-bottom: none;
     }
   }
 
+  // Responsiveness
   @media screen and (min-width: 960px) {
     .card {
       min-width: 800px;
@@ -314,11 +311,15 @@
     font-size: 1.75rem;
   }
 
+  // #region Rows
   .row {
+    // Dimensions + color
     width: 100%;
     line-height: 1.25;
     color: initial;
-    text-align: center;
+    border-bottom: #ccc 1px solid;
+    // Alignment
+    text-align: left;
     padding: 0.5rem;
     display: grid;
     grid-auto-flow: column;
@@ -326,15 +327,43 @@
     column-gap: 0.5rem;
     row-gap: 0.25rem;
     grid-template-rows: minmax(0, auto) minmax(0, auto);
+    // Modifiers
     &.tagless {
       grid-template-rows: minmax(0, auto);
     }
+    &:hover {
+      background: whitesmoke;
+    }
+
+    // Default child alignment
     * {
       grid-row: 1 / span 1;
     }
     i.checkbox {
       grid-row: 1 / -1;
     }
+
+    // Content contains an item's title and description
+    .content {
+      color: initial;
+      display: flex;
+      flex-direction: column;
+      text-align: left;
+      z-index: 1;
+      * {
+        border: none;
+        padding: 0;
+        margin-top: 0;
+        margin-bottom: 0;
+      }
+      // Hide empty descriptions
+      p:empty {
+        display: none;
+      }
+    }
+
+    /* Spacers (used for drag and drop) lay underneath the content (title, description, and tags) of a row,
+    allowing drag and drop to be performem from anywhere in an item you don't see content or icons */
     .spacer {
       grid-column: 2 / span 1;
       grid-row: 1 / -1;
@@ -342,16 +371,26 @@
     .content, .tags {
       grid-column: 2 / span 1;
       width: max-content;
-      z-index: 1;
       padding: 0;
       height: max-content;
     }
+    // Scale icons on hover
+    .icons {
+      i:hover {
+        transform: scale(1.25);
+      }
+    }
   }
   .row-bottom {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
     padding: 0.5rem;
   }
+  // #endregion
 
-  /* Tag styles */
+  // #region Tags
   .tags {
     grid-row: 2 / span 1;
     display: flex;
@@ -362,7 +401,6 @@
   .tag {
     max-width: 100%;
     word-break: break-all;
-    --margin: 0.25rem;
     border-radius: 0;
     font-size: small;
     margin-right: 0.25rem;
@@ -370,55 +408,23 @@
     display: inline-flex;
     flex-direction: row;
     align-items: center;
+    // TODO: adjust tag height
     min-height: 1.6rem;
-  }
-  .tag.tag-form {
-    padding: 0;
-    margin-right: 0;
-  }
 
-  /* Tag element (text + buttons) styling */
-  .tag>* {
-    background-color: inherit;
-    margin: 0 0.2em;
-    padding: 0;
-  }
-  .tag>*:first-child {
-    margin-left: 0;
-  }
+    // Tag content (text + buttons)
+    * {
+      background-color: inherit;
+      margin: 0 0.2em;
+      padding: 0;
+    }
 
-
-  .row-bottom {
-    display: flex;
-    flex-direction: row;
-    align-items: center;
-    justify-content: center;
+    // Form for adding new tags
+    &.tag-form {
+      padding: 0;
+      margin-right: 0;
+    }
   }
-  .row .content {
-    color: initial;
-    text-align: center;
-    display: flex;
-    flex-direction: column;
-    text-align: left;
-  }
-  .row .content * {
-    border: none;
-    padding: 0;
-    margin-top: 0;
-    margin-bottom: 0;
-  }
-
-  /* Slight padding above the title and below the description (only if it isn't empty)*/
-  .row .icons i:hover {
-    transform: scale(1.25);
-  }
-  .row:hover {
-    background: whitesmoke;
-  }
-  /* Create separators */
-  .row {
-    border-bottom: #ccc 1px solid;
-  }
+  // #endregion
 
   .corner {
     position: absolute;
