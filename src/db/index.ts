@@ -2,10 +2,6 @@ const DB_NAME = 'CSplan'
 const DB_VER = 1
 let cachedIDB: IDBDatabase|null = null
 
-interface keyedObject {
-  id: string,
-  [key: string]: any
-}
 
 const enum Scopes {
   All,
@@ -72,7 +68,7 @@ export function getDB(): Promise<IDBDatabase> {
   })
 }
 
-export async function addToStore(storeName: string, data: keyedObject): Promise<void> {
+export async function addToStore(storeName: string, data: KeyedObject): Promise<void> {
   const db = await getDB()
   return new Promise((resolve, reject) => {
     const store = db.transaction(storeName, 'readwrite').objectStore(storeName)
@@ -113,11 +109,11 @@ export async function clearStore(storeName: string): Promise<void> {
 }
 
 // Retrieve a record from an object store by key
-export async function getByKey(storeName: string, key: string): Promise<keyedObject> {
+export async function getByKey(storeName: string, key: string): Promise<KeyedObject> {
   const db = await getDB()
   return new Promise((resolve, reject) => {
     const store = db.transaction(storeName, 'readonly').objectStore(storeName)
-    const req: IDBRequest<keyedObject> = store.get(key)
+    const req: IDBRequest<KeyedObject> = store.get(key)
 
     req.onerror = () => {
       reject(req.error)
@@ -129,7 +125,7 @@ export async function getByKey(storeName: string, key: string): Promise<keyedObj
 }
 
 // Update an object store's record with an object including a key
-export async function updateWithKey(storeName: string, data: keyedObject): Promise<void> {
+export async function updateWithKey(storeName: string, data: KeyedObject): Promise<void> {
   const db = await getDB()
   return new Promise((resolve, reject) => {
     const store = db.transaction(storeName, 'readwrite').objectStore(storeName)

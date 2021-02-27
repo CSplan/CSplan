@@ -67,7 +67,7 @@ type Store = {
 // Memoize init (init can safely be called when it's uncertain if the store is initialized without incurring wasted operations)
 let initialized = false
 
-function create() {
+function create(): SMSXStore {
   const listStore = {}
   const { subscribe, update } = writable(listStore)
 

@@ -46,7 +46,7 @@ module.exports = {
       !dev && terser({
         module: true
       }),
-      gzip()
+      !dev && gzip()
     ],
 
     preserveEntrySignatures: false,

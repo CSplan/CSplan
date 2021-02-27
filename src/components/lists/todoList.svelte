@@ -1,10 +1,12 @@
 <script>
+  /* eslint-disable */
   import { onMount, tick } from 'svelte'
-  import lists from '../stores/lists'
-  import tags from '../stores/tags'
-  import Spinner from './spinner.svelte'
-  import TagForm from './tagForm.svelte'
-  import { CEkeypress, CEtrim } from '../misc/contenteditable'
+  import { flip } from 'svelte/animate'
+  import lists from '../../stores/lists'
+  import tags from '../../stores/tags'
+  import Spinner from '../spinner.svelte'
+  import TagForm from '../tagForm.svelte'
+  import { CEkeypress, CEtrim } from '../../misc/contenteditable'
   import { fade } from 'svelte/transition'
 
   export let id
@@ -30,7 +32,10 @@
 
   onMount(async () => {
     await lists.init()
+    await tags.init()
     list = $lists[id]
+    console.log($lists, id)
+    console.log(list)
     hasList = true
   })
 
@@ -125,10 +130,55 @@
     }, 2*fadeDuration)
   }
 
-  onMount(async () => {
-    await tags.init()
-  })
+  /**
+   * Drag and drop logic
+  */
+  function ondragstart(evt, index) {
+    // Store the item's id in the data transfer
+    evt.dataTransfer.setData('text/plain', index)
+  }
+
+  function ondragover(evt) {
+    evt.preventDefault()
+    // Set a blue higlight
+    const row = getRow(evt)
+    row.style.border = 'var(--bold-blue) 2px solid'
+    row.style['border-radius'] = '0.3rem'
+  }
+
+  function ondragleave(evt) {
+    evt.preventDefault()
+    getRow(evt).style = ''
+  }
+
+  // Move the item using .splice
+  async function ondrop(evt, index) {
+    evt.preventDefault()
+    getRow(evt).style = ''
+    const oldIndex = evt.dataTransfer.getData('text/plain')
+    const item = list.items[oldIndex]
+    list.items.splice(oldIndex, 1)
+    list.items.splice(index, 0, item)
+    // Trigger rerender
+    list.items = list.items
+    await saveAndCommit()
+  }
+
+  // Return the first parent element of evt.target to contain the attribute [data-role="row"]
+  // Used to highlight the correct element in drag and drop events
+  function getRow(evt) {
+    let el
+    el = evt.target.parentNode
+    while (el.getAttribute('data-role') !== 'row') {
+      el = el.parentNode
+    }
+    return el
+  }
+
 </script>
+
+<!-- Don't copy content on drop events -->
+<svelte:window on:drop|preventDefault/>
 
 {#if hasList}
 <div class="card {editMode ? 'editable' : ''}">
@@ -139,17 +189,21 @@
     <i class="edit-mode-toggle fas fa-pencil-alt clickable" style="color: {editMode ? 'var(--bold-blue)' : 'initial'}" on:click={toggleEditMode}/>
   </section>
 
-  {#each list.items as item, i (i)}
-  <div class="row item-title marginless {item.tags.length > 0 ? 'has-tags' : ''}">
+  {#each list.items as item, i (item)}
+  <div class="row item-title marginless {!item.tags.length ? 'tagless' : ''}" data-role="row">
+    <!-- Checkbox -->
     <i class="clickable checkbox { item.done ? 'fas fa-check-circle' : 'far fa-circle'}" on:click={() => toggleItem(i)}></i>
 
 
+    <!-- Content -->
     <section class="content">
       <header data-index={i} contenteditable={editMode} spellcheck="false" on:keypress={CEkeypress} on:blur={e => updateItemTitle(e, i)}>{item.title}</header>
       <p class="no-empty-effect" contenteditable={editMode} spellcheck="false" on:blur={(e) => updateItemDescription(e, i)}>{item.description}</p>
     </section>
 
-    <div class="spacer"/>
+    <!-- Spacer - positioned behind content, used to drag items to move their position -->
+    <div class="spacer" draggable={editMode}
+      on:dragstart={e => ondragstart(e, i)} on:dragover={ondragover} on:dragleave={ondragleave} on:dragexit={ondragleave} on:drop={e => ondrop(e, i)}/>
 
     {#if editMode}
     <div class="icons">
@@ -157,6 +211,7 @@
     </div>
     {/if}
 
+    {#if item.tags.length > 0}
     <div class="tags">
       {#each item.tags as id (id)}
       {#if $tags[id]}
@@ -172,11 +227,14 @@
         </span>
       {/if}
     </div>
+    {/if}
   </div>
   {/each}
-  <div class="row-bottom centered clickable" on:click={addItem}>
-    <i class="fas fa-plus"></i>
-  </div>
+  {#if editMode}
+    <div class="row-bottom centered clickable" on:click={addItem}>
+      <i class="fas fa-plus"></i>
+    </div>
+  {/if}
   <div class="corner">
     {#if saveState === saveStates.saving}
       <Spinner size="1.5rem"/>
@@ -196,7 +254,6 @@
   .row header, .row .content p {
     max-width: 100%;
     word-break: break-word;
-    line-height: 1;
   }
   .card {
     overflow: visible;
@@ -205,13 +262,13 @@
         margin: auto 0;
       }
       p {
-        margin-top: 0.25rem;
         /* Hide empty descriptions*/
         &:empty {
           display: none;
         }
       }
     }
+
 
     /* Edit mode styles */
     &.editable {
@@ -259,18 +316,35 @@
 
   .row {
     width: 100%;
+    line-height: 1.25;
     color: initial;
     text-align: center;
     padding: 0.5rem;
     display: grid;
     grid-auto-flow: column;
-    grid-template-columns: min-content minmax(0, auto) minmax(0, 1fr) minmax(0, auto);
-    grid-template-rows: max-content minmax(0, auto);
+    grid-template-columns: min-content minmax(0, auto) min-content;
+    column-gap: 0.5rem;
+    row-gap: 0.25rem;
+    grid-template-rows: minmax(0, auto) minmax(0, auto);
+    &.tagless {
+      grid-template-rows: minmax(0, auto);
+    }
     * {
       grid-row: 1 / span 1;
     }
+    i.checkbox {
+      grid-row: 1 / -1;
+    }
+    .spacer {
+      grid-column: 2 / span 1;
+      grid-row: 1 / -1;
+    }
     .content, .tags {
-      padding: 0 0.5rem;
+      grid-column: 2 / span 1;
+      width: max-content;
+      z-index: 1;
+      padding: 0;
+      height: max-content;
     }
   }
   .row-bottom {
@@ -279,7 +353,6 @@
 
   /* Tag styles */
   .tags {
-    grid-column: 2 / span 2;
     grid-row: 2 / span 1;
     display: flex;
     flex-direction: row;
@@ -292,9 +365,7 @@
     --margin: 0.25rem;
     border-radius: 0;
     font-size: small;
-    margin: 0.25rem;
-    margin-bottom: 0;
-    margin-left: 0;
+    margin-right: 0.25rem;
     padding: 0 0.3rem;
     display: inline-flex;
     flex-direction: row;
