@@ -86,8 +86,13 @@ function create(): Readable<Store> & SMSXStore{
         }
       })
       if (res.status !== 200) {
-        const err: ErrorResponse = await res.json()
-        throw new Error(err.message || 'failed init')
+        let err: ErrorResponse
+        try {
+          err = await res.json()
+        } catch {
+          throw new Error('unable to load lists')
+        }
+        throw new Error(err.message || 'unable to load lists')
       }
       const lists: EncryptedList[] = await res.json()
       // Iterate through each list

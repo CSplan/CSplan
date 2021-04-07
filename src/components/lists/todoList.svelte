@@ -50,12 +50,10 @@
 
   // Toggle an item's completion
   async function toggleItem(index: number): Promise<void> {
-    const updatedItems = list.items
-    updatedItems[index].done = !updatedItems[index].done
+    list.items[index].done = !list.items[index].done
     lists.update(id, {
-      items: updatedItems
+      items: list.items
     })
-    list = $lists[id] // Trigger render update
     await saveAndCommit()
   }
 

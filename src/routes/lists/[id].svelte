@@ -16,7 +16,7 @@
 
 <Navbar/>
 
-<a class="back-button" href="/lists" rel="prefetch">
+<a class="back-button" href="/lists" sapper:prefetch>
   <i class="fas fa-arrow-left"></i>
 </a>
 

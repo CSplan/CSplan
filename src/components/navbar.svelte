@@ -29,9 +29,9 @@
   <div class="menu">
   {#each links as link}
     {#if link.needsLogin && $user.isLoggedIn}
-      <a class="pseudo button" rel="prefetch" href={link.href}>{link.title}</a>
+      <a class="pseudo button" sapper:prefetch href={link.href}>{link.title}</a>
     {:else if !link.needsLogin}
-      <a class="pseudo button" rel="prefetch" href={link.href}>{link.title}</a>
+      <a class="pseudo button" sapper:prefetch href={link.href}>{link.title}</a>
     {/if}
   {/each}
   <div class="right">

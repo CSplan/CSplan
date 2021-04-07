@@ -1,3 +1,9 @@
+<script context="module">
+  export function preload() {
+
+  }
+</script>
+
 <script>
   import { onMount } from 'svelte'
   import user from '../stores/user'

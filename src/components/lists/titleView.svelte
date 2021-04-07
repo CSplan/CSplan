@@ -86,7 +86,7 @@
       on:dragstart={e => ondragstart(e, list.id)} on:dragover={ondragover} on:dragleave={ondragleave} on:dragexit={ondragleave} on:drop={e => ondrop(e, i)}/>
     
       <div class="icons">
-        <a href="/lists/{list.id}" rel="prefetch">
+        <a sapper:prefetch href="/lists/{list.id}">
           <i class="fas fa-clipboard-list clickable"/>
         </a>
         <i class="fas fa-times clickable" on:click={store.delete(list.id)}></i>
@@ -110,15 +110,20 @@
     </div>
   {/if}
 {:catch err}
-  <pre>Error: {err}</pre>
+  <pre>{err instanceof Error ? err : `Error: ${err}`}</pre>
 {/await}
 </div>
 
-<style>
+<style lang="scss">
   .card {
     margin-top: 10vh;
     min-width: 50%;
     max-width: 80%;
+    pre {
+      margin: 0;
+      text-align: center;
+      color: red;
+    }
   }
   .row {
     --side-margin: 5rem;
