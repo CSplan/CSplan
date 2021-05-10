@@ -4,7 +4,6 @@ import replace from '@rollup/plugin-replace'
 import svelte from 'rollup-plugin-svelte'
 import preprocess from 'svelte-preprocess'
 import typescript from '@rollup/plugin-typescript'
-import scss from 'rollup-plugin-scss'
 import gzip from 'rollup-plugin-gzip'
 import { terser } from 'rollup-plugin-terser'
 import sapper from 'sapper/config/rollup.js'
@@ -24,7 +23,8 @@ export default {
       progress(),
       replace({
         'process.browser': true,
-        'process.env.NODE_ENV': JSON.stringify(mode)
+        'process.env.NODE_ENV': JSON.stringify(mode),
+        preventAssignment: true
       }),
       svelte({
         compilerOptions: {
@@ -59,7 +59,8 @@ export default {
       progress(),
       replace({
         'process.browser': false,
-        'process.env.NODE_ENV': JSON.stringify(mode)
+        'process.env.NODE_ENV': JSON.stringify(mode),
+        preventAssignment: true
       }),
       svelte({
         compilerOptions: {

@@ -55,6 +55,7 @@ export class LoginActions {
     type: 'argon2i',
     timeCost: 1,
     memoryCost: 128 * 1024,
+    threads: 1,
     salt: ''
   }
 
@@ -111,10 +112,7 @@ export class LoginActions {
     return message.body!
   }
 
-  protected async generateSigningKey(seed: Uint8Array, omitPublicKey = true): Promise<{
-    publicKey: Uint8Array|null,
-    privateKey: Uint8Array
-  }> {
+  protected async generateSigningKey(seed: Uint8Array, omitPublicKey = true): Promise<ED25519.GenerateResult['body']> {
     const message = await this.ed25519.postMessage({
       method: ED25519.Methods.GenerateKeypair,
       params: {
@@ -125,14 +123,30 @@ export class LoginActions {
     if (message.code !== ED25519.ErrorCodes.Success) {
       throw new Error('error generating ed25519 signing key')
     }
-    return message.body!
+
+    return message.body as ED25519.GenerateResult['body']
+  }
+
+  protected async signChallenge(challenge: Uint8Array, privateKey: Uint8Array): Promise<Uint8Array> {
+    const message = await this.ed25519.postMessage({
+      method: ED25519.Methods.SignMessage,
+      params: {
+        message: challenge,
+        privateKey
+      }
+    })
+    if (message.code !== ED25519.ErrorCodes.Success) {
+      throw new Error('error using ed25519 to sign challenge')
+    }
+
+    return (message.body as ED25519.SignResult).signature
   }
 
   async authenticate(user: AuthUser, reuseAuthKey = false): Promise<AuthConditions> {
     this.onMessage('Requesting authentication challenge')
     // Request an authentication challenge
     const challengeRequest: ChallengeRequest = { email: user.email, totp: user.totp }
-    const res = await fetch(route('/challenge?action=request'), {
+    let res = await fetch(route('/challenge?action=request'), {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'
@@ -166,26 +180,26 @@ export class LoginActions {
     this.signingKey = privateKey
 
     // Sign the challenge data
-    return AuthConditions.TOTPRequired
-  /*
-    this.onMessage('Submitting solved challenge')
-    // Submit the solved challenge
+    this.onMessage('signing challenge')
+    const signature = await this.signChallenge(decode(challenge.data), this.signingKey)
+    this.onMessage('submitting challenge')
     res = await fetch(route(`/challenge/${challenge.id}?action=submit`), {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'
       },
-      body: JSON.stringify(<SolvedChallenge>{
-        data: encode(new Uint8Array(decrypted))
+      body: JSON.stringify(<SignedChallenge>{
+        signature: encode(signature)
       })
     })
     if (res.status === 401) {
-      throw new Error('Authentication failure, password is incorrect.')
+      throw new Error('authorization failure, password is incorrect')
     } else if (res.status !== 200) {
       const err: ErrorResponse = await res.json()
-      throw new Error(err.message || 'Error submitting challenge.')
+      throw new Error(err.message || 'unknown error submitting challenge')
     }
-    this.onMessage('Successfully authenticated')
+
+    this.onMessage('successfully authenticated')
 
     const response: ChallengeResponse = await res.json()
     localStorage.setItem(CSRF_TOKEN_KEY, response.CSRFtoken)
@@ -196,7 +210,6 @@ export class LoginActions {
       id: response.id
     })
     return AuthConditions.Success
-    */
   }
 
   async retrieveMasterKeypair(password: string): Promise<void> {
