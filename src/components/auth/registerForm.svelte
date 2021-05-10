@@ -25,10 +25,6 @@
   let password: HTMLInputElement
   let confirmPassword: HTMLInputElement
 
-  // Web Worker
-  let worker: Worker
-  const workerID = 0
-
   // Actions
   let actions: RegisterActions
 
@@ -70,12 +66,15 @@
 
   // Mount
   onMount(async () => {
-    // Initialize worker
+    // Initialize argon2 and ed25519 workers
     const wasmRoot = '/argon2'
     const workerScript = process.env.NODE_ENV === 'development' ? 'worker.js' : 'worker.min.js'
-    worker = new Worker(`${wasmRoot}/${workerScript}`)
+
+    const argon2 = new Worker(`${wasmRoot}/${workerScript}`)
+    const ed25519 = new Worker(`/ed25519/${workerScript}`)
+
     // Initialize actions class
-    actions = new RegisterActions(worker, workerID)
+    actions = new RegisterActions(argon2, ed25519)
     // Set message handler
     actions.onMessage = async (message: string) => {
       stateMsg = message
@@ -87,6 +86,9 @@
       await actions.loadArgon2({
         wasmRoot,
         simd: true
+      })
+      await actions.loadED25519({
+        wasmPath: '/ed25519/ed25519.wasm'
       })
     } catch (err) {
       state = States.Error

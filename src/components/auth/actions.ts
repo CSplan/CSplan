@@ -1,7 +1,7 @@
-import * as listen from '@very-amused/argon2-wasm/lib/listen'
-import { Argon2_Actions, Argon2_ErrorCodes, Argon2_LoadParameters, Argon2_Request } from '@very-amused/argon2-wasm/lib/argon2'
+import { Argon2 } from '@very-amused/argon2-wasm'
+import { ED25519 } from '@very-amused/ed25519-wasm'
 import { Argon2HashParams } from '../crypto/argon2'
-import { encode, ABconcat, aes, rsa, Algorithms, decode } from 'cs-crypto'
+import { encode, aes, rsa, Algorithms, decode } from 'cs-crypto'
 import * as db from '../../db'
 import userStore from '../../stores/user'
 import type { UserStore } from '../../stores/user'
@@ -9,13 +9,12 @@ import { get } from 'svelte/store'
 import type { MasterKeys } from '../crypto/masterKey'
 
 export type Challenge = {
-  id: string,
-  data: string,
-  salt: string,
+  id: string
+  data: string
   hashParams: Argon2HashParams
 }
-export type SolvedChallenge = {
-  data: string
+export type SignedChallenge = {
+  signature: string
 }
 type ChallengeRequest = {
   email: string,
@@ -36,8 +35,7 @@ type AuthUser = {
   totp?: number
 }
 
-// TODO: update master route shaping function to typescript
-function route(path: string) {
+function route(path: string): string {
   return process.env.NODE_ENV === 'development' ? 'http://localhost:3030/api' + path : 'https://api.csplan.co' + path
 }
 
@@ -57,50 +55,75 @@ export class LoginActions {
     type: 'argon2i',
     timeCost: 1,
     memoryCost: 128 * 1024,
-    threads: 1,
-    saltLen: 16
+    salt: ''
   }
 
-  protected worker: Worker
-  protected workerID: number
-  protected authKeyMaterial: Uint8Array|null = null
+  protected argon2: Argon2.WorkerConnection
+  protected ed25519: ED25519.WorkerConnection
+
+  protected hashResult: Uint8Array|null = null
+  protected signingKey: Uint8Array|null = null
 
 
   // Initialize communication with web worker for multithreaded behavior
-  constructor(worker: Worker, workerID: number) {
-    this.worker = worker
-    this.workerID = workerID
-    listen.initResponseListener(worker, workerID)
+  constructor(argon2: Worker, ed25519: Worker) {
+    this.argon2 = new Argon2.WorkerConnection(argon2)
+    this.ed25519 = new ED25519.WorkerConnection(ed25519)
   }
 
   // Load argon2 WASM into the web worker's scope
-  async loadArgon2(params: Argon2_LoadParameters): Promise<void> {
-    this.worker.postMessage(<Argon2_Request>{
-      action: Argon2_Actions.LoadArgon2,
-      body: params
+  async loadArgon2(params: Argon2.LoadParameters): Promise<void> {
+    const message = await this.argon2.postMessage({
+      method: Argon2.Methods.LoadArgon2,
+      params
     })
-    const message = await listen.nextMessage(this.worker, this.workerID)
-    if (message.code !== Argon2_ErrorCodes.ARGON2_OK) {
+    if (message.code !== Argon2.ErrorCodes.ARGON2_OK) {
       // TODO: more descriptive error messages based on code
-      throw new Error('Error loading argon2.')
+      throw new Error('error loading argon2')
+    }
+  }
+
+  // Load ed25519 WASM into the web worker's scope
+  async loadED25519(params: ED25519.LoadParameters): Promise<void> {
+    const message = await this.ed25519.postMessage({
+      method: ED25519.Methods.LoadED25519,
+      params
+    })
+    if (message.code !== ED25519.ErrorCodes.Success) {
+      throw new Error('error loading ed25519')
     }
   }
 
   protected async hashPassword(password: string, salt: Uint8Array): Promise<Uint8Array> {
-    this.worker.postMessage(<Argon2_Request>{
-      action: Argon2_Actions.Hash2i,
-      body: {
+    const message = await this.argon2.postMessage({
+      method: Argon2.Methods.Hash2i,
+      params: {
         password,
         salt,
         timeCost: this.hashParams.timeCost,
         memoryCost: this.hashParams.memoryCost,
-        threads: this.hashParams.threads,
         hashLen: AUTHKEY_SIZE
       }
     })
-    const message = await listen.nextMessage(this.worker, this.workerID)
-    if (message.code !== Argon2_ErrorCodes.ARGON2_OK) {
+    if (message.code !== Argon2.ErrorCodes.ARGON2_OK) {
       throw new Error('Error running argon2.')
+    }
+    return message.body!
+  }
+
+  protected async generateSigningKey(seed: Uint8Array, omitPublicKey = true): Promise<{
+    publicKey: Uint8Array|null,
+    privateKey: Uint8Array
+  }> {
+    const message = await this.ed25519.postMessage({
+      method: ED25519.Methods.GenerateKeypair,
+      params: {
+        seed,
+        omitPublicKey
+      }
+    })
+    if (message.code !== ED25519.ErrorCodes.Success) {
+      throw new Error('error generating ed25519 signing key')
     }
     return message.body!
   }
@@ -109,7 +132,7 @@ export class LoginActions {
     this.onMessage('Requesting authentication challenge')
     // Request an authentication challenge
     const challengeRequest: ChallengeRequest = { email: user.email, totp: user.totp }
-    let res = await fetch(route('/challenge?action=request'), {
+    const res = await fetch(route('/challenge?action=request'), {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'
@@ -126,37 +149,25 @@ export class LoginActions {
 
     // Load argon2 parameters and decode salt from the challenge
     this.hashParams = challenge.hashParams
-    const salt = decode(challenge.salt)
+    const salt = decode(this.hashParams.salt)
 
     // Hash the user's password (skip if authKey is already present)
     if (reuseAuthKey) {
-      this.onMessage('Using already generated authentication key')
+      this.onMessage('using already generated authentication key')
     } else {
-      this.onMessage('Generating authentication key')
-      this.authKeyMaterial = await this.hashPassword(user.password, salt)
+      this.onMessage('generating authentication key')
+      this.hashResult = await this.hashPassword(user.password, salt)
     }
      
-    this.onMessage('Solving authentication challenge')
-    // Import authkey material as an AES-GCM key
-    const authKey = await crypto.subtle.importKey(
-      'raw',
-      this.authKeyMaterial!,
-      'AES-CTR',
-      false,
-      ['decrypt']
-    )
-    // Decrypt the challenge using authKey
-    const challengeData = decode(challenge.data)
-    const [iv, encrypted] = [challengeData.slice(0, 16), challengeData.slice(16)]
-    const decrypted = await crypto.subtle.decrypt(
-      {
-        name: 'AES-CTR',
-        counter: iv,
-        length: 64
-      },
-      authKey,
-      encrypted
-    )
+    this.onMessage('solving authentication challenge')
+    // Use the argon2 output as a seed to derive an ed25519 keypair
+    // TODO: Memoize signing key generation
+    const { privateKey } = await this.generateSigningKey(this.hashResult!)
+    this.signingKey = privateKey
+
+    // Sign the challenge data
+    return AuthConditions.TOTPRequired
+  /*
     this.onMessage('Submitting solved challenge')
     // Submit the solved challenge
     res = await fetch(route(`/challenge/${challenge.id}?action=submit`), {
@@ -185,6 +196,7 @@ export class LoginActions {
       id: response.id
     })
     return AuthConditions.Success
+    */
   }
 
   async retrieveMasterKeypair(password: string): Promise<void> {
@@ -211,7 +223,6 @@ export class LoginActions {
     this.onMessage('Decryting master keypair')
     const tempKeyMaterial = await this.hashPassword(password, decode(keys.hashSalt))
     const tempKey = await aes.importKeyMaterial(tempKeyMaterial, Algorithms.AES_GCM)
-    console.log(keys.privateKey)
     const privateKey = await rsa.unwrapPrivateKey(keys.privateKey, tempKey)
 
     // Store keys in IDB
@@ -225,15 +236,19 @@ export class LoginActions {
 }
 
 export class RegisterActions extends LoginActions {
-  constructor(worker: Worker, workerID: number) {
-    super(worker, workerID)
+  constructor(argon2: Worker, ed25519: Worker) {
+    super(argon2, ed25519)
   }
 
   async register(user: AuthUser, salt: Uint8Array): Promise<void> {
     // Hash the user's password (use whatever hash parameters are set before calling)
+    this.hashParams.salt = encode(salt)
     this.onMessage('Generating authentication key')
-    this.authKeyMaterial = await this.hashPassword(user.password, salt)
-    this.hashParams.saltLen = salt.byteLength
+    this.hashResult = await this.hashPassword(user.password, salt)
+
+    this.onMessage('Generating signing key')
+    const { publicKey, privateKey } = await this.generateSigningKey(this.hashResult!, false)
+    this.signingKey = privateKey
 
     // Register the user (use whatever hash parameters are set before calling)
     const res = await fetch(route('/register'), {
@@ -243,7 +258,7 @@ export class RegisterActions extends LoginActions {
       },
       body: JSON.stringify(<RegisterRequest>{
         email: user.email,
-        key: encode(ABconcat(salt, this.authKeyMaterial)),
+        key: encode(publicKey!),
         hashParams: this.hashParams
       })
     })

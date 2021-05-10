@@ -331,10 +331,14 @@
     "@typescript-eslint/types" "4.18.0"
     eslint-visitor-keys "^2.0.0"
 
-"@very-amused/argon2-wasm@^0.1.0":
+"@very-amused/argon2-wasm@^0.2.2-rc1.patch2":
+  version "0.2.2-rc1.patch2"
+  resolved "https://registry.yarnpkg.com/@very-amused/argon2-wasm/-/argon2-wasm-0.2.2-rc1.patch2.tgz#c8ed1926db3e0f9409b6282ac05baac571a65db1"
+  integrity sha512-FPqv8b7wnfH68G3xEUR6QaeJmgicdoLUlLXT4qEHu4JX7Fg7+b90Tx+P1qJ0xJOb2TqGfIVW55fKimEY4sDGiA==
+
+"@very-amused/ed25519-wasm@git+https://github.com/very-amused/ed25519-wasm":
   version "0.1.0"
-  resolved "https://registry.yarnpkg.com/@very-amused/argon2-wasm/-/argon2-wasm-0.1.0.tgz#87160fa564ed8da0229854eacb6ae401fb3519e0"
-  integrity sha512-+Q+wdmvl7TcsG65XnvqmfUHKLGObsWtIEsitppqoJQwXwYAKF0KDeX7gaf6gZcn63ium68OTc4IZkO1xxAurUQ==
+  resolved "git+https://github.com/very-amused/ed25519-wasm#6760f4e52ff2f9c5002d4c3b8ded76fe050d1224"
 
 abbrev@1:
   version "1.1.1"
@@ -760,9 +764,10 @@ cross-spawn@^7.0.2, cross-spawn@^7.0.3:
     shebang-command "^2.0.0"
     which "^2.0.1"
 
-cs-crypto@./cs-wack.tgz:
-  version "0.7.0"
-  resolved "./cs-wack.tgz#cb8e9779a3956cc83a144ca9537960927a2a6b49"
+cs-crypto@^0.7.2-rc1:
+  version "0.7.2-rc1"
+  resolved "https://registry.yarnpkg.com/cs-crypto/-/cs-crypto-0.7.2-rc1.tgz#27943f323d763368f697bbb8d5d5d24991de92ab"
+  integrity sha512-BVedc/YUtmiR0Sm01dE8vmasYN48lmo34ninr62MInG/8Q+uI1D/nZz9VWmbX3ycFCawxBnFsYEQUBCN4UsFSw==
 
 currently-unhandled@^0.4.1:
   version "0.4.1"

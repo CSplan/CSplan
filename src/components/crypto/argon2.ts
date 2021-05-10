@@ -2,8 +2,7 @@ export type Argon2HashParams = {
   type: 'argon2i',
   timeCost: number,
   memoryCost: number,
-  threads: number,
-  saltLen: number
+  salt: string
 }
 
 export function importKeyMaterial(keyMaterial: Uint8Array): PromiseLike<CryptoKey> {
