@@ -31,7 +31,7 @@
   // If the user is already logged in, redirect them
   $: $user.isLoggedIn && state === States.Resting && goto('/')
 
-  async function register() {
+  async function register(): Promise<void> {
     // Compare password fields
     if (password.value !== confirmPassword.value) {
       confirmPassword.setCustomValidity('Password confirmation isn\'t the same as password')
@@ -52,16 +52,19 @@
         email: email.value,
         password: password.value
       }, authSalt)
+
       const cryptoSalt = makeSalt(16)
       await actions.generateMasterKeypair(password.value, cryptoSalt)
+
+      await actions.confirmAccount()
+
+      goto('/')
     } catch (err) {
       console.error(err)
       user.logout()
       state = States.Error
       error = err instanceof Error ? err.message : err
-      return
     }
-    goto('/')
   }
 
   // Mount

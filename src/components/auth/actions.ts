@@ -21,7 +21,8 @@ type ChallengeRequest = {
   totp?: number
 }
 export type ChallengeResponse = {
-  id: string,
+  userID: string
+  sessionID: string
   CSRFtoken: string
 }
 type RegisterRequest = {
@@ -207,7 +208,7 @@ export class LoginActions {
     // Login to state
     userStore.login({
       email: user.email,
-      id: response.id
+      id: response.userID
     })
     return AuthConditions.Success
   }
@@ -280,14 +281,6 @@ export class RegisterActions extends LoginActions {
       throw new Error(err.message || 'Failed to register account')
     }
 
-    // Save userID and CSRFtoken
-    const response: ChallengeResponse = await res.json()
-    userStore.login({
-      email: user.email,
-      id: response.id
-    })
-    localStorage.setItem(CSRF_TOKEN_KEY, response.CSRFtoken)
-
     // The rest of the authentication flow is identical
     this.authenticate(user, true)
     return
@@ -343,5 +336,20 @@ export class RegisterActions extends LoginActions {
       publicKey,
       privateKey
     })
+  }
+
+  /**
+   * Confirm that all steps of registration were completed without error,
+   * accounts will be pruned within one minute of registration if this endpoint isn't hit by then
+   */
+  async confirmAccount(): Promise<void> {
+    const userID = (get(userStore) as UserStore).user.id
+    const res = await fetch(route(`/confirm_account/${userID}`), {
+      method: 'POST'
+    })
+    if (res.status !== 204) {
+      const err: ErrorResponse = await res.json()
+      throw new Error(err.message || 'failed to confirm account')
+    }
   }
 }
