@@ -10,12 +10,12 @@ type MasterKeys = {
   privateKey: CryptoKey
 }
 
-interface KeyedObject {
+type KeyedObject = {
   id: string
   [index: string]: unknown
 }
 
-interface SMSXStore {
+type SMSXStore = {
   async init(): Promise<void>
   async create(data: unknown): Promise<KeyedObject>
   update(id: string, data: unknown): void

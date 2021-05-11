@@ -17,7 +17,7 @@ export type SignedChallenge = {
   signature: string
 }
 type ChallengeRequest = {
-  email: string,
+  email: string
   totp?: number
 }
 export type ChallengeResponse = {
@@ -26,13 +26,13 @@ export type ChallengeResponse = {
   CSRFtoken: string
 }
 type RegisterRequest = {
-  email: string,
-  key: string,
+  email: string
+  key: string
   hashParams: Argon2HashParams
 }
 type AuthUser = {
-  email: string,
-  password: string,
+  email: string
+  password: string
   totp?: number
 }
 

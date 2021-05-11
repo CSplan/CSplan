@@ -5,44 +5,44 @@ import { aes, rsa } from 'cs-crypto'
 
 // Encrypted lists
 type EncryptedListPartial = {
-  title: Encrypted,
-  items: EncryptedItem[],
+  title: Encrypted
+  items: EncryptedItem[]
   meta?: {
-    index?: number,
+    index?: number
     cryptoKey?: Encrypted
   }
 }
 type EncryptedListMeta = {
-  id: string,
+  id: string
   meta: {
-    index: number,
-    cryptoKey: Encrypted|undefined, // 201 responses will not contain cryptoKey
+    index: number
+    cryptoKey: Encrypted|undefined // 201 responses will not contain cryptoKey
     checksum: string
   }
 }
 type EncryptedList = EncryptedListPartial & EncryptedListMeta
 type EncryptedItem = {
-  title: Encrypted,
-  description: Encrypted,
-  done: Encrypted,
+  title: Encrypted
+  description: Encrypted
+  done: Encrypted
   tags: Encrypted[]
 }
 
 // Unencrypted lists
 type ListPartial = {
-  title: string,
+  title: string
   items: Item[]
 }
 // ListPartial derivative used for update actions
 type ListUpdate = {
-  title?: string,
-  items?: Item[],
+  title?: string
+  items?: Item[]
   index?: number
 }
 type ListMeta = {
-  id: string,
-  index: number,
-  cryptoKey: CryptoKey,
+  id: string
+  index: number
+  cryptoKey: CryptoKey
   checksum: string
 }
 // Local flags to assist with state management
@@ -54,9 +54,9 @@ type ListFlags = {
 // Lists as stored in IDB and state
 export type List = ListPartial & ListMeta & ListFlags
 type Item = {
-  title: string,
-  description: string,
-  done: Encrypted|boolean,
+  title: string
+  description: string
+  done: Encrypted|boolean
   tags: string[]
 }
 

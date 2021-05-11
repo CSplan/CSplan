@@ -3,9 +3,9 @@ import { clearUserStores } from '../db'
 
 export type UserStore = {
   user: {
-    id: string,
+    id: string
     email: string
-  },
+  }
   isLoggedIn: boolean
 }
 

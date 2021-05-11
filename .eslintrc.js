@@ -47,6 +47,12 @@ module.exports =  {
     '@typescript-eslint/ban-ts-comment': 'warn',
     '@typescript-eslint/explicit-function-return-type': ['error', {
       allowExpressions: true
+    }],
+    '@typescript-eslint/consistent-type-definitions': ['error', 'type'],
+    '@typescript-eslint/member-delimiter-style': ['error', {
+      multiline: {
+        delimiter: 'none'
+      }
     }]
   },
   settings: {

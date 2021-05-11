@@ -9,8 +9,8 @@ const enum Scopes {
 }
 
 type StoreTemplate = {
-  name: string,
-  scope: Scopes,
+  name: string
+  scope: Scopes
   options: IDBObjectStoreParameters
 }
 

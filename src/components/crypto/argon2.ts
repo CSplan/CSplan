@@ -1,5 +1,5 @@
 export type Argon2HashParams = {
-  type: 'argon2i',
+  type: 'argon2i'
   timeCost: number
   memoryCost: number
   threads: number
