@@ -6,7 +6,7 @@ import * as db from '../../db'
 import userStore from '../../stores/user'
 import type { UserStore } from '../../stores/user'
 import { get } from 'svelte/store'
-import type { MasterKeys } from '../crypto/masterKey'
+import type { MasterKeys } from '../crypto/master-key'
 
 export type Challenge = {
   id: string

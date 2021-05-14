@@ -5,7 +5,7 @@
 
   const dispatch = createEventDispatcher()
 
-  function dispatchCode() {
+  function dispatchCode(): void {
     codeInput.setCustomValidity('')
     if (codeInput.value.length < 6) {
       codeInput.setCustomValidity('Code must be at least 6 digits.')

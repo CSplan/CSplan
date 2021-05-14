@@ -5,7 +5,7 @@
   "license": "UNLICENSED",
   "scripts": {
     "dev": "PORT=3030 sapper dev",
-    "lint": "eslint --fix src/",
+    "lint": "eslint --fix src",
     "build": "sapper build",
     "export": "sapper export",
     "start": "node __sapper__/build"
@@ -25,6 +25,7 @@
     "rollup-plugin-gzip": "^2.5.0",
     "rollup-plugin-scss": "^2.6.1",
     "rollup-plugin-svelte": "^7.1.0",
+    "sass": "^1.32.13",
     "sirv": "^1.0.11",
     "svelte-preprocess": "^4.6.9",
     "tslib": "^2.1.0",
@@ -43,6 +44,7 @@
     "eslint-plugin-promise": "^4.3.1",
     "eslint-plugin-standard": "^5.0.0",
     "eslint-plugin-svelte3": "^3.1.2",
+    "eslint-plugin-unicorn": "^32.0.1",
     "http-proxy-middleware": "^1.0.5",
     "node-sass": "^5.0.0",
     "rollup": "^2.41.3",

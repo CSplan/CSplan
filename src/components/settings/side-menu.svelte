@@ -1,7 +1,4 @@
 <script lang="ts">
-  // @ts-ignore: Sapper module is dynamically generated at compile time
-  import { goto } from '@sapper/app'
-
   // Menus are a group of submenus, which provide onclick handlers (usually emitting menuchange events)
   class Menu {
     title: string

@@ -4,7 +4,7 @@
 <script lang="typescript">
   import { createEventDispatcher, onMount } from 'svelte'
   import { SliderCanvas } from './canvas'
-  import { parseLightness } from './parseLightness'
+  import { parseLightness } from './parse-lightness'
 
   // Canvas info
   let canvasEl: HTMLCanvasElement

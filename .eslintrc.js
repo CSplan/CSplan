@@ -12,7 +12,8 @@ module.exports =  {
   },
   plugins: [
     'svelte3',
-    '@typescript-eslint'
+    '@typescript-eslint',
+    'unicorn'
   ],
   overrides: [
     {
@@ -53,6 +54,10 @@ module.exports =  {
       multiline: {
         delimiter: 'none'
       }
+    }],
+    // Unicorn rules
+    'unicorn/filename-case': ['error', {
+      case: 'kebabCase'
     }]
   },
   settings: {

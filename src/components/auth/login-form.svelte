@@ -13,10 +13,6 @@
   // 2FA
   let totp: number
 
-  // Web Worker
-  let worker: Worker
-  const workerID = 0
-
   // Actions
   let actions: LoginActions
 
@@ -26,20 +22,20 @@
     Submitting,
     TwoFactor,
     Error,
-    Success
+    Success,
   }
   let state = States.Resting
   let stateMsg = ''
   let error = ''
   let showPassword = false
 
-  async function login() {
+  async function login(): Promise<void> {
     if (!form.checkValidity()) {
       return
     }
 
     state = States.Submitting
-  
+
     try {
       const condition = await actions.authenticate({
         email: email.value,
@@ -62,9 +58,9 @@
     goto('/')
   }
 
-  function onTOTPSubmit(evt: { detail: number }) {
+  function onTOTPSubmit(evt: { detail: number }): void {
     // Resubmit the login form with totp
-    totp = evt.detail 
+    totp = evt.detail
     state = States.Submitting
     login()
   }
@@ -73,44 +69,62 @@
     if ($user.isLoggedIn) {
       goto('/')
     }
-    // Initialize worker
-    const wasmRoot = '/argon2'
-    const workerScript = process.env.NODE_ENV === 'development' ? 'worker.js' : 'worker.min.js'
-    worker = new Worker(`${wasmRoot}/${workerScript}`)
-    // Initialize actions with worker
-    actions = new LoginActions(worker, workerID)
+    // Initialize argon2 and ed25519 web workers
+    const workerScript =
+      process.env.NODE_ENV === 'development' ? 'worker.js' : 'worker.min.js'
+    const argon2 = new Worker(`/argon2/${workerScript}`)
+    const ed25519 = new Worker(`/ed25519/${workerScript}`)
+
+    // Initialize actions with workers
+    actions = new LoginActions(argon2, ed25519)
     actions.onMessage = (msg: string) => {
       stateMsg = msg
     }
     try {
       await actions.loadArgon2({
-        wasmRoot,
+        wasmRoot: '/argon2',
         simd: true
+      })
+      await actions.loadED25519({
+        wasmPath: `/ed25519/${workerScript}`
       })
     } catch (err) {
       state = States.Error
-      error = err.message || 'Failed to load Argon2'
+      error =
+        err.message || 'unknown error loading web workers and wasm binaries'
     }
   })
 </script>
 
 {#if state === States.TwoFactor}
-  <TwoFactorForm on:code-submit={onTOTPSubmit}/>
+  <TwoFactorForm on:code-submit={onTOTPSubmit} />
 {:else}
   <div class="card">
     <header>Log In</header>
     <form bind:this={form} on:submit|preventDefault={login}>
-      <input bind:this={email} type="email" required autocomplete="email" placeholder="Email">
-      <input bind:this={password} type={showPassword ? 'text' : 'password'} required autocomplete="current-password" placeholder="Password">
+      <input
+        bind:this={email}
+        type="email"
+        required
+        autocomplete="email"
+        placeholder="Email"
+      />
+      <input
+        bind:this={password}
+        type={showPassword ? 'text' : 'password'}
+        required
+        autocomplete="current-password"
+        placeholder="Password"
+      />
       <label>
-        <input type="checkbox" bind:checked={showPassword}>
+        <input type="checkbox" bind:checked={showPassword} />
         <span class="checkable">Show Password</span>
       </label>
-      <input type="submit" value="Submit">
+      <input type="submit" value="Submit" />
     </form>
 
     {#if state === States.Submitting}
-      <span class=state>{stateMsg}</span>
+      <span class="state">{stateMsg}</span>
     {:else if state === States.Error}
       <span class="error">{error}</span>
     {/if}
@@ -136,7 +150,7 @@
     form {
       display: flex;
       flex-direction: column;
-      margin-bottom: 0
+      margin-bottom: 0;
     }
   }
 

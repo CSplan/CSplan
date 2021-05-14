@@ -1,3 +1,4 @@
+// TODO: Group related types into separate definition files
 type ErrorResponse = {
   title: string
   message: string

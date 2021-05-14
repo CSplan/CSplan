@@ -1,4 +1,5 @@
 <script>
+  /* eslint-disable */
   import { createEventDispatcher, onMount, tick } from 'svelte'
   import tags, { ordered } from '../stores/tags'
   import { scale } from 'svelte/transition'

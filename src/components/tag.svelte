@@ -1,4 +1,5 @@
 <script>
+  /* eslint-disable */
   export let id
   import tags from '../stores/tags'
   import { states } from './js/states'

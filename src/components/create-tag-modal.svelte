@@ -1,4 +1,5 @@
 <script context="module">
+  /* eslint-disable */
   import { toggleModal } from '../misc/modals'
 
   // Element referencing the modal

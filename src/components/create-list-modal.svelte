@@ -1,4 +1,5 @@
 <script context="module">
+  /* eslint-disable */
   export function toggleModal() {
     const el = document.querySelector('#createListModal')
     el.checked = !el.checked
