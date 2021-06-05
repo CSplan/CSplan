@@ -1,6 +1,6 @@
 <script>
   import user from '../stores/user'
-  import QuickActions from './quickActions.svelte'
+  import QuickActions from './quick-actions.svelte'
   const links = [
     {
       title: 'Home',

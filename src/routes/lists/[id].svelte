@@ -8,7 +8,7 @@
 </script>
 
 <script>
-  import TodoList from '../../components/lists/todoList.svelte'
+  import TodoList from '../../components/lists/todo-list.svelte'
   import Navbar from '../../components/navbar.svelte'
 
   export let id

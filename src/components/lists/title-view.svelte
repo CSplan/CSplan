@@ -5,7 +5,7 @@
   import { flip } from 'svelte/animate'
   import { lists as store, ordered } from '../../stores/lists'
   import { CEkeypress } from '../../misc/contenteditable'
-  import Modal, { toggleModal } from '../createListModal.svelte'
+  import Modal, { toggleModal } from '../create-list-modal.svelte'
   import Spinner from '../spinner.svelte'
 
   // State pulled from child components

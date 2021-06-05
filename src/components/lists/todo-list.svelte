@@ -5,7 +5,7 @@
   import type { List } from '../../stores/lists'
   import tags from '../../stores/tags'
   import Spinner from '../spinner.svelte'
-  import TagForm from '../tagForm.svelte'
+  import TagForm from '../tag-form.svelte'
   import { CEkeypress, CEtrim } from '../../misc/contenteditable'
   import { fade } from 'svelte/transition'
   import { SimpleStates as States } from '../../misc/state'

@@ -1,6 +1,6 @@
 <script lang="typescript">
   import { LoginActions, AuthConditions } from './actions'
-  import TwoFactorForm from './2faForm.svelte'
+  import TwoFactorForm from './2fa-form.svelte'
   import { onMount } from 'svelte'
   import user from '../../stores/user'
   import { goto } from '@sapper/app'

@@ -1,6 +1,6 @@
 <script>
   import Tag from '../components/tag.svelte'
-  import Modal, { toggleTagModal } from '../components/createTagModal.svelte'
+  import Modal, { toggleTagModal } from '../components/create-tag-modal.svelte'
   import { onMount } from 'svelte'
   import Navbar from '../components/navbar.svelte'
   import { ordered, tags } from '../stores/tags'

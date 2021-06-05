@@ -1,6 +1,6 @@
 <script lang="ts">
   import navbar from '../components/navbar.svelte'
-  import LoginForm from '../components/auth/loginForm.svelte'
+  import LoginForm from '../components/auth/login-form.svelte'
 
 </script>
 

@@ -3,7 +3,7 @@
   export let id
   import tags from '../stores/tags'
   import { states } from './js/states'
-  import ColorPicker from './colorPicker/colorPicker.svelte'
+  import ColorPicker from './color-picker/color-picker.svelte'
   import { CEkeypress } from '../misc/contenteditable'
   import { onMount } from 'svelte'
 
