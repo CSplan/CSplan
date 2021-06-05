@@ -1,5 +1,4 @@
 // Basic constructor for repetitive tasks such as setting up canvas elements and dimensions
-/** @type {CanvasInfo} */
 export class Canvas {
   canvas: HTMLCanvasElement
   ctx: CanvasRenderingContext2D
