@@ -1,5 +1,5 @@
 import { Readable, writable } from 'svelte/store'
-import { clearUserStores } from '../db'
+import { clearAll, clearUserStores } from '../db'
 
 export type UserStore = {
   user: {
@@ -36,10 +36,9 @@ function create(): Readable<UserStore> & UserActions {
     async logout() {
       await clearUserStores()
       // Clear localstorage
-      localStorage.removeItem('isLoggedIn')
-      localStorage.removeItem('user')
-      localStorage.removeItem('CSRF-Token')
+      localStorage.clear()
       // Clear IDB
+      clearAll()
       // Reset in-memory state
       set(userStore)
     }

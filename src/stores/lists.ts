@@ -1,64 +1,8 @@
 import { writable, derived, get, Readable } from 'svelte/store'
-import { route } from '../route'
+import { checkResponse, route } from '../core'
 import { addToStore, getByKey, updateWithKey, deleteFromStore } from '../db'
 import { aes, rsa } from 'cs-crypto'
-
-// Encrypted lists
-type EncryptedListPartial = {
-  title: Encrypted
-  items: EncryptedItem[]
-  meta?: {
-    index?: number
-    cryptoKey?: Encrypted
-  }
-}
-type EncryptedListMeta = {
-  id: string
-  meta: {
-    index: number
-    cryptoKey: Encrypted|undefined // 201 responses will not contain cryptoKey
-    checksum: string
-  }
-}
-type EncryptedList = EncryptedListPartial & EncryptedListMeta
-type EncryptedItem = {
-  title: Encrypted
-  description: Encrypted
-  done: Encrypted
-  tags: Encrypted[]
-}
-
-// Unencrypted lists
-type ListPartial = {
-  title: string
-  items: Item[]
-}
-// ListPartial derivative used for update actions
-type ListUpdate = {
-  title?: string
-  items?: Item[]
-  index?: number
-}
-type ListMeta = {
-  id: string
-  index: number
-  cryptoKey: CryptoKey
-  checksum: string
-}
-// Local flags to assist with state management
-type ListFlags = {
-  flags?: {
-    uncommitted?: boolean
-  }
-}
-// Lists as stored in IDB and state
-export type List = ListPartial & ListMeta & ListFlags
-type Item = {
-  title: string
-  description: string
-  done: Encrypted|boolean
-  tags: string[]
-}
+import { CSRF, reqHeaders } from '../core/headers'
 
 type Store = {
   [id: string]: List
@@ -67,8 +11,8 @@ type Store = {
 // Memoize init (init can safely be called when it's uncertain if the store is initialized without incurring wasted operations)
 let initialized = false
 
-function create(): Readable<Store> & SMSXStore{
-  const listStore = {}
+function create(): Readable<Store> & ListStore {
+  const listStore: Store = {}
   const { subscribe, update } = writable(listStore)
 
   return {
@@ -80,10 +24,7 @@ function create(): Readable<Store> & SMSXStore{
       // Get all todo lists from the API
       const res = await fetch(route('/todos'), {
         method: 'GET',
-        headers: {
-          'CSRF-Token': localStorage.getItem('CSRF-Token')!,
-          'Content-Type': 'application/json'
-        }
+        headers: CSRF.get()
       })
       if (res.status !== 200) {
         let err: ErrorResponse
@@ -94,7 +35,7 @@ function create(): Readable<Store> & SMSXStore{
         }
         throw new Error(err.message || 'unable to load lists')
       }
-      const lists: EncryptedList[] = await res.json()
+      const lists: ListDocument[] = await res.json()
       // Iterate through each list
       for (const list of lists) {
         if (!list.id) {
@@ -108,7 +49,7 @@ function create(): Readable<Store> & SMSXStore{
           }
           // Add the cached version to state and continue
           await updateWithKey('lists', { ...cached, id: list.id, index: list.meta.index }) // Update our index
-          update((store: Store) => {
+          update((store) => {
             store[list.id] = { ...cached }
             return store
           })
@@ -119,13 +60,26 @@ function create(): Readable<Store> & SMSXStore{
         const { id } = JSON.parse(localStorage.getItem('user')!)
         const { privateKey } = <MasterKeys><unknown>await getByKey('keys', id)
         const cryptoKey = await rsa.unwrapKey(list.meta.cryptoKey!, privateKey)
+
+        // Decrypt title and items
+        const raw = await aes.deepDecrypt({
+          title: list.title,
+          items: list.items
+        }, cryptoKey) 
+        const title = raw.title
+        const items: ListItem[] = []
+        for (const item of raw.items) {
+          items.push({
+            ...item,
+            done: item.done === 'true'
+          })
+        }
+
         // Use the list's key to decrypt all information (and do some restructuring)
         const decrypted: List = {
           id: list.id,
-          ...<ListPartial><unknown>(await aes.deepDecrypt({
-            title: list.title,
-            items: list.items
-          }, cryptoKey)),
+          title,
+          items,
           index: list.meta.index,
           checksum: list.meta.checksum,
           cryptoKey
@@ -140,7 +94,7 @@ function create(): Readable<Store> & SMSXStore{
       }
       initialized = true
     },
-    async create(list: ListPartial) {
+    async create(list: ListData) {
       // Validate the list
       if (typeof list !== 'object') {
         throw new TypeError(`Expected type object, received type ${typeof list}`)
@@ -149,15 +103,17 @@ function create(): Readable<Store> & SMSXStore{
       // Get the user's ID
       const user = JSON.parse(localStorage.getItem('user')!)
       // Get user's master public key
-      const { publicKey } = <MasterKeys><unknown>await getByKey('keys', user.id) // TODO: fix unideal casting
+      const { publicKey } = await getByKey<{ publicKey: CryptoKey }>('keys', user.id)
       // Generate a new AES-256 key
       const cryptoKey = await aes.generateKey('AES-GCM')
+      
+      // Encrypt the list
+      const encrypted: EncryptedListData = await aes.deepEncrypt(list, cryptoKey) as unknown as EncryptedListData
+
       // Encrypt and format the list for storage
-      const encrypted: EncryptedListPartial = {
-        ...<EncryptedListPartial><unknown>(await aes.deepEncrypt({
-          title: list.title,
-          items: list.items
-        }, cryptoKey)),
+      const document: ListDocument<MetaRequest> = {
+        title: encrypted.title,
+        items: encrypted.items,
         meta: {
           cryptoKey: await rsa.wrapKey(cryptoKey, publicKey)
         }
@@ -166,17 +122,14 @@ function create(): Readable<Store> & SMSXStore{
       // Store the encrypted list in the API
       const res = await fetch(route('/todos'), {
         method: 'POST',
-        body: JSON.stringify(encrypted),
+        body: JSON.stringify(document),
         headers: {
           'Content-Type': 'application/json',
           'CSRF-Token': localStorage.getItem('CSRF-Token')!
         }
       })
-      if (res.status !== 201) {
-        const err: ErrorResponse = await res.json()
-        throw new Error(err.message || `failed to create list with API (status ${res.status})`)
-      }
-      const { id, meta }: EncryptedListMeta = await res.json()
+      await checkResponse(res, 201)
+      const { id, meta }: IndexedMetaResponse = await res.json()
     
       // Update the list with server generated values
       const final: List = {
@@ -186,7 +139,6 @@ function create(): Readable<Store> & SMSXStore{
         checksum: meta.checksum,
         cryptoKey
       }
-      console.log(list, final)
 
       // Add the list to IDB, then update the local state
       await addToStore('lists', final)
@@ -200,7 +152,7 @@ function create(): Readable<Store> & SMSXStore{
         id
       }
     },
-    update(id: string, updates: ListUpdate) {
+    update(id: string, updates: Partial<List>) {
       update((store: Store) => {
         const old = store[id]
         const final: List = {
@@ -220,11 +172,13 @@ function create(): Readable<Store> & SMSXStore{
 
       // Encrypt the entire list and send the changes as a PATCH request
       // TODO: use flags.changes to make more precise and efficient patches
-      const encrypted: EncryptedListPartial = {
-        ...<EncryptedListPartial><unknown>(await aes.deepEncrypt({
-          title: list.title,
-          items: list.items
-        }, list.cryptoKey)),
+      const encrypted: EncryptedListData = await aes.deepEncrypt({
+        title: list.title,
+        items: list.items
+      }, list.cryptoKey) as unknown as EncryptedListData
+      const document: ListDocument<IndexedMetaUpdate> = {
+        title: encrypted.title,
+        items: encrypted.items,
         meta: {
           index: list.index
         }
@@ -233,17 +187,14 @@ function create(): Readable<Store> & SMSXStore{
       // Commit
       const res = await fetch(route(`/todos/${id}`), {
         method: 'PATCH',
-        body: JSON.stringify(encrypted),
-        headers: {
-          'Content-Type': 'application/json',
-          'CSRF-Token': localStorage.getItem('CSRF-Token')!
-        }
+        body: JSON.stringify(document),
+        headers: reqHeaders()
       })
       if (res.status !== 200) {
         const err: ErrorResponse = await res.json()
         throw new Error(err.message || `Failed to update list with API (status ${res.status})`)
       }
-      const { meta }: EncryptedListMeta = await res.json()
+      const { meta }: IndexedMetaResponse = await res.json()
 
       // Update the list's checksum
       // Remove uncommitted flag
@@ -275,10 +226,7 @@ function create(): Readable<Store> & SMSXStore{
           'CSRF-Token': localStorage.getItem('CSRF-Token')!
         }
       })
-      if (res.status !== 204) {
-        const err = await res.json()
-        throw new Error(err.message || 'Failed to delete todo list.')
-      }
+      checkResponse(res, 204)
 
       // Delete from IDB
       await deleteFromStore('lists', id)
@@ -300,7 +248,6 @@ function create(): Readable<Store> & SMSXStore{
       const oldIndex = (<Store>get(this))[id].index
       const oldOrdered = <List[]>get(ordered)
       // Validate the index
-      console.log(oldIndex, index)
       if (index >= oldOrdered.length || index < 0 || index === oldIndex) {
         return
       }
@@ -336,7 +283,7 @@ function create(): Readable<Store> & SMSXStore{
 export const lists = create()
 
 // Sort lists by the index property
-export const ordered = derived(lists, ($lists: Store) => {
+export const ordered = derived(lists, ($lists) => {
   return Object.values($lists).sort((l1, l2) => l1.index - l2.index)
 })
 

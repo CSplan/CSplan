@@ -2,7 +2,6 @@ const DB_NAME = 'CSplan'
 const DB_VER = 1
 let cachedIDB: IDBDatabase|null = null
 
-
 const enum Scopes {
   All,
   User
@@ -109,11 +108,11 @@ export async function clearStore(storeName: string): Promise<void> {
 }
 
 // Retrieve a record from an object store by key
-export async function getByKey(storeName: string, key: string): Promise<KeyedObject> {
+export async function getByKey<T>(storeName: string, key: string): Promise<KeyedObject & T> {
   const db = await getDB()
   return new Promise((resolve, reject) => {
     const store = db.transaction(storeName, 'readonly').objectStore(storeName)
-    const req: IDBRequest<KeyedObject> = store.get(key)
+    const req: IDBRequest<KeyedObject & T> = store.get(key)
 
     req.onerror = () => {
       reject(req.error)
@@ -154,4 +153,19 @@ export async function deleteFromStore(storeName: string, key: string): Promise<v
       resolve(req.result)
     }
   })
+}
+
+export async function clearAll(): Promise<void> {
+  for (const store of stores) {
+    await new Promise<void>((resolve, reject) => {
+      const req = indexedDB.deleteDatabase(store.name)
+
+      req.onerror = () => {
+        reject(req.error)
+      }
+      req.onsuccess = () => {
+        resolve()
+      }
+    })
+  }
 }

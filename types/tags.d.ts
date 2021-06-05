@@ -9,3 +9,5 @@ declare type TagData = {
 }
 
 declare type Tag = Flags & MetaState & TagData
+
+declare type TagStore = SMSXStore<Tag, TagData>
