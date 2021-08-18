@@ -1,9 +1,9 @@
 
 <script>
   import { onMount } from 'svelte'
+  import { dev } from '$app/env'
   import Navbar from '../../components/navbar.svelte'
 
-  const dev = process.env.NODE_ENV === 'development'
   onMount(async () => {
     if (!dev) {
       return

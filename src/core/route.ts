@@ -1,4 +1,4 @@
-const dev = process.env.NODE_ENV === 'development'
+import { dev } from '$app/env'
 
 // Shape routes based on path
 export function route(path: string): string {

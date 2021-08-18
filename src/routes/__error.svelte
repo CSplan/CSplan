@@ -1,15 +1,16 @@
-<script>
-  // @ts-nocheck
+<script lang="ts">
   import navbar from '../components/navbar.svelte'
 
-  export let error
-  export let status
+  export let error = new Error('an unknown error has occured')
+  export let status: number|undefined
 </script>
 
 <svelte:component this={navbar}></svelte:component>
 <main>
   <h1>{error.message}</h1>
-  <h2>Status: {status}</h2>
+  {#if status}
+    <h2>Status: {status}</h2>
+  {/if}
   <a class="pseudo button" sveltekit:prefetch href="/">Go Home</a>
 </main>
 

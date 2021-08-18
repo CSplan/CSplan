@@ -4,6 +4,7 @@
   import { onMount } from 'svelte'
   import user from '../../stores/user'
   import { goto } from '$app/navigation'
+  import { dev } from '$app/env'
 
   // Elements
   let form: HTMLFormElement
@@ -71,7 +72,7 @@
     }
     // Initialize argon2 and ed25519 web workers
     const workerScript =
-      process.env.NODE_ENV === 'development' ? 'worker.js' : 'worker.min.js'
+      dev ? 'worker.js' : 'worker.min.js'
     const argon2 = new Worker(`/argon2/${workerScript}`)
     const ed25519 = new Worker(`/ed25519/${workerScript}`)
 

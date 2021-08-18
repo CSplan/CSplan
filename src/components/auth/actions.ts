@@ -7,6 +7,7 @@ import userStore from '../../stores/user'
 import type { UserStore } from '../../stores/user'
 import { get } from 'svelte/store'
 import type { MasterKeys } from '../crypto/master-key'
+import { route } from '../../core'
 
 export type Challenge = {
   id: string
@@ -34,10 +35,6 @@ type AuthUser = {
   email: string
   password: string
   totp?: number
-}
-
-function route(path: string): string {
-  return process.env.NODE_ENV === 'development' ? 'http://localhost:3030/api' + path : 'https://api.csplan.co' + path
 }
 
 // All authkeys are 32 bytes long

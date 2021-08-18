@@ -5,7 +5,7 @@
   "license": "UNLICENSED",
   "type": "module",
   "scripts": {
-    "dev": "PORT=3030 svelte-kit dev",
+    "dev": "svelte-kit dev --port=3030",
     "lint": "eslint --fix src",
     "build": "svelte-kit build",
     "export": "svelte-kit export",
@@ -13,28 +13,29 @@
   },
   "dependencies": {
     "@types/marked": "^2.0.0",
-    "@typescript-eslint/eslint-plugin": "^4.18.0",
-    "@typescript-eslint/parser": "^4.18.0",
+    "@typescript-eslint/eslint-plugin": "^4.29.2",
+    "@typescript-eslint/parser": "^4.29.2",
     "@very-amused/argon2-wasm": "^0.2.2-rc1.patch2",
-    "marked": "^2.0.1"
+    "marked": "^2.0.1",
+    "node-sass": "^6.0.1",
+    "tslib": "^2.3.1",
+    "typescript": "^4.3.5"
   },
   "devDependencies": {
     "@sveltejs/adapter-node": "^1.0.0-next.42",
     "@sveltejs/kit": "^1.0.0-next.153",
     "@very-amused/ed25519-wasm": "git+https://github.com/very-amused/ed25519-wasm",
     "cs-crypto": "^0.7.2-rc1",
-    "eslint": "^7.22.0",
+    "eslint": "^7.32.0",
     "eslint-config-standard": "^16.0.2",
     "eslint-plugin-import": "^2.22.0",
     "eslint-plugin-node": "^11.1.0",
     "eslint-plugin-promise": "^4.3.1",
     "eslint-plugin-standard": "^5.0.0",
-    "eslint-plugin-svelte3": "^3.1.2",
+    "eslint-plugin-svelte3": "^3.2.0",
     "eslint-plugin-unicorn": "^32.0.1",
     "http-proxy-middleware": "^1.0.5",
-    "node-sass": "^5.0.0",
     "svelte": "^3.42.1",
-    "svelte-preprocess": "^4.7.4",
-    "typescript": "^4.3.5"
+    "svelte-preprocess": "^4.7.4"
   }
 }

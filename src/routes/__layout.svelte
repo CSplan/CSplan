@@ -2,7 +2,7 @@
   // @ts-nocheck
   import { onMount } from 'svelte'
   import user from '../stores/user'
-  import { route } from '../route'
+  import { route } from '../core'
   class AuthError extends Error {
     constructor({ message = '', code = '' }) {
       super(message)

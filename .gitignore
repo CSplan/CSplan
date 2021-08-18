@@ -2,7 +2,8 @@
 /node_modules/
 /src/node_modules/@sapper/
 yarn-error.log
-.svelte-kit
+/.svelte-kit/
+/build/
 *.tgz
 static/**
 !static/css

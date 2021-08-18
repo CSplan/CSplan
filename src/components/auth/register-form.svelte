@@ -4,6 +4,7 @@
   import { makeSalt } from 'cs-crypto'
   import { onMount, tick } from 'svelte'
   import { RegisterActions } from './actions'
+  import { dev } from '$app/env'
 
   // Form data
   let showPassword = false
@@ -29,7 +30,11 @@
   let actions: RegisterActions
 
   // If the user is already logged in, redirect them
-  $: $user.isLoggedIn && state === States.Resting && goto('/')
+  $: {
+    if ($user.isLoggedIn && state === States.Resting) {
+      goto('/')
+    }
+  }
 
   async function register(): Promise<void> {
     // Compare password fields
@@ -71,7 +76,7 @@
   onMount(async () => {
     // Initialize argon2 and ed25519 workers
     const wasmRoot = '/argon2'
-    const workerScript = process.env.NODE_ENV === 'development' ? 'worker.js' : 'worker.min.js'
+    const workerScript = dev ? 'worker.js' : 'worker.min.js'
 
     const argon2 = new Worker(`${wasmRoot}/${workerScript}`)
     const ed25519 = new Worker(`/ed25519/${workerScript}`)
