@@ -1,4 +1,5 @@
 <script>
+  // @ts-nocheck
   import navbar from '../components/navbar.svelte'
 
   export let error
@@ -9,7 +10,7 @@
 <main>
   <h1>{error.message}</h1>
   <h2>Status: {status}</h2>
-  <a class="pseudo button" sapper:prefetch href="/">Go Home</a>
+  <a class="pseudo button" sveltekit:prefetch href="/">Go Home</a>
 </main>
 
 <style>

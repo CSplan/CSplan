@@ -1,9 +1,9 @@
 <script lang="ts">
-  import { goto } from '@sapper/app'
+  import { goto } from '$app/navigation'
   import user from '../../stores/user'
   import { makeSalt } from 'cs-crypto'
   import { onMount, tick } from 'svelte'
-  import { RegisterActions } from './actions.js'
+  import { RegisterActions } from './actions'
 
   // Form data
   let showPassword = false

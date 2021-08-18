@@ -61,7 +61,6 @@ module.exports =  {
     }]
   },
   settings: {
-    'svelte3/typescript': require('typescript'),
     'svelte3/ignore-styles': attributes => attributes.lang && attributes.lang !== 'css'
   }
 }

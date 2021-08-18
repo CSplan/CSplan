@@ -1,7 +1,7 @@
 <!-- Lightness slider used to control the radial gradient shown on the color plane -->
 
 
-<script lang="typescript">
+<script lang="ts">
   import { createEventDispatcher, onMount } from 'svelte'
   import { SliderCanvas } from './canvas'
   import { parseLightness } from './parse-lightness'

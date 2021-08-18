@@ -1,5 +1,5 @@
 <script>
-  /* eslint-disable */
+  // @ts-nocheck
   // Not written in TS
   import { onMount } from 'svelte'
   import { flip } from 'svelte/animate'
@@ -86,7 +86,7 @@
       on:dragstart={e => ondragstart(e, list.id)} on:dragover={ondragover} on:dragleave={ondragleave} on:dragexit={ondragleave} on:drop={e => ondrop(e, i)}/>
     
       <div class="icons">
-        <a sapper:prefetch href="/lists/{list.id}">
+        <a sveltekit:prefetch href="/lists/{list.id}">
           <i class="fas fa-clipboard-list clickable"/>
         </a>
         <i class="fas fa-times clickable" on:click={store.delete(list.id)}></i>

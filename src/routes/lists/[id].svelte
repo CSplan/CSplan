@@ -16,7 +16,7 @@
 
 <Navbar/>
 
-<a class="back-button" href="/lists" sapper:prefetch>
+<a class="back-button" href="/lists" sveltekit:prefetch>
   <i class="fas fa-arrow-left"></i>
 </a>
 

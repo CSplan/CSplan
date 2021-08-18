@@ -1,9 +1,9 @@
-<script lang="typescript">
+<script lang="ts">
   import { LoginActions, AuthConditions } from './actions'
   import TwoFactorForm from './2fa-form.svelte'
   import { onMount } from 'svelte'
   import user from '../../stores/user'
-  import { goto } from '@sapper/app'
+  import { goto } from '$app/navigation'
 
   // Elements
   let form: HTMLFormElement

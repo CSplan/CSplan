@@ -1,10 +1,5 @@
-<script context="module" lang="ts">
-  export function preload(): void {
-
-  }
-</script>
-
 <script>
+  // @ts-nocheck
   import { onMount } from 'svelte'
   import user from '../stores/user'
   import { route } from '../route'
