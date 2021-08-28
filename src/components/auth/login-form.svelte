@@ -87,7 +87,7 @@
         simd: true
       })
       await actions.loadED25519({
-        wasmPath: `/ed25519/${workerScript}`
+        wasmPath: '/ed25519/ed25519.wasm'
       })
     } catch (err) {
       state = States.Error

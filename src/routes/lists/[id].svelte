@@ -1,8 +1,9 @@
 <script context="module">
-  // eslint-disable-next-line
-  export function preload(page) {
+  export function load({ page }) {
     return {
-      id: page.params.id
+      props: {
+        id: page.params.id
+      }
     }
   }
 </script>

@@ -1,7 +1,7 @@
 import { writable, derived, get, Readable } from 'svelte/store'
 import { route } from '../core'
 import { rsa, aes } from 'cs-crypto'
-import { addToStore, deleteFromStore, getByKey, updateWithKey } from '../db'
+import { addToStore, deleteFromStore, getByKey, mustGetByKey, updateWithKey } from '../db'
 import userStore from './user'
 import { checkResponse } from '../core/error'
 import { reqHeaders, CSRF } from '../core/headers'
@@ -50,7 +50,7 @@ function create(): Readable<Store> & TagStore {
 
         // Decrypt the AES key
         const { user } = get(userStore)
-        const { privateKey } = (await getByKey('keys', user.id)) as unknown as MasterKeys
+        const { privateKey } = await mustGetByKey<MasterKeys>('keys', user.id)
         const cryptoKey = await rsa.unwrapKey(tag.meta.cryptoKey, privateKey)
 
         // Decrypt the tag body

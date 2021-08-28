@@ -232,8 +232,9 @@ export class LoginActions {
     // Decrypt master private key
     this.hashParams = keys.hashParams
     this.onMessage('Decryting master keypair')
-    const tempKeyMaterial = await this.hashPassword(password, decode(keys.hashSalt))
+    const tempKeyMaterial = await this.hashPassword(password, decode(keys.hashParams.salt))
     const tempKey = await aes.importKeyMaterial(tempKeyMaterial, Algorithms.AES_GCM)
+    console.log(tempKey)
     const privateKey = await rsa.unwrapPrivateKey(keys.privateKey, tempKey)
 
     // Store keys in IDB
@@ -316,8 +317,10 @@ export class RegisterActions extends LoginActions {
       body: JSON.stringify(<MasterKeys>{
         publicKey: exportedPublicKey,
         privateKey: encryptedPrivateKey,
-        hashSalt: encode(salt),
-        hashParams: this.hashParams
+        hashParams: {
+          ...this.hashParams,
+          salt: encode(salt)
+        }
       })
     })
     if (res.status !== 201) {

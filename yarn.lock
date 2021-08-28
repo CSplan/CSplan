@@ -432,9 +432,9 @@
   resolved "https://registry.yarnpkg.com/@very-amused/argon2-wasm/-/argon2-wasm-0.2.2-rc1.patch2.tgz#c8ed1926db3e0f9409b6282ac05baac571a65db1"
   integrity sha512-FPqv8b7wnfH68G3xEUR6QaeJmgicdoLUlLXT4qEHu4JX7Fg7+b90Tx+P1qJ0xJOb2TqGfIVW55fKimEY4sDGiA==
 
-"@very-amused/ed25519-wasm@git+https://github.com/very-amused/ed25519-wasm":
+"@very-amused/ed25519-wasm@https://github.com/very-amused/ed25519-wasm":
   version "0.1.0"
-  resolved "git+https://github.com/very-amused/ed25519-wasm#fad85791d7242e24f3335d8c41d426bbf6203857"
+  resolved "https://github.com/very-amused/ed25519-wasm#e64b9e82750b85add0f12aa50b78e3277727e4dd"
 
 abbrev@1:
   version "1.1.1"
@@ -823,10 +823,10 @@ cross-spawn@^7.0.2, cross-spawn@^7.0.3:
     shebang-command "^2.0.0"
     which "^2.0.1"
 
-cs-crypto@^0.7.2-rc1:
-  version "0.7.2-rc4"
-  resolved "https://registry.yarnpkg.com/cs-crypto/-/cs-crypto-0.7.2-rc4.tgz#cbf92bae97e895928515e8259e99ddfcc0169bf8"
-  integrity sha512-bmA8Kf2M8ZD5Pz+1XtkVvwi07F1do206DEoff3iMnrnPHhmAQDiLQjOd7+j4wyZHONFmpAjThQte9fXHNp6Mcg==
+cs-crypto@^0.7.2-rc3:
+  version "0.7.2-rc3"
+  resolved "https://registry.yarnpkg.com/cs-crypto/-/cs-crypto-0.7.2-rc3.tgz#bafd77f5d0891208acbe4a0d20dbbed512088baf"
+  integrity sha512-V4WLAPF+fYodbo/J8zaLCZU0S7C6a5n3pyirr/CTJyJbe9Ot9xJ+OSVbO78SoG6AskgaR7qQGswT6fV2AArhBw==
 
 dashdash@^1.12.0:
   version "1.14.1"

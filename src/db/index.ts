@@ -1,3 +1,4 @@
+import { dev } from '$app/env'
 const DB_NAME = 'CSplan'
 const DB_VER = 1
 let cachedIDB: IDBDatabase|null = null
@@ -121,6 +122,15 @@ export async function getByKey<T>(storeName: string, key: string): Promise<Keyed
       resolve(req.result)
     }
   })
+}
+
+// Call getByKey, reject with an error message if result is undefined
+export async function mustGetByKey<T>(storeName: string, key: string): Promise<T> {
+  const result = await getByKey<T>(storeName, key)
+  if (result === undefined) {
+    throw new Error(`IDB error - resource expected but not found (store \`${storeName}\`, key \`${key}\`)`)
+  }
+  return result
 }
 
 // Update an object store's record with an object including a key

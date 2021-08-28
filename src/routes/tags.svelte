@@ -44,8 +44,7 @@
     <div class="card">
       <header>It's empty here...</header>
       <p>
-        Tags are objects with names and colors that can be applied to items on your lists.
-        Click the button below to make one.
+        Tags let you categorize items on your lists by name and color. Click the button below to create one.
       </p>
     </div>
   {/if}
@@ -74,7 +73,10 @@
   /* Add tag styles */
   @media screen and (min-width: 1200px) {
     .add-tag-button {
-      min-width: 800px !important;
+      min-width: var(--content-large) !important;
+    }
+    .card {
+      width: var(--content-large) !important;
     }
   }
   .add-tag-button {

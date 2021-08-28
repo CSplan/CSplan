@@ -2,18 +2,23 @@
   import { onMount, tick } from 'svelte'
   // import { flip } from 'svelte/animate'
   import lists from '../../stores/lists'
-  import type { List } from '../../stores/lists'
   import tags from '../../stores/tags'
   import Spinner from '../spinner.svelte'
   import TagForm from '../tag-form.svelte'
   import { CEkeypress, CEtrim } from '../../misc/contenteditable'
   import { fade } from 'svelte/transition'
-  import { SimpleStates as States } from '../../misc/state'
 
   export let id: string
 
   // #region State
   let list: List
+  enum States {
+    Loading,
+    Resting,
+    Error,
+    Saving,
+    Saved
+  }
   let state = States.Loading
   // #endregion
 
@@ -183,6 +188,7 @@
   onMount(async () => {
     await lists.init()
     await tags.init()
+    console.log($lists, id)
     list = $lists[id]
     state = States.Resting
   })
@@ -222,8 +228,8 @@
     </div>
     {/if}
 
-    {#if item.tags.length > 0}
     <div class="tags">
+    {#if item.tags.length > 0}
       {#each item.tags as id (id)}
       {#if $tags[id]}
       <span class="tag" style="background-color: {$tags[id].color};">
@@ -232,13 +238,13 @@
       </span>
       {/if}
       {/each}
-      {#if editMode}
-        <span class="tag tag-form">
-          <TagForm on:newtag={e => tagItem(i, e.detail)} currentTags={item.tags}/>
-        </span>
-      {/if}
-    </div>
     {/if}
+    {#if editMode}
+      <span class="tag tag-form">
+        <TagForm on:newtag={e => tagItem(i, e.detail)} currentTags={item.tags}/>
+      </span>
+    {/if}
+    </div>
   </div>
   {/each}
   {#if editMode}
@@ -285,7 +291,7 @@
     grid-template-columns: minmax(5rem, 1fr) max-content minmax(5rem, 1fr) max-content;
     grid-auto-flow: column;
     border-bottom: 1px solid #aaa;
-    padding: 0.5rem;
+    padding: var(--padding-m);
     header {
       padding: 0;
       border-bottom: none;
@@ -318,12 +324,12 @@
     border-bottom: #ccc 1px solid;
     // Alignment
     text-align: left;
-    padding: 0.5rem;
+    padding: var(--padding-m);
     display: grid;
     grid-auto-flow: column;
     grid-template-columns: min-content minmax(0, auto) min-content;
     column-gap: 0.5rem;
-    row-gap: 0.25rem;
+    row-gap: 0.3rem;
     grid-template-rows: minmax(0, auto) minmax(0, auto);
     // Modifiers
     &.tagless {
@@ -354,6 +360,9 @@
         margin-top: 0;
         margin-bottom: 0;
       }
+      p {
+        margin: 0.3rem 0;
+      }
       // Hide empty descriptions
       p:empty {
         display: none;
@@ -370,6 +379,8 @@
       grid-column: 2 / span 1;
       width: max-content;
       padding: 0;
+      margin-top: auto;
+      margin-bottom: auto;
       height: max-content;
     }
     // Scale icons on hover
@@ -407,7 +418,6 @@
     flex-direction: row;
     align-items: center;
     // TODO: adjust tag height
-    min-height: 1.6rem;
 
     // Tag content (text + buttons)
     * {

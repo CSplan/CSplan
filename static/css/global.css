@@ -90,3 +90,11 @@ label.overlay i.fa-times {
   left: 2rem;
   color: white;
 }
+
+/* Global sizes */
+:root {
+  --content-large: 800px;
+
+  /* Padding/margin values */
+  --padding-m: 0.6rem 0.8rem;
+}

@@ -14,6 +14,17 @@ export default {
     files: {
       assets: 'static'
       // TODO: add hooks
+    },
+    vite: {
+      server: {
+        proxy: dev ? {
+          '/api': {
+            target: 'http://localhost:3000',
+            changeOrigin: true,
+            rewrite: path => path.replace(/^\/api/, '')
+          }
+        } : {}
+      }
     }
   },
   preprocess: preprocess(),

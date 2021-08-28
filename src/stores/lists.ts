@@ -3,6 +3,8 @@ import { checkResponse, route } from '../core'
 import { addToStore, getByKey, updateWithKey, deleteFromStore } from '../db'
 import { aes, rsa } from 'cs-crypto'
 import { CSRF, reqHeaders } from '../core/headers'
+import { encryptList, decryptList } from './encryption'
+
 
 type Store = {
   [id: string]: List
@@ -37,20 +39,20 @@ function create(): Readable<Store> & ListStore {
       }
       const lists: ListDocument[] = await res.json()
       // Iterate through each list
-      for (const list of lists) {
-        if (!list.id) {
+      for (const encrypted of lists) {
+        if (!encrypted.id) {
           continue
         }
         // See if the cache matches the list
-        const cached = <List>await getByKey('lists', list.id)
-        if (cached && cached.checksum === list.meta.checksum) {
+        const cached = <List>await getByKey('lists', encrypted.id)
+        if (cached && cached.checksum === encrypted.meta.checksum) {
           if (process.env.NODE_ENV === 'development') {
-            console.log(`%cUsing cache for list ${list.id}`, 'color: lightblue;')
+            console.log(`%cUsing cache for list ${encrypted.id}`, 'color: lightblue;')
           }
           // Add the cached version to state and continue
-          await updateWithKey('lists', { ...cached, id: list.id, index: list.meta.index }) // Update our index
+          await updateWithKey('lists', { ...cached, id: encrypted.id, index: encrypted.meta.index }) // Update our index
           update((store) => {
-            store[list.id] = { ...cached }
+            store[encrypted.id] = { ...cached }
             return store
           })
           continue
@@ -59,36 +61,24 @@ function create(): Readable<Store> & ListStore {
         // Decrypt the list's AES key
         const { id } = JSON.parse(localStorage.getItem('user')!)
         const { privateKey } = <MasterKeys><unknown>await getByKey('keys', id)
-        const cryptoKey = await rsa.unwrapKey(list.meta.cryptoKey!, privateKey)
+        const cryptoKey = await rsa.unwrapKey(encrypted.meta.cryptoKey, privateKey)
 
         // Decrypt title and items
-        const raw = await aes.deepDecrypt({
-          title: list.title,
-          items: list.items
-        }, cryptoKey) 
-        const title = raw.title
-        const items: ListItem[] = []
-        for (const item of raw.items) {
-          items.push({
-            ...item,
-            done: item.done === 'true'
-          })
-        }
+        const data: ListData = await decryptList(encrypted, cryptoKey)
 
         // Use the list's key to decrypt all information (and do some restructuring)
-        const decrypted: List = {
-          id: list.id,
-          title,
-          items,
-          index: list.meta.index,
-          checksum: list.meta.checksum,
+        const list: List = {
+          id: encrypted.id,
+          ...data,
+          index: encrypted.meta.index,
+          checksum: encrypted.meta.checksum,
           cryptoKey
         }
         // Cache the decrypted list
-        await updateWithKey('lists', decrypted)
+        await updateWithKey('lists', list)
         // Add to store
         update((store: Store) => {
-          store[list.id] = decrypted
+          store[list.id] = list
           return store
         })
       }
@@ -108,7 +98,7 @@ function create(): Readable<Store> & ListStore {
       const cryptoKey = await aes.generateKey('AES-GCM')
       
       // Encrypt the list
-      const encrypted: EncryptedListData = await aes.deepEncrypt(list, cryptoKey) as unknown as EncryptedListData
+      const encrypted: EncryptedListData = await encryptList(list, cryptoKey)
 
       // Encrypt and format the list for storage
       const document: ListDocument<MetaRequest> = {
@@ -172,10 +162,7 @@ function create(): Readable<Store> & ListStore {
 
       // Encrypt the entire list and send the changes as a PATCH request
       // TODO: use flags.changes to make more precise and efficient patches
-      const encrypted: EncryptedListData = await aes.deepEncrypt({
-        title: list.title,
-        items: list.items
-      }, list.cryptoKey) as unknown as EncryptedListData
+      const encrypted: EncryptedListData = await encryptList(list, list.cryptoKey)
       const document: ListDocument<IndexedMetaUpdate> = {
         title: encrypted.title,
         items: encrypted.items,
@@ -252,8 +239,7 @@ function create(): Readable<Store> & ListStore {
         return
       }
 
-
-      // Magic shifting calculations (see my svelte repl for detailed comments)
+      // Magic shifting calculations (see this svelte repl for detailed comments) - https://svelte.dev/repl/b086c8cc851045d59c948e08786c40be?version=3.42.4
       const IDBupdates: List[] = []
       if (index > oldIndex){
         for (let i = oldIndex; i <= index; i++) {

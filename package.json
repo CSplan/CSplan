@@ -9,13 +9,18 @@
     "lint": "eslint --fix src",
     "build": "svelte-kit build",
     "export": "svelte-kit export",
-    "start": "node build"
+    "start": "node build",
+    "prepare-ed25519": "[ ! -d static/ed25519 ] && mkdir static/ed25519; cp node_modules/@very-amused/ed25519-wasm/build/* static/ed25519/",
+    "prepare-argon2": "[ ! -d static/argon2 ] && mkdir static/argon2; cp node_modules/@very-amused/argon2-wasm/build/* static/argon2/",
+    "prepare": "yarn prepare-ed25519 && yarn prepare-argon2"
   },
   "dependencies": {
     "@types/marked": "^2.0.0",
     "@typescript-eslint/eslint-plugin": "^4.29.2",
     "@typescript-eslint/parser": "^4.29.2",
     "@very-amused/argon2-wasm": "^0.2.2-rc1.patch2",
+    "@very-amused/ed25519-wasm": "https://github.com/very-amused/ed25519-wasm",
+    "cs-crypto": "^0.7.2-rc3",
     "marked": "^2.0.1",
     "node-sass": "^6.0.1",
     "tslib": "^2.3.1",
@@ -24,8 +29,6 @@
   "devDependencies": {
     "@sveltejs/adapter-node": "^1.0.0-next.42",
     "@sveltejs/kit": "^1.0.0-next.153",
-    "@very-amused/ed25519-wasm": "git+https://github.com/very-amused/ed25519-wasm",
-    "cs-crypto": "^0.7.2-rc1",
     "eslint": "^7.32.0",
     "eslint-config-standard": "^16.0.2",
     "eslint-plugin-import": "^2.22.0",
