@@ -8,7 +8,10 @@ Frontend for CSplan.
 - [x] Ability to tag list items
 - [x] Authentication using argon2
 - [x] Editing/view modes for lists
-- [ ] Drag and drop for list items and tags
+
+- [ ] Make default click behavior for lists going to the list page, only initiate drag and drop with dedicated side handle
+- [ ] Configure root div for list items as drag and drop receptacle (should not be contained within padded content area)
+
 - [ ] Advanced authkey + cryptokey configuration
 - [ ] Settings page
 - [ ] Homepage
