@@ -207,7 +207,7 @@
   </section>
 
   {#each list.items as item, i (item)}
-  <div class="row item-title marginless {!item.tags.length ? 'tagless' : ''}" data-role="row">
+  <div class="row item-title marginless {!item.tags.length ? 'tagless' : ''}" on:dragover={ondragover} on:dragleave={ondragleave} on:dragexit={ondragleave} on:drop={e => ondrop(e, i)} data-role="row">
     <!-- Checkbox -->
     <i class="clickable checkbox { item.done ? 'fas fa-check-circle' : 'far fa-circle'}" on:click={() => toggleItem(i)}></i>
 
@@ -218,9 +218,7 @@
       <p class="no-empty-effect" contenteditable={editMode} spellcheck="false" on:blur={(e) => updateItemDescription(e, i)}>{item.description}</p>
     </section>
 
-    <!-- Spacer - positioned behind content, used to drag items to move their position -->
-    <div class="spacer" draggable={editMode}
-      on:dragstart={e => ondragstart(e, i)} on:dragover={ondragover} on:dragleave={ondragleave} on:dragexit={ondragleave} on:drop={e => ondrop(e, i)}/>
+    <!-- Drag and drop handle -->
 
     {#if editMode}
     <div class="icons">
