@@ -51,7 +51,6 @@
       }
       await actions.retrieveMasterKeypair(password.value)
     } catch (err) {
-      console.log(err)
       error = err.message
       state = States.Error
       return

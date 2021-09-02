@@ -86,7 +86,6 @@
     // Set message handler
     actions.onMessage = async (message: string) => {
       stateMsg = message
-      console.log(message)
       await tick()
     }
     // Load argon2 binary, with SIMD support if available

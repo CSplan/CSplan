@@ -18,7 +18,6 @@
     try {
       await tags.init()
     } catch (err) {
-      console.log(err)
       state = state.error
       stateMsg = err
       return

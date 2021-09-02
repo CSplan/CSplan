@@ -234,7 +234,6 @@ export class LoginActions {
     this.onMessage('Decryting master keypair')
     const tempKeyMaterial = await this.hashPassword(password, decode(keys.hashParams.salt))
     const tempKey = await aes.importKeyMaterial(tempKeyMaterial, Algorithms.AES_GCM)
-    console.log(tempKey)
     const privateKey = await rsa.unwrapPrivateKey(keys.privateKey, tempKey)
 
     // Store keys in IDB

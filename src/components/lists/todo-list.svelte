@@ -5,7 +5,7 @@
   import tags from '../../stores/tags'
   import Spinner from '../spinner.svelte'
   import TagForm from '../tag-form.svelte'
-  import { CEkeypress, CEtrim } from '../../misc/contenteditable'
+  import { CEkeypress, CEtrim, formElementIsFocused } from '../../misc/contenteditable'
   import { fade } from 'svelte/transition'
 
   export let id: string
@@ -105,6 +105,25 @@
   }
   // #endregion
 
+  // #region Keyboard shortcuts
+  function onkeypress(evt: KeyboardEvent) {
+    const shortcut = keyboardShortcuts[evt.key]
+    if (shortcut) {
+      if (shortcut.ignoreInForm && formElementIsFocused()) {
+        return
+      }
+      shortcut.handler()
+    }
+  }
+
+  const keyboardShortcuts: { [key: string]: KeyboardShortcut } = {
+    e: {
+      handler: toggleEditMode,
+      ignoreInForm: true
+    }
+  }
+  // #endregion
+
   // #region Save animation
   const fadeDuration = 250
   let cooldown = false
@@ -188,14 +207,13 @@
   onMount(async () => {
     await lists.init()
     await tags.init()
-    console.log($lists, id)
     list = $lists[id]
     state = States.Resting
   })
 </script>
 
 <!-- Don't copy content on drop events -->
-<svelte:window on:drop|preventDefault/>
+<svelte:window on:drop|preventDefault on:keypress={onkeypress}/>
 
 {#if state !== States.Error && state !== States.Loading}
 <div class="card {editMode ? 'editable' : ''}">
@@ -367,12 +385,6 @@
       }
     }
 
-    /* Spacers (used for drag and drop) lay underneath the content (title, description, and tags) of a row,
-    allowing drag and drop to be performem from anywhere in an item you don't see content or icons */
-    .spacer {
-      grid-column: 2 / span 1;
-      grid-row: 1 / -1;
-    }
     .content, .tags {
       grid-column: 2 / span 1;
       width: max-content;
