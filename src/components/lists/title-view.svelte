@@ -40,9 +40,14 @@
   async function ondrop(evt, index, id) {
     evt.preventDefault()
     const origin = evt.dataTransfer.getData('text/plain')
-    await store.move(origin, index)
-    await store.commit(origin)
+    await moveItem(origin, index)
     getRow(id).classList.remove('highlighted')
+  }
+
+  // Move the list identified by id to index
+  async function moveItem(id, index) {
+    await store.move(id, index)
+    await store.commit(id)
   }
 
   // Return the first parent element of evt.target to contain the attribute [data-role="row"]
@@ -54,6 +59,10 @@
    */
   function getRow(id) {
     return rowEls[id]
+  }
+
+  function completedItems(items) {
+    return items.reduce((count, item) => item.done ? ++count : count, 0)
   }
 
   // Initialize the list store
@@ -82,17 +91,40 @@
       on:dragleave={e => ondragleave(e, list.id)}
       on:dragexit={e => ondragleave(e, list.id)}>
 
-      <a href="/lists/{list.id}" draggable="false"><div></div></a>
+      <div class="row-start">
+        <div class="item-count-container">
+          <p class="item-count">{completedItems(list.items)}/{list.items.length}</p>
+      </div>
+
+        <a href="/lists/{list.id}" sveltekit:prefetch draggable="false"><div></div></a> <!-- draggable="false" is needed to override default the default html assumption that links can be dragged,
+          inside div supresses compiler warning that <a> elements must contain children -->
+        
+      </div>
     
       <header contenteditable on:keypress={CEkeypress} spellcheck="false" draggable="false" on:blur={e => onblur(e, list.id)}>{list.title}</header>
 
       <!-- Group the clickable white space to the right of the list title and the drag/delete buttons to the side for alignment purposes -->
       <div class="row-end">
 
-        <a href="/lists/{list.id}" draggable="false"><div></div></a>
+        <a href="/lists/{list.id}" sveltekit:prefetch draggable="false"><div></div></a>
 
         <div class="icons">
+          <!-- Up-down arrows for moving list position -->
+          {#if $ordered.length > 1}
+          <div class="arrow-icons">
+            {#if i > 0}
+              <i class="fas fa-arrow-up clickable no-transform" title="Move item up" on:click={moveItem(list.id, i-1)}></i>
+            {/if}
+            {#if i + 1 < $ordered.length}
+              <i class="fas fa-arrow-down clickable no-transform" title="Move item down" on:click={moveItem(list.id, i+1)}></i>
+            {/if}
+          </div>
+          {/if}
+
+          <!-- Drag and drop handle for moving list position-->
           <i class="fas fa-grip-vertical clickable" draggable="true" on:dragstart={e => ondragstart(e, list.id)} title="This item is draggable."></i>
+
+          <!-- Delete button for the list -->
           <i class="fas fa-times clickable" on:click={store.delete(list.id)}></i>
         </div>
       </div>
@@ -120,7 +152,7 @@
 
 <style lang="scss">
   .card {
-    margin-top: 10vh;
+    margin-top: 60px;
     min-width: 50%;
     max-width: 80%;
     pre {
@@ -138,12 +170,29 @@
     grid-auto-flow: column;
     width: 100%;
   }
+
+  // Row sections
+  .row-start {
+    width: 100%;
+    display: grid;
+    grid-auto-flow: column;
+    grid-template-columns: max-content 1fr;
+  }
   .row-end {
     width: 100%;
     display: grid;
     grid-auto-flow: column;
     grid-template-columns: 1fr max-content;
   }
+  .item-count-container {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+  }
+  p.item-count {
+    margin: 0.5rem 0.8rem;
+  }
+
   .row.highlighted {
     border-left: var(--bold-blue) 2px solid;
     border-right: var(--bold-blue) 2px solid;
@@ -154,6 +203,9 @@
   }
   .row-center {
     text-align: center;
+    button,i {
+      margin: 0.8rem;
+    }
   }
   .icons {
     width: 100%;
@@ -161,12 +213,19 @@
     flex-direction: row;
     align-items: center;
   }
-  .row .icons i:hover {
+  .icons i:not(.no-transform):hover {
     transform: scale(1.25)
   }
-  .icons>i, .icons>a {
-    margin: 0.5rem;
+  .icons i {
+    margin: 0.5rem 0.8rem;
   }
+  .arrow-icons i:not(:last-child) {
+    margin-right: 0.3rem;
+  }
+  .arrow-icons i:last-child {
+    margin-left: 0.3rem;
+  }
+
   .row:hover, .row-center:hover {
     background: whitesmoke;
   }
@@ -179,8 +238,5 @@
   }
   .row.empty {
     min-height: 3rem;
-  }
-  button {
-    margin: 0.5rem;
   }
 </style>
