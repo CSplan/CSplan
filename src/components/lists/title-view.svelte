@@ -50,10 +50,8 @@
     await store.commit(id)
   }
 
-  // Return the first parent element of evt.target to contain the attribute [data-role="row"]
-  // Used to highlight the correct element in drag and drop events
   /**
-   * 
+   * Return a reference to a row element from the id of the todo list the row represents 
    * @param {string} id
    * @returns {HTMLElement}
    */
