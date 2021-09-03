@@ -1,23 +1,13 @@
 <script lang="ts">
   import { parseByteSize, formatByteSize } from '$lib/byte-size'
-  import { tweened } from 'svelte/motion'
-  import { linear } from 'svelte/easing'
-
-  const duration = 100
-  const offset = tweened(0, {
-    duration,
-    easing: linear
-  })
-  setTimeout(() => {
-    offset.set(80)
-  }, 1000)
 
   export let timeCost = 1
   export let memoryCost = 10 * 1024 * 1024
   let memoryCostFormatted = formatByteSize(memoryCost)
+  export let form: HTMLFormElement
 
   function setValidity(
-    evt: FocusEvent & { currentTarget: EventTarget & HTMLInputElement },
+    evt: Event & { currentTarget: EventTarget & HTMLInputElement },
     validity: string
   ): void {
     evt.currentTarget.setCustomValidity(validity)
@@ -40,29 +30,38 @@
     }
     setValidity(evt, '')
   }
+
+  function checkTimeCost(
+    evt: Event & { currentTarget: EventTarget & HTMLInputElement }
+  ): void {
+    if (timeCost > 10) {
+      setValidity(evt, 'invalid time cost, max is 10')
+    } else {
+      setValidity(evt, '')
+    }
+  }
 </script>
 
-<div class="card" style="--offset: {$offset}; z-index: {$offset === 80 ? 0 : -1}">
+<form on:submit|preventDefault bind:this={form}>
   <header>Argon2i Parameters</header>
-  <form on:submit|preventDefault>
-    <label for="time-cost">Time Cost:</label>
-    <input
-      name="time-cost"
-      type="number"
-      bind:value={timeCost}
-      min="0"
-      max="10"
-    />
-    <label for="memory-cost">Memory Cost:</label>
-    <input
-      name="memory-cost"
-      type="string"
-      bind:value={memoryCostFormatted}
-      on:blur={parseMemoryCost}
-    />
-    <button>Perform test run</button>
-  </form>
-</div>
+  <label for="time-cost">Time Cost:</label>
+  <input
+    name="time-cost"
+    type="number"
+    bind:value={timeCost}
+    min="0"
+    max="10"
+    on:input={checkTimeCost}
+  />
+  <label for="memory-cost">Memory Cost:</label>
+  <input
+    name="memory-cost"
+    type="string"
+    bind:value={memoryCostFormatted}
+    on:blur={parseMemoryCost}
+  />
+  <button>Perform test run</button>
+</form>
 
 <style lang="scss">
   button {
@@ -72,8 +71,13 @@
     display: grid;
     grid-template-columns: minmax(min-content, 1fr) 1fr;
     column-gap: 0.5rem;
-    button {
+    header,button {
       grid-column: 1 / span 2;
+    }
+    button {
+      width: 50%;
+      margin-left: auto;
+      margin-right: auto;
     }
     label {
       grid-column: 1;

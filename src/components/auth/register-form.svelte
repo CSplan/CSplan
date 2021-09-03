@@ -5,6 +5,7 @@
   import { onMount, tick } from 'svelte'
   import { RegisterActions } from './actions'
   import { dev } from '$app/env'
+  import HashparamsForm from './hashparams-form.svelte'
 
   // Form data
   let showPassword = false
@@ -23,9 +24,12 @@
   
   // Form elements
   let form: HTMLFormElement
+  let hashParamsForm: HTMLFormElement
   let email: HTMLInputElement
   let password: HTMLInputElement
   let confirmPassword: HTMLInputElement
+  let timeCost: number
+  let memoryCost: number
 
   // Actions
   let actions: RegisterActions
@@ -47,12 +51,14 @@
       confirmPassword.setCustomValidity('')
     }
 
-    if (!form.checkValidity()) {
+    if (!form.checkValidity() || !hashParamsForm.checkValidity()) {
       return
     }
 
     state = States.Submitting
     try {
+      actions.hashParams.timeCost = timeCost
+      actions.hashParams.memoryCost = memoryCost
       const authSalt = makeSalt(16)
       await actions.register({
         email: email.value,
@@ -122,6 +128,9 @@
     </label>
     <input type="submit" value="Submit">
   </form>
+  {#if showAdvanced}
+    <HashparamsForm bind:timeCost bind:memoryCost bind:form={hashParamsForm}/>
+  {/if}
   <footer>
   {#if state === States.Submitting}
     <span>{stateMsg}</span>
