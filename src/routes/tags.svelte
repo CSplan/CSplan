@@ -33,7 +33,7 @@
 {#if state === states.init}
   <Loading/>
 {:else if state === states.resting}
-<main class="align-center">
+<main class="container">
   {#if $ordered.length > 0}
     {#each $ordered as tag (tag.id)}
       <Tag id={tag.id}></Tag>
@@ -59,18 +59,12 @@
 
 
 <style>
-  main.align-center {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-  }
-
   .card {
     margin-top: 1.5rem;
   }
 
   /* Add tag styles */
-  @media screen and (min-width: 1200px) {
+  @media screen and (min-width: 850px) {
     .add-tag-button {
       min-width: var(--content-large) !important;
     }
@@ -82,6 +76,7 @@
     padding: 0.3rem 0;
     margin-top: 1rem;
     margin-bottom: 2rem;
+    width: 100%;
     display: flex;
     flex-direction: row;
     justify-content: center;

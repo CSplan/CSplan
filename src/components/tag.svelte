@@ -73,9 +73,10 @@
     --min-handle: 3rem;
     font-size: 1.25rem;
     margin-bottom: 0;
+    width: 100%;
     display: grid;
     grid-auto-flow: column;
-    grid-template-columns: minmax(var(--min-handle), 1fr) minmax(0, auto) minmax(var(--min-handle), 1fr);
+    grid-template-columns: minmax(var(--min-handle), 1fr) minmax(0, auto) 1fr;
     background-color: var(--background-color);
     transition: none;
 
@@ -100,7 +101,7 @@
   .card:not(:first-child) {
     margin-top: 1rem;
   }
-  @media screen and (min-width: 1200px) {
+  @media screen and (min-width: 850px) {
     .card {
       width: 800px;
     }

@@ -63,7 +63,7 @@
 <style>
   button {
     position: absolute;
-    left: 15rem;
+    left: 18%;
     top: 3rem;
     border-radius: 10%;
   }

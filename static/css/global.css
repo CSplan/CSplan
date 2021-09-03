@@ -33,6 +33,12 @@ main.container {
   align-items: center;
   position: relative;
 }
+@media screen and (max-width: 1199px) {
+  main.container {
+    padding-left: 2rem;
+    padding-right: 2rem;
+  }
+}
 main.container.vcenter {
   justify-content: center;
   height: 70vh;
