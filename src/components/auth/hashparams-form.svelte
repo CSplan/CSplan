@@ -1,32 +1,89 @@
 <script lang="ts">
   import { parseByteSize, formatByteSize } from '$lib/byte-size'
+  import { tweened } from 'svelte/motion'
+  import { linear } from 'svelte/easing'
 
-  let timeCost = 1
-  let memoryCost = 10 * 1024 * 1024
+  const duration = 100
+  const offset = tweened(0, {
+    duration,
+    easing: linear
+  })
+  setTimeout(() => {
+    offset.set(80)
+  }, 1000)
+
+  export let timeCost = 1
+  export let memoryCost = 10 * 1024 * 1024
   let memoryCostFormatted = formatByteSize(memoryCost)
 
-  function parseMemoryCost(evt: FocusEvent & { currentTarget: EventTarget & HTMLInputElement }): void {
+  function setValidity(
+    evt: FocusEvent & { currentTarget: EventTarget & HTMLInputElement },
+    validity: string
+  ): void {
+    evt.currentTarget.setCustomValidity(validity)
+    evt.currentTarget.reportValidity()
+  }
+
+  function parseMemoryCost(
+    evt: FocusEvent & { currentTarget: EventTarget & HTMLInputElement }
+  ): void {
     try {
       memoryCost = parseByteSize(memoryCostFormatted)
-    } catch (error) {
+    } catch (err) {
       // TODO: pass up error handling to register form
-      evt.currentTarget.setCustomValidity(error)
-      console.log(error)
+      setValidity(evt, err)
       return
     }
-    if (memoryCost > (2 * 1024 * 1024 * 1024)) {
-      evt.currentTarget.setCustomValidity('invalid memory cost, max is 2GB')
-      console.log('too big')
+    if (memoryCost > 2 * 1024 * 1024 * 1024) {
+      setValidity(evt, 'invalid memory cost, max is 2GB')
       return
     }
-    evt.currentTarget.setCustomValidity('')
+    setValidity(evt, '')
   }
 </script>
 
-<form on:submit|preventDefault>
-  <pre>Memory Cost: {memoryCost}</pre>
-  <label for="time-cost">Time Cost:</label>
-  <input name="time-cost" type=number bind:value={timeCost} min=0 max=10>
-  <label for="memory-cost">Memory Cost:</label>
-  <input name="memory-cost" type=string bind:value={memoryCostFormatted} on:blur={parseMemoryCost}>
-</form>
+<div class="card" style="--offset: {$offset}; z-index: {$offset === 80 ? 0 : -1}">
+  <header>Argon2i Parameters</header>
+  <form on:submit|preventDefault>
+    <label for="time-cost">Time Cost:</label>
+    <input
+      name="time-cost"
+      type="number"
+      bind:value={timeCost}
+      min="0"
+      max="10"
+    />
+    <label for="memory-cost">Memory Cost:</label>
+    <input
+      name="memory-cost"
+      type="string"
+      bind:value={memoryCostFormatted}
+      on:blur={parseMemoryCost}
+    />
+    <button>Perform test run</button>
+  </form>
+</div>
+
+<style lang="scss">
+  button {
+    background: var(--background-dark);
+  }
+  form {
+    display: grid;
+    grid-template-columns: minmax(min-content, 1fr) 1fr;
+    column-gap: 0.5rem;
+    button {
+      grid-column: 1 / span 2;
+    }
+    label {
+      grid-column: 1;
+    }
+    input {
+      grid-column: 2;
+    }
+    label {
+      margin-top: auto;
+      margin-bottom: auto;
+    }
+  }
+</style>

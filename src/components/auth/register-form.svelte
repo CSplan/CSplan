@@ -4,7 +4,6 @@
   import { makeSalt } from 'cs-crypto'
   import { onMount, tick } from 'svelte'
   import { RegisterActions } from './actions'
-  import HashparamsForm from './hashparams-form.svelte'
   import { dev } from '$app/env'
 
   // Form data
@@ -123,11 +122,6 @@
     </label>
     <input type="submit" value="Submit">
   </form>
-  <!-- TODO: add transition here -->
-  {#if showAdvanced}
-    <hr>
-    <HashparamsForm></HashparamsForm>
-  {/if}
   <footer>
   {#if state === States.Submitting}
     <span>{stateMsg}</span>
