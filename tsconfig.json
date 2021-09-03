@@ -8,6 +8,9 @@
     "noImplicitAny": true,
     "allowSyntheticDefaultImports": true,
     "sourceMap": true,
-    "typeRoots": ["types", "node_modules/@types"]
-  },
+    "typeRoots": ["types", "node_modules/@types"],
+    "paths": {
+      "$lib/*": ["./src/lib/*"]
+    }
+  }
 }
