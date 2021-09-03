@@ -4,10 +4,12 @@
   import { makeSalt } from 'cs-crypto'
   import { onMount, tick } from 'svelte'
   import { RegisterActions } from './actions'
+  import HashparamsForm from './hashparams-form.svelte'
   import { dev } from '$app/env'
 
   // Form data
   let showPassword = false
+  let showAdvanced = false
   let error = ''
   let stateMsg = ''
 
@@ -115,8 +117,17 @@
       <input type="checkbox" bind:checked={showPassword}>
       <span class="checkable">Show Password</span>
     </label>
+    <label>
+      <input type="checkbox" bind:checked={showAdvanced}>
+      <span class="checkable">Show Advanced Cryptography Options</span>
+    </label>
     <input type="submit" value="Submit">
   </form>
+  <!-- TODO: add transition here -->
+  {#if showAdvanced}
+    <hr>
+    <HashparamsForm></HashparamsForm>
+  {/if}
   <footer>
   {#if state === States.Submitting}
     <span>{stateMsg}</span>
@@ -127,13 +138,17 @@
   </footer>
 </div>
 
-<style lang="scss">
+<style lang="scss" global>
   .card {
-    margin-top: 20vh;
-    max-width: 300px;
+    margin-top: 60px; 
+    width: 25%;
+    min-width: 300px;
     padding: 1rem;
     * {
       margin: 0.5rem 0;
+      &:last-child {
+        margin-bottom: 0;
+      }
     }
     header {
       padding: 0;
@@ -144,6 +159,9 @@
   form {
     display: flex;
     flex-direction: column;
+    label {
+      display: block;
+    }
   }
 
   /* Footer styles */
@@ -159,7 +177,7 @@
     color: var(--bold-blue);
   }
   footer {
-    padding: 0;
+    padding: 0 !important;
     margin: 0 !important;
     display: flex;
     flex-direction: column;
