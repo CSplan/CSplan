@@ -1,10 +1,18 @@
 <script lang="ts">
   import { parseByteSize, formatByteSize } from '$lib/byte-size'
+  import type { RegisterActions } from './actions'
 
-  export let timeCost = 1
-  export let memoryCost = 10 * 1024 * 1024
+  export let actions: RegisterActions
+
+  let timeCost = 1
+  let memoryCost = 10 * 1024 * 1024
+  $: {
+    actions.hashParams.timeCost = timeCost
+    actions.hashParams.memoryCost = memoryCost / 1024 // argon2 expects memory cost in # of 1KiB pages
+  }
   let memoryCostFormatted = formatByteSize(memoryCost)
   export let form: HTMLFormElement
+  export let show = false
 
   function setValidity(
     evt: Event & { currentTarget: EventTarget & HTMLInputElement },
@@ -27,6 +35,9 @@
     if (memoryCost > 2 * 1024 * 1024 * 1024) {
       setValidity(evt, 'invalid memory cost, max is 2GB')
       return
+    } else if (memoryCost < 1024) {
+      setValidity(evt, 'invalid memory cost, minimum is 1KiB')
+      return
     }
     setValidity(evt, '')
   }
@@ -42,7 +53,7 @@
   }
 </script>
 
-<form on:submit|preventDefault bind:this={form}>
+<form on:submit|preventDefault bind:this={form} class:hidden={!show}>
   <header>Argon2i Parameters</header>
   <label for="time-cost">Time Cost:</label>
   <input
@@ -64,10 +75,21 @@
 </form>
 
 <style lang="scss">
+  .hidden {
+    width: 0;
+    height: 0;
+  }
+  header {
+    border-top: #aaa 1px solid;
+    padding: 0.3rem 0;
+  }
   button {
     background: var(--background-dark);
   }
   form {
+    * {
+      margin: 0.3rem 0;
+    }
     display: grid;
     grid-template-columns: minmax(min-content, 1fr) 1fr;
     column-gap: 0.5rem;
@@ -89,5 +111,8 @@
       margin-top: auto;
       margin-bottom: auto;
     }
+  }
+  input {
+    padding: 0 0.5rem;
   }
 </style>

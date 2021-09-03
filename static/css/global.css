@@ -22,6 +22,10 @@ button.transparent {
   border-radius: 0 !important;
 }
 
+.hidden {
+  visibility: hidden;
+}
+
 /* Give the correct pointer effect for a clickable item */
 .clickable {
   cursor: pointer;

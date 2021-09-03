@@ -15,12 +15,13 @@
 
   // Form state
   const enum States {
+    Loading,
     Resting,
     Submitting,
     Error,
     Success
   }
-  let state = States.Resting
+  let state = States.Loading
   
   // Form elements
   let form: HTMLFormElement
@@ -28,8 +29,6 @@
   let email: HTMLInputElement
   let password: HTMLInputElement
   let confirmPassword: HTMLInputElement
-  let timeCost: number
-  let memoryCost: number
 
   // Actions
   let actions: RegisterActions
@@ -57,8 +56,6 @@
 
     state = States.Submitting
     try {
-      actions.hashParams.timeCost = timeCost
-      actions.hashParams.memoryCost = memoryCost
       const authSalt = makeSalt(16)
       await actions.register({
         email: email.value,
@@ -107,7 +104,9 @@
     } catch (err) {
       state = States.Error
       error = err.message
+      return
     }
+    state = States.Resting
   })
 </script>
 
@@ -128,8 +127,8 @@
     </label>
     <input type="submit" value="Submit">
   </form>
-  {#if showAdvanced}
-    <HashparamsForm bind:timeCost bind:memoryCost bind:form={hashParamsForm}/>
+  {#if state === States.Resting}
+    <HashparamsForm bind:show={showAdvanced} bind:actions={actions} bind:form={hashParamsForm}/>
   {/if}
   <footer>
   {#if state === States.Submitting}
@@ -152,6 +151,9 @@
       &:last-child {
         margin-bottom: 0;
       }
+    }
+    form {
+      margin-bottom: 0;
     }
     header {
       padding: 0;
