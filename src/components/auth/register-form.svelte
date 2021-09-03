@@ -5,7 +5,7 @@
   import { onMount, tick } from 'svelte'
   import { RegisterActions } from './actions'
   import { dev } from '$app/env'
-  import HashparamsForm from './hashparams-form.svelte'
+  import HashparamsForm, { checkValidity as checkHashParamValidity } from './hashparams-form.svelte'
 
   // Form data
   let showPassword = false
@@ -25,7 +25,6 @@
   
   // Form elements
   let form: HTMLFormElement
-  let hashParamsForm: HTMLFormElement
   let email: HTMLInputElement
   let password: HTMLInputElement
   let confirmPassword: HTMLInputElement
@@ -50,7 +49,7 @@
       confirmPassword.setCustomValidity('')
     }
 
-    if (!form.checkValidity() || !hashParamsForm.checkValidity()) {
+    if (!form.checkValidity() || !checkHashParamValidity()) {
       return
     }
 
@@ -127,8 +126,8 @@
     </label>
     <input type="submit" value="Submit">
   </form>
-  {#if state === States.Resting}
-    <HashparamsForm bind:show={showAdvanced} bind:actions={actions} bind:form={hashParamsForm}/>
+  {#if state === States.Resting} <!-- This isn't rendered until onMount has been run, because it expects actions to be initialized -->
+    <HashparamsForm bind:show={showAdvanced} bind:actions={actions}/>
   {/if}
   <footer>
   {#if state === States.Submitting}
@@ -142,9 +141,15 @@
 
 <style lang="scss" global>
   .card {
-    margin-top: 60px; 
-    width: 25%;
-    min-width: 300px;
+    @media screen and (min-width: 850px) {
+      margin-top: 60px; 
+      min-width: 300px;
+      max-width: 25%;
+    }
+    @media screen and (max-width: 849px) {
+      margin-top: 30px;
+      width: 85%;
+    }
     padding: 1rem;
     * {
       margin: 0.5rem 0;
@@ -156,9 +161,12 @@
       margin-bottom: 0;
     }
     header {
-      padding: 0;
-      padding-bottom: 0.5rem;
+      padding: 0.5rem 0;
       text-align: center;
+      &:first-child {
+        padding-top: 0;
+        margin-top: 0;
+      }
     }
   }
   form {

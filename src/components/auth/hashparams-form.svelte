@@ -1,3 +1,10 @@
+<script lang="ts" context="module">
+  let form: HTMLFormElement
+  export function checkValidity(): boolean {
+    return form.checkValidity()
+  }
+</script>
+
 <script lang="ts">
   import { parseByteSize, formatByteSize } from '$lib/byte-size'
   import type { RegisterActions } from './actions'
@@ -11,7 +18,6 @@
     actions.hashParams.memoryCost = memoryCost / 1024 // argon2 expects memory cost in # of 1KiB pages
   }
   let memoryCostFormatted = formatByteSize(memoryCost)
-  export let form: HTMLFormElement
   export let show = false
 
   function setValidity(
@@ -71,22 +77,26 @@
     bind:value={memoryCostFormatted}
     on:blur={parseMemoryCost}
   />
-  <button>Perform test run</button>
+  <button class="test">Test</button>
+  <button class="autoconfig">Autoconfigure</button>
 </form>
 
 <style lang="scss">
   .hidden {
     width: 0;
     height: 0;
+    margin: 0;
+    padding: 0;
   }
   header {
     border-top: #aaa 1px solid;
-    padding: 0.3rem 0;
+    padding: 0.3rem 0 !important;
   }
   button {
     background: var(--background-dark);
   }
   form {
+    margin-top: 0.8rem;
     * {
       margin: 0.3rem 0;
     }
@@ -96,10 +106,11 @@
     header,button {
       grid-column: 1 / span 2;
     }
-    button {
-      width: 50%;
-      margin-left: auto;
-      margin-right: auto;
+    button.test {
+      grid-column: 1;
+    }
+    button.autoconfig {
+      grid-column: 2;
     }
     label {
       grid-column: 1;
