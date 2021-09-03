@@ -8,8 +8,8 @@
   import Modal, { toggleModal } from '../create-list-modal.svelte'
   import Spinner from '../spinner.svelte'
 
-  // Map of list ID -> row element used for quick highlighting
-  const rowEls = {}
+  // Map of list ID -> if the list's row should be highlighted
+  const highlightRow = {}
 
   // State pulled from child components
   let isLoading = false
@@ -26,37 +26,26 @@
     evt.dataTransfer.setData('text/plain', id)
   }
 
-  function ondragover(evt, id) {
-    evt.preventDefault()
+  function ondragover(id) {
     // Set a blue higlight
-    getRow(id).classList.add('highlighted')
+    highlightRow[id] = true
   }
 
-  function ondragleave(evt, id) {
-    evt.preventDefault()
-    getRow(id).classList.remove('highlighted')
+  function ondragleave(id) {
+    // Remove row highlight
+    highlightRow[id] = false
   }
 
   async function ondrop(evt, index, id) {
-    evt.preventDefault()
     const origin = evt.dataTransfer.getData('text/plain')
     await moveItem(origin, index)
-    getRow(id).classList.remove('highlighted')
+    highlightRow[id] = false
   }
 
   // Move the list identified by id to index
   async function moveItem(id, index) {
     await store.move(id, index)
     await store.commit(id)
-  }
-
-  /**
-   * Return a reference to a row element from the id of the todo list the row represents 
-   * @param {string} id
-   * @returns {HTMLElement}
-   */
-  function getRow(id) {
-    return rowEls[id]
   }
 
   function completedItems(items) {
@@ -83,11 +72,12 @@
 {:then}
   {#if $ordered.length > 0}
   {#each $ordered as list, i (list.id)}
-    <div animate:flip={{ duration: 200 }} class="row list-{list.id} {!list.title.length && 'empty'}" bind:this={rowEls[list.id]}
-      on:drop|capture={e => ondrop(e, i, list.id)}
-      on:dragover={e => ondragover(e, list.id)}
-      on:dragleave={e => ondragleave(e, list.id)}
-      on:dragexit={e => ondragleave(e, list.id)}>
+    <div animate:flip={{ duration: 200 }} class="row list-{list.id} {!list.title.length && 'empty'}"
+      class:highlighted={highlightRow[list.id]}
+      on:dragover|preventDefault={_ => ondragover(list.id)}
+      on:dragleave|preventDefault={_ => ondragleave(list.id)}
+      on:dragexit|preventDefault={_ => ondragleave(list.id)}
+      on:drop|capture|preventDefault={e => ondrop(e, i, list.id)}>
 
       <div class="row-start">
         <div class="item-count-container">

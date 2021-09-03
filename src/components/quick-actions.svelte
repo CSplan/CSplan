@@ -29,6 +29,9 @@
 </button>
 
 <style>
+  button.transparent {
+    padding: 0.3rem 0.5rem;
+  }
   @media screen and (max-width: 960px) {
     button.transparent {
       padding: 0;

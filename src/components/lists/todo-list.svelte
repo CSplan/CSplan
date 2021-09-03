@@ -7,6 +7,7 @@
   import TagForm from '../tag-form.svelte'
   import { CEkeypress, CEtrim, formElementIsFocused } from '../../misc/contenteditable'
   import { fade } from 'svelte/transition'
+  import { flip } from 'svelte/animate'
 
   export let id: string
 
@@ -153,54 +154,41 @@
   // #endregion
 
   // #region Drag and drop
+  const highlightRow: {
+    [index: number]: boolean
+  } = {}
+
   function ondragstart(evt: DragEvent, index: number): void {
     // Store the item's id in the data transfer
     evt.dataTransfer!.setData('text/plain', index.toString())
   }
 
-  function ondragover(evt: DragEvent & SafeEvent): void {
-    evt.preventDefault()
+  function ondragover(evt: DragEvent, index: number): void {
     // Apply a blue higlight
-    const row = getRow(evt)
-    row.style.border = 'var(--bold-blue) 2px solid'
-    row.style.borderRadius = '0.3rem'
+    highlightRow[index] = true
   }
 
-  function ondragleave(evt: DragEvent & SafeEvent): void {
-    evt.preventDefault()
+  function ondragleave(evt: DragEvent, index: number): void {
     // Remove highlight
-    const row = getRow(evt)
-    row.style.border = ''
-    row.style.borderRadius
+    highlightRow[index] = false
   }
 
   // Move an item using .splice
-  async function ondrop(evt: DragEvent & SafeEvent, index: number): Promise<void> {
-    // Remove highlight
-    ondragleave(evt)
-    
+  async function ondrop(evt: DragEvent, index: number): Promise<void> {
     // Move the item
     const oldIndex = parseInt(evt.dataTransfer!.getData('text/plain'))
+    await moveItem(oldIndex, index)
+    highlightRow[index] = false
+  }
+
+  async function moveItem(oldIndex: number, newIndex: number) {
     const item = list.items[oldIndex]
     list.items.splice(oldIndex, 1)
-    list.items.splice(index, 0, item)
+    list.items.splice(newIndex, 0, item)
 
     // Trigger rerender and save
     list.items = list.items
     await saveAndCommit()
-  }
-
-  // Return the first parent element of evt.target to contain the attribute [data-role="row"]
-  // Used to highlight the correct element in drag and drop events
-  function getRow(evt: SafeEvent): HTMLElement {
-    let el: HTMLElement = evt.currentTarget as HTMLElement
-    while (el.getAttribute('data-role') !== 'row') {
-      if (!el.parentNode) {
-        throw new Error('Unable to find row to highlight (drag and drop)')
-      }
-      el = el.parentNode as HTMLElement
-    }
-    return el
   }
   // #endregion
   
@@ -225,10 +213,15 @@
   </section>
 
   {#each list.items as item, i (item)}
-  <div class="row item-title marginless {!item.tags.length ? 'tagless' : ''}" on:dragover={ondragover} on:dragleave={ondragleave} on:dragexit={ondragleave} on:drop={e => ondrop(e, i)} data-role="row">
+  <div class="row item-title marginless {!item.tags.length ? 'tagless' : ''}" animate:flip={{ duration: 200 }}
+    class:highlighted={highlightRow[i] === true}
+    on:dragover|preventDefault={e => ondragover(e, i)}
+    on:dragexit|preventDefault={e => ondragleave(e, i)}
+    on:dragleave|preventDefault={e => ondragleave(e, i)}
+    on:drop|capture|preventDefault={e => ondrop(e, i)}>
+
     <!-- Checkbox -->
     <i class="clickable checkbox { item.done ? 'fas fa-check-circle' : 'far fa-circle'}" on:click={() => toggleItem(i)}></i>
-
 
     <!-- Content -->
     <section class="content">
@@ -236,31 +229,38 @@
       <p class="no-empty-effect" contenteditable={editMode} spellcheck="false" on:blur={(e) => updateItemDescription(e, i)}>{item.description}</p>
     </section>
 
-    <!-- Drag and drop handle -->
-
     {#if editMode}
     <div class="icons">
+      {#if list.items.length > 1}
+        {#if i > 0}
+          <i class="fas fa-arrow-up clickable" on:click={() => moveItem(i, i-1)} title="Move item up"></i>
+        {/if}
+        {#if i < list.items.length - 1}
+          <i class="fas fa-arrow-down clickable" on:click={() => moveItem(i, i+1)} title="Move item down"></i>
+        {/if}
+        <i class="fas fa-grip-vertical clickable" draggable="true" on:dragstart={e => ondragstart(e, i)} title="This item is draggable"></i>
+      {/if}
       <i class="fas fa-times clickable" on:click={() => deleteItem(i)}></i>
     </div>
     {/if}
 
-    <div class="tags">
-    {#if item.tags.length > 0}
-      {#each item.tags as id (id)}
-      {#if $tags[id]}
-      <span class="tag" style="background-color: {$tags[id].color};">
-          <p spellcheck="false">{$tags[id].name}</p>
-          <i class="fas fa-times clickable" on:click={() => untagItem(i, id)}></i>
-      </span>
-      {/if}
-      {/each}
+    {#if item.tags.length > 0 || editMode}
+      <div class="tags">
+        {#each item.tags as id (id)}
+          {#if $tags[id]}
+            <span class="tag" style="background-color: {$tags[id].color};">
+                <p spellcheck="false">{$tags[id].name}</p>
+                <i class="fas fa-times clickable" on:click={() => untagItem(i, id)}></i>
+            </span>
+          {/if}
+        {/each}
+        {#if editMode}
+          <span class="tag tag-form">
+            <TagForm on:newtag={e => tagItem(i, e.detail)} currentTags={item.tags}/>
+          </span>
+        {/if}
+      </div>
     {/if}
-    {#if editMode}
-      <span class="tag tag-form">
-        <TagForm on:newtag={e => tagItem(i, e.detail)} currentTags={item.tags}/>
-      </span>
-    {/if}
-    </div>
   </div>
   {/each}
   {#if editMode}
@@ -315,13 +315,13 @@
   }
 
   // Responsiveness
-  @media screen and (min-width: 960px) {
+  @media screen and (min-width: 850px) {
     .card {
       min-width: 800px;
       max-width: 1200px;
     }
   }
-  @media screen and (max-width: 960px) {
+  @media screen and (max-width: 850px) {
     .card {
       margin: 2rem;
     }
@@ -377,7 +377,7 @@
         margin-bottom: 0;
       }
       p {
-        margin: 0.3rem 0;
+        padding: 0.2rem 0;
       }
       // Hide empty descriptions
       p:empty {
@@ -395,10 +395,35 @@
     }
     // Scale icons on hover
     .icons {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      grid-template-rows: repeat(2, 1fr);
+      row-gap: 0.4rem;
+      column-gap: 0.25rem;
+      i.fa-times {
+        grid-column: 2;
+        grid-row: 1;
+      }
+      i.fa-grip-vertical {
+        grid-column: 2;
+        grid-row: 2;
+      }
+      i.fa-arrow-up {
+        grid-column: 1;
+        grid-row: 1;
+      }
+      i.fa-arrow-down {
+        grid-column: 1;
+        grid-row: 2;
+      }
       i:hover {
         transform: scale(1.25);
       }
     }
+  }
+  .row.highlighted {
+    border-left: var(--bold-blue) 2px solid;
+    border-right: var(--bold-blue) 2px solid;
   }
   .row-bottom {
     display: flex;
@@ -416,6 +441,7 @@
     flex-direction: row;
     flex-wrap: wrap;
     align-items: center;
+    border-top: dashed #aaa 1px;
   }
   .tag {
     max-width: 100%;
@@ -423,7 +449,9 @@
     border-radius: 0;
     font-size: small;
     margin-right: 0.25rem;
-    padding: 0 0.3rem;
+    padding: 0.3rem 0.5rem;
+    padding-top: 0.3rem;
+    margin-top: 0.2rem;
     display: inline-flex;
     flex-direction: row;
     align-items: center;

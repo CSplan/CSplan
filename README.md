@@ -10,7 +10,7 @@ Frontend for CSplan.
 - [x] Editing/view modes for lists
 
 - [x] Make default click behavior for lists going to the list page, only initiate drag and drop with dedicated side handle
-- [ ] Configure root div for list items as drag and drop receptacle (should not be contained within padded content area)
+- [x] Configure root div for list items as drag and drop receptacle (should not be contained within padded content area)
 
 - [ ] Advanced authkey + cryptokey configuration
 - [ ] Settings page

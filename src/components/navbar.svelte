@@ -49,7 +49,7 @@
 
 <style>
   :root {
-    --user-name-margin: 0.5rem;
+    --user-name-margin: 0.3rem;
   }
   /* Navbar styling */
   nav, .menu {
