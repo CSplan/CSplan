@@ -1,10 +1,3 @@
-<script lang="ts" context="module">
-  let form: HTMLFormElement
-  export function checkValidity(): boolean {
-    return form.checkValidity()
-  }
-</script>
-
 <script lang="ts">
   import { parseByteSize, formatByteSize } from '$lib/byte-size'
   import type { RegisterActions } from './actions'
@@ -18,7 +11,6 @@
     actions.hashParams.memoryCost = memoryCost / 1024 // argon2 expects memory cost in # of 1KiB pages
   }
   let memoryCostFormatted = formatByteSize(memoryCost)
-  export let show = false
 
   function setValidity(
     evt: Event & { currentTarget: EventTarget & HTMLInputElement },
@@ -59,7 +51,7 @@
   }
 </script>
 
-<form on:submit|preventDefault bind:this={form} class:hidden={!show}>
+<div>
   <header>Argon2i Parameters</header>
   <label for="time-cost">Time Cost:</label>
   <input
@@ -79,24 +71,17 @@
   />
   <button class="test">Test</button>
   <button class="autoconfig">Autoconfigure</button>
-</form>
+</div>
 
 <style lang="scss">
-  .hidden {
-    width: 0;
-    height: 0;
-    margin: 0;
-    padding: 0;
-  }
   header {
-    border-top: #aaa 1px solid;
     padding: 0.3rem 0 !important;
   }
   button {
     background: var(--background-dark);
   }
-  form {
-    margin-top: 0.8rem;
+  div {
+    margin: 0;
     * {
       margin: 0.3rem 0;
     }

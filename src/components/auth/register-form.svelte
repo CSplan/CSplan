@@ -5,11 +5,10 @@
   import { onMount, tick } from 'svelte'
   import { RegisterActions } from './actions'
   import { dev } from '$app/env'
-  import HashparamsForm, { checkValidity as checkHashParamValidity } from './hashparams-form.svelte'
+  import HashparamsForm from './hashparams-form.svelte'
 
   // Form data
   let showPassword = false
-  let showAdvanced = false
   let error = ''
   let stateMsg = ''
 
@@ -49,7 +48,8 @@
       confirmPassword.setCustomValidity('')
     }
 
-    if (!form.checkValidity() || !checkHashParamValidity()) {
+    if (!form.checkValidity()) {
+      form.reportValidity()
       return
     }
 
@@ -120,15 +120,14 @@
       <input type="checkbox" bind:checked={showPassword}>
       <span class="checkable">Show Password</span>
     </label>
-    <label>
-      <input type="checkbox" bind:checked={showAdvanced}>
-      <span class="checkable">Show Advanced Cryptography Options</span>
-    </label>
+    {#if state !== States.Loading} <!-- This isn't rendered until onMount has been run, because it expects actions to be initialized -->
+    <details>
+      <summary class="clickable"><i class="fas fa-chevron-right"></i>Advanced Cryptography Options</summary>
+      <HashparamsForm bind:actions={actions}/>
+    </details>
+    {/if}
     <input type="submit" value="Submit">
   </form>
-  {#if state === States.Resting} <!-- This isn't rendered until onMount has been run, because it expects actions to be initialized -->
-    <HashparamsForm bind:show={showAdvanced} bind:actions={actions}/>
-  {/if}
   <footer>
   {#if state === States.Submitting}
     <span>{stateMsg}</span>
@@ -168,6 +167,22 @@
         margin-top: 0;
       }
     }
+    // TODO: Find a way to handle hashparam form alignment that isn't completely insane
+    summary {
+      margin: 0;
+    }
+    details i {
+      padding-left: 0.1rem;
+      padding-right: 0.8rem; // This is em to match the alignment from picnic, ew
+      transition: transform 200ms;
+    }
+    details[open=""] summary {
+      border-bottom: 1px solid #aaa;
+      padding-bottom: 0.3rem;
+    }
+    details[open=""] i {
+      transform: rotate(90deg) translate(0.35rem, 0.2rem);
+    }
   }
   form {
     display: flex;
@@ -175,6 +190,9 @@
     label {
       display: block;
     }
+  }
+  input[type=submit] {
+    width: 100%;
   }
 
   /* Footer styles */
