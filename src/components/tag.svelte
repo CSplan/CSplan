@@ -73,7 +73,6 @@
     --min-handle: 3rem;
     font-size: 1.25rem;
     margin-bottom: 0;
-    width: 100%;
     display: grid;
     grid-auto-flow: column;
     grid-template-columns: minmax(var(--min-handle), 1fr) minmax(0, auto) 1fr;

@@ -9,6 +9,7 @@
 
   // Form data
   let showPassword = false
+  let showAdvanced = false
   let error = ''
   let stateMsg = ''
 
@@ -114,16 +115,16 @@
   <header>Register</header>
   <form bind:this={form} on:submit|preventDefault={register}>
     <input data-field="email" type="email" required autocomplete="email" placeholder="Email" bind:this={email}>
-    <input data-field="password" type={ showPassword ? 'text' : 'password'} required autocomplete="new-password" placeholder="Password" bind:this={password}>
+    <input id="password" data-field="password" type={ showPassword ? 'text' : 'password'} required autocomplete="new-password" placeholder="Password" bind:this={password}>
     <input data-field="confirmPassword" type={ showPassword ? 'text' : 'password'} required autocomplete="new-password" placeholder="Confirm Password" bind:this={confirmPassword}>
     <label>
       <input type="checkbox" bind:checked={showPassword}>
       <span class="checkable">Show Password</span>
     </label>
     {#if state !== States.Loading} <!-- This isn't rendered until onMount has been run, because it expects actions to be initialized -->
-    <details>
+    <details bind:open={showAdvanced}>
       <summary class="clickable"><i class="fas fa-chevron-right"></i>Advanced Cryptography Options</summary>
-      <HashparamsForm bind:actions={actions}/>
+      <HashparamsForm bind:actions={actions} on:close={() => showAdvanced = false}/>
     </details>
     {/if}
     <input type="submit" value="Submit">

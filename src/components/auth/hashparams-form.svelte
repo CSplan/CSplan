@@ -1,17 +1,24 @@
 <script lang="ts">
   import { parseByteSize, formatByteSize } from '$lib/byte-size'
   import type { RegisterActions } from './actions'
+  import { createEventDispatcher } from 'svelte'
+  
+  const dispatch = createEventDispatcher()
 
   export let actions: RegisterActions
 
   let timeCost = 1
   let memoryCost = 10 * 1024 * 1024
-  $: {
-    actions.hashParams.timeCost = timeCost
-    actions.hashParams.memoryCost = memoryCost / 1024 // argon2 expects memory cost in # of 1KiB pages
-  }
   let memoryCostFormatted = formatByteSize(memoryCost)
 
+  // Save the hashparams to the register actions instance
+  function save(): void {
+    actions.hashParams.timeCost = timeCost
+    actions.hashParams.memoryCost = memoryCost / 1024 // argon2 expects memory cost in # of 1KiB pages
+    dispatch('close')
+  }
+
+  // #region Form validation
   function setValidity(
     evt: Event & { currentTarget: EventTarget & HTMLInputElement },
     validity: string
@@ -26,7 +33,6 @@
     try {
       memoryCost = parseByteSize(memoryCostFormatted)
     } catch (err) {
-      // TODO: pass up error handling to register form
       setValidity(evt, err)
       return
     }
@@ -49,6 +55,7 @@
       setValidity(evt, '')
     }
   }
+  // #endregion
 </script>
 
 <div>
@@ -69,16 +76,13 @@
     bind:value={memoryCostFormatted}
     on:blur={parseMemoryCost}
   />
-  <button class="test">Test</button>
-  <button class="autoconfig">Autoconfigure</button>
+  <!-- Prevent default trigger of form submission when hashparams form is saved -->
+  <button on:click|preventDefault={save}>Save</button>
 </div>
 
 <style lang="scss">
   header {
     padding: 0.3rem 0 !important;
-  }
-  button {
-    background: var(--background-dark);
   }
   div {
     margin: 0;
@@ -91,11 +95,9 @@
     header,button {
       grid-column: 1 / span 2;
     }
-    button.test {
-      grid-column: 1;
-    }
-    button.autoconfig {
-      grid-column: 2;
+    button {
+      margin-bottom: 0;
+      background: var(--background-dark);
     }
     label {
       grid-column: 1;

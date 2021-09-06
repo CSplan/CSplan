@@ -1,7 +1,7 @@
 import { Argon2 } from '@very-amused/argon2-wasm'
 import { ED25519 } from '@very-amused/ed25519-wasm'
 import { Argon2HashParams } from '../crypto/argon2'
-import { encode, aes, rsa, Algorithms, decode } from 'cs-crypto'
+import { encode, aes, rsa, Algorithms, decode, makeSalt } from 'cs-crypto'
 import * as db from '../../db'
 import userStore from '../../stores/user'
 import type { UserStore } from '../../stores/user'
@@ -281,6 +281,12 @@ export class RegisterActions extends LoginActions {
     // The rest of the authentication flow is identical
     this.authenticate(user, true)
     return
+  }
+
+  async testHashParams(password: string): Promise<number> {
+    const start = performance.now()
+    await this.hashPassword(password, makeSalt(16)) // random salts are used for each run for security purposes
+    return performance.now() - start
   }
 
   /** 
