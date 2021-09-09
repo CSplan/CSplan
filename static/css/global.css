@@ -6,6 +6,11 @@
   --light-purple: #ae52d4;
 }
 
+/* Undo picnic making the default font size 110% */
+body {
+  font-size: 100% !important;
+}
+
 /* Custom button things */
 button.bold, .button, input[type="submit"] {
   background-color: var(--bold-blue);
