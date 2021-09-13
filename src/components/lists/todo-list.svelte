@@ -444,10 +444,7 @@
     flex-wrap: wrap;
     align-items: center;
     div.tags {
-      display: flex;
-      flex-direction: row;
-      flex-wrap: wrap;
-      align-items: center;
+      padding-top: 0.25rem;
       border-top: dashed #aaa 1px;
     }
   }
@@ -457,9 +454,11 @@
     border-radius: 0;
     font-size: small;
     margin-right: 0.25rem;
+    &:last-child {
+      margin-right: 0;
+    }
     padding: 0.3rem 0.5rem;
     padding-top: 0.3rem;
-    margin-top: 0.2rem;
     display: inline-flex;
     flex-direction: row;
     align-items: center;
