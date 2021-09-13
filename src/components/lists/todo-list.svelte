@@ -107,7 +107,7 @@
   // #endregion
 
   // #region Keyboard shortcuts
-  function onkeypress(evt: KeyboardEvent) {
+  function onkeypress(evt: KeyboardEvent): void {
     const shortcut = keyboardShortcuts[evt.key]
     if (shortcut) {
       if (shortcut.ignoreInForm && formElementIsFocused()) {
@@ -181,7 +181,7 @@
     highlightRow[index] = false
   }
 
-  async function moveItem(oldIndex: number, newIndex: number) {
+  async function moveItem(oldIndex: number, newIndex: number): Promise<void> {
     const item = list.items[oldIndex]
     list.items.splice(oldIndex, 1)
     list.items.splice(newIndex, 0, item)
@@ -245,7 +245,8 @@
     {/if}
 
     {#if item.tags.length > 0 || editMode}
-      <div class="tags">
+      <section class="tags">
+        <div class="tags">
         {#each item.tags as id (id)}
           {#if $tags[id]}
             <span class="tag" style="background-color: {$tags[id].color};">
@@ -254,12 +255,13 @@
             </span>
           {/if}
         {/each}
+        </div>
         {#if editMode}
           <span class="tag tag-form">
             <TagForm on:newtag={e => tagItem(i, e.detail)} currentTags={item.tags}/>
           </span>
         {/if}
-      </div>
+        </section>
     {/if}
   </div>
   {/each}
@@ -435,13 +437,19 @@
   // #endregion
 
   // #region Tags
-  .tags {
+  section.tags {
     grid-row: 2 / span 1;
     display: flex;
     flex-direction: row;
     flex-wrap: wrap;
     align-items: center;
-    border-top: dashed #aaa 1px;
+    div.tags {
+      display: flex;
+      flex-direction: row;
+      flex-wrap: wrap;
+      align-items: center;
+      border-top: dashed #aaa 1px;
+    }
   }
   .tag {
     max-width: 100%;
