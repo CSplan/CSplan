@@ -1,5 +1,5 @@
 <script>
-  import user from '../stores/user'
+  import user from '../../stores/user'
   import QuickActions from './quick-actions.svelte'
   const links = [
     {
@@ -37,6 +37,7 @@
   <div class="right">
     {#if $user.isLoggedIn}
       <span>{$user.user.email}</span>
+      <i class="fas fa-chevron-down clickable"></i>
       <!-- Quick actions dropdown -->
       <QuickActions/>
     {:else}
@@ -60,6 +61,9 @@
   nav {
     position: relative;
   }
+  i.fa-chevron-down {
+    margin: 0.5rem;
+  }
   /* Desktop styles */
   @media screen and (min-width: 960px) {
     .menu {
@@ -69,6 +73,9 @@
     }
     .menu .right {
       margin-left: auto;
+      display: flex;
+      flex-direction: row;
+      align-items: center;
     }
     /* Extra right margin for the user's name */
     .menu .right span {

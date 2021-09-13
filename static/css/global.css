@@ -1,15 +1,13 @@
 /* Custom color things */
 :root {
   --background-dark: #22223F;
+  --background-alt: #6d6dce;
   --bold-blue: rgb(0, 119, 255);
   --primary-purple: #7b1fa2;
   --light-purple: #ae52d4;
 }
 
 /* Undo picnic making the default font size 110% */
-body {
-  font-size: 100% !important;
-}
 
 /* Custom button things */
 button.bold, .button, input[type="submit"] {
@@ -106,6 +104,12 @@ label.overlay i.fa-times {
   top: 2rem;
   left: 2rem;
   color: white;
+}
+
+/* Border radius styles */
+.rounded-bl {
+  border-radius: 0;
+  border-bottom-left-radius: 0.25rem;
 }
 
 /* Global sizes */

@@ -1,6 +1,6 @@
 <script>
   /* eslint-disable */
-  import navbar from '../../components/navbar.svelte'
+  import Navbar from '../../components/navbar/navbar.svelte'
   import TitleView from '../../components/lists/title-view.svelte'
   import lists from '../../stores/lists'
   import { onMount } from 'svelte'
@@ -51,7 +51,7 @@
   }
 </script>
 
-<svelte:component this={navbar}></svelte:component>
+<Navbar/>
 
 <main class="container">
   <button class="bold" on:click={save}>

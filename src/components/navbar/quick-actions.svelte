@@ -1,38 +1,24 @@
-<script>
-  import user from '../stores/user'
-  let dropdown = false
-  function toggle() {
-    if (!dropdown) {
-      dropdown = true
-      // A small delay is needed to prevent the event from firing on the initial click
-      setTimeout(() => window.addEventListener('click', toggle), 10)
-    } else {
-      window.removeEventListener('click', toggle)
-      dropdown = false
-    }
-  }
+<script lang="ts">
+  import user from '../../stores/user'
 </script>
 
-<button class="transparent" on:click={toggle}>
-  <i class="fas fa-chevron-down"></i>
-  <div class={`dropdown ${dropdown ? 'show' : ''}`}>
-    <div class="buttons">
-      <a href="/settings">
-        <i class="fas fa-cog"/>
-        Settings
-      </a>
-      <button class="transparent" on:click={user.logout}>
-        Log Out
-      </button>
-    </div>
+<section class="dropdown rounded-bl">
+  <div class="buttons">
+    <a href="/settings">
+      <i class="fas fa-cog"/>
+      Settings
+    </a>
+    <button class="transparent" on:click={user.logout}>
+      Log Out
+    </button>
   </div>
-</button>
+</section>
 
-<style>
+<style lang="scss">
   button.transparent {
     padding: 0.3rem 0.5rem;
   }
-  @media screen and (max-width: 960px) {
+  @media screen and (max-width: 850px) {
     button.transparent {
       padding: 0;
       width: 90%;
@@ -52,17 +38,20 @@
   button {
     position: relative;
   }
-  div.dropdown {
-    display: none;
-    background: var(--background-dark);
-    padding: 0.25rem;
+  .dropdown {
+    background: var(--background-alt);
+    padding: 0.8rem;
     position: absolute;
-    top: 100%;
-    right: 0;
-    border: 2px solid #aaa;
+    top: calc(100% + 2px);
+    right: 0%;
+    border-top: 1px #aaa solid;
+    border-right: 1px #aaa solid;
+    font-size: 1.1rem;
   }
-  .dropdown.show {
-    display: block;
+  @media screen and (min-width: 850px) {
+    .dropdown {
+      min-width: 225px;
+    }
   }
   .dropdown .buttons {
     display: flex;

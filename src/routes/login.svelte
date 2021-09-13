@@ -1,5 +1,5 @@
 <script lang="ts">
-  import navbar from '../components/navbar.svelte'
+  import navbar from '../components/navbar/navbar.svelte'
   import LoginForm from '../components/auth/login-form.svelte'
 
 </script>

@@ -2,7 +2,7 @@
 <script>
   import { onMount } from 'svelte'
   import { dev } from '$app/env'
-  import Navbar from '../../components/navbar.svelte'
+  import Navbar from '../../components/navbar/navbar.svelte'
 
   onMount(async () => {
     if (!dev) {

@@ -10,7 +10,7 @@
 
 <script>
   import TodoList from '../../components/lists/todo-list.svelte'
-  import Navbar from '../../components/navbar.svelte'
+  import Navbar from '../../components/navbar/navbar.svelte'
 
   export let id
 </script>
