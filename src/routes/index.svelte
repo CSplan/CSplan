@@ -1,8 +1,3 @@
-<script>
-import navbar from '../components/navbar.svelte'
-</script>
-
-<svelte:component this={navbar}></svelte:component>
 <main class="container">
   <section class="title-card">
     <h1>CSplan</h1>

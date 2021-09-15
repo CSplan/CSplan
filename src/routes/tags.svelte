@@ -2,7 +2,6 @@
   import Tag from '../components/tag.svelte'
   import Modal, { toggleTagModal } from '../components/create-tag-modal.svelte'
   import { onMount } from 'svelte'
-  import Navbar from '../components/navbar/navbar.svelte'
   import { ordered, tags } from '../stores/tags'
   import Loading from '../components/loading.svelte'
 
@@ -25,8 +24,6 @@
     state = states.resting
   })
 </script>
-
-<Navbar/>
 
 <Modal/>
 

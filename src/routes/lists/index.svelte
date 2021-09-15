@@ -1,9 +1,10 @@
 <script>
   /* eslint-disable */
-  import Navbar from '../../components/navbar/navbar.svelte'
   import TitleView from '../../components/lists/title-view.svelte'
   import lists from '../../stores/lists'
   import { onMount } from 'svelte'
+
+  // FIXME: this entire route is pretty bad
 
   // Notify reactive assignments when the DOM is mounted
   let isMounted = false
@@ -50,8 +51,6 @@
     break
   }
 </script>
-
-<Navbar/>
 
 <main class="container">
   <button class="bold" on:click={save}>

@@ -1,11 +1,8 @@
 <script lang="ts">
-  import Navbar from '../components/navbar/navbar.svelte'
-
   export let error = new Error('an unknown error has occured')
   export let status: number|undefined
 </script>
 
-<Navbar/>
 <main>
   <h1>{error.message}</h1>
   {#if status}

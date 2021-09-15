@@ -1,8 +1,6 @@
-
 <script>
   import { onMount } from 'svelte'
   import { dev } from '$app/env'
-  import Navbar from '../../components/navbar/navbar.svelte'
 
   onMount(async () => {
     if (!dev) {
@@ -17,7 +15,6 @@
   let content = ''
 </script>
 
-<Navbar/>
 <!-- Import marked from cdn -->
 <svelte:head>
   <script src="https://unpkg.com/marked@1.2.0/lib/marked.js"></script>

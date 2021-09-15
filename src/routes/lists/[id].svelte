@@ -10,12 +10,9 @@
 
 <script>
   import TodoList from '../../components/lists/todo-list.svelte'
-  import Navbar from '../../components/navbar/navbar.svelte'
 
   export let id
 </script>
-
-<Navbar/>
 
 <a class="back-button" href="/lists" sveltekit:prefetch>
   <i class="fas fa-arrow-left"></i>
