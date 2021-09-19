@@ -93,6 +93,7 @@
     white-space: nowrap;
     width: 100%;
     color: white;
+    text-align: center;
   }
   .buttons>*:not(:last-child) {
     margin-bottom: 0;
@@ -108,7 +109,7 @@
   }
   .buttons>*:hover>i.fa-cog {
     animation-name: spin;
-    animation-duration: 1.5s;
+    animation-duration: 3s;
     animation-iteration-count: infinite;
     animation-timing-function: linear;
   }
