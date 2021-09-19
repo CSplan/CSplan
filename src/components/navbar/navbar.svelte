@@ -1,4 +1,4 @@
-<script>
+<script lang="ts">
   import user from '../../stores/user'
   import QuickActions from './quick-actions.svelte'
   const links = [
@@ -37,7 +37,6 @@
   <div class="right">
     {#if $user.isLoggedIn}
       <span>{$user.user.email}</span>
-      <i class="fas fa-chevron-down clickable"></i>
       <!-- Quick actions dropdown -->
       <QuickActions/>
     {:else}
@@ -48,7 +47,7 @@
   </div>
 </nav>
 
-<style>
+<style lang="scss">
   :root {
     --user-name-margin: 0.3rem;
   }
@@ -61,15 +60,13 @@
   nav {
     position: relative;
   }
-  i.fa-chevron-down {
-    margin: 0.5rem;
-  }
   /* Desktop styles */
   @media screen and (min-width: 960px) {
     .menu {
       display: flex;
       flex-direction: row;
       width: 100%;
+      padding: 0 1rem;
     }
     .menu .right {
       margin-left: auto;
@@ -114,4 +111,5 @@
   .login {
     background: var(--light-purple)
   }
+
 </style>

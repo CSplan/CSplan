@@ -1,23 +1,51 @@
 <script lang="ts">
   import user from '../../stores/user'
+  import { fly } from 'svelte/transition'
+
+  let show = false
+  function toggle(): void {
+    show = !show
+  }
 </script>
 
-<section class="dropdown rounded-bl">
-  <div class="buttons">
-    <a href="/settings">
-      <i class="fas fa-cog"/>
-      Settings
-    </a>
-    <button class="transparent" on:click={user.logout}>
-      Log Out
-    </button>
-  </div>
-</section>
+<svelte:body on:click={() => show = false}/>
+
+<div class="container" on:click|stopPropagation>
+  <i class="fas fa-chevron-down clickable quick-actions-toggle" on:click={toggle} class:open={show}/>
+
+  {#if show}
+    <section class="dropdown" transition:fly={{ duration: 200, y: -10 }}>
+      <div class="buttons">
+        <a href="/settings">
+          <i class="fas fa-cog"/>
+          Settings
+        </a>
+        <button class="transparent" on:click={user.logout}>
+          Log Out
+        </button>
+      </div>
+    </section>
+  {/if}
+</div>
 
 <style lang="scss">
+  div.container {
+    position: relative;
+  }
   button.transparent {
     padding: 0.3rem 0.5rem;
   }
+  /* Quick actions icon rotates when clicked */
+  i.quick-actions-toggle {
+    margin-left: 1rem;
+    transition: transform 0.2s;
+    transform: rotate(-180deg);
+
+    &.open {
+      transform: none;
+    }
+  }
+
   @media screen and (max-width: 850px) {
     button.transparent {
       padding: 0;
@@ -42,11 +70,11 @@
     background: var(--background-alt);
     padding: 0.8rem;
     position: absolute;
-    top: calc(100% + 2px);
+    top: 3rem;
     right: 0%;
-    border-top: 1px #aaa solid;
-    border-right: 1px #aaa solid;
+    border-radius: 0.2rem;
     font-size: 1.1rem;
+    box-shadow: 0.5rem 0.3rem 1.25rem var(--background-dark);
   }
   @media screen and (min-width: 850px) {
     .dropdown {
