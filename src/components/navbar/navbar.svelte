@@ -27,6 +27,9 @@
   </label>
   
   <div class="menu">
+  {#if $user.isLoggedIn}
+    <span class="account-text-mobile">{$user.user.email}</span>
+  {/if}
   {#each links as link}
     {#if link.needsLogin && $user.isLoggedIn}
       <a class="pseudo button" sveltekit:prefetch href={link.href}>{link.title}</a>
@@ -49,7 +52,7 @@
 
 <style lang="scss">
   :root {
-    --user-name-margin: 0.3rem;
+    --user-name-margin: 1rem;
   }
   /* Navbar styling */
   nav, .menu {
@@ -61,7 +64,7 @@
     position: relative;
   }
   /* Desktop styles */
-  @media screen and (min-width: 960px) {
+  @media screen and (min-width: 850px) {
     .menu {
       display: flex;
       flex-direction: row;
@@ -74,19 +77,29 @@
       flex-direction: row;
       align-items: center;
     }
+    .account-text-mobile {
+      display: none;
+    }
     /* Extra right margin for the user's name */
     .menu .right span {
       margin-right: var(--user-name-margin);
     }
   }
   /* Mobile styles */
-  @media screen and (max-width: 960px) {
+  @media screen and (max-width: 850px) {
     .menu {
       display: flex;
       flex-direction: column;
       background: #333;
       width: 100%;
       padding: 1rem;
+
+      >a {
+        border-radius: 0;
+      }
+      >a:not(:last-child) {
+        border-left: 1px white solid;
+      }
     }
     .menu .right {
       width: 100%;
@@ -95,13 +108,22 @@
       text-align: center; /* Show the user's name/email in the center of the menu without enabling full center alignment */
     }
     /* Extra bottom margin for the user's name */
+    .account-text-mobile {
+      padding: 0.3rem 0.9rem;
+      margin-left: 0;
+      margin-right: 0;
+      border-bottom: 1px white solid;
+    }
     .menu .right span {
-      margin-bottom: var(--user-name-margin);
+      display: none;
     }
   }
-  /* Tighter item spacing */
+  /* Item item spacing */
   a {
-    margin-right: 0;
+    margin: 0 0.3rem;
+  }
+  .menu > a {
+    margin: 0.3rem 0;
   }
 
   /* Register and login buttons get special colors */

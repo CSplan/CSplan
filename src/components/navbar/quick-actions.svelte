@@ -13,8 +13,8 @@
 <div class="container" on:click|stopPropagation>
   <i class="fas fa-chevron-down clickable quick-actions-toggle" on:click={toggle} class:open={show}/>
 
-  {#if show}
-    <section class="dropdown" transition:fly={{ duration: 200, y: -10 }}>
+  {#key show}
+    <section class="dropdown" class:desktop-show={show} transition:fly={{ duration: 200, y: -10 }}>
       <div class="buttons">
         <a href="/settings">
           <i class="fas fa-cog"/>
@@ -25,15 +25,12 @@
         </button>
       </div>
     </section>
-  {/if}
+  {/key}
 </div>
 
 <style lang="scss">
   div.container {
     position: relative;
-  }
-  button.transparent {
-    padding: 0.3rem 0.5rem;
   }
   /* Quick actions icon rotates when clicked */
   i.quick-actions-toggle {
@@ -47,20 +44,23 @@
   }
 
   @media screen and (max-width: 850px) {
-    button.transparent {
-      padding: 0;
-      width: 90%;
-      margin: 0 auto;
+    // TODO: quickactions padding on mobile should be handled without breaking scope rules
+    .dropdown {
+      padding-top: 0 !important;
+      padding-bottom: 0 !important;
     }
-    i {
+    .container>i {
       display: none;
     }
-    .dropdown {
-      display: block !important;
-      position: static !important;
-      top: initial;
-      border: 2px red solid;
-      border-radius: inherit;
+    .buttons>* {
+      padding-top: 0.8rem !important;
+      padding-bottom: 0.8rem !important;
+      margin: 0;
+      border-radius: 0;
+      border-bottom: 1px white solid;
+      &:last-child {
+        border-bottom: none;
+      }
     }
   }
   button {
@@ -69,16 +69,24 @@
   .dropdown {
     background: var(--background-alt);
     padding: 0.8rem;
-    position: absolute;
-    top: 3rem;
-    right: 0%;
     border-radius: 0.2rem;
     font-size: 1.1rem;
     box-shadow: 0.5rem 0.3rem 1.25rem var(--background-dark);
   }
   @media screen and (min-width: 850px) {
+    .dropdown:not(.desktop-show) {
+      display: none;
+    }
     .dropdown {
       min-width: 225px;
+      position: absolute;
+      top: 3rem;
+      right: 0%;
+    }
+    .buttons>* {
+      margin: 0.3rem 0;
+      padding: 0.3rem 0.9rem;
+      border-radius: 0.3rem;
     }
   }
   .dropdown .buttons {
@@ -87,9 +95,7 @@
     align-items: center;
   }
   .buttons>* {
-    padding: 0.3rem 0.9rem;
-    margin: 0.3rem 0;
-    border-radius: 0.3rem;
+    padding: 0.3rem 0.5rem;
     white-space: nowrap;
     width: 100%;
     color: white;

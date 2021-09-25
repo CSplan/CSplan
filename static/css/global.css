@@ -40,7 +40,7 @@ main.container {
   align-items: center;
   position: relative;
 }
-@media screen and (max-width: 1199px) {
+@media screen and (max-width: 850px) {
   main.container {
     padding-left: 2rem;
     padding-right: 2rem;
@@ -110,6 +110,11 @@ label.overlay i.fa-times {
 .rounded-bl {
   border-radius: 0;
   border-bottom-left-radius: 0.25rem;
+}
+
+/* Transition properties */
+:root {
+  --cubic-out: cubic-bezier(.22,.61,.36,1);
 }
 
 /* Global sizes */
