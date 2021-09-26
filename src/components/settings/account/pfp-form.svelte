@@ -34,18 +34,22 @@
       h = img.height,
       offsetX = 0,
       offsetY = 0
+
     const scale = canvasW / Math.min(w, h)
     if (w > h) {
-      offsetX = scale * ((w - h) / 2)
+      offsetX = (w - h) / 2
     } else if (h > w) {
-      offsetY = scale * ((h - w) / 2)
+      offsetY = (h - w) / 2
     }
-    w *= scale
-    h *= scale
-
 
     const ctx = displayCanvas.getContext('2d')!
-    ctx.drawImage(img, -offsetX, -offsetY, w, h)
+
+    // Create a circular clipping region before drawing the image
+    ctx.moveTo(canvasW / 2, 0)
+    ctx.beginPath()
+    ctx.arc(canvasW / 2, canvasW / 2, canvasW / 2, 0, 2*Math.PI)
+    ctx.clip()
+    ctx.drawImage(img, -offsetX * scale, -offsetY * scale, w * scale, h * scale)
 
     // Free the object URL when the image is not being used anymore
     URL.revokeObjectURL(img.src)
