@@ -1,17 +1,39 @@
-<script>
+<script lang="ts">
   import user from '../../stores/user'
+  import { tick } from 'svelte'
+
+  let files: FileList
+  let display: HTMLImageElement
+  let hasImage = false
+
+  async function onImageLoad(): Promise<void> {
+    const file = files[0]
+
+    const url = URL.createObjectURL(file)
+    // Display the profile picture
+    hasImage = true
+    await tick()
+    display.src = url
+  }
 </script>
 
 <section class="account-menu">
   <article class="submenu account-card">
     <div class="user-picture">
-      <i class="fas fa-user-circle"></i>
+      {#if hasImage}
+        <!-- svelte-ignore a11y-img-redundant-alt -->
+        <img class="profile-picture" alt="User Profile Picture" bind:this={display}>
+      {:else}
+        <i class="fas fa-user-circle"></i>
+      {/if}
       <form class="pfp-form" on:submit|preventDefault>
         <label for="pfp">
           <i class="fas fa-upload"></i>
           <span>Upload</span>
         </label>
-        <input type="file" id="pfp" accept="image/png, image/jpeg">
+        <input type="file" id="pfp" accept="image/png, image/jpeg" bind:files={files} on:change={onImageLoad}>
+
+        <input type="submit" value="Save">
       </form>
     </div>
     <form class="user-details" on:submit|preventDefault>
@@ -45,7 +67,7 @@
   }
   .account-card {
     display: grid;
-    grid-template-columns: min-content 1fr;
+    grid-template-columns: minmax(min-content, 250px) 1fr;
     grid-template-rows: max-content;
     color: #111;
     >* {
@@ -63,6 +85,10 @@
       >i.fa-user-circle {
         font-size: 8.5rem;
       }
+
+      img.profile-picture {
+        width: 100%;
+      }
     }
 
     form.pfp-form {
@@ -78,6 +104,9 @@
         &:hover {
           box-shadow: inset 0 0 0 99em rgba(255,255,255,0.2);
         }
+      }
+      input {
+        width: 100%;
       }
       input[type="file"] {
         display: none;
