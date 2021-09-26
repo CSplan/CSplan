@@ -29,6 +29,9 @@ button.transparent {
 .hidden {
   visibility: hidden;
 }
+.d-none {
+  display: none !important;
+}
 
 /* Give the correct pointer effect for a clickable item */
 .clickable {

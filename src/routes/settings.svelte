@@ -1,6 +1,6 @@
 <script>
   import SideMenu from '../components/settings/side-menu.svelte'
-  import Account from '../components/settings/account.svelte'
+  import Account from '../components/settings/account/account.svelte'
 
   let menuComponent = Account
 </script>
