@@ -13,6 +13,7 @@ Frontend for CSplan.
 - [x] Configure root div for list items as drag and drop receptacle (should not be contained within padded content area)
 
 - [x] Advanced authkey + cryptokey configuration
+- [x] Navigation bar
 - [ ] Settings page
 - [ ] Homepage
 - [ ] Info pages
