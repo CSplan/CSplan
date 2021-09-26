@@ -36,7 +36,7 @@
   }
 
   .current-menu { 
-    grid-column: 2/ span 1;
+    grid-column: 2 / span 1;
     grid-row: 1 / span 2;
   }
 </style>
