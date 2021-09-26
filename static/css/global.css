@@ -5,6 +5,7 @@
   --bold-blue: rgb(0, 119, 255);
   --primary-purple: #7b1fa2;
   --light-purple: #ae52d4;
+  --danger-red: #ff4d4d;
 }
 
 /* Undo picnic making the default font size 110% */
@@ -87,7 +88,6 @@ main.container.vcenter {
 }
 [contenteditable]:empty:not(.no-empty-effect):not(:focus) {
   border-bottom: #22222F 2px solid !important;
-  width: 1rem;
   animation: pulse linear 1.5s infinite;
 }
 [contenteditable]:empty:not(.no-empty-effect):not(:focus)::before {

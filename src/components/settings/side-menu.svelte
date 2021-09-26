@@ -3,7 +3,11 @@
 </script>
 
 <div class="side-menu">
-  <MenuGroup/>
+  <MenuGroup title="Account" icon="fas fa-user"/>
+  <MenuGroup title="2FA" icon="fas fa-mobile"/>
+  <MenuGroup title="Keys & Backup" icon="fas fa-key"/>
+  <MenuGroup title="Sessions" icon="fas fa-desktop"/>
+  <MenuGroup title="Delete Account" icon="fas fa-exclamation-circle" color="var(--danger-red)"/>
 </div>
 
 <style lang="scss">
@@ -12,9 +16,11 @@
     display: flex;
     flex-direction: column;
     align-items: center;
+    padding: 0.8rem;
     border-radius: 0.2rem;
+    font-size: 1.1rem;
+    box-shadow: 0.5rem 0.3rem 1.25rem var(--background-dark);
   }
-
 
   // Desktop styles
   @media screen and (min-width: 850px) {
