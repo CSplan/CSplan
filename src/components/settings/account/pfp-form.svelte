@@ -1,17 +1,54 @@
 <script lang="ts">
+  import { tick } from 'svelte'
+
   let files: FileList
-  let display: HTMLImageElement
+  let displayCanvas: HTMLCanvasElement
 
   // Button/placeholder visibility
   let hasUpload = false
 
-  function onImageLoad(): void {
+  async function onImageLoad(): Promise<void> {
     const file = files[0]
 
-    const url = URL.createObjectURL(file)
     // Display the profile picture
     hasUpload = true
-    display.src = url
+    await tick()
+
+    // Initialize canvas
+    const rect = displayCanvas.getBoundingClientRect()
+    const canvasW = rect.width
+    displayCanvas.width = canvasW
+    displayCanvas.height = canvasW
+
+    // Load file as raw image
+    const img = new Image()
+    img.src = URL.createObjectURL(file)
+    // Wait for the image to load
+    await new Promise<void>((resolve, reject) => {
+      img.onload = () => resolve()
+      img.onabort = () => reject()
+    })
+
+    // Crop the image to a square from the center
+    let w = img.width,
+      h = img.height,
+      offsetX = 0,
+      offsetY = 0
+    const scale = canvasW / Math.min(w, h)
+    if (w > h) {
+      offsetX = scale * ((w - h) / 2)
+    } else if (h > w) {
+      offsetY = scale * ((h - w) / 2)
+    }
+    w *= scale
+    h *= scale
+
+
+    const ctx = displayCanvas.getContext('2d')!
+    ctx.drawImage(img, -offsetX, -offsetY, w, h)
+
+    // Free the object URL when the image is not being used anymore
+    URL.revokeObjectURL(img.src)
   }
 </script>
 
@@ -20,7 +57,7 @@
     <i class="fas fa-user-circle"></i>
   {/if}
   <!-- svelte-ignore a11y-img-redundant-alt -->
-  <img class="profile-picture" class:d-none={!hasUpload} alt="User Profile Picture" bind:this={display}>
+  <canvas id="pfp-display" class:d-none={!hasUpload} alt="User Profile Picture" bind:this={displayCanvas}></canvas>
 
   <form class="pfp-form" on:submit|preventDefault>
     <label for="pfp">
@@ -49,7 +86,7 @@
       font-size: 8.5rem;
     }
 
-    img.profile-picture {
+    canvas {
       width: 100%;
     }
   }
