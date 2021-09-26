@@ -1,11 +1,18 @@
 <script lang="ts">
   import { tick } from 'svelte'
+  import { aes, rsa, makeSalt, ABconcat } from 'cs-crypto'
+  import user from '../../../stores/user'
+  import { mustGetByKey } from '../../../db'
+  import { route } from '../../../core'
 
   let files: FileList
   let displayCanvas: HTMLCanvasElement
 
   // Button/placeholder visibility
   let hasUpload = false
+
+  // Figures used for centering and cropping
+  let croppedImage: Blob
 
   async function onImageLoad(): Promise<void> {
     const file = files[0]
@@ -35,14 +42,15 @@
       offsetX = 0,
       offsetY = 0
 
-    const scale = canvasW / Math.min(w, h)
+    const sideLength = Math.min(w, h)
+    const scale = canvasW / sideLength
     if (w > h) {
       offsetX = (w - h) / 2
     } else if (h > w) {
       offsetY = (h - w) / 2
     }
 
-    const ctx = displayCanvas.getContext('2d')!
+    let ctx = displayCanvas.getContext('2d')!
 
     // Create a circular clipping region before drawing the image
     ctx.moveTo(canvasW / 2, 0)
@@ -53,6 +61,77 @@
 
     // Free the object URL when the image is not being used anymore
     URL.revokeObjectURL(img.src)
+
+    // Create a 512x512 final crop of the image, ready to be encrypted and sent to the API
+    croppedImage = await finalCrop(img, { sideLength, offsetX, offsetY, w, h })
+  }
+
+  // Crop an image to 512x512 and return a png-encoded blob
+  async function finalCrop(img: HTMLImageElement, { sideLength, offsetX, offsetY, w, h }: {
+    sideLength: number
+    offsetX: number
+    offsetY: number
+    w: number
+    h: number
+  }): Promise<Blob> {
+    // Use an invisible canvas to create a scaled and centered version of the image
+    const canvas = document.createElement('canvas')
+    canvas.width = 512
+    canvas.height = 512
+    const scale = 512 / sideLength
+    const ctx = canvas.getContext('2d')!
+    ctx.drawImage(img, -offsetX * scale, -offsetY * scale, w * scale, h * scale)
+
+
+    return new Promise<Blob>((resolve, reject) => {
+      canvas.toBlob((blob) => {
+        if (blob === null) {
+          reject()
+        }
+        resolve(blob!)
+      }, 'image/png')
+    })
+
+  }
+
+  async function onSubmit(): Promise<void> {
+    // Encrypt the cropped profile picture
+    const cryptoKey = await aes.generateKey('AES-GCM')
+    const iv = makeSalt(12)
+    const encrypted = ABconcat(iv,
+      await crypto.subtle.encrypt(
+        {
+          name: 'AES-GCM',
+          iv
+        },
+        cryptoKey,
+        await croppedImage.arrayBuffer()
+      )
+    )
+
+    // Encrypt encoding for storage alongside the image
+    const encryptedEncoding = await aes.encrypt('image/png', cryptoKey)
+    const { publicKey } = await <MasterKeys>mustGetByKey('keys', $user.user.id)
+    const wrappedKey = await rsa.wrapKey(cryptoKey, publicKey)
+    
+    const meta = {
+      cryptoKey: wrappedKey,
+      encoding: encryptedEncoding
+    }
+
+    // Send the image for storage, alongside appropriate metadata
+    const res = await fetch(route('/profile_picture'), {
+      method: 'POST',
+      body: encrypted,
+      headers: {
+        'CSRF-Token': localStorage.getItem('CSRF-Token')!,
+        'Content-Type': 'application/octet-stream',
+        'X-Image-Meta': JSON.stringify(meta)
+      }
+    })
+
+    console.log(res.status)
+    console.log(res)
   }
 </script>
 
@@ -63,7 +142,7 @@
   <!-- svelte-ignore a11y-img-redundant-alt -->
   <canvas id="pfp-display" class:d-none={!hasUpload} alt="User Profile Picture" bind:this={displayCanvas}></canvas>
 
-  <form class="pfp-form" on:submit|preventDefault>
+  <form class="pfp-form" on:submit|preventDefault={onSubmit}>
     <label for="pfp">
       <i class="fas fa-upload"></i>
       <span>Select</span>
