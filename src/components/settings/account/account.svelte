@@ -1,6 +1,11 @@
 <script lang="ts">
   import user from '../../../stores/user'
   import ProfilePictureForm from './pfp-form.svelte'
+
+  async function copyValue(evt: MouseEvent & { currentTarget: HTMLInputElement }): Promise<void> {
+    console.log(evt.currentTarget.value)
+    navigator.clipboard.writeText(evt.currentTarget.value)
+  }
 </script>
 
 <section class="account-menu">
@@ -10,12 +15,17 @@
     
     <form class="user-details" on:submit|preventDefault>
 
+      <label for="username">Username</label>
+      <input id="username" type="text" placeholder="None" disabled>
+
       <label for="email">Email</label>
-      <input type="email" name="email" value={$user.user.email} disabled>
+      <input id="email" type="email" value={$user.user.email} disabled>
 
       <label for="password">Password</label>
-      <input type="password" name="password" placeholder={'*'.repeat(30)} disabled title="CSplan does not support changing passwords yet, but this feature is coming soon.">
+      <input id="password" type="password" placeholder={'*'.repeat(30)} disabled title="CSplan does not support changing passwords yet, but this feature is coming soon.">
 
+      <label for="account-id">Account ID</label>
+      <input class="clickable" id="account-id" type="text" readonly value={$user.user.id} on:click={copyValue}>
 
     </form>
   </article>

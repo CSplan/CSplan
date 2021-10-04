@@ -2,6 +2,7 @@
   import { onMount, tick } from 'svelte'
   import { userPFP } from '../../../stores/user-profile-picture'
   import { formatError } from '$lib/error-format'
+  import Spinner from '../../spinner.svelte'
 
   let files: FileList
   let displayCanvas: HTMLCanvasElement
@@ -11,7 +12,8 @@
     Loading,
     Resting,
     Errored,
-    Saving
+    Saving,
+    Saved
   }
   let isEmpty = true
   let hasUpload = false
@@ -27,7 +29,7 @@
     h: number
   }
 
-  let croppedImage: Blob
+  let croppedImage: Blob|undefined
   // Draw a preview of an image uploaded to the form and prepare a final crop to send to the API
   async function onImageLoad(): Promise<void> {
     const file = files[0]
@@ -93,8 +95,15 @@
   }
 
   async function onSubmit(): Promise<void> {
+    if (state !== States.Resting && state !== States.Errored) {
+      return
+    } 
+    state = States.Saving
     try {
-      await userPFP.create(croppedImage)
+      await userPFP.create(croppedImage!)
+      await new Promise((resolve) => {
+        setTimeout(resolve, 5000)
+      })
     } catch (err) {
       state = States.Errored
       if (err instanceof Error) {
@@ -103,7 +112,16 @@
         errorMsg = err as string
       }
       drawBorder(getComputedStyle(displayCanvas).getPropertyValue('--danger-red'))
+      return
     }
+    state = States.Saved
+    setTimeout(() => {
+      state = States.Resting
+      setTimeout(() => {
+        hasUpload = false
+        croppedImage = undefined
+      }, 350)
+    }, 350)
   }
 
   onMount(async () => {
@@ -197,11 +215,19 @@
   <form class="pfp-form" on:submit|preventDefault={onSubmit}>
     <label for="pfp">
       <i class="fas fa-upload"></i>
-      <span class="error">Select</span>
+      <span>Select</span>
     </label>
     <input type="file" id="pfp" accept="image/png, image/jpeg" bind:files={files} on:change={onImageLoad}>
 
-    <input type="submit" class:d-none={!hasUpload} value="Save">
+    <input type="submit"
+      id="pfp-submit"
+      class:d-none={!hasUpload}
+      disabled={state === States.Saving}
+      class:saved={state === States.Saved}
+      value="Save">
+    {#if state === States.Saving}
+      <Spinner size="2.5rem" vm="0.5rem" message="Uploading"/>
+    {/if}
   </form>
 </div>
 
@@ -255,5 +281,17 @@
     input[type="file"] {
       display: none;
     }
+    input[type="submit"] {
+      background: var(--bold-blue);
+      &.saved {
+        transition: background-color 200ms var(--cubic-out);
+        background: rgb(0, 163, 87);
+      }
+    }
+  }
+
+  p.upload-message {
+    margin-bottom: 0.5rem;
+    margin-top: 0rem;
   }
 </style>

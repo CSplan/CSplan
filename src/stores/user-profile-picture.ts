@@ -99,8 +99,10 @@ function create(): Readable<UserPFP> & BasicStore<Blob> {
       }
 
       // Store the encrypted data with the backend
+      const isUpdate = get(this).exists // Whether to treat the HTTP request as an update (PUT) or create (POST) operation 
+      const expectedStatus = isUpdate ? 200 : 201
       const res = await fetch(route('/profile_picture'), {
-        method: 'POST',
+        method: get(this).exists ? 'PUT' : 'POST',
         headers: {
           'CSRF-Token': localStorage.getItem('CSRF-Token')!,
           'Content-Type': 'application/octet-stream',
@@ -108,7 +110,7 @@ function create(): Readable<UserPFP> & BasicStore<Blob> {
         },
         body: encrypted.buffer
       })
-      if (res.status !== 201) {
+      if (res.status !== expectedStatus) {
         if (res.status === 409) {
           throw new Error('a user profile picture has already been created')
         }

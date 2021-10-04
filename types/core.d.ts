@@ -35,5 +35,5 @@ declare type SMSXStore<R extends KeyedObject, D extends unknown> = {
 
 declare type BasicStore<D extends unknown> = {
   async init(): Promise<void>
-  async create(data: D): Promise<void>
+  async create(data: D, isUpdate?: boolean): Promise<void>
 }
