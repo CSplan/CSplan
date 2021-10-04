@@ -20,7 +20,7 @@
     "@typescript-eslint/parser": "^4.29.2",
     "@very-amused/argon2-wasm": "^0.2.2-rc1.patch2",
     "@very-amused/ed25519-wasm": "https://github.com/very-amused/ed25519-wasm",
-    "cs-crypto": "^0.7.2-rc3",
+    "cs-crypto": "^0.7.3",
     "marked": "^2.0.1",
     "sass": "^1.38.2",
     "tslib": "^2.3.1",

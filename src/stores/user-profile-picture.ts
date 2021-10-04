@@ -1,4 +1,4 @@
-import { aes, rsa, makeSalt, ABconcat } from 'cs-crypto'
+import { aes, rsa } from 'cs-crypto'
 import { BaseStore } from './_store'
 import userStore from './user'
 import { get } from 'svelte/store'
@@ -66,20 +66,8 @@ class UserPFPStore extends BaseStore<UserPFP> {
     const encoding = await aes.decrypt(meta.encoding, key)
 
     // Decrypt and decode the image itself
-    const body = await res.arrayBuffer()
-    const iv = body.slice(0, 12)
-    const encrypted = body.slice(12)
-    const rawImage: ArrayBuffer = await crypto.subtle.decrypt(
-      {
-        name: 'AES-GCM',
-        iv
-      },
-      key,
-      encrypted
-    )
-    const image = new Blob([rawImage], {
-      type: encoding
-    })
+    const encrypted = new Uint8Array(await res.arrayBuffer())
+    const image = await aes.blobDecrypt(encrypted, key, encoding)
 
     // Update local state and cache
     this.update((store) => {
@@ -102,15 +90,7 @@ class UserPFPStore extends BaseStore<UserPFP> {
     // FIXME: add encryption and decryption of array buffers/blobs to cs-crypto
     const key = await aes.generateKey('AES-GCM')
     const { user } = get(userStore)
-    const iv = makeSalt(12)
-    const encrypted = ABconcat(iv, await crypto.subtle.encrypt(
-      {
-        name: 'AES-GCM',
-        iv
-      },
-      key,
-      await image.arrayBuffer()
-    ))
+    const encrypted = await aes.ABencrypt(await image.arrayBuffer(), key)
 
     // Wrap the cryptokey and encrypt image encoding info
     const { publicKey } = await mustGetByKey<MasterKeys>('keys', user.id)
