@@ -36,11 +36,6 @@
     isEmpty = false
     await tick()
 
-    // Initialize canvas
-    const rect = displayCanvas.getBoundingClientRect()
-    const canvasW = rect.width
-    displayCanvas.width = canvasW
-    displayCanvas.height = canvasW
 
     // Load file as raw image
     const img = new Image()
@@ -112,10 +107,44 @@
   }
 
   onMount(async () => {
+    try {
+      await userPFP.init()
+      if ($userPFP.exists) {
+        isEmpty = false
+        await tick()
+        initCanvas()
+
+        // Crop and draw the user's PFP
+        const img = new Image()
+        img.src = URL.createObjectURL($userPFP.image)
+        await new Promise((resolve, reject) => {
+          img.onload = resolve
+          img.onabort = reject
+        })
+        const cropDimensions = crop(img)
+        await draw(img, cropDimensions)
+      }
+    } catch (err) {
+      state = States.Errored
+      if (err instanceof Error) {
+        errorMsg = err.message
+      } else {
+        errorMsg = err as string
+      }
+    }
     state = States.Resting
   })
 
   // #region Image manipulation
+
+  function initCanvas(): void {
+    // Initialize canvas
+    const rect = displayCanvas.getBoundingClientRect()
+    const canvasW = rect.width
+    displayCanvas.width = canvasW
+    displayCanvas.height = canvasW
+  }
+
   function crop(img: HTMLImageElement): CropDimensions {
     const canvasW = displayCanvas.width
     const w = img.width, h = img.height
