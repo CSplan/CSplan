@@ -1,9 +1,6 @@
 <script lang="ts">
   import { tick } from 'svelte'
-  import { aes, rsa, makeSalt, ABconcat } from 'cs-crypto'
-  import user from '../../../stores/user'
-  import { mustGetByKey } from '../../../db'
-  import { route } from '../../../core'
+  import { userPFP } from '../../../stores/user-profile-picture'
 
   let files: FileList
   let displayCanvas: HTMLCanvasElement
@@ -95,43 +92,7 @@
   }
 
   async function onSubmit(): Promise<void> {
-    // Encrypt the cropped profile picture
-    const cryptoKey = await aes.generateKey('AES-GCM')
-    const iv = makeSalt(12)
-    const encrypted = ABconcat(iv,
-      await crypto.subtle.encrypt(
-        {
-          name: 'AES-GCM',
-          iv
-        },
-        cryptoKey,
-        await croppedImage.arrayBuffer()
-      )
-    )
-
-    // Encrypt encoding for storage alongside the image
-    const encryptedEncoding = await aes.encrypt('image/png', cryptoKey)
-    const { publicKey } = await <MasterKeys>mustGetByKey('keys', $user.user.id)
-    const wrappedKey = await rsa.wrapKey(cryptoKey, publicKey)
-    
-    const meta = {
-      cryptoKey: wrappedKey,
-      encoding: encryptedEncoding
-    }
-
-    // Send the image for storage, alongside appropriate metadata
-    const res = await fetch(route('/profile_picture'), {
-      method: 'POST',
-      body: encrypted,
-      headers: {
-        'CSRF-Token': localStorage.getItem('CSRF-Token')!,
-        'Content-Type': 'application/octet-stream',
-        'X-Image-Meta': JSON.stringify(meta)
-      }
-    })
-
-    console.log(res.status)
-    console.log(res)
+    await userPFP.create(croppedImage, 'image/png')
   }
 </script>
 

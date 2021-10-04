@@ -11,7 +11,7 @@ export async function encryptList(list: ListData, key: CryptoKey): Promise<Encry
           done: await aes.encrypt(item.done.toString(), key), // convert done to the string 'true' or 'false' before encrypting
           tags: item.tags // tag -> item relations aren't encrypted, this is needed for backend functions such as the deletion of all relationships pertaining to a tag when the tag itself is deleted
         } 
-    }))
+      }))
   }
 }
 

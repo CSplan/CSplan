@@ -38,7 +38,7 @@ function create(): Readable<UserStore> & UserActions {
       // Clear localstorage
       localStorage.clear()
       // Clear IDB
-      clearAll()
+      await clearAll()
       // Reset in-memory state
       set(userStore)
     }

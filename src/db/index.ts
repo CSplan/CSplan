@@ -1,4 +1,3 @@
-import { dev } from '$app/env'
 const DB_NAME = 'CSplan'
 const DB_VER = 1
 let cachedIDB: IDBDatabase|null = null
@@ -33,6 +32,14 @@ const stores: StoreTemplate[] = [
   },
   {
     name: 'tags',
+    scope: Scopes.User,
+    options: {
+      keyPath: 'id',
+      autoIncrement: false
+    }
+  },
+  {
+    name: 'user-profile-picture',
     scope: Scopes.User,
     options: {
       keyPath: 'id',
@@ -125,7 +132,7 @@ export async function getByKey<T>(storeName: string, key: string): Promise<Keyed
 }
 
 // Call getByKey, reject with an error message if result is undefined
-export async function mustGetByKey<T>(storeName: string, key: string): Promise<T> {
+export async function mustGetByKey<T>(storeName: string, key: string): Promise<KeyedObject & T> {
   const result = await getByKey<T>(storeName, key)
   if (result === undefined) {
     throw new Error(`IDB error - resource expected but not found (store \`${storeName}\`, key \`${key}\`)`)
@@ -171,6 +178,7 @@ export async function clearAll(): Promise<void> {
       const req = indexedDB.deleteDatabase(store.name)
 
       req.onerror = () => {
+        console.error(req.error)
         reject(req.error)
       }
       req.onsuccess = () => {
