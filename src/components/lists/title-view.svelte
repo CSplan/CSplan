@@ -1,5 +1,5 @@
 <script>
-  // @ts-nocheck
+  /* eslint-disable */
   // Not written in TS
   import { onMount, tick } from 'svelte'
   import { flip } from 'svelte/animate'
