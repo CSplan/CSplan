@@ -35,9 +35,7 @@
     const file = files[0]
 
     // Display the profile picture
-    isEmpty = false
-    await tick()
-
+    await initCanvas()
 
     // Load file as raw image
     const img = new Image()
@@ -125,9 +123,7 @@
     try {
       await userPFP.init()
       if ($userPFP.exists) {
-        isEmpty = false
-        await tick()
-        initCanvas()
+        await initCanvas()
 
         // Crop and draw the user's PFP
         const img = new Image()
@@ -152,12 +148,15 @@
 
   // #region Image manipulation
 
-  function initCanvas(): void {
+  async function initCanvas(): Promise<void> {
     // Initialize canvas
+    isEmpty = false
+    await tick()
     const rect = displayCanvas.getBoundingClientRect()
     const canvasW = rect.width
     displayCanvas.width = canvasW
     displayCanvas.height = canvasW
+    await tick()
   }
 
   function crop(img: HTMLImageElement): CropDimensions {
@@ -289,10 +288,5 @@
         background: rgb(0, 163, 87);
       }
     }
-  }
-
-  p.upload-message {
-    margin-bottom: 0.5rem;
-    margin-top: 0rem;
   }
 </style>

@@ -37,6 +37,8 @@
       <label for="password">Password</label>
       <input id="password" type="password" placeholder={'*'.repeat(30)} disabled title="CSplan does not support changing passwords yet, but this feature is coming soon.">
 
+      <hr>
+
       <label for="username">Username</label>
       <input id="username" type="text" disabled={!editMode}>
 
@@ -68,11 +70,8 @@
         </label>
       </Details>
 
-
-      <label for="account-id">Account ID</label>
-      <input class="clickable" id="account-id" type="text" readonly value={$user.user.id}>
-
       {#if editMode}
+        <hr>
         <input type="submit" value="Save">
       {/if}
 
@@ -133,6 +132,11 @@
         &.on {
           color: var(--bold-blue);
         }
+      }
+      hr {
+        width: 100%;
+        color: #aaa;
+        border-top: 1px;
       }
     }
   }
