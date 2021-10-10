@@ -7,7 +7,7 @@
       href: '/'
     },
     {
-      title: 'Todo Lists',
+      title: 'Lists',
       href: '/lists',
       needsLogin: true
     },

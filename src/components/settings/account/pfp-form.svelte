@@ -101,9 +101,6 @@
     state = States.Saving
     try {
       await userPFP.create(croppedImage!)
-      await new Promise((resolve) => {
-        setTimeout(resolve, 5000)
-      })
     } catch (err) {
       state = States.Errored
       if (err instanceof Error) {
@@ -213,9 +210,8 @@
   {/if}
 
   <form class="pfp-form" on:submit|preventDefault={onSubmit}>
-    <label for="pfp">
+    <label for="pfp" title="Upload a profile picture">
       <i class="fas fa-upload"></i>
-      <span>Select</span>
     </label>
     <input type="file" id="pfp" accept="image/png, image/jpeg" bind:files={files} on:change={onImageLoad}>
 
@@ -241,7 +237,7 @@
     display: flex;
     flex-direction: column;
     align-items: center;
-    justify-content: center;
+    justify-content: flex-start;
     grid-column: 1 / span 1;
 
     >span.error {
@@ -274,6 +270,11 @@
       &:hover {
         box-shadow: inset 0 0 0 99em rgba(255,255,255,0.2);
       }
+    }
+    label[for="pfp"] {
+      float: left;
+      align-self: flex-start;
+      margin-top: -1.5rem;
     }
     input {
       width: 100%;
