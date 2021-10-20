@@ -42,6 +42,9 @@
 </main>
 
 <style lang="scss">
+  h1 {
+    font-size: 3rem;
+  }
   .summary {
     width: 85%;
     float: left;

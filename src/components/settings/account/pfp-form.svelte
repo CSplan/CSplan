@@ -31,6 +31,19 @@
 
   let croppedImage: Blob|undefined
   let visibility: Visibilities = Visibilities.Encrypted
+  let visibilityIcon: string
+  let showVisibilities = false
+  $: switch (visibility) {
+  case Visibilities.Encrypted:
+    visibilityIcon = 'fas fa-lock'
+    break
+  case Visibilities.SemiPublic:
+    visibilityIcon = 'far fa-eye-slash' // FIXME: Change to user-unlock with FA pro
+    break
+  case Visibilities.Public:
+    visibilityIcon = 'far fa-user'
+  }
+
   // Draw a preview of an image uploaded to the form and prepare a final crop to send to the API
   async function onImageLoad(): Promise<void> {
     const file = files[0]
@@ -210,10 +223,42 @@
   {/if}
 
   <form class="pfp-form" on:submit|preventDefault={onSubmit}>
-    <label for="pfp" title="Upload a profile picture">
+    <label for="pfp" title="Upload a profile picture" class:d-none={showVisibilities}>
       <i class="fas fa-upload"></i>
     </label>
     <input type="file" id="pfp" accept="image/png, image/jpeg" bind:files={files} on:change={onImageLoad}>
+
+    <details class="visibility" bind:open={showVisibilities}>
+      <summary>
+        <i class="visibility {visibilityIcon} clickable" title="{Visibilities[visibility]}"></i>
+      </summary>
+      <section class="visibilities">
+        <header>Visibility:</header>
+
+        <label for="vis-encrypted">
+          <i class="fas fa-lock"/>
+          <span>Encrypted</span>
+        </label>
+        <input type="radio" id="vis-encrypted">
+
+        <label for="vis-semipublic" class="d-none">
+          <i class="fas fa-user"></i>
+          <span>Semi-Public</span>
+        </label>
+        <input type="radio" disabled id="vis-semipublic">
+
+        <label for="vis-public">
+          <i class="fas fa-user"></i>
+          <span>Public</span>
+        </label>
+        <input type="radio" id="vis-public">
+
+
+      </section>
+
+
+
+    </details>
 
     <input type="submit"
       id="pfp-submit"
@@ -257,11 +302,60 @@
     }
   }
 
+  details.visibility {
+    position: relative;
+  }
+  i.visibility {
+    display: block;
+    text-align: right;
+    // aligns with upload icon, equal to .6rem vertical padding + -1.5 margin
+    margin-top: -0.9rem;
+ }
+  section.visibilities {
+    min-width: 10rem;
+    font-size: 0.95rem;
+    position: absolute;
+    z-index: 1;
+    right: 0;
+    margin-top: 0.5rem;
+    border: 1px solid #aaa;
+    border-radius: 3px;
+
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    input {
+      display: none;
+    }
+    label,header {
+      padding: 0.6rem 0.8rem;
+      width: 100%;
+      border-bottom: 1px solid #aaa;
+      text-align: left;
+    }
+    label {
+      display: flex;
+      flex-direction: row;
+      justify-content: flex-start;
+      align-items: center;
+      i {
+        margin-right: 0.4rem;
+        margin-top: -0.2rem;
+      }
+    }
+    header {
+      padding-bottom: 0.4rem;
+    }
+    label:last-of-type {
+      border-bottom: none;
+    }
+  }
+ 
   form.pfp-form {
     width: 100%;
     text-align: center;
     margin-top: 0.5rem;
-    label {
+    label[for="pfp"] {
       display: block;
       padding: var(--padding-m);
       border-radius: 0.2rem;
@@ -273,7 +367,6 @@
     }
     label[for="pfp"] {
       float: left;
-      align-self: flex-start;
       margin-top: -1.5rem;
     }
     input {
@@ -282,6 +375,9 @@
     input[type="file"] {
       display: none;
     }
+
+
+
     input[type="submit"] {
       background: var(--bold-blue);
       &.saved {
