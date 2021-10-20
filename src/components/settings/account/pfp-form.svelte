@@ -1,7 +1,7 @@
 <script lang="ts">
   import { onMount, tick } from 'svelte'
   import { userPFP } from '../../../stores/user-profile-picture'
-  import { formatError } from '$lib/error-format'
+  import { formatError, Visibilities } from '$lib/index'
   import Spinner from '../../spinner.svelte'
 
   let files: FileList
@@ -30,6 +30,7 @@
   }
 
   let croppedImage: Blob|undefined
+  let visibility: Visibilities = Visibilities.Encrypted
   // Draw a preview of an image uploaded to the form and prepare a final crop to send to the API
   async function onImageLoad(): Promise<void> {
     const file = files[0]
@@ -98,7 +99,7 @@
     } 
     state = States.Saving
     try {
-      await userPFP.create(croppedImage!)
+      await userPFP.create(croppedImage!, visibility)
     } catch (err) {
       state = States.Errored
       if (err instanceof Error) {

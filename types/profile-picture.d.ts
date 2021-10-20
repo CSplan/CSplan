@@ -4,7 +4,9 @@ declare type UserPFP = {
   checksum?: string
 }
 
-declare type UserPFPMeta = MetaRequest['meta'] & {
+declare type UserPFPMeta = {
+  cryptoKey?: string
+  visibility: Visibilities
   encoding: string
 }
 
