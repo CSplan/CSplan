@@ -291,6 +291,7 @@
     word-break: break-word;
   }
   .card.editable {
+    overflow: visible; // Don't clip any forms or dropdowns that extend beyond the edges of the list
     section.content {
       p {
         &:empty {

@@ -223,7 +223,7 @@
   {/if}
 
   <form class="pfp-form" on:submit|preventDefault={onSubmit}>
-    <label for="pfp" title="Upload a profile picture" class:d-none={showVisibilities}>
+    <label for="pfp" title="Upload a profile picture">
       <i class="fas fa-upload"></i>
     </label>
     <input type="file" id="pfp" accept="image/png, image/jpeg" bind:files={files} on:change={onImageLoad}>
@@ -233,25 +233,25 @@
         <i class="visibility {visibilityIcon} clickable" title="{Visibilities[visibility]}"></i>
       </summary>
       <section class="visibilities">
-        <header>Visibility:</header>
+        <header>Visibility</header>
 
         <label for="vis-encrypted">
           <i class="fas fa-lock"/>
           <span>Encrypted</span>
         </label>
-        <input type="radio" id="vis-encrypted">
+        <input type="radio" id="vis-encrypted" bind:group={visibility} value={Visibilities.Encrypted}>
 
-        <label for="vis-semipublic" class="d-none">
-          <i class="fas fa-user"></i>
+        <label for="vis-semipublic" class="disabled">
+          <i class="far fa-eye-slash"></i>
           <span>Semi-Public</span>
         </label>
         <input type="radio" disabled id="vis-semipublic">
 
         <label for="vis-public">
-          <i class="fas fa-user"></i>
+          <i class="far fa-user"></i>
           <span>Public</span>
         </label>
-        <input type="radio" id="vis-public">
+        <input type="radio" id="vis-public" bind:group={visibility} value={Visibilities.Public}>
 
 
       </section>
@@ -308,8 +308,8 @@
   i.visibility {
     display: block;
     text-align: right;
-    // aligns with upload icon, equal to .6rem vertical padding + -1.5 margin
-    margin-top: -0.9rem;
+    // aligns with upload icon
+    margin-top: 0.6rem;
  }
   section.visibilities {
     min-width: 10rem;
@@ -344,7 +344,8 @@
       }
     }
     header {
-      padding-bottom: 0.4rem;
+      padding-bottom: 0.3rem;
+      font-size: 1rem;
     }
     label:last-of-type {
       border-bottom: none;
@@ -367,7 +368,6 @@
     }
     label[for="pfp"] {
       float: left;
-      margin-top: -1.5rem;
     }
     input {
       width: 100%;

@@ -106,7 +106,7 @@
   .tag-select {
     display: inline-block;
     position: relative;
-    z-index: 1;
+    z-index: 2;
   }
   .tag-select .options {
     min-width: 100%;
@@ -127,7 +127,7 @@
     margin: 0;
   }
   .options p:hover {
-    filter: hue-rotate(100deg);
+    filter: brightness(75%);
   }
   .options p {
     padding: 0.3rem;
