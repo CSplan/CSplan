@@ -2,7 +2,7 @@
   import { onMount, tick } from 'svelte'
   import { userPFP } from '$stores/user-profile-picture'
   import { formatError, Visibilities } from '$lib'
-  import Spinner from '../../spinner.svelte'
+  import Spinner from '$components/spinner.svelte'
 
   let files: FileList
   let displayCanvas: HTMLCanvasElement
