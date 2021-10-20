@@ -8,6 +8,7 @@
   import { CEkeypress, CEtrim, formElementIsFocused } from '../../misc/contenteditable'
   import { fade } from 'svelte/transition'
   import { flip } from 'svelte/animate'
+  import DOMPurify from 'dompurify'
 
   export let id: string
 
@@ -50,8 +51,8 @@
     list.items[i].title = evt.currentTarget.textContent
   }
   function updateItemDescription(evt: SafeEvent, i: number): void {
-    CEtrim(evt)
-    list.items[i].description = evt.currentTarget.textContent || ''
+    const description = DOMPurify.sanitize(CEtrim(evt))
+    list.items[i].description = description
   }
 
   // Toggle an item's completion
@@ -226,7 +227,9 @@
     <!-- Content -->
     <section class="content">
       <header data-index={i} contenteditable={editMode} spellcheck="false" on:keypress={CEkeypress} on:blur={e => updateItemTitle(e, i)}>{item.title}</header>
-      <p class="no-empty-effect" contenteditable={editMode} spellcheck="false" on:blur={(e) => updateItemDescription(e, i)}>{item.description}</p>
+      <p class="no-empty-effect" contenteditable={editMode} spellcheck="false" on:blur={(e) => updateItemDescription(e, i)}>
+        {@html DOMPurify.sanitize(item.description.replaceAll('\n', '<br>'))}
+      </p>
     </section>
 
     {#if editMode}
