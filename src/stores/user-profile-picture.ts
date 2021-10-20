@@ -4,7 +4,7 @@ import { get, Readable, Writable, writable } from 'svelte/store'
 import { mustGetByKey } from '../db'
 import { route } from '../core'
 import * as db from '../db'
-import { Visibilities } from '$lib/index'
+import { Visibilities } from '$lib'
 
 const initialState = {
   exists: false

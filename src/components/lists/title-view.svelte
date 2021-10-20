@@ -3,7 +3,7 @@
   // Not written in TS
   import { onMount, tick } from 'svelte'
   import { flip } from 'svelte/animate'
-  import { lists as store, ordered } from '../../stores/lists'
+  import { lists as store, ordered } from '$stores/lists'
   import { CEkeypress } from '../../misc/contenteditable'
   import Modal, { toggleModal } from '../create-list-modal.svelte'
   import Spinner from '../spinner.svelte'

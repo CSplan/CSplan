@@ -1,5 +1,5 @@
 <script lang="ts">
-  import user from '../../../stores/user'
+  import user from '$stores/user'
   import ProfilePictureForm from './pfp-form.svelte'
   import Details from '../../templates/_detail-dropdown.svelte'
 

@@ -3,8 +3,8 @@ import { ED25519 } from '@very-amused/ed25519-wasm'
 import { Argon2HashParams } from '../crypto/argon2'
 import { encode, aes, rsa, Algorithms, decode, makeSalt } from 'cs-crypto'
 import * as db from '../../db'
-import userStore from '../../stores/user'
-import type { UserStore } from '../../stores/user'
+import userStore from '$stores/user'
+import type { UserStore } from '$stores/user'
 import { get } from 'svelte/store'
 import type { MasterKeys } from '../crypto/master-key'
 import { route } from '../../core'
@@ -302,10 +302,10 @@ export class RegisterActions extends LoginActions {
     const { publicKey, privateKey } = await rsa.generateKeypair(keysize)
 
     // Export the public key in SPKI format
-    const exportedPublicKey = await rsa.exportPublicKey(publicKey)
+    const exportedPublicKey = await rsa.exportPublicKey(publicKey!)
 
     // Encrypt and export the private key in pkcs8 format
-    const encryptedPrivateKey = await rsa.wrapPrivateKey(privateKey, tempKey)
+    const encryptedPrivateKey = await rsa.wrapPrivateKey(privateKey!, tempKey)
 
     // Store the keypair (along with the hash parameters used to reach them)
     const CSRFtoken = localStorage.getItem(CSRF_TOKEN_KEY)

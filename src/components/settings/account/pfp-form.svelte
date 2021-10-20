@@ -1,7 +1,7 @@
 <script lang="ts">
   import { onMount, tick } from 'svelte'
-  import { userPFP } from '../../../stores/user-profile-picture'
-  import { formatError, Visibilities } from '$lib/index'
+  import { userPFP } from '$stores/user-profile-picture'
+  import { formatError, Visibilities } from '$lib'
   import Spinner from '../../spinner.svelte'
 
   let files: FileList

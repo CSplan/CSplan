@@ -1,7 +1,7 @@
 <script>
   /* eslint-disable */
   export let id
-  import tags from '../stores/tags'
+  import tags from '$stores/tags'
   import { states } from './js/states'
   import ColorPicker from './color-picker/color-picker.svelte'
   import { CEkeypress } from '../misc/contenteditable'

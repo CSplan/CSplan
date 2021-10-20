@@ -20,7 +20,7 @@
 </script>
 
 <script>
-  import lists from '../stores/lists'
+  import lists from '$stores/lists'
   import { createEventDispatcher, tick } from 'svelte'
   const dispatch = createEventDispatcher()
 

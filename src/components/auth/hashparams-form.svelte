@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { parseByteSize, formatByteSize } from '$lib/byte-size'
+  import { parseByteSize, formatByteSize } from '$lib'
   import type { RegisterActions } from './actions'
   import { createEventDispatcher } from 'svelte'
   
@@ -33,7 +33,7 @@
     try {
       memoryCost = parseByteSize(memoryCostFormatted)
     } catch (err) {
-      setValidity(evt, err)
+      setValidity(evt, (err as Error)?.message || err as string)
       return
     }
     if (memoryCost > 2 * 1024 * 1024 * 1024) {

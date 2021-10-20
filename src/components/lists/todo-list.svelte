@@ -1,8 +1,8 @@
 <script lang="ts">
   import { onMount, tick } from 'svelte'
   // import { flip } from 'svelte/animate'
-  import lists from '../../stores/lists'
-  import tags from '../../stores/tags'
+  import lists from '$stores/lists'
+  import tags from '$stores/tags'
   import Spinner from '../spinner.svelte'
   import TagForm from '../tag-form.svelte'
   import { CEkeypress, CEtrim, formElementIsFocused } from '../../misc/contenteditable'

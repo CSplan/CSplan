@@ -2,7 +2,7 @@
   import { LoginActions, AuthConditions } from './actions'
   import TwoFactorForm from './2fa-form.svelte'
   import { onMount } from 'svelte'
-  import user from '../../stores/user'
+  import user from '$stores/user'
   import { goto } from '$app/navigation'
   import { dev } from '$app/env'
 

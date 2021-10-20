@@ -1,5 +1,5 @@
 <script lang="ts">
-  import user from '../../stores/user'
+  import user from '$stores/user'
   import { fly } from 'svelte/transition'
 
   let show = false
@@ -36,10 +36,10 @@
   i.quick-actions-toggle {
     margin-left: 1rem;
     transition: transform 0.2s;
-    transform: rotate(-180deg);
+    transform: none;
 
     &.open {
-      transform: none;
+      transform: rotate(-180deg);
     }
   }
 

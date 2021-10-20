@@ -2,7 +2,7 @@
   import Tag from '../components/tag.svelte'
   import Modal, { toggleTagModal } from '../components/create-tag-modal.svelte'
   import { onMount } from 'svelte'
-  import { ordered, tags } from '../stores/tags'
+  import { ordered, tags } from '$stores/tags'
   import Loading from '../components/loading.svelte'
 
   const states = {

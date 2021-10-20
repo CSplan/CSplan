@@ -1,6 +1,6 @@
 <script lang="ts">
   import { goto } from '$app/navigation'
-  import user from '../../stores/user'
+  import user from '$stores/user'
   import { makeSalt } from 'cs-crypto'
   import { onMount, tick } from 'svelte'
   import { RegisterActions } from './actions'
