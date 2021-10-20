@@ -1,6 +1,6 @@
 <script>
   // @ts-nocheck
-  import Navbar from '../components/navbar/navbar.svelte'
+  import Navbar from '$components/navbar/navbar.svelte'
   import { onMount } from 'svelte'
   import user from '$stores/user'
   import { route } from '../core'

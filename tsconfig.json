@@ -12,7 +12,8 @@
     "baseUrl": "src",
     "paths": {
       "$lib": ["lib"],
-      "$stores/*": ["stores/*"]
+      "$stores/*": ["stores/*"],
+      "$components/*": ["components/*"]
     }
   }
 }

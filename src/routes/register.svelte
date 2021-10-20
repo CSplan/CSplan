@@ -1,5 +1,5 @@
 <script lang="ts">
-  import RegisterForm from '../components/auth/register-form.svelte'
+  import RegisterForm from '$components/auth/register-form.svelte'
 </script>
 
 <main>

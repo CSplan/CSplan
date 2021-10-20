@@ -9,7 +9,7 @@
 </script>
 
 <script>
-  import TodoList from '../../components/lists/todo-list.svelte'
+  import TodoList from '$components/lists/todo-list.svelte'
 
   export let id
 </script>

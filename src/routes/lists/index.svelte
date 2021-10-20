@@ -1,6 +1,6 @@
 <script>
   /* eslint-disable */
-  import TitleView from '../../components/lists/title-view.svelte'
+  import TitleView from '$components/lists/title-view.svelte'
   import lists from '$stores/lists'
   import { onMount } from 'svelte'
 
