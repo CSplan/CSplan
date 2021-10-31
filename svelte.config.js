@@ -31,8 +31,11 @@ export default {
           '$stores': path.resolve('src/stores'),
           '$components': path.resolve('src/components')
         }
+      },
+      optimizeDeps: {
+        exclude: ['cs-crypto']
       }
     }
   },
-  preprocess: preprocess(),
+  preprocess: preprocess()
 }

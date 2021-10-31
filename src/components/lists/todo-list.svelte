@@ -51,7 +51,7 @@
     list.items[i].title = evt.currentTarget.textContent
   }
   function updateItemDescription(evt: SafeEvent, i: number): void {
-    const description = DOMPurify.sanitize(CEtrim(evt))
+    const description = CEtrim(evt) // Will be sanitized before API storage
     list.items[i].description = description
   }
 
@@ -135,6 +135,7 @@
     }
     cooldown = true
     // Wait .5s before showing a loading icon
+    // Clientside sanitization is performed before display, and this is all encrypted serverside, so the only purpose this serves 
     lists.update(id, {
       ...list
     })

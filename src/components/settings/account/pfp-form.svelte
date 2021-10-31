@@ -159,7 +159,6 @@
     }
     state = States.Resting
   })
-
   // #region Image manipulation
 
   async function initCanvas(): Promise<void> {
@@ -212,6 +211,8 @@
   // #endregion
 </script>
 
+<svelte:window on:click={() => showVisibilities = false} />
+
 <div class="user-picture">
   {#if isEmpty}
     <i class="fas fa-user-circle"></i>
@@ -228,7 +229,7 @@
     </label>
     <input type="file" id="pfp" accept="image/png, image/jpeg" bind:files={files} on:change={onImageLoad}>
 
-    <details class="visibility" bind:open={showVisibilities}>
+    <details class="visibility" bind:open={showVisibilities} on:click|stopPropagation>
       <summary>
         <i class="visibility {visibilityIcon} clickable" title="{Visibilities[visibility]}"></i>
       </summary>
@@ -238,10 +239,12 @@
         <label for="vis-encrypted">
           <i class="fas fa-lock"/>
           <span>Encrypted</span>
+          <!-- These indicator icons are ugly, will be removed when better control of icon texture is available w FA-pro -->
+          <i class="{visibility === Visibilities.Encrypted ? 'fas' : 'far'} fa-circle indicator"></i>
         </label>
         <input type="radio" id="vis-encrypted" bind:group={visibility} value={Visibilities.Encrypted}>
 
-        <label for="vis-semipublic" class="disabled">
+        <label for="vis-semipublic" class="d-none">
           <i class="far fa-eye-slash"></i>
           <span>Semi-Public</span>
         </label>
@@ -250,6 +253,7 @@
         <label for="vis-public">
           <i class="far fa-user"></i>
           <span>Public</span>
+          <i class="{visibility === Visibilities.Public ? 'fas' : 'far'} fa-circle indicator"></i>
         </label>
         <input type="radio" id="vis-public" bind:group={visibility} value={Visibilities.Public}>
 
@@ -338,9 +342,14 @@
       flex-direction: row;
       justify-content: flex-start;
       align-items: center;
-      i {
+      i:first-of-type {
         margin-right: 0.4rem;
         margin-top: -0.2rem;
+      }
+      i.indicator {
+        margin-top: -0.2rem;
+        margin-left: auto;
+        font-size: 75%;
       }
     }
     header {
