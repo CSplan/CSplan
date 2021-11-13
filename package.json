@@ -7,7 +7,7 @@
   "scripts": {
     "dev": "svelte-kit dev --port=3030",
     "lint": "eslint --fix src",
-    "build": "svelte-kit build",
+    "build": "NODE_ENV=production svelte-kit build",
     "export": "svelte-kit export",
     "start": "node build",
     "prepare-ed25519": "[ ! -d static/ed25519 ] && mkdir static/ed25519; cp node_modules/@very-amused/ed25519-wasm/build/* static/ed25519/",
@@ -28,7 +28,7 @@
   },
   "devDependencies": {
     "@sveltejs/adapter-node": "^1.0.0-next.55",
-    "@sveltejs/kit": "^1.0.0-next.187",
+    "@sveltejs/kit": "^1.0.0-next.192",
     "@types/dompurify": "^2.3.1",
     "dompurify": "^2.3.3",
     "eslint": "^7.32.0",
