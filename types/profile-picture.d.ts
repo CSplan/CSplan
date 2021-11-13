@@ -1,12 +1,11 @@
 declare type UserPFP = {
-  exists: boolean
   image?: Blob
   checksum?: string
 }
 
 declare type UserPFPMeta = {
   cryptoKey?: string
-  visibility: Visibilities
+  visibility: import('$lib').Visibilities
   encoding: string
 }
 

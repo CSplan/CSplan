@@ -116,7 +116,7 @@ export async function clearStore(storeName: string): Promise<void> {
 }
 
 // Retrieve a record from an object store by key
-export async function getByKey<T>(storeName: string, key: string): Promise<KeyedObject & T> {
+export async function getByKey<T>(storeName: string, key: string): Promise<(KeyedObject & T)|undefined> {
   const db = await getDB()
   return new Promise((resolve, reject) => {
     const store = db.transaction(storeName, 'readonly').objectStore(storeName)
@@ -133,7 +133,7 @@ export async function getByKey<T>(storeName: string, key: string): Promise<Keyed
 
 // Call getByKey, reject with an error message if result is undefined
 export async function mustGetByKey<T>(storeName: string, key: string): Promise<KeyedObject & T> {
-  const result = await getByKey<T>(storeName, key)
+  const result = await getByKey<T>(storeName, key)!
   if (result === undefined) {
     throw new Error(`IDB error - resource expected but not found (store \`${storeName}\`, key \`${key}\`)`)
   }

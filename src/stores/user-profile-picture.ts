@@ -6,18 +6,17 @@ import { route } from '../core'
 import * as db from '../db'
 import { Visibilities } from '$lib'
 
-const initialState = {
-  exists: false
-}
-
 type UserPFPStore =  {
   init(): Promise<void>
   create(image: Blob, visibility: Visibilities): Promise<void>
 }
 
+/** @static */
+let initialized = false
+
 function create(): Readable<UserPFP> & UserPFPStore {
+  const initialState = {}
   const { subscribe, update }: Writable<UserPFP> = writable(initialState)
-  let initialized = false
 
   return {
     subscribe,
@@ -49,12 +48,11 @@ function create(): Readable<UserPFP> & UserPFPStore {
       const meta: UserPFPMetaResponse = JSON.parse(res.headers.get('X-Image-Meta')!)
       // Use cache if checksums match
       const { user } = get(userStore)
-      const cached: UserPFP = await db.getByKey('user-profile-picture', user.id)
-      if (cached && cached.checksum === meta.checksum) {
+      const cached: UserPFP|undefined = await db.getByKey('user-profile-picture', user.id)
+      if (cached != null && cached.checksum === meta.checksum) {
         update((store) => {
           store.image = cached.image
           store.checksum = cached.checksum
-          store.exists = true
           return store
         })
         initialized = true
@@ -81,7 +79,6 @@ function create(): Readable<UserPFP> & UserPFPStore {
       update((store) => {
         store.image = image
         store.checksum = meta.checksum
-        store.exists = true
         return store
       })
 
@@ -152,7 +149,6 @@ function create(): Readable<UserPFP> & UserPFPStore {
       update((store) => {
         store.image = image
         store.checksum = checksum
-        store.exists = true
         return store
       })
     

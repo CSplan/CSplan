@@ -216,7 +216,7 @@
 
   {#each list.items as item, i (item)}
   <div class="row item-title marginless {!item.tags.length ? 'tagless' : ''}" animate:flip={{ duration: 200 }}
-    class:highlighted={highlightRow[i] === true}
+    class:highlighted={highlightRow[i]}
     on:dragover|preventDefault={e => ondragover(e, i)}
     on:dragexit|preventDefault={e => ondragleave(e, i)}
     on:dragleave|preventDefault={e => ondragleave(e, i)}

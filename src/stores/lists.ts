@@ -1,6 +1,6 @@
 import { writable, derived, get, Readable } from 'svelte/store'
 import { checkResponse, route } from '../core'
-import { addToStore, getByKey, updateWithKey, deleteFromStore } from '../db'
+import { addToStore, getByKey, updateWithKey, deleteFromStore, mustGetByKey } from '../db'
 import { aes, rsa } from 'cs-crypto'
 import { CSRF, reqHeaders } from '../core/headers'
 import { encryptList, decryptList } from './encryption'
@@ -44,8 +44,8 @@ function create(): Readable<Store> & ListStore {
           continue
         }
         // See if the cache matches the list
-        const cached = <List>await getByKey('lists', encrypted.id)
-        if (cached && cached.checksum === encrypted.meta.checksum) {
+        const cached = await getByKey<List>('lists', encrypted.id)
+        if (cached != null && cached.checksum === encrypted.meta.checksum) {
           if (process.env.NODE_ENV === 'development') {
             console.log(`%cUsing cache for list ${encrypted.id}`, 'color: lightblue;')
           }
@@ -93,7 +93,7 @@ function create(): Readable<Store> & ListStore {
       // Get the user's ID
       const user = JSON.parse(localStorage.getItem('user')!)
       // Get user's master public key
-      const { publicKey } = await getByKey<{ publicKey: CryptoKey }>('keys', user.id)
+      const { publicKey } = await mustGetByKey<{ publicKey: CryptoKey }>('keys', user.id)
       // Generate a new AES-256 key
       const cryptoKey = await aes.generateKey('AES-GCM')
       
@@ -155,8 +155,8 @@ function create(): Readable<Store> & ListStore {
     },
     async commit(id: string) {
       // Encrypt
-      const list = (<Store>get(this))[id]
-      if (!list) {
+      const list: List = (<Store>get(this))[id]
+      if (list == null) {
         throw new ReferenceError('List passed by ID does not exist')
       }
 
@@ -185,7 +185,7 @@ function create(): Readable<Store> & ListStore {
 
       // Update the list's checksum
       // Remove uncommitted flag
-      if (list.flags) {
+      if (list.flags != null) {
         delete list.flags.uncommitted
       }
       const final: List = {
@@ -202,8 +202,8 @@ function create(): Readable<Store> & ListStore {
     },
     async delete(id: string) {
       // Validate
-      const list = (<Store>get(this))[id]
-      if (!list) {
+      const list: List|null = get(this)[id]
+      if (list == null) {
         return
       }
       // Delete with API
@@ -226,7 +226,7 @@ function create(): Readable<Store> & ListStore {
     async commitUnsaved() {
       const lists = <List[]>get(ordered)
       for (const list of lists) {
-        if (list.flags && list.flags.uncommitted) {
+        if (list.flags != null && list.flags.uncommitted) {
           await this.commit(list.id)
         }
       }

@@ -8,7 +8,10 @@ module.exports = {
   extends: 'plugin:@typescript-eslint/recommended',
   parserOptions: {
     ecmaVersion: 2019,
-    sourceType: 'module'
+    sourceType: 'module',
+    tsconfigRootDir: __dirname,
+    project: ['./tsconfig.json'],
+    extraFileExtensions: ['.svelte']
   },
   plugins: [
     'svelte3',
@@ -54,6 +57,10 @@ module.exports = {
       multiline: {
         delimiter: 'none'
       }
+    }],
+    '@typescript-eslint/strict-boolean-expressions': ['error', {
+      allowNullableObject: false,
+      allowNullableBoolean: true
     }],
     // Unicorn rules
     'unicorn/filename-case': ['error', {

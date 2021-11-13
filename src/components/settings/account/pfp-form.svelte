@@ -136,7 +136,7 @@
   onMount(async () => {
     try {
       await userPFP.init()
-      if ($userPFP.exists) {
+      if ($userPFP.image != null) {
         await initCanvas()
 
         // Crop and draw the user's PFP

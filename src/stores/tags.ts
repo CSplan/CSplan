@@ -39,8 +39,8 @@ function create(): Readable<Store> & TagStore {
           continue
         }
 
-        const cached = await getByKey('tags', tag.id) as Tag
-        if (cached && cached.checksum === tag.meta.checksum) {
+        const cached = await getByKey<Tag>('tags', tag.id)
+        if (cached != null && cached.checksum === tag.meta.checksum) {
           update((store: Store) => {
             store[tag.id] = { ...cached }
             return store
@@ -139,7 +139,7 @@ function create(): Readable<Store> & TagStore {
     },
     async commit(id: string) {
       const tag = get(this)[id]
-      if (!tag) {
+      if (tag == null) {
         throw new ReferenceError('Invalid ID passed, tag does not exist')
       }
 
@@ -168,7 +168,7 @@ function create(): Readable<Store> & TagStore {
     },
     async delete(id) {
       const tag = get(this)[id]
-      if (!tag) {
+      if (tag == null) {
         return
       }
 
