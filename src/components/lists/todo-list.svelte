@@ -36,19 +36,21 @@
   function updateTitle(evt: SafeEvent): void {
     CEtrim(evt)
     // If the title is null or empty, set it to the last known value
-    if (!evt.currentTarget.textContent) {
-      evt.currentTarget.textContent = list.title
+    const title = evt.currentTarget
+    if (title.textContent == null || !title.textContent.length) {
+      title.textContent = list.title
       return
     }
-    list.title = evt.currentTarget.textContent
+    list.title = title.textContent
   }
   function updateItemTitle(evt: SafeEvent, i: number): void {
     CEtrim(evt)
-    if (!evt.currentTarget.textContent) {
-      evt.currentTarget.textContent = list.items[i].title
+    const title = evt.currentTarget
+    if (title.textContent == null || !title.textContent.length) {
+      title.textContent = list.items[i].title
       return
     }
-    list.items[i].title = evt.currentTarget.textContent
+    list.items[i].title = title.textContent
   }
   function updateItemDescription(evt: SafeEvent, i: number): void {
     const description = CEtrim(evt) // Will be sanitized before API storage
@@ -110,7 +112,7 @@
   // #region Keyboard shortcuts
   function onkeypress(evt: KeyboardEvent): void {
     const shortcut = keyboardShortcuts[evt.key]
-    if (shortcut) {
+    if (shortcut != null) {
       if (shortcut.ignoreInForm && formElementIsFocused()) {
         return
       }
@@ -215,7 +217,7 @@
   </section>
 
   {#each list.items as item, i (item)}
-  <div class="row item-title marginless {!item.tags.length ? 'tagless' : ''}" animate:flip={{ duration: 200 }}
+  <div class="row item-title marginless {item.tags.length === 0 ? 'tagless' : ''}" animate:flip={{ duration: 200 }}
     class:highlighted={highlightRow[i]}
     on:dragover|preventDefault={e => ondragover(e, i)}
     on:dragexit|preventDefault={e => ondragleave(e, i)}
@@ -223,7 +225,7 @@
     on:drop|capture|preventDefault={e => ondrop(e, i)}>
 
     <!-- Checkbox -->
-    <i class="clickable checkbox { item.done ? 'fas fa-check-circle' : 'far fa-circle'}" on:click={() => toggleItem(i)}></i>
+    <i class="clickable checkbox {item.done === true ? 'fas fa-check-circle' : 'far fa-circle'}" on:click={() => toggleItem(i)}></i> <!-- TODO: check to see if eslint-plugin-svelte3 has fixed type aware rules in template syntax-->
 
     <!-- Content -->
     <section class="content">
