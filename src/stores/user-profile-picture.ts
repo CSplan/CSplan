@@ -153,6 +153,8 @@ function create(): Readable<UserPFP> & UserPFPStore {
       update((store) => {
         store.image = image
         store.checksum = checksum
+        store.visibility = visibility
+        store.encoding = encoding
         return store
       })
     
@@ -160,7 +162,9 @@ function create(): Readable<UserPFP> & UserPFPStore {
       await db.addToStore('user-profile-picture', {
         id: user.id,
         image,
-        checksum
+        checksum,
+        visibility,
+        encoding
       })
     }
   }

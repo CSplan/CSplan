@@ -17,6 +17,8 @@
   }
   let isEmpty = true
   let hasUpload = false
+  let hasVisibilityChange = false
+  $: hasVisibilityChange = $userPFP.visibility != null && visibility !== $userPFP.visibility
   let state = States.Loading
   let errorMsg = ''
 
@@ -112,7 +114,8 @@
     } 
     state = States.Saving
     try {
-      await userPFP.create(croppedImage!, visibility)
+      // If there is no new upload, create should be re-run with the same image but new visibility
+      await userPFP.create(hasUpload ? croppedImage! : $userPFP.image!, visibility)
     } catch (err) {
       state = States.Errored
       if (err instanceof Error) {
@@ -128,6 +131,7 @@
       state = States.Resting
       setTimeout(() => {
         hasUpload = false
+        hasVisibilityChange = false
         croppedImage = undefined
       }, 350)
     }, 350)
@@ -237,6 +241,7 @@
       <summary>
         <i class="visibility {visibilityIcon} clickable" title="{Visibilities[visibility]}"></i>
       </summary>
+
       <section class="visibilities">
         <header>Visibility</header>
 
@@ -246,9 +251,9 @@
           <!-- FIXME: These indicator icons are ugly, will be removed when better control of icon texture is available w FA-pro -->
           <i class="{visibility === Visibilities.Encrypted ? 'fas' : 'far'} fa-circle indicator"></i>
         </label>
-        <input type="radio" id="vis-encrypted" bind:group={visibility} value={Visibilities.Encrypted}>
+        <input type="radio" id="vis-encrypted" bind:group={visibility} value={Visibilities.Encrypted} on:click={() => showVisibilities = false}>
 
-        <label for="vis-semipublic">
+        <label for="vis-semipublic" class="d-none">
           <i class="far fa-eye-slash"></i>
           <span>Semi-Public</span>
           <i class="{visibility === Visibilities.SemiPublic ? 'fas' : 'far'} fa-circle indicator"></i>
@@ -260,18 +265,13 @@
           <span>Public</span>
           <i class="{visibility === Visibilities.Public ? 'fas' : 'far'} fa-circle indicator"></i>
         </label>
-        <input type="radio" id="vis-public" bind:group={visibility} value={Visibilities.Public}>
-
-
+        <input type="radio" id="vis-public" bind:group={visibility} value={Visibilities.Public} on:click={() => showVisibilities = false}>
       </section>
-
-
-
     </details>
 
     <input type="submit"
       id="pfp-submit"
-      class:d-none={!hasUpload}
+      class:d-none={!(hasUpload || hasVisibilityChange)}
       disabled={state === States.Saving}
       class:saved={state === States.Saved}
       value="Save">
