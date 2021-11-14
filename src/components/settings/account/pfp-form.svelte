@@ -41,7 +41,7 @@
     visibilityIcon = 'far fa-eye-slash' // FIXME: Change to user-unlock with FA pro
     break
   case Visibilities.Public:
-    visibilityIcon = 'far fa-user'
+    visibilityIcon = 'fas fa-user'
   }
 
   // Draw a preview of an image uploaded to the form and prepare a final crop to send to the API
@@ -239,19 +239,20 @@
         <label for="vis-encrypted">
           <i class="fas fa-lock"/>
           <span>Encrypted</span>
-          <!-- These indicator icons are ugly, will be removed when better control of icon texture is available w FA-pro -->
+          <!-- FIXME: These indicator icons are ugly, will be removed when better control of icon texture is available w FA-pro -->
           <i class="{visibility === Visibilities.Encrypted ? 'fas' : 'far'} fa-circle indicator"></i>
         </label>
         <input type="radio" id="vis-encrypted" bind:group={visibility} value={Visibilities.Encrypted}>
 
-        <label for="vis-semipublic" class="d-none">
+        <label for="vis-semipublic">
           <i class="far fa-eye-slash"></i>
           <span>Semi-Public</span>
+          <i class="{visibility === Visibilities.SemiPublic ? 'fas' : 'far'} fa-circle indicator"></i>
         </label>
         <input type="radio" disabled id="vis-semipublic">
 
         <label for="vis-public">
-          <i class="far fa-user"></i>
+          <i class="fas fa-user"></i>
           <span>Public</span>
           <i class="{visibility === Visibilities.Public ? 'fas' : 'far'} fa-circle indicator"></i>
         </label>
@@ -347,9 +348,11 @@
         margin-top: -0.2rem;
       }
       i.indicator {
-        margin-top: -0.2rem;
         margin-left: auto;
         font-size: 75%;
+      }
+      &:hover {
+        background: whitesmoke;
       }
     }
     header {

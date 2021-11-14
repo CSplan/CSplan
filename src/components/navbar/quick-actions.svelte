@@ -34,7 +34,7 @@
   }
   /* Quick actions icon rotates when clicked */
   i.quick-actions-toggle {
-    margin-left: 1rem;
+    margin-top: 0.25rem;
     transition: transform 0.2s;
     transform: none;
 

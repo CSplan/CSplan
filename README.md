@@ -15,6 +15,7 @@ Frontend for CSplan.
 - [x] Advanced authkey + cryptokey configuration
 - [x] Navigation bar
 - [ ] Settings page
+- [ ] JSON exports
 - [ ] Homepage
 - [ ] Info pages
 - [ ] General polishing

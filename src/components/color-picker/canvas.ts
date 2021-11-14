@@ -10,7 +10,7 @@ export class Canvas {
   constructor(canvasEl: HTMLCanvasElement) {
     this.canvas = canvasEl
     const ctx = this.canvas.getContext('2d')
-    if (!ctx) {
+    if (ctx == null) {
       throw new Error('Invalid or undefined canvas element')
     }
     this.ctx = ctx
