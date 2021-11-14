@@ -139,6 +139,10 @@
       if ($userPFP.image != null) {
         await initCanvas()
 
+        // Display the pfp visibility
+        visibility = $userPFP.visibility!
+        console.log(visibility)
+
         // Crop and draw the user's PFP
         const img = new Image()
         img.src = URL.createObjectURL($userPFP.image)
@@ -325,6 +329,7 @@
     margin-top: 0.5rem;
     border: 1px solid #aaa;
     border-radius: 3px;
+    background: white;
 
     display: flex;
     flex-direction: column;

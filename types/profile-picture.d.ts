@@ -1,14 +1,12 @@
-declare type UserPFP = {
+declare type UserPFPData = {
   image?: Blob
-  checksum?: string
 }
 
 declare type UserPFPMeta = {
+  checksum?: string
   cryptoKey?: string
-  visibility: import('$lib').Visibilities
-  encoding: string
+  visibility?: import('$lib').Visibilities
+  encoding?: string
 }
 
-declare type UserPFPMetaResponse = UserPFPMeta & {
-  checksum: string
-}
+declare type UserPFP = UserPFPData & UserPFPMeta

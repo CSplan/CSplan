@@ -45,14 +45,16 @@ function create(): Readable<UserPFP> & UserPFPStore {
       }
 
   
-      const meta: UserPFPMetaResponse = JSON.parse(res.headers.get('X-Image-Meta')!)
+      const meta: Required<UserPFPMeta> = JSON.parse(res.headers.get('X-Image-Meta')!)
       // Use cache if checksums match
       const { user } = get(userStore)
-      const cached: UserPFP|undefined = await db.getByKey('user-profile-picture', user.id)
+      const cached: Required<UserPFP>|undefined = await db.getByKey('user-profile-picture', user.id)
       if (cached != null && cached.checksum === meta.checksum) {
         update((store) => {
           store.image = cached.image
           store.checksum = cached.checksum
+          store.visibility = cached.visibility
+          store.encoding = cached.encoding
           return store
         })
         initialized = true
@@ -79,13 +81,17 @@ function create(): Readable<UserPFP> & UserPFPStore {
       update((store) => {
         store.image = image
         store.checksum = meta.checksum
+        store.visibility = meta.visibility
+        store.encoding = meta.encoding
         return store
       })
 
       await db.updateWithKey('user-profile-picture', {
         id: user.id,
         image,
-        checksum: meta.checksum
+        checksum: meta.checksum,
+        visibility: meta.visibility,
+        encoding: meta.encoding
       })
       initialized = true
     },
@@ -95,7 +101,6 @@ function create(): Readable<UserPFP> & UserPFPStore {
 
       let rawImage: Uint8Array
       let meta: UserPFPMeta
-      let contentType: string
       const { user } = get(userStore)
 
       // Encrypt/encode the image depending on visibility
@@ -111,17 +116,16 @@ function create(): Readable<UserPFP> & UserPFPStore {
           cryptoKey: await rsa.wrapKey(key, publicKey),
           encoding: await aes.encrypt(encoding, key)
         }
-        contentType = 'application/octet-stream'
       } else {
         rawImage = new Uint8Array(await image.arrayBuffer())
         meta = {
           visibility,
           encoding
         }
-        contentType = encoding
       }
 
       // Store the encrypted data with the backend
+      const contentType = visibility === Visibilities.Encrypted ? 'application/octet-stream' : encoding
       const res = await fetch(route('/profile-picture'), {
         method: 'PUT',
         headers: {
