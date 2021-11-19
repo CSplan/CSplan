@@ -24,7 +24,6 @@ type ChallengeRequest = {
 export type ChallengeResponse = {
   userID: string
   sessionID: string
-  CSRFtoken: string
 }
 type RegisterRequest = {
   email: string
@@ -39,8 +38,6 @@ type AuthUser = {
 
 // All authkeys are 32 bytes long
 const AUTHKEY_SIZE = 32
-// TODO: move CSRF tokens to IDB
-const CSRF_TOKEN_KEY = 'CSRF-Token'
 // authenticate may require further action, in which case it will return one of these codes instead of rejecting
 export enum AuthConditions {
   Success,
@@ -200,7 +197,11 @@ export class LoginActions {
     this.onMessage('successfully authenticated')
 
     const response: ChallengeResponse = await res.json()
-    localStorage.setItem(CSRF_TOKEN_KEY, response.CSRFtoken)
+    const csrfToken = res.headers.get('CSRF-Token')
+    if (csrfToken == null) {
+      throw new Error('empty CSRF Token from API')
+    }
+    localStorage.setItem('CSRF-Token', csrfToken)
 
     // Login to state
     userStore.login({
@@ -216,7 +217,7 @@ export class LoginActions {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
-        'CSRF-Token': localStorage.getItem(CSRF_TOKEN_KEY)!
+        'CSRF-Token': localStorage.getItem('CSRF-Token')!
       },
       credentials: 'include'
     })
@@ -308,7 +309,7 @@ export class RegisterActions extends LoginActions {
     const encryptedPrivateKey = await rsa.wrapPrivateKey(privateKey!, tempKey)
 
     // Store the keypair (along with the hash parameters used to reach them)
-    const CSRFtoken = localStorage.getItem(CSRF_TOKEN_KEY)
+    const CSRFtoken = localStorage.getItem('CSRF-Token')
     if (typeof CSRFtoken !== 'string') {
       throw new Error('Failed to retrieve CSRF-Token from localstorage.')
     }

@@ -25,6 +25,11 @@
         })
         const body = await res.json()
         if (res.status === 200) {
+          // If a CSRF-Token header is sent from /whoami, it signals that the old CSRF token has expired and the new token must be used for further requests
+          const csrfToken = res.headers.get('CSRF-Token')
+          if (csrfToken != null) {
+            localStorage.setItem('CSRF-Token', csrfToken)
+          }
           user.login({
             ...JSON.parse(localStorage.getItem('user')),
             id: body.id
