@@ -37,5 +37,9 @@ export default {
       }
     }
   },
-  preprocess: preprocess()
+  preprocess: preprocess({
+    scss: {
+      prependData: `@import "${path.resolve('src/scss')}/colors.scss";`
+    }
+  })
 }

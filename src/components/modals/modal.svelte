@@ -48,7 +48,8 @@
   .modal .content {
     position: fixed;
     z-index: 1000;
-    padding: 1rem;
+    padding: 0;
+    margin: 0;
     top: 35%;
     left: 25%;
     right: 25%;

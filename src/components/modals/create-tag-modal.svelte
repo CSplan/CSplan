@@ -1,45 +1,34 @@
-<script context="module">
-  /* eslint-disable */
-  import { toggleModal } from '../misc/modals'
-
-  // Element referencing the modal
-  let el
-  export function toggleTagModal() {
-    toggleModal(el)
-  }
-</script>
-
-<script>
-  import { onMount } from 'svelte'
+<script lang="ts">
+  import Modal from './modal.svelte'
   import tags from '$stores/tags'
-
-  onMount(() => {
-    el = document.querySelector('#createTagModal')
-  })
+  export let show = false
+  // FIXME: include color picker in tag creation modal
 
   const tagSkeleton = {
     name: '',
     color: '#FFFFFF'
   }
   let tag = { ...tagSkeleton }
-  async function createTag() {
-    toggleTagModal()
+  async function createTag(): Promise<void> {
+    show = false
     await tags.create(tag)
     tag = { ...tagSkeleton }
   }
 </script>
 
-<svelte:head>
-  <link rel="stylesheet" href="/css/modals.css">
-</svelte:head>
-
-<div class="modal">
-  <input id="createTagModal" type="checkbox">
-  <label for="createTagModal" class="overlay" on:click|preventDefault>
-    <i class="fas fa-times clickable" on:click={toggleTagModal}></i>
-  </label>
-  <form class="card">
-    <input type="text" placeholder="Name" bind:value={tag.name}>
+<Modal bind:show>
+  <form>
+    <input type="text" placeholder="Tag Name" bind:value={tag.name}>
     <input type="submit" value="Create" on:click|preventDefault={createTag}>
   </form>
-</div>
+</Modal>
+
+<style lang="scss">
+  form {
+    padding: 1.5rem;
+    padding-bottom: 0.7rem;
+    input[type="submit"] {
+      margin-top: 0.8rem;
+    }
+  }
+</style>

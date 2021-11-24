@@ -3,7 +3,7 @@
   import { onMount } from 'svelte'
   import { ordered, tags } from '$stores/tags'
   import Loading from '$components/loading.svelte'
-  import Testmodal from '$components/modals/testmodal.svelte'
+  import Modal from '$components/modals/create-tag-modal.svelte'
   let showModal = false
 
   const states = {
@@ -26,7 +26,7 @@
   })
 </script>
 
-<Testmodal bind:show={showModal}/>
+<Modal bind:show={showModal}/>
 
 {#if state === states.init}
   <Loading/>
@@ -45,7 +45,7 @@
       </p>
     </div>
   {/if}
-  <div class="card add-tag-button clickable" on:click={() => showModal = !showModal}>
+  <div class="card add-tag-button clickable" on:click={() => showModal = true}>
     <i class="fas fa-plus"></i>
   </div>
 </main>
@@ -56,7 +56,7 @@
 {/if}
 
 
-<style>
+<style lang="scss">
   .card {
     margin-top: 1.5rem;
   }
@@ -64,10 +64,10 @@
   /* Add tag styles */
   @media screen and (min-width: 850px) {
     .add-tag-button {
-      min-width: var(--content-large) !important;
+      min-width: $content-large !important;
     }
     .card {
-      width: var(--content-large) !important;
+      width: $content-large !important;
     }
   }
   .add-tag-button {

@@ -51,13 +51,15 @@
 </nav>
 
 <style lang="scss">
+  @import '../../scss/colors.scss';
+
   :root {
     --user-name-margin: 1rem;
   }
   /* Navbar styling */
   nav, .menu {
     padding: 0;
-    background: var(--background-dark);
+    background: $bg-dark;
     color: whitesmoke;
   } 
   nav {

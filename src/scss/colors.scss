@@ -1,3 +1,10 @@
+$bg-dark: var(--background-dark);
+$mobile-max: var(--mobile-max);
+$desktop-min: var(--desktop-min);
+$content-large: var(--content-large);
+
 :root {
-  --dark-bg: #22223F;
+  --content-large: 800px;
+  --mobile-max: 849px;
+  --desktop-min: 850px;
 }
