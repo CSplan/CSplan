@@ -1,6 +1,7 @@
 <script lang="ts">
   import user from '$stores/user'
   import { fly } from 'svelte/transition'
+  import { userPFP } from '$stores/user-profile-picture'
 
   let show = false
   function toggle(): void {
@@ -10,7 +11,7 @@
 
 <svelte:body on:click={() => show = false}/>
 
-<div class="container" on:click|stopPropagation>
+<div class="container" on:click|stopPropagation on:mouseenter={userPFP.init}>
   <i class="fas fa-chevron-down clickable quick-actions-toggle" on:click={toggle} class:open={show}/>
 
   {#key show}

@@ -1,3 +1,4 @@
+// TODO: prepare renders to be directly attached to html
 declare type UserPFPData = {
   image?: Blob
 }
