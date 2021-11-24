@@ -1,6 +1,5 @@
 import { Argon2 } from '@very-amused/argon2-wasm'
 import { ED25519 } from '@very-amused/ed25519-wasm'
-import { Argon2HashParams } from '../crypto/argon2'
 import { encode, aes, rsa, Algorithms, decode, makeSalt } from 'cs-crypto'
 import * as db from '../../db'
 import userStore from '$stores/user'
