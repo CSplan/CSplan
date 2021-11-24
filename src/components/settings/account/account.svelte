@@ -28,14 +28,14 @@
     
     <form class="user-details" on:submit|preventDefault>
 
-      <i class="fas fa-edit clickable" on:click={toggleEditMode} class:on={editMode}></i>
-
-
       <label for="email">Email</label>
       <input id="email" type="email" value={$user.user.email} disabled>
 
       <label for="password">Password</label>
-      <input id="password" type="password" placeholder={'*'.repeat(30)} disabled title="CSplan does not support changing passwords yet, but this feature is coming soon.">
+      <div class="input-group">
+        <input id="password" type="password" placeholder={'*'.repeat(30)}>
+        <i class="fas fa-edit clickable"></i>
+      </div>
 
       <hr>
 
@@ -93,6 +93,16 @@
   .submenu {
     margin: 1.5rem 0;
   }
+  div.input-group {
+    display: inline-flex;
+    flex-direction: row;
+    align-items: center;
+    i {
+      margin-left: auto;
+      margin-right: 0.5rem;
+      margin-left: 1rem;
+    }
+  }
   .account-card {
     display: grid;
     grid-template-columns: minmax(min-content, 250px) 1fr;
@@ -126,9 +136,6 @@
         width: 1rem;
       }
       i {
-        align-self: flex-end;
-        margin-bottom: -1rem;
-        z-index: 1;
         &.on {
           color: var(--bold-blue);
         }
