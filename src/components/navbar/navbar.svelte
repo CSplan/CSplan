@@ -62,6 +62,7 @@
   } 
   nav {
     position: relative;
+    z-index: 998;
   }
   /* Desktop styles */
   @media screen and (min-width: 850px) {

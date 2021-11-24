@@ -58,7 +58,7 @@ module.exports = {
         delimiter: 'none'
       }
     }],
-    '@typescript-eslint/strict-boolean-expressions': ['error', {
+    '@typescript-eslint/strict-boolean-expressions': ['warn', {
       allowNullableObject: false,
       allowNullableBoolean: true
     }],

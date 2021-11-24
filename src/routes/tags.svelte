@@ -1,9 +1,10 @@
 <script>
   import Tag from '$components/tag.svelte'
-  import Modal, { toggleTagModal } from '$components/create-tag-modal.svelte'
   import { onMount } from 'svelte'
   import { ordered, tags } from '$stores/tags'
   import Loading from '$components/loading.svelte'
+  import Testmodal from '$components/modals/testmodal.svelte'
+  let showModal = false
 
   const states = {
     init: 0,
@@ -25,7 +26,7 @@
   })
 </script>
 
-<Modal/>
+<Testmodal bind:show={showModal}/>
 
 {#if state === states.init}
   <Loading/>
@@ -44,7 +45,7 @@
       </p>
     </div>
   {/if}
-  <div class="card add-tag-button clickable" on:click={toggleTagModal}>
+  <div class="card add-tag-button clickable" on:click={() => showModal = !showModal}>
     <i class="fas fa-plus"></i>
   </div>
 </main>
