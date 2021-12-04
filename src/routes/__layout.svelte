@@ -42,7 +42,8 @@
         // If user does not authenticate for any reason, log out clientside
       } catch (err) {
         if (err.code === 'NOT_LOGGED_IN') {
-          user.logout()
+          console.error('failed backend authentication')
+          // user.logout()
         } else {
           alert('Either you\'re offline or the API is down. Check /status for more information.')
         }

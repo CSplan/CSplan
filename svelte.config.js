@@ -2,10 +2,14 @@ import node from '@sveltejs/adapter-node'
 import preprocess from 'svelte-preprocess'
 import path from 'path'
 
+/**
+ * @typedef {import('@sveltejs/kit').Config} SvelteKitConfig
+ */
+
 const dev = process.env.NODE_ENV === 'development'
 
-/** @type {import('@sveltejs/kit').Config} */
-export default {
+/** @type {SvelteKitConfig} */
+const config = {
   compilerOptions: {
     dev,
     sourcemap: true
@@ -34,7 +38,7 @@ export default {
       },
       optimizeDeps: {
         exclude: ['cs-crypto']
-      }
+      },
     }
   },
   preprocess: preprocess({
@@ -43,3 +47,5 @@ export default {
     }
   })
 }
+
+export default config

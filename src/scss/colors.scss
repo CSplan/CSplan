@@ -3,9 +3,11 @@ $bg-alt: var(--background-alt);
 $mobile-max: var(--mobile-max);
 $desktop-min: var(--desktop-min);
 $content-large: var(--content-large);
+$br-light: var(--br-light);
 
 :root {
   --content-large: 800px;
   --mobile-max: 849px;
   --desktop-min: 850px;
+  --br-light: 3px;
 }

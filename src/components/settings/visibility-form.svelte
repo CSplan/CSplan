@@ -69,9 +69,7 @@
   i.visibility {
     display: block;
     text-align: right;
-    // aligns with upload icon
-    margin-top: 0.6rem;
- }
+  }
   section.visibilities {
     min-width: 10rem;
     font-size: 0.95rem;

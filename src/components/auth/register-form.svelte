@@ -117,6 +117,7 @@
     <input data-field="email" type="email" required autocomplete="email" placeholder="Email" bind:this={email}>
     <input id="password" data-field="password" type={ showPassword ? 'text' : 'password'} required autocomplete="new-password" placeholder="Password" bind:this={password}>
     <input data-field="confirmPassword" type={ showPassword ? 'text' : 'password'} required autocomplete="new-password" placeholder="Confirm Password" bind:this={confirmPassword}>
+    <!-- TODO: use better checkboxes than picnic's -->
     <label>
       <input type="checkbox" bind:checked={showPassword}>
       <span class="checkable">Show Password</span>

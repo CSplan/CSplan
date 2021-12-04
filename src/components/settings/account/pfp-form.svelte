@@ -282,12 +282,8 @@
       &:hover {
         box-shadow: inset 0 0 0 99em rgba(255,255,255,0.2);
       }
-    }
-    label[for="pfp"] {
       float: left;
-    }
-    input {
-      width: 100%;
+      border-radius: $br-light;
     }
     input[type="file"] {
       display: none;
