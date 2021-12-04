@@ -21,15 +21,17 @@
     
     <section class="user-details" on:submit|preventDefault>
 
-      <label for="email">Email</label>
-      <input id="email" type="email" value={$user.user.email} disabled>
+      <form>
+        <label for="email">Email</label>
+        <input id="email" type="email" value={$user.user.email} disabled>
+      </form>
 
       <PasswordForm></PasswordForm>
       <hr>
 
-      <div class="name-form" class:d-none={$navState.isEditing != null && $navState.isEditing !== FormIDs.ChangeName}>
+      <form class="name-form" class:disabled={$navState.isEditing !== null && $navState.isEditing !== FormIDs.ChangeName}>
         <label for="username">Username</label>
-        <input id="username" type="text" disabled>
+        <input id="username" type="text">
 
         <label for="firstname">First Name</label>
         <input id="firstname" type="text" disabled>
@@ -58,7 +60,7 @@
             Username
           </label>
         </Details>
-      </div>
+      </form>
     </section>
   </article>
 </section>
@@ -75,6 +77,10 @@
     }
     input[type="submit"] {
       border-radius: $br-light;
+    }
+
+    form.disabled {
+      pointer-events: none; 
     }
 
     input[type="text"],input[type="password"],input[type="email"] {
@@ -113,15 +119,17 @@
     grid-template-columns: minmax(min-content, 250px) 1fr;
     grid-template-rows: max-content;
     color: #111;
-    >* {
+    >input {
       padding: 0.4rem 0.8rem;
+    }
+    >* {
       border: 1px solid #aaa;
     }
 
     section.user-details {
       display: flex;
       flex-direction: column;
-      padding: var(--padding-m);
+      padding: $padding-m;
 
       input[type="radio"] {
         position: static;
