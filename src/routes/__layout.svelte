@@ -3,7 +3,7 @@
   import Navbar from '$components/navbar/navbar.svelte'
   import { onMount } from 'svelte'
   import user from '$stores/user'
-  import { route } from '../core'
+  import { route } from '$lib/route'
   class AuthError extends Error {
     constructor({ message = '', code = '' }) {
       super(message)

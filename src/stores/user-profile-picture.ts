@@ -2,7 +2,7 @@ import { aes, rsa } from 'cs-crypto'
 import userStore from './user'
 import { get, Readable, Writable, writable } from 'svelte/store'
 import { mustGetByKey } from '../db'
-import { route } from '../core'
+import { route } from '$lib/route'
 import * as db from '../db'
 import { Visibilities } from '$lib'
 

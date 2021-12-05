@@ -3,7 +3,7 @@
   import user from '$stores/user'
   import { makeSalt } from 'cs-crypto'
   import { onMount, tick } from 'svelte'
-  import { RegisterActions } from './actions'
+  import { RegisterActions } from '$lib/auth-actions'
   import { dev } from '$app/env'
   import HashparamsForm from './hashparams-form.svelte'
 
@@ -72,7 +72,7 @@
       console.error(err)
       user.logout()
       state = States.Error
-      error = err instanceof Error ? err.message : err
+      error = err instanceof Error ? err.message : err as string
     }
   }
 
@@ -103,7 +103,7 @@
       })
     } catch (err) {
       state = States.Error
-      error = err.message
+      error = err instanceof Error ? err.message : err as string
       return
     }
     state = States.Resting

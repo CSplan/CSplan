@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { LoginActions, AuthConditions } from './actions'
+  import { LoginActions, AuthConditions } from '$lib/auth-actions'
   import TwoFactorForm from './2fa-form.svelte'
   import { onMount } from 'svelte'
   import user from '$stores/user'

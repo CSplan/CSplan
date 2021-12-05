@@ -1,12 +1,11 @@
 import { Argon2 } from '@very-amused/argon2-wasm'
 import { ED25519 } from '@very-amused/ed25519-wasm'
 import { encode, aes, rsa, Algorithms, decode, makeSalt } from 'cs-crypto'
-import * as db from '../../db'
+import * as db from '../db'
 import userStore from '$stores/user'
 import type { UserStore } from '$stores/user'
 import { get } from 'svelte/store'
-import type { MasterKeys } from '../crypto/master-key'
-import { route } from '../../core'
+import { route } from '$lib/route'
 
 export type Challenge = {
   id: string
@@ -34,6 +33,12 @@ type AuthUser = {
   password: string
   totp?: number
 }
+type MasterKeys = {
+  publicKey: string
+  privateKey: string
+  hashParams: Argon2HashParams
+}
+
 
 // All authkeys are 32 bytes long
 const AUTHKEY_SIZE = 32
@@ -136,20 +141,32 @@ export class LoginActions {
     return (message.body as ED25519.SignResult).signature
   }
 
-  async authenticate(user: AuthUser, reuseAuthKey = false): Promise<AuthConditions> {
+  async authenticate(user: AuthUser, reuseAuthKey = false, upgrade = false): Promise<AuthConditions> {
     this.onMessage('Requesting authentication challenge')
     // Request an authentication challenge
     const challengeRequest: ChallengeRequest = { email: user.email, totp: user.totp }
-    let res = await fetch(route('/challenge?action=request'), {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify(challengeRequest)
-    })
+    let res: Response
+    if (upgrade) {
+      res = await fetch(route('/upgrade?method=challenge&action=request'), {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'CSRF-Token': localStorage.getItem('CSRF-Token')!
+        }
+      })
+    } else {
+      res = await fetch(route('/challenge?action=request'), {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(challengeRequest)
+      })
+    }
     if (res.status === 412) {
       return AuthConditions.TOTPRequired
-    } else if (res.status !== 201) {
+    }
+    if (res.status !== 201) {
       const err: ErrorResponse = await res.json()
       throw new Error(err.message || 'Unknown error requesting an auth challenge')
     }
@@ -172,12 +189,13 @@ export class LoginActions {
     // TODO: Memoize signing key generation
     const { privateKey } = await this.generateSigningKey(this.hashResult!)
     this.signingKey = privateKey
+    console.log(this.signingKey)
 
     // Sign the challenge data
     this.onMessage('signing challenge')
     const signature = await this.signChallenge(decode(challenge.data), this.signingKey)
     this.onMessage('submitting challenge')
-    res = await fetch(route(`/challenge/${challenge.id}?action=submit`), {
+    res = await fetch(route(`/challenge/${challenge.id}?${upgrade ? 'type=upgrade&' : ''}action=submit`), {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'
@@ -194,6 +212,11 @@ export class LoginActions {
     }
 
     this.onMessage('successfully authenticated')
+
+    // If the user is upgrading an existing authentication session, the CSRF token and local state don't need to be updated
+    if (upgrade) {
+      return AuthConditions.Success
+    }
 
     const response: ChallengeResponse = await res.json()
     const csrfToken = res.headers.get('CSRF-Token')

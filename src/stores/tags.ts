@@ -1,5 +1,5 @@
 import { writable, derived, get, Readable } from 'svelte/store'
-import { route } from '../core'
+import { route } from '$lib/route'
 import { rsa, aes } from 'cs-crypto'
 import { addToStore, deleteFromStore, getByKey, mustGetByKey, updateWithKey } from '../db'
 import userStore from './user'

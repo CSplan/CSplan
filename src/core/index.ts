@@ -1,2 +1,2 @@
-export { route } from './route'
+export { route } from '../lib/route'
 export { checkResponse } from './error'
