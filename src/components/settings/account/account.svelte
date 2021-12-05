@@ -117,7 +117,7 @@
   .account-card {
     display: grid;
     grid-template-columns: minmax(min-content, 250px) 1fr;
-    grid-template-rows: max-content;
+    grid-template-rows: max-content max-content;
     color: #111;
     >input {
       padding: 0.4rem 0.8rem;
@@ -127,6 +127,8 @@
     }
 
     section.user-details {
+      grid-column: 2;
+      grid-row: 1 / span 2;
       display: flex;
       flex-direction: column;
       padding: $padding-m;

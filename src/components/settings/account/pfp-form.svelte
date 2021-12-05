@@ -250,6 +250,8 @@
     align-items: center;
     justify-content: flex-start;
     grid-column: 1 / span 1;
+    grid-row: 1 / span 1;
+    border-bottom-right-radius: $br-light;
 
     >span.error {
       margin-top: 0.5rem;
