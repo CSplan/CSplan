@@ -75,6 +75,7 @@ import Spinner from '$components/spinner.svelte'
       state = States.Errored
       return
     }
+    // TODO: success animation
     state = States.Success
     form.reset()
     setTimeout(() => {
