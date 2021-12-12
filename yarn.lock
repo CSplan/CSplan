@@ -697,10 +697,10 @@ cross-spawn@^7.0.2:
     shebang-command "^2.0.0"
     which "^2.0.1"
 
-cs-crypto@^0.7.3:
-  version "0.7.3"
-  resolved "https://registry.yarnpkg.com/cs-crypto/-/cs-crypto-0.7.3.tgz#79e150f541d274d8d66717ea3b258f0912a56f53"
-  integrity sha512-6sqiKYx4AM7PNzgmFObkG50nNtoSZlEoqXmTJNQry05XVVabfRb20XyLrIha9soGD10LpN3iVuMS3PZI1gltnw==
+cs-crypto@^0.7.4-rc2:
+  version "0.7.4-rc2"
+  resolved "https://registry.yarnpkg.com/cs-crypto/-/cs-crypto-0.7.4-rc2.tgz#b946ddc62f55aacbbcad77163959cd908fae9dd4"
+  integrity sha512-pBaW6pzkXp0LEYwX82+osqoQyyXrsovF0BZ2SMFh6engx9l+Hw9mgKENnL1SUz60HjyRBVnptZKAgZc4h81Ddw==
 
 debug@^2.6.9:
   version "2.6.9"

@@ -38,6 +38,14 @@ type MasterKeys = {
   privateKey: string
   hashParams: Argon2HashParams
 }
+type PasswordUpdate = {
+  authKey: string
+  privateKey: string
+  hashParams: {
+    auth: Argon2HashParams
+    crypto: Argon2HashParams
+  }
+}
 
 
 // All authkeys are 32 bytes long
@@ -45,6 +53,7 @@ const AUTHKEY_SIZE = 32
 // authenticate may require further action, in which case it will return one of these codes instead of rejecting
 export enum AuthConditions {
   Success,
+  Upgraded,
   TOTPRequired
 }
 
@@ -94,14 +103,18 @@ export class LoginActions {
     }
   }
 
-  protected async hashPassword(password: string, salt: Uint8Array): Promise<Uint8Array> {
+  protected async hashPassword(password: string, salt: Uint8Array, hashParams?: Argon2HashParams): Promise<Uint8Array> {
+    // Use whatever hashParams are set for the instance if none are given as a parameter
+    if (hashParams == null) {
+      hashParams = this.hashParams
+    }
     const message = await this.argon2.postMessage({
       method: Argon2.Methods.Hash2i,
       params: {
         password,
         salt,
-        timeCost: this.hashParams.timeCost,
-        memoryCost: this.hashParams.memoryCost,
+        timeCost: hashParams.timeCost,
+        memoryCost: hashParams.memoryCost,
         hashLen: AUTHKEY_SIZE
       }
     })
@@ -141,6 +154,7 @@ export class LoginActions {
     return (message.body as ED25519.SignResult).signature
   }
 
+  // TODO: refactor parameters into opts argument
   async authenticate(user: AuthUser, reuseAuthKey = false, upgrade = false): Promise<AuthConditions> {
     this.onMessage('Requesting authentication challenge')
     // Request an authentication challenge
@@ -166,6 +180,9 @@ export class LoginActions {
     if (res.status === 412) {
       return AuthConditions.TOTPRequired
     }
+    if (upgrade && res.status === 200) {
+      return AuthConditions.Upgraded
+    }
     if (res.status !== 201) {
       const err: ErrorResponse = await res.json()
       throw new Error(err.message || 'Unknown error requesting an auth challenge')
@@ -189,7 +206,6 @@ export class LoginActions {
     // TODO: Memoize signing key generation
     const { privateKey } = await this.generateSigningKey(this.hashResult!)
     this.signingKey = privateKey
-    console.log(this.signingKey)
 
     // Sign the challenge data
     this.onMessage('signing challenge')
@@ -215,7 +231,7 @@ export class LoginActions {
 
     // If the user is upgrading an existing authentication session, the CSRF token and local state don't need to be updated
     if (upgrade) {
-      return AuthConditions.Success
+      return AuthConditions.Upgraded
     }
 
     const response: ChallengeResponse = await res.json()
@@ -233,7 +249,7 @@ export class LoginActions {
     return AuthConditions.Success
   }
 
-  async retrieveMasterKeypair(password: string): Promise<void> {
+  async retrieveMasterKeypair(password: string, exportablePrivateKey = false): Promise<CryptoKeyPair> {
     // Fetch the user's master keypair
     const res = await fetch(route('/keys'), {
       method: 'GET',
@@ -253,11 +269,10 @@ export class LoginActions {
     const publicKey = await rsa.importPublicKey(keys.publicKey)
 
     // Decrypt master private key
-    this.hashParams = keys.hashParams
     this.onMessage('Decryting master keypair')
-    const tempKeyMaterial = await this.hashPassword(password, decode(keys.hashParams.salt))
+    const tempKeyMaterial = await this.hashPassword(password, decode(keys.hashParams.salt), keys.hashParams)
     const tempKey = await aes.importKeyMaterial(tempKeyMaterial, Algorithms.AES_GCM)
-    const privateKey = await rsa.unwrapPrivateKey(keys.privateKey, tempKey)
+    const privateKey = await rsa.unwrapPrivateKey(keys.privateKey, tempKey, exportablePrivateKey)
 
     // Store keys in IDB
     const userID = (<UserStore>get(userStore)).user.id
@@ -266,6 +281,10 @@ export class LoginActions {
       publicKey,
       privateKey
     })
+    return {
+      publicKey,
+      privateKey
+    }
   }
 }
 
@@ -378,6 +397,60 @@ export class RegisterActions extends LoginActions {
     if (res.status !== 204) {
       const err: ErrorResponse = await res.json()
       throw new Error(err.message || 'failed to confirm account')
+    }
+  }
+}
+
+export class PasswordChangeActions extends RegisterActions {
+  constructor(argon2: Worker, ed25519: Worker) {
+    super(argon2, ed25519)
+  }
+
+  /**
+   * Change a user's password
+   * @param oldPassword The old password, used to decrypt a current copy of the user's private key
+   * @param newPassword The user's new password
+   * @param authSalt The salt to be used in deriving the authentication key seed
+   * @param cryptoSalt The salt to be used in deriving the tempkey used to decrypt the user's master private key
+   */
+  async changePassword(oldPassword: string, newPassword: string,
+    authSalt: Uint8Array, cryptoSalt: Uint8Array): Promise<void> {
+    // Derive an authentication keypair from the new password and salt
+    this.hashResult = await this.hashPassword(newPassword, authSalt)
+    const { publicKey } = await this.generateSigningKey(this.hashResult!, false)
+    this.signingKey = publicKey
+
+    // Fetch and re-encrypt the user's master private key
+    const { privateKey } = await this.retrieveMasterKeypair(oldPassword, true)
+    const tempKeyMaterial = await this.hashPassword(newPassword, cryptoSalt)
+    const tempKey = await aes.importKeyMaterial(tempKeyMaterial, Algorithms.AES_GCM)
+    const encryptedPrivateKey = await rsa.wrapPrivateKey(privateKey!, tempKey)
+
+    // Update the authentication and private key with the API
+    const res = await fetch(route('/change_password'), {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+        'CSRF-Token': localStorage.getItem('CSRF-Token')!
+      },
+      body: JSON.stringify(<PasswordUpdate>{
+        authKey: encode(this.signingKey!),
+        privateKey: encryptedPrivateKey,
+        hashParams: {
+          auth: {
+            ...this.hashParams,
+            salt: encode(authSalt)
+          },
+          crypto: {
+            ...this.hashParams,
+            salt: encode(cryptoSalt)
+          }
+        }
+      })
+    })
+    if (res.status !== 204) {
+      const err: ErrorResponse = await res.json()
+      throw new Error(err.message || 'error updating password with API')
     }
   }
 }

@@ -1,6 +1,7 @@
 <script lang="ts">
   import navState, { FormIDs } from '../navigation-state'
-  import { LoginActions } from '$lib/auth-actions'
+  import { AuthConditions, PasswordChangeActions } from '$lib/auth-actions'
+  import { makeSalt } from 'cs-crypto'
   import { slide } from 'svelte/transition'
   import { dev } from '$app/env'
 
@@ -39,13 +40,22 @@
       return
     }
     // Upgrade the current session to level 2 auth
-    const actions = new LoginActions(new Worker(argon2WorkerPath), new Worker(ed25519Path))
+    const actions = new PasswordChangeActions(new Worker(argon2WorkerPath), new Worker(ed25519Path))
     await actions.loadArgon2({ wasmRoot: '/argon2', simd: false })
     await actions.loadED25519({ wasmPath: '/ed25519/ed25519.wasm' })
-    await actions.authenticate({
+    const result = await actions.authenticate({
       email: '',
       password: oldPassword.value
     }, false, true)
+    if (result !== AuthConditions.Upgraded) {
+      console.error(`Unexpected auth condition: ${result}`)
+    }
+    
+    // Perform the password change for both authentication and cryptographic contexts
+    const authSalt = makeSalt(16)
+    const cryptoSalt = makeSalt(16)
+    await actions.changePassword(oldPassword.value, newPassword.value, authSalt, cryptoSalt)
+    console.log('success changing password!')
   }
 </script>
 
