@@ -80,6 +80,7 @@ import Spinner from '$components/spinner.svelte'
     setTimeout(() => {
       statusMessage = ''
       state = States.Resting
+      open = false
     }, 1000)
   }
 </script>

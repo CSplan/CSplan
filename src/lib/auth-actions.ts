@@ -196,7 +196,7 @@ export class LoginActions {
     if (reuseAuthKey) {
       this.onMessage('Using already generated authentication key')
     } else {
-      this.onMessage('Uenerating authentication key')
+      this.onMessage('Generating authentication key')
       this.hashResult = await this.hashPassword(user.password, salt, this.hashParams)
     }
      

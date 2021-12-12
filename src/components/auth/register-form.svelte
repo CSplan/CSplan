@@ -34,11 +34,6 @@
 
   // If the user is already logged in, redirect them
   // FIXME: Handle automatic navigation in a not stupid way (how its done login-form.svelte)
-  $: {
-    if ($user.isLoggedIn && state === States.Resting) {
-      goto('/')
-    }
-  }
 
   async function register(): Promise<void> {
     // Compare password fields
