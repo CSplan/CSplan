@@ -220,10 +220,10 @@ export class LoginActions {
       })
     })
     if (res.status === 401) {
-      throw new Error('authorization failure, password is incorrect')
+      throw new Error('Authorization failure, password is incorrect')
     } else if (res.status !== 200) {
       const err: ErrorResponse = await res.json()
-      throw new Error(err.message || 'unknown error submitting challenge')
+      throw new Error(err.message || 'Unknown error submitting challenge')
     }
 
     this.onMessage('successfully authenticated')
@@ -268,7 +268,7 @@ export class LoginActions {
     const publicKey = await rsa.importPublicKey(keys.publicKey)
 
     // Decrypt master private key
-    this.onMessage('Decryting master keypair')
+    this.onMessage('Decrypting master keypair')
     const tempKeyMaterial = await this.hashPassword(password, decode(keys.hashParams.salt), keys.hashParams)
     const tempKey = await aes.importKeyMaterial(tempKeyMaterial, Algorithms.AES_GCM)
     const privateKey = await rsa.unwrapPrivateKey(keys.privateKey, tempKey, exportablePrivateKey)

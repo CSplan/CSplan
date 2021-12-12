@@ -5,10 +5,18 @@ $desktop-min: var(--desktop-min);
 $content-large: var(--content-large);
 $br-light: var(--br-light);
 $padding-m: var(--padding-m);
+$danger-red: var(--danger-red);
 
 :root {
   --content-large: 800px;
   --mobile-max: 849px;
   --desktop-min: 850px;
   --br-light: 3px;
+
+  --background-dark: #22223F;
+  --background-alt: rgb(47, 76, 207);
+  --bold-blue: rgb(0, 119, 255);
+  --primary-purple: #7b1fa2;
+  --light-purple: #ae52d4;
+  --danger-red: #ff4d4d;
 }

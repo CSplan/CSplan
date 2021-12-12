@@ -4,6 +4,7 @@
   import { makeSalt } from 'cs-crypto'
   import { slide } from 'svelte/transition'
   import { dev } from '$app/env'
+import Spinner from '$components/spinner.svelte'
 
   let open = false
   function onOpen(): void {
@@ -25,6 +26,11 @@
   let newPassword: HTMLInputElement
   let confirmPassword: HTMLInputElement
 
+  let showSpinner = false
+  let statusMessage = ''
+  let error = false
+  
+
   const argon2WorkerPath = dev ? '/argon2/worker.js' : '/argon2/worker.min.js'
   const ed25519Path = dev ? '/ed25519/worker.js' : '/ed25519/worker.min.js'
   async function changePassword(): Promise<void> {
@@ -40,23 +46,32 @@
       return
     }
     // Upgrade the current session to level 2 auth
-    const start = performance.now()
     const actions = new PasswordChangeActions(new Worker(argon2WorkerPath), new Worker(ed25519Path))
-    await actions.loadArgon2({ wasmRoot: '/argon2', simd: false })
-    await actions.loadED25519({ wasmPath: '/ed25519/ed25519.wasm' })
-    const result = await actions.authenticate({
-      email: '',
-      password: oldPassword.value
-    }, false, true)
-    if (result !== AuthConditions.Upgraded) {
-      console.error(`Unexpected auth condition: ${result}`)
+    showSpinner = true
+    actions.onMessage = (message: string) => {
+      statusMessage = message
     }
-    
-    // Perform the password change for both authentication and cryptographic contexts
-    const authSalt = makeSalt(16)
-    const cryptoSalt = makeSalt(16)
-    await actions.changePassword(oldPassword.value, newPassword.value, authSalt, cryptoSalt)
-    console.log(performance.now() - start)
+
+    try { 
+      await actions.loadArgon2({ wasmRoot: '/argon2', simd: false })
+      await actions.loadED25519({ wasmPath: '/ed25519/ed25519.wasm' })
+      const result = await actions.authenticate({
+        email: '',
+        password: oldPassword.value
+      }, false, true)
+      if (result !== AuthConditions.Upgraded) {
+        console.error(`Unexpected auth condition: ${result}`)
+      }
+      
+      // Perform the password change for both authentication and cryptographic contexts
+      const authSalt = makeSalt(16)
+      const cryptoSalt = makeSalt(16)
+      await actions.changePassword(oldPassword.value, newPassword.value, authSalt, cryptoSalt)
+    } catch (err) {
+      statusMessage = (err instanceof Error) ? err.message : err as string
+      error = true
+    }
+    showSpinner = false
   }
 </script>
 
@@ -82,8 +97,16 @@
         <span class="checkable">Show New Passwords</span>
       </label>
 
+      {#if showSpinner}
+        <Spinner size="2rem" vm="0.5rem"></Spinner>
+      {/if}
+      {#if statusMessage.length > 0}
+        <span class="status-message" class:error={error}>{statusMessage}</span>
+      {/if}
 
-      <input type="submit" value="Change Password">
+      {#if !showSpinner}
+        <input type="submit" value="Change Password">
+      {/if}
     </div>
   {/if}
 </form>
@@ -95,6 +118,15 @@
   }
   input[type="submit"] {
     align-self: center;
+  }
+  :global(i.fa-circle-notch) {
+    align-self: center;
+  }
+  span.status-message {
+    align-self: center;
+    &.error {
+      color: $danger-red;
+    }
   }
   i.fa-edit { 
     &.open {

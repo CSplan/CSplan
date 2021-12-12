@@ -68,7 +68,7 @@
 
 <style lang="scss">
   .account-menu :global {
-    input,details,label.checkable {
+    input,details,label.checkable,span {
       margin: 0.5rem 0;
       border-radius: 0;
     }
