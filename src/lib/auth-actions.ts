@@ -88,7 +88,7 @@ export class LoginActions {
     })
     if (message.code !== Argon2.ErrorCodes.ARGON2_OK) {
       // TODO: more descriptive error messages based on code
-      throw new Error('error loading argon2')
+      throw new Error('Error loading argon2')
     }
   }
 
@@ -99,7 +99,7 @@ export class LoginActions {
       params
     })
     if (message.code !== ED25519.ErrorCodes.Success) {
-      throw new Error('error loading ed25519')
+      throw new Error('Error loading ed25519')
     }
   }
 
@@ -133,7 +133,7 @@ export class LoginActions {
       }
     })
     if (message.code !== ED25519.ErrorCodes.Success) {
-      throw new Error('error generating ed25519 signing key')
+      throw new Error('Error generating ed25519 signing key')
     }
 
     return message.body as ED25519.GenerateResult['body']
@@ -148,7 +148,7 @@ export class LoginActions {
       }
     })
     if (message.code !== ED25519.ErrorCodes.Success) {
-      throw new Error('error using ed25519 to sign challenge')
+      throw new Error('Error using ed25519 to sign challenge')
     }
 
     return (message.body as ED25519.SignResult).signature
@@ -194,22 +194,22 @@ export class LoginActions {
 
     // Hash the user's password (skip if authKey is already present)
     if (reuseAuthKey) {
-      this.onMessage('using already generated authentication key')
+      this.onMessage('Using already generated authentication key')
     } else {
-      this.onMessage('generating authentication key')
+      this.onMessage('Uenerating authentication key')
       this.hashResult = await this.hashPassword(user.password, salt, this.hashParams)
     }
      
-    this.onMessage('solving authentication challenge')
+    this.onMessage('Solving authentication challenge')
     // Use the argon2 output as a seed to derive an ed25519 keypair
     // TODO: Memoize signing key generation
     const { privateKey } = await this.generateSigningKey(this.hashResult!)
     this.signingKey = privateKey
 
     // Sign the challenge data
-    this.onMessage('signing challenge')
+    this.onMessage('Signing challenge')
     const signature = await this.signChallenge(decode(challenge.data), this.signingKey)
-    this.onMessage('submitting challenge')
+    this.onMessage('Submitting challenge')
     res = await fetch(route(`/challenge/${challenge.id}?${upgrade ? 'type=upgrade&' : ''}action=submit`), {
       method: 'POST',
       headers: {
@@ -226,7 +226,7 @@ export class LoginActions {
       throw new Error(err.message || 'Unknown error submitting challenge')
     }
 
-    this.onMessage('successfully authenticated')
+    this.onMessage('Successfully authenticated')
 
     // If the user is upgrading an existing authentication session, the CSRF token and local state don't need to be updated
     if (upgrade) {
@@ -236,7 +236,7 @@ export class LoginActions {
     const response: ChallengeResponse = await res.json()
     const csrfToken = res.headers.get('CSRF-Token')
     if (csrfToken == null) {
-      throw new Error('empty CSRF Token from API')
+      throw new Error('Empty CSRF Token from API')
     }
     localStorage.setItem('CSRF-Token', csrfToken)
 
