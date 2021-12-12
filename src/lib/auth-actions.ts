@@ -190,15 +190,14 @@ export class LoginActions {
     const challenge: Challenge = await res.json()
 
     // Load argon2 parameters and decode salt from the challenge
-    this.hashParams = challenge.hashParams
-    const salt = decode(this.hashParams.salt)
+    const salt = decode(challenge.hashParams.salt)
 
     // Hash the user's password (skip if authKey is already present)
     if (reuseAuthKey) {
       this.onMessage('using already generated authentication key')
     } else {
       this.onMessage('generating authentication key')
-      this.hashResult = await this.hashPassword(user.password, salt)
+      this.hashResult = await this.hashPassword(user.password, salt, this.hashParams)
     }
      
     this.onMessage('solving authentication challenge')
@@ -418,7 +417,6 @@ export class PasswordChangeActions extends RegisterActions {
     // Derive an authentication keypair from the new password and salt
     this.hashResult = await this.hashPassword(newPassword, authSalt)
     const { publicKey } = await this.generateSigningKey(this.hashResult!, false)
-    this.signingKey = publicKey
 
     // Fetch and re-encrypt the user's master private key
     const { privateKey } = await this.retrieveMasterKeypair(oldPassword, true)
@@ -434,7 +432,7 @@ export class PasswordChangeActions extends RegisterActions {
         'CSRF-Token': localStorage.getItem('CSRF-Token')!
       },
       body: JSON.stringify(<PasswordUpdate>{
-        authKey: encode(this.signingKey!),
+        authKey: encode(publicKey!),
         privateKey: encryptedPrivateKey,
         hashParams: {
           auth: {

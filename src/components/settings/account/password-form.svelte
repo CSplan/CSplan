@@ -40,6 +40,7 @@
       return
     }
     // Upgrade the current session to level 2 auth
+    const start = performance.now()
     const actions = new PasswordChangeActions(new Worker(argon2WorkerPath), new Worker(ed25519Path))
     await actions.loadArgon2({ wasmRoot: '/argon2', simd: false })
     await actions.loadED25519({ wasmPath: '/ed25519/ed25519.wasm' })
@@ -55,7 +56,7 @@
     const authSalt = makeSalt(16)
     const cryptoSalt = makeSalt(16)
     await actions.changePassword(oldPassword.value, newPassword.value, authSalt, cryptoSalt)
-    console.log('success changing password!')
+    console.log(performance.now() - start)
   }
 </script>
 
