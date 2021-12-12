@@ -1,6 +1,6 @@
 <script lang="ts">
   import navState, { FormIDs } from '../navigation-state'
-  import { AuthConditions, PasswordChangeActions } from '$lib/auth-actions'
+  import { PasswordChangeActions } from '$lib/auth-actions'
   import { makeSalt } from 'cs-crypto'
   import { slide } from 'svelte/transition'
   import { dev } from '$app/env'
@@ -26,9 +26,14 @@ import Spinner from '$components/spinner.svelte'
   let newPassword: HTMLInputElement
   let confirmPassword: HTMLInputElement
 
-  let showSpinner = false
+  enum States {
+    Resting,
+    Submitting,
+    Success,
+    Errored
+  }
+  let state = States.Resting
   let statusMessage = ''
-  let error = false
   
 
   const argon2WorkerPath = dev ? '/argon2/worker.js' : '/argon2/worker.min.js'
@@ -47,7 +52,7 @@ import Spinner from '$components/spinner.svelte'
     }
     // Upgrade the current session to level 2 auth
     const actions = new PasswordChangeActions(new Worker(argon2WorkerPath), new Worker(ed25519Path))
-    showSpinner = true
+    state = States.Submitting
     actions.onMessage = (message: string) => {
       statusMessage = message
     }
@@ -55,23 +60,27 @@ import Spinner from '$components/spinner.svelte'
     try { 
       await actions.loadArgon2({ wasmRoot: '/argon2', simd: false })
       await actions.loadED25519({ wasmPath: '/ed25519/ed25519.wasm' })
-      const result = await actions.authenticate({
+      await actions.authenticate({
         email: '',
         password: oldPassword.value
       }, false, true)
-      if (result !== AuthConditions.Upgraded) {
-        console.error(`Unexpected auth condition: ${result}`)
-      }
       
       // Perform the password change for both authentication and cryptographic contexts
       const authSalt = makeSalt(16)
       const cryptoSalt = makeSalt(16)
       await actions.changePassword(oldPassword.value, newPassword.value, authSalt, cryptoSalt)
+      statusMessage = 'Password was successfully changed'
     } catch (err) {
       statusMessage = (err instanceof Error) ? err.message : err as string
-      error = true
+      state = States.Errored
+      return
     }
-    showSpinner = false
+    state = States.Success
+    form.reset()
+    setTimeout(() => {
+      statusMessage = ''
+      state = States.Resting
+    }, 1000)
   }
 </script>
 
@@ -97,14 +106,14 @@ import Spinner from '$components/spinner.svelte'
         <span class="checkable">Show New Passwords</span>
       </label>
 
-      {#if showSpinner}
+      {#if state === States.Submitting}
         <Spinner size="2rem" vm="0.5rem"></Spinner>
       {/if}
       {#if statusMessage.length > 0}
-        <span class="status-message" class:error={error}>{statusMessage}</span>
+        <span class="status-message" class:error={state === States.Errored} class:success={state === States.Success}>{statusMessage}</span>
       {/if}
 
-      {#if !showSpinner}
+      {#if [States.Resting, States.Errored].includes(state)}
         <input type="submit" value="Change Password">
       {/if}
     </div>
@@ -126,6 +135,9 @@ import Spinner from '$components/spinner.svelte'
     align-self: center;
     &.error {
       color: $danger-red;
+    }
+    &.success {
+      color: green;
     }
   }
   i.fa-edit { 

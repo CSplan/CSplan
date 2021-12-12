@@ -33,6 +33,7 @@
   let actions: RegisterActions
 
   // If the user is already logged in, redirect them
+  // FIXME: Handle automatic navigation in a not stupid way (how its done login-form.svelte)
   $: {
     if ($user.isLoggedIn && state === States.Resting) {
       goto('/')
@@ -67,17 +68,21 @@
 
       await actions.confirmAccount()
 
-      goto('/')
     } catch (err) {
       console.error(err)
       user.logout()
       state = States.Error
       error = err instanceof Error ? err.message : err as string
+      return
     }
+    goto('/')
   }
 
   // Mount
   onMount(async () => {
+    if ($user.isLoggedIn) {
+      goto('/')
+    }
     // Initialize argon2 and ed25519 workers
     const wasmRoot = '/argon2'
     const workerScript = dev ? 'worker.js' : 'worker.min.js'
