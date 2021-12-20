@@ -22,18 +22,3 @@ declare type KeyedObject = {
   id: string
   [index: string]: unknown
 }
-
-declare type SMSXStore<R extends KeyedObject, D extends unknown> = {
-  async init(): Promise<void>
-  async create(data: D): Promise<{
-    id: string
-  }>
-  update(id: string, data: Partial<R>): void
-  async commit(id: string): Promise<R>|Promise<void>
-  async delete(id: string): Promise<void>
-}
-
-declare type BasicStore<D extends unknown> = {
-  async init(): Promise<void>
-  async create(data: D, isUpdate?: boolean): Promise<void>
-}

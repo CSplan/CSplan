@@ -15,7 +15,8 @@
       "$lib": ["lib"],
       "$lib/*": ["lib/*"],
       "$stores/*": ["stores/*"],
-      "$components/*": ["components/*"]
+      "$components/*": ["components/*"],
+      "$db": ["db"]
     }
   }
 }

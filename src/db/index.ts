@@ -45,6 +45,14 @@ const stores: StoreTemplate[] = [
       keyPath: 'id',
       autoIncrement: false
     }
+  },
+  {
+    name: 'user-name',
+    scope: Scopes.User,
+    options: {
+      keyPath: 'id',
+      autoIncrement: false
+    }
   }
 ]
 
