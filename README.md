@@ -14,6 +14,7 @@ Frontend for CSplan.
 
 - [x] Advanced authkey + cryptokey configuration
 - [x] Navigation bar
+- [ ] Replace unintended object casts with proper typed assignments
 - [ ] Settings page
 - [ ] JSON exports
 - [ ] Homepage

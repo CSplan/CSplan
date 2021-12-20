@@ -58,7 +58,6 @@ function create(): Readable<Name> & NameStore {
       const decryptFirstName = visibility.firstName === Visibilities.Encrypted
       const decryptLastName = visibility.lastName === Visibilities.Encrypted
       const hasEncryptedFields = decryptFirstName || decryptLastName || decryptUsername || document.namePreference != null
-
       // Decrypt the cryptokey if needed
       let cryptoKey: CryptoKey|undefined
       if (hasEncryptedFields && document.meta.cryptoKey !== undefined) {
@@ -110,24 +109,12 @@ function create(): Readable<Name> & NameStore {
         cryptoKey = await aes.generateKey('AES-GCM')
       } 
       // Encrypt any necessary fields
-      let firstName: string, lastName: string, username: string, encryptedNamePreference: string|undefined
-      if (encryptFirstName) {
-        firstName = await aes.encrypt(name.firstName, cryptoKey!)
-      } else {
-        firstName = name.firstName
-      }
-      if (encryptLastName) {
-        lastName = await aes.encrypt(name.lastName, cryptoKey!)
-      } else {
-        lastName = name.lastName
-      }
-      if (encryptUsername) {
-        username = await aes.encrypt(name.username, cryptoKey!)
-      } else {
-        username = name.username
-      }
+      const firstName = encryptFirstName ? await aes.encrypt(name.firstName, cryptoKey!) : name.firstName
+      const lastName = encryptLastName ? await aes.encrypt(name.lastName, cryptoKey!) : name.lastName
+      const username = encryptUsername ? await aes.encrypt(name.username, cryptoKey!) : name.username
+      let namePreference: string|undefined
       if (name.namePreference != null){
-        encryptedNamePreference = await aes.encrypt(name.namePreference.toString(), cryptoKey!)
+        namePreference = await aes.encrypt(name.namePreference.toString(), cryptoKey!)
       }
 
       // Encrypt the cryptokey
@@ -142,7 +129,7 @@ function create(): Readable<Name> & NameStore {
         firstName,
         lastName,
         username,
-        namePreference: encryptedNamePreference,
+        namePreference,
         publicNamePreference: name.publicNamePreference,
         visibility,
         meta: {
