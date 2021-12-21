@@ -1,6 +1,6 @@
 <script lang="ts">
   import navState, { FormIDs } from '../navigation-state'
-  import { DisplayNames } from '$lib'
+  import { DisplayNames, Visibilities } from '$lib'
   import VisibilityForm from '../visibility-form.svelte'
   import nameStore from '$stores/user-name'
   import { onMount } from 'svelte'
@@ -10,6 +10,14 @@
   let editing = false
   let disabled = !editing
   $: disabled = !editing
+
+  // State references used to decide available display name options
+  let hasUsername = false
+  let hasPublicFirstName = false
+  let hasPublicLastName = false
+  $: hasUsername = name.username != null
+  $: hasPublicFirstName = name.firstName.length > 0 && name.visibility.firstName === Visibilities.Public
+  $: hasPublicLastName = name.lastName.length > 0 && name.visibility.lastName === Visibilities.Public
 
   function toggleEditing(): void {
     editing = !editing
@@ -53,18 +61,29 @@
   </div>
 
   {#if editing}
+    <!-- FIXME: HTML selects look terrible, but provide good keyboard and accessibility. These need to be replaced sooner than later with a custom component that doesn't sacrifice functoinality -->
     <label for="public-name-pref">Display Name</label>
-    <select id="public-name-pref" {disabled}>
+    <select id="public-name-pref" {disabled} bind:value={name.displayName}>
       <option value={DisplayNames.Anonymous}>Anonymous</option>
-      <option value={DisplayNames.Username}>Username</option>
-      <option value={DisplayNames.FirstName}>First Name</option>
-      <option value={DisplayNames.LastName}>Last Name</option>
-      <option value={DisplayNames.FullName}>Full Name</option>
-      <option value={DisplayNames.FullNameAndUsername}>Full Name and Username</option>
+      {#if hasUsername}
+        <option value={DisplayNames.Username}>Username</option>
+      {/if}
+      {#if hasPublicFirstName}
+        <option value={DisplayNames.FirstName}>First Name</option>
+      {/if}
+      {#if hasPublicLastName}
+        <option value={DisplayNames.LastName}>Last Name</option>
+      {/if}
+      {#if hasPublicFirstName && hasPublicLastName}
+        <option value={DisplayNames.FullName}>Full Name</option>
+      {/if}
+      {#if hasPublicFirstName && hasPublicLastName && hasUsername}
+        <option value={DisplayNames.FullNameAndUsername}>Full Name and Username</option>
+      {/if}
     </select>
 
     <label for="private-name-pref">Private Display Name</label>
-    <select id="name-pref" {disabled}>
+    <select id="name-pref" {disabled} bind:value={name.privateDisplayName}>
       <option value={DisplayNames.Anonymous}>None (use normal display name)</option>
       <option value={DisplayNames.Username}>Username</option>
       <option value={DisplayNames.FirstName}>First Name</option>
