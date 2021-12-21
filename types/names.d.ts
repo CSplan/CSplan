@@ -16,22 +16,19 @@ declare type NameMetaResponse = {
 declare type NameData<E extends boolean = false> = {
   firstName: string
   lastName: string
-  username: string
+  username?: string
 
   visibility: NameVisibility
 
-  namePreference?: E extends true ? string : import('$lib').NamePreferences
-  publicNamePreference: import('$lib').NamePreferences
+  displayName: import('$lib').DisplayNames
+  privateDisplayName?: E extends true ? string : import('$lib').DisplayNames
 }
 
 declare type NameVisibility = {
   firstName: import('$lib').Visibilities
   lastName: import('$lib').Visibilities
-  username: import('$lib').Visibilities
 }
 
 declare type Name = Omit<MetaState, 'cryptoKey'> & {
   cryptoKey?: CryptoKey
 } & NameData
-
-declare type NameStore = SingleResourceStore<NameData>

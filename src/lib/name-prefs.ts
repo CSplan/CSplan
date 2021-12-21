@@ -1,7 +1,8 @@
-export enum NamePreferences {
+export enum DisplayNames {
   Anonymous = 0,
   Username = 1,
   FirstName = 2,
   LastName = 3,
-  FirstAndLastName = 4
+  FullName = 4,
+  FullNameAndUsername = 5
 }

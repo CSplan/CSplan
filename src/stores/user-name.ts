@@ -1,23 +1,21 @@
 import { aes, rsa } from 'cs-crypto'
 import { getUserID } from '$lib/session'
 import { Readable, writable } from 'svelte/store'
-import { HTTPerror, NamePreferences, Visibilities } from '$lib'
+import { HTTPerror, DisplayNames, Visibilities } from '$lib'
 import { route } from 'core'
 import { mustGetByKey, addToStore, getByKey, updateWithKey } from '$db'
 
-
-function create(): Readable<Name> & NameStore {
+function create(): Readable<Name> & SingleResourceStore<NameData> {
   let initialized = false
   const initialState: Name = {
     id: '',
     firstName: '',
     lastName: '',
     username: '',
-    publicNamePreference: NamePreferences.Anonymous,
+    displayName: DisplayNames.Anonymous,
     visibility: {
       firstName: Visibilities.Encrypted,
-      lastName: Visibilities.Encrypted,
-      username: Visibilities.Encrypted
+      lastName: Visibilities.Encrypted
     },
     checksum: ''
   }
@@ -54,10 +52,9 @@ function create(): Readable<Name> & NameStore {
     
       const visibility = document.visibility
 
-      const decryptUsername = visibility.username === Visibilities.Encrypted
       const decryptFirstName = visibility.firstName === Visibilities.Encrypted
       const decryptLastName = visibility.lastName === Visibilities.Encrypted
-      const hasEncryptedFields = decryptFirstName || decryptLastName || decryptUsername || document.namePreference != null
+      const hasEncryptedFields = decryptFirstName || decryptLastName || document.privateDisplayName != null
       // Decrypt the cryptokey if needed
       let cryptoKey: CryptoKey|undefined
       if (hasEncryptedFields && document.meta.cryptoKey !== undefined) {
@@ -68,10 +65,9 @@ function create(): Readable<Name> & NameStore {
       // Decrypt necessary fields
       const firstName = decryptFirstName ? await aes.decrypt(document.firstName, cryptoKey!) : document.firstName
       const lastName = decryptLastName ? await aes.decrypt(document.lastName, cryptoKey!) : document.lastName
-      const username = decryptUsername ? await aes.decrypt(document.username, cryptoKey!) : document.username
-      let namePreference: NamePreferences|undefined
-      if (document.namePreference != null) {
-        namePreference = parseInt(await aes.decrypt(document.namePreference, cryptoKey!))
+      let namePreference: DisplayNames|undefined
+      if (document.privateDisplayName != null) {
+        namePreference = parseInt(await aes.decrypt(document.privateDisplayName, cryptoKey!))
       }
 
       // Update local state
@@ -79,10 +75,10 @@ function create(): Readable<Name> & NameStore {
         id: userID,
         firstName,
         lastName,
-        username,
+        username: document.username,
         visibility,
-        namePreference,
-        publicNamePreference: document.publicNamePreference,
+        privateDisplayName: namePreference,
+        displayName: document.displayName,
         cryptoKey,
         checksum: document.meta.checksum
       }
@@ -100,10 +96,9 @@ function create(): Readable<Name> & NameStore {
 
       // Generate a key if there are any fields that need to be encrypted
       const visibility = name.visibility
-      const encryptUsername = visibility.username === Visibilities.Encrypted
       const encryptFirstName = visibility.firstName === Visibilities.Encrypted
       const encryptLastName = visibility.lastName === Visibilities.Encrypted
-      const hasEncryptedFields = encryptFirstName || encryptLastName || encryptUsername || name.namePreference != null
+      const hasEncryptedFields = encryptFirstName || encryptLastName || name.privateDisplayName != null
       let cryptoKey: CryptoKey|undefined
       if (hasEncryptedFields) {
         cryptoKey = await aes.generateKey('AES-GCM')
@@ -111,10 +106,9 @@ function create(): Readable<Name> & NameStore {
       // Encrypt any necessary fields
       const firstName = encryptFirstName ? await aes.encrypt(name.firstName, cryptoKey!) : name.firstName
       const lastName = encryptLastName ? await aes.encrypt(name.lastName, cryptoKey!) : name.lastName
-      const username = encryptUsername ? await aes.encrypt(name.username, cryptoKey!) : name.username
       let namePreference: string|undefined
-      if (name.namePreference != null){
-        namePreference = await aes.encrypt(name.namePreference.toString(), cryptoKey!)
+      if (name.privateDisplayName != null){
+        namePreference = await aes.encrypt(name.privateDisplayName.toString(), cryptoKey!)
       }
 
       // Encrypt the cryptokey
@@ -128,16 +122,16 @@ function create(): Readable<Name> & NameStore {
       const document: NameDocument<NameMetaRequest> = {
         firstName,
         lastName,
-        username,
-        namePreference,
-        publicNamePreference: name.publicNamePreference,
+        username: name.username,
+        privateDisplayName: namePreference,
+        displayName: name.displayName,
         visibility,
         meta: {
           cryptoKey: encryptedKey
         }
       }
       const res = await fetch(route('/name'), {
-        method: 'PUT',
+        method: 'PATCH',
         headers: {
           'CSRF-Token': localStorage.getItem('CSRF-Token')!,
           'Content-Type': 'application/json'

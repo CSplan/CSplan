@@ -4,7 +4,7 @@
   import { makeSalt } from 'cs-crypto'
   import { slide } from 'svelte/transition'
   import { dev } from '$app/env'
-import Spinner from '$components/spinner.svelte'
+  import Spinner from '$components/spinner.svelte'
 
   let open = false
   function onOpen(): void {
