@@ -2,7 +2,7 @@ import { aes, rsa } from 'cs-crypto'
 import { getUserID } from '$lib/session'
 import { Readable, writable } from 'svelte/store'
 import { HTTPerror, DisplayNames, Visibilities } from '$lib'
-import { route } from 'core'
+import { route } from '$lib'
 import { mustGetByKey, addToStore, getByKey, updateWithKey } from '$db'
 
 function create(): Readable<Name> & SingleResourceStore<NameData> {

@@ -1,16 +1,32 @@
 <script lang="ts">
   import navState, { FormIDs } from '../navigation-state'
   import { DisplayNames } from '$lib'
+  import VisibilityForm from '../visibility-form.svelte'
+  import nameStore from '$stores/user-name'
+  import { onMount } from 'svelte'
+
+  let name: Name = $nameStore
+
+  onMount(async () => {
+    await nameStore.init() 
+    name = $nameStore
+  })
 
 
 </script>
 
 <form class="name-form" class:disabled={$navState.isEditing !== null && $navState.isEditing !== FormIDs.ChangeName}>
   <label for="firstname">First Name</label>
-  <input id="firstname" type="text" disabled>
+  <div class="input-group">
+    <input id="firstname" type="text" disabled>
+    <VisibilityForm bind:visibility={name.visibility.firstName}/>
+  </div>
 
   <label for="lastname">Last Name</label>
-  <input id="lastname" type="text" disabled>
+  <div class="input-group">
+    <input id="lastname" type="text" disabled>
+    <VisibilityForm bind:visibility={name.visibility.lastName}/>
+  </div>
 
   <label for="public-name-pref">Display Name</label>
   <select id="public-name-pref">

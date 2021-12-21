@@ -36,27 +36,27 @@
   <section class="visibilities">
     <header>Visibility</header>
 
-    <label for="vis-encrypted">
+    <label>
       <i class="fas fa-lock"/>
       <span>Encrypted</span>
       <!-- FIXME: These indicator icons are ugly, will be removed when better control of icon texture is available w FA-pro -->
       <i class="{visibility === Visibilities.Encrypted ? 'fas' : 'far'} fa-circle indicator"></i>
+      <input type="radio" bind:group={visibility} value={Visibilities.Encrypted} on:change={onChange}>
     </label>
-    <input type="radio" id="vis-encrypted" bind:group={visibility} value={Visibilities.Encrypted} on:change={onChange}>
 
-    <label for="vis-semipublic" class="d-none">
+    <label class="d-none">
       <i class="far fa-eye-slash"></i>
       <span>Semi-Public</span>
       <i class="{visibility === Visibilities.SemiPublic ? 'fas' : 'far'} fa-circle indicator"></i>
+      <input type="radio" disabled>
     </label>
-    <input type="radio" disabled id="vis-semipublic">
 
-    <label for="vis-public">
+    <label>
       <i class="fas fa-user"></i>
       <span>Public</span>
       <i class="{visibility === Visibilities.Public ? 'fas' : 'far'} fa-circle indicator"></i>
+      <input type="radio" id="vis-public" bind:group={visibility} value={Visibilities.Public} on:change={onChange}>
     </label>
-    <input type="radio" id="vis-public" bind:group={visibility} value={Visibilities.Public} on:change={onChange}>
   </section>
 </details>
 
@@ -118,5 +118,7 @@
       border-bottom: none;
     }
   }
- 
+  span {
+    margin: 0 !important;
+  }
 </style>
