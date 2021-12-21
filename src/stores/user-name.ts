@@ -1,9 +1,9 @@
 import { aes, rsa } from 'cs-crypto'
-import { getUserID } from '$lib/session'
-import { Readable, writable } from 'svelte/store'
+import { Readable, writable, get } from 'svelte/store'
 import { HTTPerror, DisplayNames, Visibilities } from '$lib'
 import { route } from '$lib'
 import { mustGetByKey, addToStore, getByKey, updateWithKey } from '$db'
+import  userStore from './user'
 
 function create(): Readable<Name> & SingleResourceStore<NameData> {
   let initialized = false
@@ -11,7 +11,6 @@ function create(): Readable<Name> & SingleResourceStore<NameData> {
     id: '',
     firstName: '',
     lastName: '',
-    username: '',
     displayName: DisplayNames.Anonymous,
     visibility: {
       firstName: Visibilities.Encrypted,
@@ -28,7 +27,7 @@ function create(): Readable<Name> & SingleResourceStore<NameData> {
         return
       }
 
-      const userID = getUserID()
+      const user: UserStore['user'] = JSON.parse(localStorage.getItem('user')!)
       const res = await fetch(route('/name'), {
         method: 'GET',
         headers: {
@@ -44,7 +43,7 @@ function create(): Readable<Name> & SingleResourceStore<NameData> {
       }
 
       const document: NameDocument = await res.json()
-      const cached: Name|undefined = await getByKey('user-name', userID)
+      const cached: Name|undefined = await getByKey('user-name', user.id)
       if (cached != null && cached.checksum === document.meta.checksum) {
         set(cached)
         return
@@ -58,7 +57,7 @@ function create(): Readable<Name> & SingleResourceStore<NameData> {
       // Decrypt the cryptokey if needed
       let cryptoKey: CryptoKey|undefined
       if (hasEncryptedFields && document.meta.cryptoKey !== undefined) {
-        const { privateKey } = await mustGetByKey<MasterKeys>('keys', userID)
+        const { privateKey } = await mustGetByKey<MasterKeys>('keys', user.id)
         cryptoKey = await rsa.unwrapKey(document.meta.cryptoKey, privateKey, 'AES-GCM')
       }
 
@@ -72,7 +71,7 @@ function create(): Readable<Name> & SingleResourceStore<NameData> {
 
       // Update local state
       const final: Name = {
-        id: userID,
+        id: user.id,
         firstName,
         lastName,
         username: document.username,
@@ -92,7 +91,7 @@ function create(): Readable<Name> & SingleResourceStore<NameData> {
         throw new TypeError(`Expected type object, received type ${typeof name}`)
       }
       // Get the user's ID
-      const userID = getUserID()
+      const { user } = get(userStore)
 
       // Generate a key if there are any fields that need to be encrypted
       const visibility = name.visibility
@@ -114,7 +113,7 @@ function create(): Readable<Name> & SingleResourceStore<NameData> {
       // Encrypt the cryptokey
       let encryptedKey: string|undefined
       if (cryptoKey != null) {
-        const { publicKey } = await mustGetByKey<MasterKeys>('keys', userID)
+        const { publicKey } = await mustGetByKey<MasterKeys>('keys', user.id)
         encryptedKey = await rsa.wrapKey(cryptoKey!, publicKey)
       }
 
@@ -146,7 +145,7 @@ function create(): Readable<Name> & SingleResourceStore<NameData> {
       const { meta }: MetaResponse = await res.json()
       const final: Name = {
         ...name,
-        id: userID,
+        id: user.id,
         checksum: meta.checksum,
         cryptoKey
       }

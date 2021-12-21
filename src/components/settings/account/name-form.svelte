@@ -23,13 +23,21 @@
     }
   }
 
+  async function submit(): Promise<void> {
+    try {
+      await nameStore.create(name)
+    } catch (err) {
+      console.error(`submit error for name form: ${err}`)
+    }
+  }
+
   onMount(async () => {
     await nameStore.init() 
     name = cloneName($nameStore)
   })
 </script>
 
-<form class="name-form" class:disabled={$navState.isEditing !== null && $navState.isEditing !== FormIDs.ChangeName} class:editing>
+<form class="name-form" class:disabled={$navState.isEditing !== null && $navState.isEditing !== FormIDs.ChangeName} class:editing on:submit|preventDefault={submit}>
   <i class="fas fa-edit clickable edit-button" class:editing on:click={toggleEditing}></i>
 
   <label for="firstname">First Name</label>
@@ -44,24 +52,26 @@
     <VisibilityForm bind:visibility={name.visibility.lastName} {disabled}/>
   </div>
 
-  <label for="public-name-pref">Display Name</label>
-  <select id="public-name-pref" {disabled}>
-    <option value={DisplayNames.Anonymous}>Anonymous</option>
-    <option value={DisplayNames.Username}>Username</option>
-    <option value={DisplayNames.FirstName}>First Name</option>
-    <option value={DisplayNames.LastName}>Last Name</option>
-    <option value={DisplayNames.FullName}>Full Name</option>
-    <option value={DisplayNames.FullNameAndUsername}>Full Name and Username</option>
-  </select>
+  {#if editing}
+    <label for="public-name-pref">Display Name</label>
+    <select id="public-name-pref" {disabled}>
+      <option value={DisplayNames.Anonymous}>Anonymous</option>
+      <option value={DisplayNames.Username}>Username</option>
+      <option value={DisplayNames.FirstName}>First Name</option>
+      <option value={DisplayNames.LastName}>Last Name</option>
+      <option value={DisplayNames.FullName}>Full Name</option>
+      <option value={DisplayNames.FullNameAndUsername}>Full Name and Username</option>
+    </select>
 
-  <label for="private-name-pref">Private Display Name</label>
-  <select id="name-pref" {disabled}>
-    <option value={DisplayNames.Anonymous}>None (use normal display name)</option>
-    <option value={DisplayNames.Username}>Username</option>
-    <option value={DisplayNames.FirstName}>First Name</option>
-    <option value={DisplayNames.LastName}>Last Name</option>
-    <option value={DisplayNames.FullName}>Full Name</option>
-  </select>
+    <label for="private-name-pref">Private Display Name</label>
+    <select id="name-pref" {disabled}>
+      <option value={DisplayNames.Anonymous}>None (use normal display name)</option>
+      <option value={DisplayNames.Username}>Username</option>
+      <option value={DisplayNames.FirstName}>First Name</option>
+      <option value={DisplayNames.LastName}>Last Name</option>
+      <option value={DisplayNames.FullName}>Full Name</option>
+    </select>
+  {/if}
 
 
     {#if editing}

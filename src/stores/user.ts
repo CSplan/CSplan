@@ -2,13 +2,6 @@ import { goto } from '$app/navigation'
 import { Readable, writable } from 'svelte/store'
 import { clearAll, clearUserStores } from '../db'
 
-export type UserStore = {
-  user: {
-    id: string
-    email: string
-  }
-  isLoggedIn: boolean
-}
 
 type UserActions = {
   login(user: UserStore['user']): void
