@@ -4,6 +4,7 @@
   import VisibilityForm from '../visibility-form.svelte'
   import nameStore from '$stores/user-name'
   import { onMount } from 'svelte'
+  import { slide } from 'svelte/transition'
 
   let name: Name
   name = cloneName($nameStore)
@@ -34,8 +35,10 @@
   async function submit(): Promise<void> {
     try {
       await nameStore.create(name)
+      // FIXME: visual indication of name form submission error/success
+      editing = false
     } catch (err) {
-      console.error(`submit error for name form: ${err}`)
+      console.error(`submit error for name form: ${err}`) // TODO: error handling for name form
     }
   }
 
@@ -61,35 +64,37 @@
   </div>
 
   {#if editing}
-    <!-- FIXME: HTML selects look terrible, but provide good keyboard and accessibility. These need to be replaced sooner than later with a custom component that doesn't sacrifice functoinality -->
-    <label for="public-name-pref">Display Name</label>
-    <select id="public-name-pref" {disabled} bind:value={name.displayName}>
-      <option value={DisplayNames.Anonymous}>Anonymous</option>
-      {#if hasUsername}
-        <option value={DisplayNames.Username}>Username</option>
-      {/if}
-      {#if hasPublicFirstName}
-        <option value={DisplayNames.FirstName}>First Name</option>
-      {/if}
-      {#if hasPublicLastName}
-        <option value={DisplayNames.LastName}>Last Name</option>
-      {/if}
-      {#if hasPublicFirstName && hasPublicLastName}
-        <option value={DisplayNames.FullName}>Full Name</option>
-      {/if}
-      {#if hasPublicFirstName && hasPublicLastName && hasUsername}
-        <option value={DisplayNames.FullNameAndUsername}>Full Name and Username</option>
-      {/if}
-    </select>
+    <div class="editable" transition:slide={{ duration: 50 }}>
+      <!-- FIXME: HTML selects look terrible, but provide good keyboard and accessibility. These need to be replaced sooner than later with a custom component that doesn't sacrifice functoinality -->
+      <label for="public-name-pref">Display Name</label>
+      <select id="public-name-pref" {disabled} bind:value={name.displayName}>
+        <option value={DisplayNames.Anonymous}>Anonymous</option>
+        {#if hasUsername}
+          <option value={DisplayNames.Username}>Username</option>
+        {/if}
+        {#if hasPublicFirstName}
+          <option value={DisplayNames.FirstName}>First Name</option>
+        {/if}
+        {#if hasPublicLastName}
+          <option value={DisplayNames.LastName}>Last Name</option>
+        {/if}
+        {#if hasPublicFirstName && hasPublicLastName}
+          <option value={DisplayNames.FullName}>Full Name</option>
+        {/if}
+        {#if hasPublicFirstName && hasPublicLastName && hasUsername}
+          <option value={DisplayNames.FullNameAndUsername}>Full Name and Username</option>
+        {/if}
+      </select>
 
-    <label for="private-name-pref">Private Display Name</label>
-    <select id="name-pref" {disabled} bind:value={name.privateDisplayName}>
-      <option value={DisplayNames.Anonymous}>None (use normal display name)</option>
-      <option value={DisplayNames.Username}>Username</option>
-      <option value={DisplayNames.FirstName}>First Name</option>
-      <option value={DisplayNames.LastName}>Last Name</option>
-      <option value={DisplayNames.FullName}>Full Name</option>
-    </select>
+      <label for="private-name-pref">Private Display Name</label>
+      <select id="name-pref" {disabled} bind:value={name.privateDisplayName}>
+        <option value={DisplayNames.Anonymous}>None (use normal display name)</option>
+        <option value={DisplayNames.Username}>Username</option>
+        <option value={DisplayNames.FirstName}>First Name</option>
+        <option value={DisplayNames.LastName}>Last Name</option>
+        <option value={DisplayNames.FullName}>Full Name</option>
+      </select>
+      </div>
   {/if}
 
 

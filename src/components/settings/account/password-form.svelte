@@ -7,7 +7,7 @@
   import Spinner from '$components/spinner.svelte'
 
   let open = false
-  function onOpen(): void {
+  function toggleOpen(): void {
     open = !open
     if (open) {
       $navState.isEditing = FormIDs.ChangePassword
@@ -81,7 +81,7 @@
     setTimeout(() => {
       statusMessage = ''
       state = States.Resting
-      open = false
+      toggleOpen()
     }, 1000)
   }
 </script>
@@ -90,7 +90,7 @@
   <label for="password">{open ? 'Old ' : ''}Password</label>
   <div class="input-group">
     <input id="password" type="{showOldPassword ? 'text' : 'password'}" bind:this={oldPassword} disabled={!open} placeholder={oldPlaceholder} required>
-    <i class="fas fa-edit clickable" class:open on:click={onOpen}></i>
+    <i class="fas fa-edit clickable" class:open on:click={toggleOpen}></i>
   </div>
   {#if open}
     <div class="editable" transition:slide={{ duration: 50 }}>
