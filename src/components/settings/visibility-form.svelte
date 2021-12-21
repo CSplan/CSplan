@@ -26,7 +26,7 @@
     }
   }
 
-  function onClick(evt: MouseEvent): void {
+  function onclick(evt: MouseEvent): void {
     if (disabled) {
       evt.preventDefault()
     }
@@ -35,9 +35,9 @@
 
 <svelte:window on:click={() => showVisibilities = false} />
 
-<details class="visibility" bind:open={showVisibilities} on:click|stopPropagation>
+<details class="visibility" bind:open={showVisibilities} on:click|stopPropagation={onclick}>
   <summary>
-    <i class="visibility {visibilityIcon} clickable" title="{Visibilities[visibility]}" on:click={onClick}></i>
+    <i class="visibility {visibilityIcon} clickable" title="{Visibilities[visibility]}"/>
   </summary>
 
   <section class="visibilities">

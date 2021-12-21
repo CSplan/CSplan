@@ -75,7 +75,8 @@
     flex-direction: column;
   }
   i.edit-button {
-    margin-right: auto;
+    margin-left: auto;
+    margin-right: 0.5rem;
     margin-bottom: 0.5rem;
   }
   i.editing {
