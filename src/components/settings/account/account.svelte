@@ -28,14 +28,14 @@
 
 <style lang="scss">
   .account-menu :global {
-    input,details,label.checkable,span,select {
+    input,details,label.checkable,span,select,button {
       margin: 0.5rem 0;
       border-radius: 0;
     }
     label.checkable {
       margin-bottom: 1rem;
     }
-    input[type="submit"] {
+    input[type="submit"],input[type="button"],button {
       border-radius: $br-light;
     }
 
@@ -43,11 +43,17 @@
       pointer-events: none; 
     }
 
+    @mixin disabled {
+      transition: none;
+      background-color: rgb(230, 230, 230);
+    }
     input[type="text"],input[type="password"],input[type="email"] {
       &:disabled,&:read-only {
-        transition: none;
-        background-color: rgb(230, 230, 230);
+        @include disabled;
       }
+    }
+    select:disabled {
+      @include disabled;
     }
 
     div.input-group {

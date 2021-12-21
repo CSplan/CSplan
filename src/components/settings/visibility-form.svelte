@@ -2,6 +2,7 @@
   import { Visibilities } from '$lib'
 
   export let visibility: Visibilities
+  export let disabled = false
   let savedVisibility = visibility
 
   let showVisibilities = false
@@ -24,13 +25,19 @@
       showVisibilities = false
     }
   }
+
+  function onClick(evt: MouseEvent): void {
+    if (disabled) {
+      evt.preventDefault()
+    }
+  }
 </script>
 
 <svelte:window on:click={() => showVisibilities = false} />
 
 <details class="visibility" bind:open={showVisibilities} on:click|stopPropagation>
   <summary>
-    <i class="visibility {visibilityIcon} clickable" title="{Visibilities[visibility]}"></i>
+    <i class="visibility {visibilityIcon} clickable" title="{Visibilities[visibility]}" on:click={onClick}></i>
   </summary>
 
   <section class="visibilities">

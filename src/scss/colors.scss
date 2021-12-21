@@ -7,6 +7,8 @@ $br-light: var(--br-light);
 $padding-m: var(--padding-m);
 $danger-red: var(--danger-red);
 $cubic-out: var(--cubic-out);
+$picnic-input-padding: 0.3em 0.45em;
+$bold-blue: var(--bold-blue);
 
 :root {
   --content-large: 800px;
@@ -20,4 +22,5 @@ $cubic-out: var(--cubic-out);
   --primary-purple: #7b1fa2;
   --light-purple: #ae52d4;
   --danger-red: #ff4d4d;
+  --picnic-input-padding: 0.3em 0.45em;
 }
