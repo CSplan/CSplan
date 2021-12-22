@@ -12,9 +12,13 @@
 <style lang="scss">
   button {
     padding: 0.3rem 0.5rem;
+    border-radius: 0;
     width: 100%;
   }
-  i {
+  i:not(.indicator) {
     margin: auto 0.3rem;
+  }
+  i.indicator {
+    display: inline;
   }
 </style>

@@ -1,8 +1,13 @@
 <script lang="ts">
   import { HTTPerror, route } from '$lib'
-  import { onMount } from 'svelte'
+  import { onMount, tick } from 'svelte'
+  import { slide } from 'svelte/transition'
 
   let enabled = false
+  let editing = false
+
+  // Password input, stored for automatic focusing
+  let passwordInput: HTMLInputElement
 
   onMount(async () => {
     const res = await fetch(route('/totp/status'))
@@ -12,9 +17,17 @@
     const status: TOTPStatus = await res.json()
     enabled = status.enabled
   })
+
+  async function toggleEditing(): Promise<void> {
+    editing = !editing
+    if (editing) {
+      await tick()
+      passwordInput.focus()
+    }
+  }
 </script>
 
-<form class="totp-status" on:submit|preventDefault>
+<form class="totp-form" on:submit|preventDefault>
   <p class="totp-info">
     Time based one time passwords allow you to require a second form of authentication for improved log-in security. Enabling this feature requires a separate application capable of manging TOTP codes such as <a href="https://apps.apple.com/us/app/raivo-otp/id1459042137">Ravio OTP</a>, <a href="https://getaegis.app/">Aegis Authenticator</a>, <a href="https://authy.com/">Authy</a>, or <a href="https://keepassxc.org/">KeepassXC</a>.
     <i class="fas fa-info-circle endorsement-tooltip" title="CSplan does not endorse nor test any of the examples provided, users should verify the reliability and security of any TOTP application before trusting it to manage codes."/>
@@ -22,29 +35,34 @@
   <hr>
 
   <div class="totp-indicator" class:enabled>
-    <i class="{enabled ? 'fas fa-check-circle' : 'far fa-circle'} totp-indicator"></i>
+    <i class="{enabled ? 'fas fa-check-circle' : 'fas fa-minus-circle'} totp-indicator"></i>
     <span>TOTP is {enabled ? 'enabled' : 'disabled'}</span>
   </div>
-  {#if enabled}
-    <input class="totp-button disable-button" type="button" value="Disable TOTP">
-  {:else}
-    <input class="totp-button enable-button" type="button" value="Enable TOTP">
+  {#if !editing}
+    {#if enabled}
+      <input class="totp-button disable-button" type="button" value="Disable TOTP" on:click={toggleEditing}>
+    {:else}
+      <input class="totp-button enable-button" type="button" value="Enable TOTP" on:click={toggleEditing}>
+    {/if}
   {/if}
 
-  <label>
-    Password
-    <input type="password" placeholder="Enter your password to {enabled ? 'disable' : 'enable'} TOTP">
-  </label>
+  {#if editing}
+    <div class="editable" in:slide={{ duration: 50 }}>
+      <label>
+        Password
+        <input type="password" placeholder="Enter your password to {enabled ? 'disable' : 'enable'} TOTP" bind:this={passwordInput}>
+      </label>
 
-  <div class="bottom-buttons">
-    <input type="button" value="Cancel" class="cancel-button">
-    <input type="submit" value="Confirm" class="submit-button">
-  </div>
+      <div class="bottom-buttons">
+        <input type="button" value="Cancel" class="cancel-button" on:click={toggleEditing}>
+        <input type="submit" value="Confirm" class="submit-button">
+      </div>
+    </div>
+  {/if}
 </form>
 
 <style lang="scss">
-  form.totp-status {
-    margin: 0.5rem 0;
+  form.totp-form {
     display: flex;
     flex-direction: column;
   }
@@ -71,6 +89,7 @@
     &.enabled {
       color: $success-green;
     }
+    margin-bottom: 0.5rem;
   }
 
   input.enable-button {
