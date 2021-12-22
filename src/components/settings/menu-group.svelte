@@ -4,7 +4,7 @@
   export let color = 'white'
 </script>
 
-<button class="transparent" style="color: {color};">
+<button class="transparent" style="color: {color};" on:click>
   <i class={icon}></i>
   <span>{title}</span>
 </button>

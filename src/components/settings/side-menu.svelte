@@ -1,10 +1,18 @@
 <script lang="ts">
   import MenuGroup from './menu-group.svelte'
+  import Account from './account/account.svelte'
+  import TwoFactor from './2fa/2fa.svelte'
+
+  export let menu: unknown = Account
+
+  function setMenu(component: unknown): void {
+    menu = component
+  }
 </script>
 
 <div class="side-menu">
-  <MenuGroup title="Account" icon="fas fa-user"/>
-  <MenuGroup title="2FA" icon="fas fa-mobile"/>
+  <MenuGroup title="Account" icon="fas fa-user" on:click={() => setMenu(Account)}/>
+  <MenuGroup title="2FA" icon="fas fa-mobile" on:click={() => setMenu(TwoFactor)}/>
   <MenuGroup title="Keys & Backup" icon="fas fa-key"/>
   <MenuGroup title="Sessions" icon="fas fa-desktop"/>
   <MenuGroup title="Delete Account" icon="fas fa-exclamation-circle" color="var(--danger-red)"/>

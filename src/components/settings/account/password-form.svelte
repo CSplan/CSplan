@@ -75,7 +75,7 @@
       state = States.Errored
       return
     }
-    // TODO: success animation
+    // FIXME: use progress component to display state
     state = States.Success
     form.reset()
     setTimeout(() => {

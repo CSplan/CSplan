@@ -2,13 +2,13 @@
   import SideMenu from '$components/settings/side-menu.svelte'
   import Account from '$components/settings/account/account.svelte'
 
-  let menuComponent = Account
+  let menu = Account
 </script>
 
 <div class="container">
-  <SideMenu/>
+  <SideMenu bind:menu/>
   <div class="current-menu">
-    <svelte:component this={menuComponent}/>
+    <svelte:component this={menu}/>
   </div>
 </div>
 
