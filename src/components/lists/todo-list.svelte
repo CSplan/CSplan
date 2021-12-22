@@ -30,7 +30,7 @@
   async function toggleEditMode(): Promise<void> {
     editMode = !editMode
     if (!editMode) {
-      await saveAndCommit()
+      await save()
     }
   }
 
@@ -64,7 +64,7 @@
     lists.update(id, {
       items: list.items
     })
-    await saveAndCommit()
+    await save()
   }
 
   // Skeleton for new items
@@ -83,13 +83,13 @@
     const titleEl: HTMLElement = document.querySelector(`[data-index="${list.items.length - 1}"]`)!
     titleEl.focus()
 
-    await saveAndCommit()
+    await save(false)
   }
 
   async function tagItem(index: number, id: string): Promise<void> {
     list.items[index].tags.push(id)
     list = list
-    await saveAndCommit()
+    await save()
   }
   async function untagItem(index: number, id: string): Promise<void> {
     const tags = list.items[index].tags
@@ -100,13 +100,13 @@
         break
       }
     }
-    await saveAndCommit()
+    await save()
   }
 
   async function deleteItem(index: number): Promise<void> {
     list.items.splice(index, 1)
     list.items = list.items // Trigger render update
-    await saveAndCommit()
+    await save()
   }
   // #endregion
 
@@ -132,16 +132,19 @@
   // #region Save animation
   const fadeDuration = 250
   let cooldown = false
-  async function saveAndCommit(): Promise<void> {
+  async function save(commit = true): Promise<void> {
     if (state !== States.Resting || cooldown) {
       return
     }
-    cooldown = true
     // Wait .5s before showing a loading icon
     // Clientside sanitization is performed before display, and this is all encrypted serverside, so the only purpose this serves 
     lists.update(id, {
       ...list
     })
+    if (!commit) {
+      return
+    }
+    cooldown = true
     const timeout = setTimeout(() => {
       state = States.Saving
     }, 500)
@@ -193,7 +196,7 @@
 
     // Trigger rerender and save
     list.items = list.items
-    await saveAndCommit()
+    await save()
   }
   // #endregion
   

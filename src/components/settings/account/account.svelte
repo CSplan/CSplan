@@ -28,7 +28,7 @@
 
 <style lang="scss">
   .account-menu :global {
-    input,details,label.checkable,span,select,button {
+    input,details,label.checkable,span,p,select,button {
       margin: 0.5rem 0;
       border-radius: 0;
     }

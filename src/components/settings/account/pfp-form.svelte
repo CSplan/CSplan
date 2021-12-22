@@ -226,7 +226,7 @@
       class:saved={state === States.Saved}
       value="Save">
     {#if state === States.Saving}
-      <Spinner size="2.5rem" vm="0.5rem" message="Uploading"/>
+      <Spinner size="2.5rem" vm="0.5rem" message="Uploading" />
     {/if}
   </form>
 </div>
@@ -290,7 +290,7 @@
       background: var(--bold-blue);
       &.saved {
         transition: background-color 200ms var(--cubic-out);
-        background: rgb(0, 163, 87);
+        background: $success-green;
       }
     }
   }

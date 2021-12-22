@@ -1,16 +1,21 @@
 <script lang="ts">
   import navState, { FormIDs } from '../navigation-state'
-  import { DisplayNames, Visibilities } from '$lib'
+  import { DisplayNames, Visibilities, FormStates as States } from '$lib'
   import VisibilityForm from '../visibility-form.svelte'
   import nameStore from '$stores/user-name'
-  import { onMount } from 'svelte'
+  import { onMount, tick } from 'svelte'
   import { slide } from 'svelte/transition'
+  import Spinner from '$components/spinner.svelte'
 
   let name: Name
   name = cloneName($nameStore)
-  let editing = false
+  let editing = true
   let disabled = !editing
   $: disabled = !editing
+
+  // Form state
+  let state = States.Resting
+  let status = ''
 
   // State references used to decide available display name options
   let hasUsername = false
@@ -34,11 +39,21 @@
 
   async function submit(): Promise<void> {
     try {
+      state = States.Saving
+      status = 'Saving'
       await nameStore.create(name)
       // FIXME: visual indication of name form submission error/success
-      editing = false
+      state = States.Saved
+      status = 'Saved'
+      await tick()
+      setTimeout(() => {
+        state = States.Resting
+        status = ''
+        editing = false
+      }, 500)
     } catch (err) {
-      console.error(`submit error for name form: ${err}`) // TODO: error handling for name form
+      state = States.Errored
+      status = err instanceof Error ? err.message : err as string
     }
   }
 
@@ -95,18 +110,32 @@
         <option value={DisplayNames.FullName}>Full Name</option>
       </select>
       </div>
-  {/if}
 
-
-    {#if editing}
-      <input type="submit" value="Submit">
+    {#if state !== States.Resting}
+      <Spinner size="2rem" vm="0.25rem" {state}/>
     {/if}
+    <p class="form-status" class:error={state === States.Errored} class:success={state === States.Saved} class:d-none={status.length === 0}>
+      {status}
+    </p>
+
+    <input type="submit" value="Submit" class:d-none={[States.Loading, States.Saved].includes(state)}>
+  {/if}
 </form>
 
 <style lang="scss">
   form {
     display: flex;
     flex-direction: column;
+  }
+  p.form-status {
+    align-self: center;
+    line-height: 1.5;
+    &.error {
+      color: $danger-red;
+    }
+    &.success {
+      color: $success-green;
+    }
   }
   i.edit-button {
     margin-left: auto;

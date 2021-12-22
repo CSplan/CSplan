@@ -5,10 +5,13 @@ $desktop-min: var(--desktop-min);
 $content-large: var(--content-large);
 $br-light: var(--br-light);
 $padding-m: var(--padding-m);
-$danger-red: var(--danger-red);
 $cubic-out: var(--cubic-out);
 $picnic-input-padding: 0.3em 0.45em;
 $bold-blue: var(--bold-blue);
+
+$danger-red: var(--danger-red);
+$success-green: var(--success-green);
+$success-accent: var(--success-accent);
 
 :root {
   --content-large: 800px;
@@ -22,5 +25,8 @@ $bold-blue: var(--bold-blue);
   --primary-purple: #7b1fa2;
   --light-purple: #ae52d4;
   --danger-red: #ff4d4d;
+  --success-green: hsl(152, 100%, 32%);
+  --success-accent: hsl(152, 100%, 25%);
+
   --picnic-input-padding: 0.3em 0.45em;
 }
