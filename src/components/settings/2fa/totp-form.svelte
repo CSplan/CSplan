@@ -2,12 +2,20 @@
   import { HTTPerror, route } from '$lib'
   import { onMount, tick } from 'svelte'
   import { slide } from 'svelte/transition'
+  import { enableTOTP, disableTOTP, totpQR } from './actions'
+  import { AuthConditions, LoginActions } from '$lib/auth-actions'
+  import userStore from '$stores/user'
 
   let enabled = false
   let editing = false
 
+  // Authentication actions
+  let actions: LoginActions
+
   // Password input, stored for automatic focusing
   let passwordInput: HTMLInputElement
+  // User password, needed to upgrade to auth level 2
+  let password: string
 
   onMount(async () => {
     const res = await fetch(route('/totp/status'))
@@ -25,9 +33,31 @@
       passwordInput.focus()
     }
   }
+
+  async function submit(): Promise<void> {
+    // Upgrade to level 2 auth
+    if (actions == null) {
+      actions = new LoginActions(new Worker('/argon2/worker.js'), new Worker('/ed25519/worker.js'))
+      await actions.loadArgon2({ wasmRoot: '/argon2', simd: true })
+      await actions.loadED25519({ wasmPath: '/ed25519/ed25519.wasm' })
+    }
+    const upgradeResult = await actions.authenticate({
+      email: '',
+      password
+    }, false, true)
+    if (upgradeResult !== AuthConditions.Upgraded) {
+      throw new Error('bad')
+    }
+
+    // Enable TOTP and display the result
+    const totpInfo = await enableTOTP()
+    const totpURI = `otpauth://totp/CSplan:${$userStore.user.email}?secret=${totpInfo.secret}&issuer=CSplan`
+    totpQR(totpURI)
+  }
+
 </script>
 
-<form class="totp-form" on:submit|preventDefault>
+<form class="totp-form" on:submit|preventDefault={submit}>
   <p class="totp-info">
     Time based one time passwords allow you to require a second form of authentication for improved log-in security. Enabling this feature requires a separate application capable of manging TOTP codes such as <a href="https://apps.apple.com/us/app/raivo-otp/id1459042137">Ravio OTP</a>, <a href="https://getaegis.app/">Aegis Authenticator</a>, <a href="https://authy.com/">Authy</a>, or <a href="https://keepassxc.org/">KeepassXC</a>.
     <i class="fas fa-info-circle endorsement-tooltip" title="CSplan does not endorse nor test any of the examples provided, users should verify the reliability and security of any TOTP application before trusting it to manage codes."/>
@@ -50,7 +80,7 @@
     <div class="editable" in:slide={{ duration: 50 }}>
       <label>
         Password
-        <input type="password" placeholder="Enter your password to {enabled ? 'disable' : 'enable'} TOTP" bind:this={passwordInput}>
+        <input type="password" placeholder="Enter your password to {enabled ? 'disable' : 'enable'} TOTP" bind:this={passwordInput} bind:value={password} required>
       </label>
 
       <div class="bottom-buttons">

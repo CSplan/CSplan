@@ -3,7 +3,6 @@ import { ED25519 } from '@very-amused/ed25519-wasm'
 import { encode, aes, rsa, Algorithms, decode, makeSalt } from 'cs-crypto'
 import * as db from '../db'
 import userStore from '$stores/user'
-import type { UserStore } from '$stores/user'
 import { get } from 'svelte/store'
 import { route } from '$lib/route'
 
@@ -158,7 +157,6 @@ export class LoginActions {
   async authenticate(user: AuthUser, reuseAuthKey = false, upgrade = false): Promise<AuthConditions> {
     this.onMessage('Requesting authentication challenge')
     // Request an authentication challenge
-    const challengeRequest: ChallengeRequest = { email: user.email, totp: user.totp }
     let res: Response
     if (upgrade) {
       res = await fetch(route('/upgrade?method=challenge&action=request'), {
@@ -169,6 +167,7 @@ export class LoginActions {
         }
       })
     } else {
+      const challengeRequest: ChallengeRequest = { email: user.email, totp: user.totp }
       res = await fetch(route('/challenge?action=request'), {
         method: 'POST',
         headers: {
