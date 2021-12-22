@@ -21,6 +21,10 @@
     }
   }
 
+  input[type="button"] {
+    border: none;
+  }
+
   div.input-group {
     display: flex;
     flex-direction: row;
