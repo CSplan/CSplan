@@ -27,19 +27,13 @@
 
 
 <style lang="scss">
+  @import '../position.scss';
   .account-menu :global {
     @include form-styles;
   }
 
   .account-menu {
-    max-width: 800px;
-    height: 100%;
-    margin-left: 10%;
-
-    display: flex;
-    flex-direction: column;
-    padding: 0 2rem;
-    line-height: 1;
+    @include settings-menu-container;
   }
   .submenu {
     margin: 1.5rem 0;

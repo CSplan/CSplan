@@ -1,9 +1,9 @@
 <script lang="ts">
   import MenuGroup from './menu-group.svelte'
   import Account from './account/account.svelte'
-  import TwoFactor from './2fa/2fa.svelte'
+  import TwoFactor from './2fa/index.svelte'
 
-  export let menu: unknown = Account
+  export let menu: unknown = TwoFactor
 
   function setMenu(component: unknown): void {
     menu = component
