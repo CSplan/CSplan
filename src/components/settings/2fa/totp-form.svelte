@@ -2,7 +2,7 @@
   import { HTTPerror, route } from '$lib'
   import { onMount, tick } from 'svelte'
   import { slide } from 'svelte/transition'
-  import { enableTOTP, disableTOTP, totpQR } from './actions'
+  import { enableTOTP, totpQR, totpURI } from './actions'
   import { AuthConditions, LoginActions } from '$lib/auth-actions'
   import userStore from '$stores/user'
 
@@ -14,6 +14,7 @@
 
   // Password input, stored for automatic focusing
   let passwordInput: HTMLInputElement
+  let form: HTMLFormElement
   // User password, needed to upgrade to auth level 2
   let password: string
 
@@ -51,13 +52,14 @@
 
     // Enable TOTP and display the result
     const totpInfo = await enableTOTP()
-    const totpURI = `otpauth://totp/CSplan:${$userStore.user.email}?secret=${totpInfo.secret}&issuer=CSplan`
-    totpQR(totpURI)
+    const uri = totpURI('CSplan', $userStore.user.email, totpInfo.secret)
+    const svg = totpQR(uri)
+    form.appendChild(svg)
   }
 
 </script>
 
-<form class="totp-form" on:submit|preventDefault={submit}>
+<form class="totp-form" on:submit|preventDefault={submit} bind:this={form}>
   <p class="totp-info">
     Time based one time passwords allow you to require a second form of authentication for improved log-in security. Enabling this feature requires a separate application capable of manging TOTP codes such as <a href="https://apps.apple.com/us/app/raivo-otp/id1459042137">Ravio OTP</a>, <a href="https://getaegis.app/">Aegis Authenticator</a>, <a href="https://authy.com/">Authy</a>, or <a href="https://keepassxc.org/">KeepassXC</a>.
     <i class="fas fa-info-circle endorsement-tooltip" title="CSplan does not endorse nor test any of the examples provided, users should verify the reliability and security of any TOTP application before trusting it to manage codes."/>
