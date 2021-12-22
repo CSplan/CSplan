@@ -28,43 +28,7 @@
 
 <style lang="scss">
   .account-menu :global {
-    input,details,label.checkable,span,p,select,button {
-      margin: 0.5rem 0;
-      border-radius: 0;
-    }
-    label.checkable {
-      margin-bottom: 1rem;
-    }
-    input[type="submit"],input[type="button"],button {
-      border-radius: $br-light;
-    }
-
-    form.disabled {
-      pointer-events: none; 
-    }
-
-    @mixin disabled {
-      transition: none;
-      background-color: rgb(230, 230, 230);
-    }
-    input[type="text"],input[type="password"],input[type="email"] {
-      &:disabled,&:read-only {
-        @include disabled;
-      }
-    }
-    select:disabled {
-      @include disabled;
-    }
-
-    div.input-group {
-      display: flex;
-      flex-direction: row;
-      align-items: center;
-      i {
-        margin-right: 0.5rem;
-        margin-left: 1rem;
-      }
-    }
+    @include form-styles;
   }
 
   .account-menu {

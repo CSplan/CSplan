@@ -44,7 +44,7 @@ const config = {
   },
   preprocess: preprocess({
     scss: {
-      prependData: `@import "${path.resolve('src/scss')}/colors.scss";`
+      prependData: `@import "${path.resolve('src/scss')}/index.scss";`
     }
   })
 }
