@@ -1,7 +1,7 @@
 $bg-dark: var(--background-dark);
 $bg-alt: var(--background-alt);
-$mobile-max: var(--mobile-max);
-$desktop-min: var(--desktop-min);
+$mobile-max: 849px;
+$desktop-min: 850px;
 $content-large: var(--content-large);
 $br-light: var(--br-light);
 $padding-m: var(--padding-m);
@@ -15,8 +15,6 @@ $success-accent: var(--success-accent);
 
 :root {
   --content-large: 800px;
-  --mobile-max: 849px;
-  --desktop-min: 850px;
   --br-light: 3px;
 
   --background-dark: #22223F;

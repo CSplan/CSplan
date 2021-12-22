@@ -1,10 +1,10 @@
 <script lang="ts">
-  import Status from './totp-form.svelte'
+  import TOTPForm from './totp-form.svelte'
 </script>
 
 <section class="settings-menu-container">
   <article class="twofactor-menu">
-    <Status/>
+    <TOTPForm/>
   </article>
 </section>
 
@@ -12,6 +12,9 @@
   @import '../position.scss';
   section.settings-menu-container {
     @include settings-menu-container;
+  }
+  section.settings-menu-container :global {
+    @include form-styles;
   }
 
   article.twofactor-menu {
