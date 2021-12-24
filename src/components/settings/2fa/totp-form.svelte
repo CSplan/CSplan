@@ -4,7 +4,7 @@
   import { slide } from 'svelte/transition'
   import { LoginActions, TOTPActions, UpgradeActions } from '$lib/auth-actions'
   import userStore from '$stores/user'
-  import Modal from '$components/modals/modal.svelte'
+  import SecretModal from '$components/modals/totp-secret-modal.svelte'
 
   let enabled = false
   let editing = false
@@ -14,10 +14,13 @@
 
   // Password input, stored for automatic focusing
   let passwordInput: HTMLInputElement
-  let qrSVG: SVGSVGElement
+  let qrcodeSVG: SVGSVGElement
   // User password, needed to upgrade to auth level 2
   let password: string
-  let totpSecret = ''
+  let totpInfo: TOTPinfo = {
+    secret: '',
+    backupCodes: []
+  }
 
   let showSecretModal = false
 
@@ -52,11 +55,14 @@
     // Enable TOTP and display the result
     try {
       //const totpInfo = await TOTPActions.enable()
-      totpSecret = 'YMCQK2SHVGNG6ZF5IVNZSNDSWDKYAWPZ'
-      const uri = TOTPActions.URI('CSplan', $userStore.user.email, 'YMCQK2SHVGNG6ZF5IVNZSNDSWDKYAWPZ') // test value
+      totpInfo = {
+        secret: 'YMCQK2SHVGNG6ZF5IVNZSNDSWDKYAWPZ',
+        backupCodes: []
+      }
+      const uri = TOTPActions.URI('CSplan', $userStore.user.email, totpInfo.secret) // test value
       showSecretModal = true
       await tick()
-      TOTPActions.qr2svg(TOTPActions.qrCode(uri), qrSVG, 0, '#fff', 'var(--background-dark)')
+      TOTPActions.qr2svg(TOTPActions.qrCode(uri), qrcodeSVG, 0, 'white', 'black')
     } catch (err) {
       // Downgrade auth
       //await UpgradeActions.downgrade()
@@ -79,24 +85,7 @@
   })
 </script>
 
-<Modal show={showSecretModal} flex={true} lock={true}>
-  <article class="totp-authinfo">
-    <ol>
-      <li>
-        <svg bind:this={qrSVG}></svg>
-        <span><b>Option 1</b>: Scan this QR code with a TOTP authenticator.</span>
-        <pre>{totpSecret}</pre>
-        <span><b>Option 2:</b> Manually enter your secret into a TOTP authenticator.</span>
-      </li>
-      <li></li>
-    </ol>
-
-    <label>
-      <header>Enter a TOTP code to verify that your authenticator is properly set up</header>
-      <input type="text" placeholder="{'0'.repeat(6)}">
-    </label>
-  </article> 
-</Modal>
+<SecretModal bind:svg={qrcodeSVG} show={showSecretModal} info={totpInfo}></SecretModal>
 
 <form class="totp-form" on:submit|preventDefault={submit}>
   <p class="totp-info">
@@ -195,30 +184,4 @@
     grid-column: 3;
   }
 
-  article.totp-authinfo {
-    margin-top: 20vh;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    align-self: center;
-    background: white;
-    padding: 1.5rem 2rem;
-    max-width: 550px;
-    ol.steps li {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      list-style-position: outside;
-    }
-    svg {
-      max-width: 300px;
-    }
-    span {
-      margin: 1rem 0;
-    }
-    pre {
-      margin: 0;
-      margin-top: 1rem;
-    }
-  }
 </style>
