@@ -55,9 +55,13 @@
     // Enable TOTP and display the result
     try {
       //const totpInfo = await TOTPActions.enable()
+      const backupCodes: number[] = []
+      for (let i = 0; i < 10; i++) {
+        backupCodes[i] = 1000 + Math.floor(Math.random() * 9000)
+      }
       totpInfo = {
         secret: 'YMCQK2SHVGNG6ZF5IVNZSNDSWDKYAWPZ',
-        backupCodes: []
+        backupCodes
       }
       const uri = TOTPActions.URI('CSplan', $userStore.user.email, totpInfo.secret) // test value
       showSecretModal = true
