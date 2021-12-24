@@ -1,12 +1,21 @@
 <script lang="ts">
   export let show = false
+  export let flex = false
+  // Lock the modal, don't show an exit button, modal content is responsible for allowing the user to exit the modal
+  export let lock = false
 
   import { fade } from 'svelte/transition'
   import { quintOut } from 'svelte/easing'
   import { formElementIsFocused } from '$lib'
 
   function onkeydown(evt: KeyboardEvent): void {
-    if (!formElementIsFocused() && evt.key === 'Escape') {
+    if (!lock && !formElementIsFocused() && evt.key === 'Escape') {
+      show = false
+    }
+  }
+
+  function onclick(): void {
+    if (!lock) {
       show = false
     }
   }
@@ -17,13 +26,15 @@
 {#if show}
 <main 
   class="modal"
-  on:click|self={() => show = false}
+  on:click|self={onclick}
   transition:fade={{ duration: 200, easing: quintOut }}>
 
   <!-- Placebo exit button, does the same thing as clicking anywhere else on the form -->
-  <i class="fas fa-times clickable" on:click|self={() => show = false}></i>
+  {#if !lock}
+    <i class="fas fa-times clickable" on:click|self={onclick}></i>
+  {/if}
 
-  <section class="content" transition:fade={{ duration: 200, easing: quintOut }}>
+  <section class="content" class:flex transition:fade={{ duration: 200, easing: quintOut }}>
     <slot></slot>
   </section>
 </main>
@@ -53,6 +64,12 @@
     margin: 0;
     left: 25%;
     right: 25%;
+    &.flex {
+      display: flex;
+      flex-direction: column;
+      left: 0;
+      right: 0;
+    }
   }
 
   .modal .content :not(:last-child) {

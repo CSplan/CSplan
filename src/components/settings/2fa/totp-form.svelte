@@ -4,6 +4,7 @@
   import { slide } from 'svelte/transition'
   import { LoginActions, TOTPActions, UpgradeActions } from '$lib/auth-actions'
   import userStore from '$stores/user'
+  import Modal from '$components/modals/modal.svelte'
 
   let enabled = false
   let editing = false
@@ -16,6 +17,9 @@
   let qrSVG: SVGSVGElement
   // User password, needed to upgrade to auth level 2
   let password: string
+  let totpSecret = ''
+
+  let showSecretModal = false
 
   async function toggleEditing(): Promise<void> {
     editing = !editing
@@ -48,7 +52,10 @@
     // Enable TOTP and display the result
     try {
       //const totpInfo = await TOTPActions.enable()
+      totpSecret = 'YMCQK2SHVGNG6ZF5IVNZSNDSWDKYAWPZ'
       const uri = TOTPActions.URI('CSplan', $userStore.user.email, 'YMCQK2SHVGNG6ZF5IVNZSNDSWDKYAWPZ') // test value
+      showSecretModal = true
+      await tick()
       TOTPActions.qr2svg(TOTPActions.qrCode(uri), qrSVG, 0, '#fff', 'var(--background-dark)')
     } catch (err) {
       // Downgrade auth
@@ -68,8 +75,28 @@
     }
     const status: TOTPStatus = await res.json()
     enabled = status.enabled
+    await enableTOTP()
   })
 </script>
+
+<Modal show={showSecretModal} flex={true} lock={true}>
+  <article class="totp-authinfo">
+    <ol>
+      <li>
+        <svg bind:this={qrSVG}></svg>
+        <span><b>Option 1</b>: Scan this QR code with a TOTP authenticator.</span>
+        <pre>{totpSecret}</pre>
+        <span><b>Option 2:</b> Manually enter your secret into a TOTP authenticator.</span>
+      </li>
+      <li></li>
+    </ol>
+
+    <label>
+      <header>Enter a TOTP code to verify that your authenticator is properly set up</header>
+      <input type="text" placeholder="{'0'.repeat(6)}">
+    </label>
+  </article> 
+</Modal>
 
 <form class="totp-form" on:submit|preventDefault={submit}>
   <p class="totp-info">
@@ -103,8 +130,6 @@
       </div>
     </div>
   {/if}
-
-  <svg bind:this={qrSVG}></svg>
 </form>
 
 <style lang="scss">
@@ -168,5 +193,32 @@
   }
   input.submit-button {
     grid-column: 3;
+  }
+
+  article.totp-authinfo {
+    margin-top: 20vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    align-self: center;
+    background: white;
+    padding: 1.5rem 2rem;
+    max-width: 550px;
+    ol.steps li {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      list-style-position: outside;
+    }
+    svg {
+      max-width: 300px;
+    }
+    span {
+      margin: 1rem 0;
+    }
+    pre {
+      margin: 0;
+      margin-top: 1rem;
+    }
   }
 </style>
