@@ -1,5 +1,6 @@
 <script lang="ts">
   import Modal from './modal.svelte'
+  import ModalContent from './modal-content.svelte'
   import tags from '$stores/tags'
   export let show = false
   // FIXME: include color picker in tag creation modal
@@ -17,10 +18,12 @@
 </script>
 
 <Modal bind:show>
-  <form>
-    <input type="text" placeholder="Tag Name" bind:value={tag.name}>
-    <input type="submit" value="Create" on:click|preventDefault={createTag}>
-  </form>
+  <ModalContent>
+    <form>
+      <input type="text" placeholder="Tag Name" bind:value={tag.name}>
+      <input type="submit" value="Create" on:click|preventDefault={createTag}>
+    </form>
+  </ModalContent>
 </Modal>
 
 <style lang="scss">

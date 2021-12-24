@@ -1,5 +1,6 @@
 <script lang="ts">
   export let show = false
+
   import { fade } from 'svelte/transition'
   import { quintOut } from 'svelte/easing'
   import { formElementIsFocused } from '$lib'
@@ -50,11 +51,8 @@
     z-index: 1000;
     padding: 0;
     margin: 0;
-    top: 35%;
     left: 25%;
     right: 25%;
-    min-width: 50%;
-    background: white;
   }
 
   .modal .content :not(:last-child) {
