@@ -4,8 +4,7 @@ declare type Flags = {
   }
 }
 
-// Events that have currentTarget guaranteed as elements - for use in evt handlers
-declare type SafeEvent = Event & { currentTarget: EventTarget & HTMLElement }
+declare type SafeEvent<T = HTMLElement> = Event & { currentTarget: EventTarget & T }
 
 declare type ErrorResponse = {
   title: string

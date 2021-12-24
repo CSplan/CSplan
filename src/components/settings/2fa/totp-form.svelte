@@ -42,7 +42,6 @@
 
 
   async function enableTOTP(): Promise<void> {
-    /*
     // Upgrade to level 2 auth
     if (actions == null) {
       actions = new LoginActions(new Worker('/argon2/worker.js'), new Worker('/ed25519/worker.js'))
@@ -50,26 +49,17 @@
       await actions.loadED25519({ wasmPath: '/ed25519/ed25519.wasm' })
     }
     await UpgradeActions.passwordUpgrade(actions, password)
-    */
 
     // Enable TOTP and display the result
     try {
-      //const totpInfo = await TOTPActions.enable()
-      const backupCodes: number[] = []
-      for (let i = 0; i < 10; i++) {
-        backupCodes[i] = 1000 + Math.floor(Math.random() * 9000)
-      }
-      totpInfo = {
-        secret: 'YMCQK2SHVGNG6ZF5IVNZSNDSWDKYAWPZ',
-        backupCodes
-      }
+      totpInfo = await TOTPActions.enable()
       const uri = TOTPActions.URI('CSplan', $userStore.user.email, totpInfo.secret) // test value
       showSecretModal = true
       await tick()
       TOTPActions.qr2svg(TOTPActions.qrCode(uri), qrcodeSVG, 0, 'white', 'black')
     } catch (err) {
       // Downgrade auth
-      //await UpgradeActions.downgrade()
+      await UpgradeActions.downgrade()
       throw err
     }
 
@@ -85,7 +75,6 @@
     }
     const status: TOTPStatus = await res.json()
     enabled = status.enabled
-    await enableTOTP()
   })
 </script>
 

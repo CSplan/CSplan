@@ -521,6 +521,25 @@ export const TOTPActions = {
   },
 
   /**
+   * Verify TOTP authentication (only needs to be done immediately after enabling TOTP)
+   */
+  async verify(code: number): Promise<void> {
+    const body: TOTPRequest = {
+      TOTP_Code: code
+    }
+    const res = await fetch(route('/totp?action=verify'), {
+      method: 'POST',
+      headers: {
+        'CSRF-Token': localStorage.getItem('CSRF-Token')!
+      },
+      body: JSON.stringify(body)
+    })
+    if (res.status !== 200) {
+      throw new Error(await HTTPerror(res, 'Error verifying TOTP code'))
+    }
+  },
+
+  /**
    * Disable TOTP authentication for the user (requires level 2 auth)
    */
   async disable(): Promise<void> {

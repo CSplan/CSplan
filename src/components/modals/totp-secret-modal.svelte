@@ -1,5 +1,6 @@
 <script lang="ts">
   import { browser } from '$app/env'
+  import { TOTPActions } from '$lib/auth-actions'
 
   import Modal from './modal.svelte'
   // Show/hide the modal
@@ -17,6 +18,16 @@
     const data = new Blob([info.backupCodes.join('\n')], { type: 'text/plain' })
     backupCodesURL = URL.createObjectURL(data)
   }
+
+  let code: number
+  function oncodeinput(evt: SafeEvent<HTMLInputElement>): void {
+    code = parseInt(evt.currentTarget.value)
+  }
+
+  async function submit(): Promise<void> {
+    await TOTPActions.verify(code)
+    console.log('success')
+  }
 </script>
 
 <Modal {show} flex={true} lock={true}>
@@ -33,22 +44,24 @@
     </section>
 
 
-    <section class="step-2">
+    <section class="step-2 backup-codes">
       <header>2.</header>
       <p>Save your backup codes. These are one-use codes that can be used to log in without a TOTP code, keep them somewhere safe!</p>
-      <pre class="backup-codes">{info.backupCodes.join('\n')}</pre>
+      <pre>{info.backupCodes.join('\n')}</pre>
       <a href={backupCodesURL} download="csplan_backupcodes.txt">
         <button>Save</button>
       </a>
     </section>
 
-    <section class="step-3">
+    <section class="step-3 verify">
       <header>3.</header>
-      <label class="directions">
-        <span>Enter a TOTP code to verify your authenticator</span>
-        <input type="text" placeholder="{'0'.repeat(6)}">
-      </label>
-      <input type="submit" value="Submit">
+      <form on:submit|preventDefault={submit}>
+        <label class="directions">
+          <span>Enter a TOTP code to verify your authenticator</span>
+          <input type="text" on:input={oncodeinput} placeholder="{'0'.repeat(6)}">
+        </label>
+        <input type="submit" value="Submit">
+      </form>
     </section>
   </article> 
 </Modal>
@@ -90,6 +103,25 @@
       }
     }
 
+    section.backup-codes {
+      pre {
+        margin: 0.6rem;
+        width: 100%;
+        line-height: 1.5;
+      }
+      a {
+        width: 100%;
+        button {
+          width: 100%;
+        }
+      }
+    }
+    section.verify {
+      label {
+        margin: 0;
+      }
+    }
+
     svg {
       max-width: 200px;
     }
@@ -108,18 +140,16 @@
       border-radius: 0;
     }
     pre.backup-codes {
-      margin: 0.6rem;
-      width: 100%;
-      line-height: 1.5;
     }
     p {
       align-self: flex-start;
       text-align: left;
       margin-left: 1rem;
     }
-    input[type="submit"] {
+    input[type="submit"],button {
       background: $bold-blue;
       margin-bottom: 0;
+      line-height: 1.5;
     }
   }
 </style>
