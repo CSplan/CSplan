@@ -2,8 +2,7 @@
   import { HTTPerror, route } from '$lib'
   import { onMount, tick } from 'svelte'
   import { slide } from 'svelte/transition'
-  import { enableTOTP, totpQR, totpURI } from './actions'
-  import { AuthConditions, LoginActions } from '$lib/auth-actions'
+  import { LoginActions, TOTPActions, UpgradeActions } from '$lib/auth-actions'
   import userStore from '$stores/user'
 
   let enabled = false
@@ -14,18 +13,9 @@
 
   // Password input, stored for automatic focusing
   let passwordInput: HTMLInputElement
-  let form: HTMLFormElement
+  let qrSVG: SVGSVGElement
   // User password, needed to upgrade to auth level 2
   let password: string
-
-  onMount(async () => {
-    const res = await fetch(route('/totp/status'))
-    if (res.status !== 200) {
-      throw new Error(await HTTPerror(res, 'Failed to retrieve TOTP status'))
-    }
-    const status: TOTPStatus = await res.json()
-    enabled = status.enabled
-  })
 
   async function toggleEditing(): Promise<void> {
     editing = !editing
@@ -36,30 +26,52 @@
   }
 
   async function submit(): Promise<void> {
+    if (enabled) {
+
+    } else {
+      await enableTOTP()
+    }
+  }
+
+
+  async function enableTOTP(): Promise<void> {
+    /*
     // Upgrade to level 2 auth
     if (actions == null) {
       actions = new LoginActions(new Worker('/argon2/worker.js'), new Worker('/ed25519/worker.js'))
       await actions.loadArgon2({ wasmRoot: '/argon2', simd: true })
       await actions.loadED25519({ wasmPath: '/ed25519/ed25519.wasm' })
     }
-    const upgradeResult = await actions.authenticate({
-      email: '',
-      password
-    }, false, true)
-    if (upgradeResult !== AuthConditions.Upgraded) {
-      throw new Error('bad')
-    }
+    await UpgradeActions.passwordUpgrade(actions, password)
+    */
 
     // Enable TOTP and display the result
-    const totpInfo = await enableTOTP()
-    const uri = totpURI('CSplan', $userStore.user.email, totpInfo.secret)
-    const svg = totpQR(uri)
-    form.appendChild(svg)
+    try {
+      //const totpInfo = await TOTPActions.enable()
+      const uri = TOTPActions.URI('CSplan', $userStore.user.email, 'YMCQK2SHVGNG6ZF5IVNZSNDSWDKYAWPZ') // test value
+      TOTPActions.qr2svg(TOTPActions.qrCode(uri), qrSVG, 0, '#fff', 'var(--background-dark)')
+    } catch (err) {
+      // Downgrade auth
+      //await UpgradeActions.downgrade()
+      throw err
+    }
+
   }
 
+  async function disableTOTP(): Promise<void> {
+  }
+
+  onMount(async () => {
+    const res = await fetch(route('/totp/status'))
+    if (res.status !== 200) {
+      throw new Error(await HTTPerror(res, 'Failed to retrieve TOTP status'))
+    }
+    const status: TOTPStatus = await res.json()
+    enabled = status.enabled
+  })
 </script>
 
-<form class="totp-form" on:submit|preventDefault={submit} bind:this={form}>
+<form class="totp-form" on:submit|preventDefault={submit}>
   <p class="totp-info">
     Time based one time passwords allow you to require a second form of authentication for improved log-in security. Enabling this feature requires a separate application capable of manging TOTP codes such as <a href="https://apps.apple.com/us/app/raivo-otp/id1459042137">Ravio OTP</a>, <a href="https://getaegis.app/">Aegis Authenticator</a>, <a href="https://authy.com/">Authy</a>, or <a href="https://keepassxc.org/">KeepassXC</a>.
     <i class="fas fa-info-circle endorsement-tooltip" title="CSplan does not endorse nor test any of the examples provided, users should verify the reliability and security of any TOTP application before trusting it to manage codes."/>
@@ -91,6 +103,8 @@
       </div>
     </div>
   {/if}
+
+  <svg bind:this={qrSVG}></svg>
 </form>
 
 <style lang="scss">

@@ -4,7 +4,8 @@ import { encode, aes, rsa, Algorithms, decode, makeSalt } from 'cs-crypto'
 import * as db from '../db'
 import userStore from '$stores/user'
 import { get } from 'svelte/store'
-import { route } from '$lib/route'
+import { route, HTTPerror } from '$lib'
+import qrcodegen from './qrcodegen'
 
 export type Challenge = {
   id: string
@@ -449,5 +450,134 @@ export class PasswordChangeActions extends RegisterActions {
       const err: ErrorResponse = await res.json()
       throw new Error(err.message || 'error updating password with API')
     }
+  }
+}
+
+
+export const UpgradeActions = {
+  /**
+   * Upgrade a user's authentication level using argon2-ed25519 password challenge authorization
+   */
+  async passwordUpgrade(actions: LoginActions, password: string): Promise<void> {
+    await actions.authenticate({
+      email: '',
+      password
+    }, false, true)
+  },
+
+  /**
+   * Upgrade a user's authentication level using totp code authorization
+   */
+  async totpUpgrade(code: number): Promise<void> {
+    const body: TOTPRequest = {
+      TOTP_Code: code
+    }
+    const res = await fetch(route('/upgrade?method=totp'), {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'CSRF-Token': localStorage.getItem('CSRF-Token')!
+      },
+      body: JSON.stringify(body)
+    })
+    if (res.status !== 200) {
+      throw new Error(await HTTPerror(res, 'TOTP authorization failure'))
+    }
+  },
+
+  /**
+   * Downgrade a user's authentication level 
+   * (authentication downgrades automatically occur serverside 10 minutes after upgrade if not manually performed beforehand)
+   */
+  async downgrade(): Promise<void> {
+    const res = await fetch(route('/downgrade'), {
+      method: 'POST',
+      headers: {
+        'CSRF-Token': localStorage.getItem('CSRF-Token')!
+      }
+    })
+    if (res.status !== 200) {
+      throw new Error(await HTTPerror(res, 'Failed to downgrade authentication level'))
+    }
+  }
+}
+
+export const TOTPActions = {
+  /**
+   * Enable TOTP authentication for the user (requires level 2 auth)
+   */
+  async enable(): Promise<TOTPinfo> {
+    // Enable TOTP for the user
+    const res = await fetch(route('/totp?action=enable'), {
+      method: 'POST',
+      headers: {
+        'CSRF-Token': localStorage.getItem('CSRF-Token')!
+      }
+    })
+    if (res.status !== 201) {
+      throw new Error(await HTTPerror(res, 'Failed to enable TOTP authentication'))
+    }
+    return res.json()
+  },
+
+  /**
+   * Disable TOTP authentication for the user (requires level 2 auth)
+   */
+  async disable(): Promise<void> {
+    const res = await fetch(route('/totp?action=disable'), {
+      method: 'POST',
+      headers: {
+        'CSRF-Token': localStorage.getItem('CSRF-Token')!
+      }
+    })
+    if (res.status !== 204) {
+      throw new Error(await HTTPerror(res, 'Failed to disable TOTP authentication'))
+    }
+  },
+  
+  /**
+   * Convert a TOTP secret into a valid otpauth URI 
+   */
+  URI(issuer: string, user: string, secret: string): string {
+    return `otpauth://totp/${issuer}:${user}?secret=${secret}&issuer=${issuer}`
+  },
+
+  /**
+   * Encode an otpauth URI as a QR code
+   */
+  qrCode(uri: string): qrcodegen.QrCode {
+    return qrcodegen.QrCode.encodeText(uri, qrcodegen.QrCode.Ecc.LOW)
+  },
+
+  /**
+   * @copyright Project Nayuki. (MIT License)
+   * https://www.nayuki.io/page/qr-code-generator-library
+   * 
+   * Modified version of Nayuki's toSvgString function, returns an actual SVG element
+   */
+  qr2svg(qr: qrcodegen.QrCode, svg: SVGSVGElement, border: number, lightColor: string, darkColor: string): void {
+    if (border < 0) {
+      throw 'Border must be non-negative'
+    }
+    const parts: string[] = []
+    for (let y = 0; y < qr.size; y++) {
+      for (let x = 0; x < qr.size; x++) {
+        if (qr.getModule(x, y))
+          parts.push(`M${x + border},${y + border}h1v1h-1z`)
+      }
+    }
+
+    const svgNS = 'http://www.w3.org/2000/svg'
+    svg.setAttribute('viewBox', `0 0 ${qr.size + border * 2} ${qr.size + border * 2}`)
+    svg.setAttribute('stroke', 'none')
+    const rect = document.createElementNS(svgNS, 'rect')
+    rect.setAttribute('width', '100%')
+    rect.setAttribute('height', '100%')
+    rect.setAttribute('fill', lightColor)
+    svg.appendChild(rect)
+    const path = document.createElementNS(svgNS, 'path')
+    path.setAttribute('d', parts.join(' '))
+    path.setAttribute('fill', darkColor)
+    svg.appendChild(path)
   }
 }
