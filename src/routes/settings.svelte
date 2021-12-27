@@ -1,8 +1,8 @@
 <script>
   import SideMenu from '$components/settings/side-menu.svelte'
-  import TwoFactor from '$components/settings/2fa/index.svelte'
+  import Keys from '$components/settings/keys/index.svelte'
 
-  let menu = TwoFactor
+  let menu = Keys
 </script>
 
 <div class="container">

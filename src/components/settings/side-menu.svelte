@@ -4,7 +4,7 @@
   import TwoFactor from './2fa/index.svelte'
   import Keys from './keys/index.svelte'
 
-  export let menu: unknown = Account
+  export let menu: unknown = Keys
 
   function setMenu(component: unknown): void {
     menu = component
