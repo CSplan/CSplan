@@ -3,8 +3,10 @@
   import Spinner from '$components/spinner.svelte'
   import { TOTPActions } from '$lib/auth-actions'
   import { slide } from 'svelte/transition'
-  import { tick } from 'svelte'
+  import { tick, createEventDispatcher } from 'svelte'
   import { FormStates as States } from '$lib'
+
+  const dispatch = createEventDispatcher()
 
   import Modal from './modal.svelte'
   // Show/hide the modal
@@ -14,7 +16,7 @@
   // The authentication information itself
   export let info: TOTPinfo
 
-  let state = States.Saved
+  let state = States.Resting
   let message = ''
   let showSubmit = false
 
@@ -45,7 +47,8 @@
     setTimeout(() => {
       state = States.Resting
       message = ''
-      show = false
+      // The success event tells the parent form to close this modal and reset its UI
+      dispatch('success')
     }, 500)
   }
 </script>

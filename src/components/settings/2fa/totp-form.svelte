@@ -36,18 +36,12 @@
     }
   }
 
+
+  // #region Form Submission
   async function submit(): Promise<void> {
-    if (enabled) {
-
-    } else {
-      await enableTOTP()
-    }
-  }
-
-
-  async function enableTOTP(): Promise<void> {
     state = States.Saving
     message = ''
+
     try {
       // Upgrade to level 2 auth
       if (actions == null) {
@@ -57,14 +51,11 @@
       }
       await UpgradeActions.passwordUpgrade(actions, password)
 
-      // Enable TOTP and display the result
-      totpInfo = await TOTPActions.enable()
-      state = States.Resting
-      showSecretModal = true
-      const uri = TOTPActions.URI('CSplan', $userStore.user.email, totpInfo.secret)
-      // Wait for the modal to render before writing to the svg it contains
-      await tick()
-      TOTPActions.qr2svg(TOTPActions.qrCode(uri), qrcodeSVG, 0, 'white', 'black')
+      if (enabled) {
+        await disableTOTP()
+      } else {
+        await enableTOTP()
+      }
     } catch (err) {
       state = States.Errored
       message = formatError(err instanceof Error ? err.message : (err as string).toString())
@@ -74,7 +65,36 @@
     }
   }
 
+
+  async function enableTOTP(): Promise<void> {
+    // Enable TOTP and display the result
+    totpInfo = await TOTPActions.enable()
+    state = States.Resting
+    showSecretModal = true
+    const uri = TOTPActions.URI('CSplan', $userStore.user.email, totpInfo.secret)
+    // Wait for the modal to render before writing to the svg it contains
+    await tick()
+    TOTPActions.qr2svg(TOTPActions.qrCode(uri), qrcodeSVG, 0, 'white', 'black')
+  }
+
   async function disableTOTP(): Promise<void> {
+    // Disable TOTP
+    await TOTPActions.disable()
+    state = States.Saved
+    message = 'TOTP was successfully disabled'
+    await tick()
+    setTimeout(() => {
+      state = States.Resting
+      message = ''
+    }, 500)
+    enabled = false
+  }
+  // #endregion
+
+  function totpEnabled(): void {
+    showSecretModal = false
+    editing = false
+    enabled = true
   }
 
   onMount(async () => {
@@ -87,7 +107,7 @@
   })
 </script>
 
-<SecretModal bind:svg={qrcodeSVG} bind:show={showSecretModal} info={totpInfo}></SecretModal>
+<SecretModal bind:svg={qrcodeSVG} show={showSecretModal} info={totpInfo} on:success={totpEnabled}></SecretModal>
 
 <form class="totp-form" on:submit|preventDefault={submit}>
   <p class="totp-info">
