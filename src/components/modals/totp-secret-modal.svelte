@@ -1,28 +1,32 @@
 <script lang="ts">
-  import { browser } from '$app/env'
   import Spinner from '$components/spinner.svelte'
   import { TOTPActions } from '$lib/auth-actions'
-  import { slide } from 'svelte/transition'
   import { tick, createEventDispatcher } from 'svelte'
   import { FormStates as States } from '$lib'
+  import qrcodegen from '$lib/qrcodegen'
+  import Modal from './modal.svelte'
 
   const dispatch = createEventDispatcher()
 
-  import Modal from './modal.svelte'
   // Show/hide the modal
   export let show = false
   // SVG element QR codes can be rendered to
-  export let svg: SVGSVGElement
+  export let qrCode: qrcodegen.QrCode
+  let svg: SVGSVGElement
   // The authentication information itself
-  export let info: TOTPinfo
+  export let info: TOTPinfo = {
+    secret: '',
+    backupCodes: []
+  }
 
   let state = States.Resting
   let message = ''
   let showSubmit = false
 
   let backupCodesURL = ''
-  $: if (browser) {
-    backupCodesURL = `data:text/plain,${encodeURIComponent(info.backupCodes.join('\n'))}`
+  $: backupCodesURL = `data:text/plain,${encodeURIComponent(info.backupCodes.join('\n'))}`
+  $: if (qrCode != null && svg != null) {
+    TOTPActions.qr2svg(qrCode, svg, 0, 'white', 'black')
   }
 
   let code: number
@@ -57,7 +61,7 @@
   <article class="totp-authinfo">
     <section class="step-1">
       <header>1.</header>
-      <svg bind:this={svg}></svg> <!-- FIXME: svg in modal should be implemented as a named slot -->
+      <svg bind:this={svg}></svg>
       <span class="directions"><b>Option 1</b>: Scan this QR code with a TOTP authenticator.</span>
 
       <b>OR</b>
@@ -77,7 +81,7 @@
     </section>
 
     {#if showSubmit}
-      <section class="step-3 verify" transition:slide={{ duration: 50 }}>
+      <section class="step-3 verify">
         <header>3.</header>
         <form class="verify-totp" on:submit|preventDefault={submit}>
           <label class="directions">
@@ -167,18 +171,10 @@
     .directions {
       margin: 1rem 0;
     }
-    .option {
-      display: inline;
-    }
-    span.step {
-      margin: 0;
-    }
     pre {
       margin: 0;
       background: rgb(230, 230, 230);
       border-radius: 0;
-    }
-    pre.backup-codes {
     }
     p {
       align-self: flex-start;

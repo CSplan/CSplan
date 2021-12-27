@@ -6,6 +6,7 @@
   import userStore from '$stores/user'
   import SecretModal from '$components/modals/totp-secret-modal.svelte'
   import Spinner from '$components/spinner.svelte'
+  import qrcodegen from '$lib/qrcodegen'
 
   // Form state
   let enabled = false
@@ -18,7 +19,8 @@
 
   // Password input, stored for automatic focusing
   let passwordInput: HTMLInputElement
-  let qrcodeSVG: SVGSVGElement
+  // QR code passed to modal
+  let qrCode: qrcodegen.QrCode
   // User password, needed to upgrade to auth level 2
   let password: string
   let totpInfo: TOTPinfo = {
@@ -70,11 +72,10 @@
     // Enable TOTP and display the result
     totpInfo = await TOTPActions.enable()
     state = States.Resting
-    showSecretModal = true
     const uri = TOTPActions.URI('CSplan', $userStore.user.email, totpInfo.secret)
-    // Wait for the modal to render before writing to the svg it contains
+    qrCode = TOTPActions.qrCode(uri)
     await tick()
-    TOTPActions.qr2svg(TOTPActions.qrCode(uri), qrcodeSVG, 0, 'white', 'black')
+    showSecretModal = true
   }
 
   async function disableTOTP(): Promise<void> {
@@ -86,15 +87,23 @@
     setTimeout(() => {
       state = States.Resting
       message = ''
+      onDisabled()
     }, 500)
-    enabled = false
   }
   // #endregion
 
-  function totpEnabled(): void {
+  function closeForm(): void {
+    password = ''
     showSecretModal = false
     editing = false
+  }
+  function onEnabled(): void {
     enabled = true
+    closeForm()
+  }
+  function onDisabled(): void {
+    enabled = false
+    closeForm()
   }
 
   onMount(async () => {
@@ -107,7 +116,7 @@
   })
 </script>
 
-<SecretModal bind:svg={qrcodeSVG} show={showSecretModal} info={totpInfo} on:success={totpEnabled}></SecretModal>
+<SecretModal {qrCode} show={showSecretModal} info={totpInfo} on:success={onEnabled}></SecretModal>
 
 <form class="totp-form" on:submit|preventDefault={submit}>
   <p class="totp-info">
