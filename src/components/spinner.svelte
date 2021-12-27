@@ -7,16 +7,26 @@
   export let state: States = States.Saving
 </script>
 
-<i class="fas" 
-class:fa-circle-notch={state === States.Saving}
-class:fa-check-circle={state === States.Saved} 
-class:fa-times-circle={state === States.Errored}
-style="--size: {size}; --vm: {vm};"></i>
-{#if message.length}
-  <p class="message" style="--vm: {vm}">{message}</p>
-{/if}
+<div class="spinner">
+  <i class="fas" 
+  class:fa-circle-notch={state === States.Saving}
+  class:fa-check-circle={state === States.Saved} 
+  class:fa-times-circle={state === States.Errored}
+  style="--size: {size}; --vm: {vm};"></i>
+  {#if message.length > 0}
+    <span class="message" class:success={state === States.Saved} class:error={state === States.Errored} style="--vm: {vm}">{message}</span>
+  {/if}
+</div>
 
 <style lang="scss">
+  div.spinner {
+    margin: 0;
+    padding: 0;
+
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
   @keyframes spin {
     from {transform: rotate(0deg);}
     to {transform: rotate(359deg);}
@@ -39,8 +49,14 @@ style="--size: {size}; --vm: {vm};"></i>
   i.fa-times-circle {
     color: $danger-red;
   }
-  p.message {
+  span.message {
     margin: 0;
     margin-bottom: calc(var(--vm) / 2);
+    &.error {
+      color: $danger-red;
+    }
+    &.success {
+      color: $success-green;
+    }
   }
 </style>

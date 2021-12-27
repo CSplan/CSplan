@@ -527,13 +527,16 @@ export const TOTPActions = {
     const body: TOTPRequest = {
       TOTP_Code: code
     }
-    const res = await fetch(route('/totp?action=verify'), {
+    const res = await fetch(route('/totp/verify'), {
       method: 'POST',
       headers: {
         'CSRF-Token': localStorage.getItem('CSRF-Token')!
       },
       body: JSON.stringify(body)
     })
+    if (res.status === 401) {
+      throw new Error('Invalid TOTP code')
+    }
     if (res.status !== 200) {
       throw new Error(await HTTPerror(res, 'Error verifying TOTP code'))
     }

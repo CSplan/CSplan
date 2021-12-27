@@ -1,13 +1,17 @@
 <script lang="ts">
-  import { HTTPerror, route } from '$lib'
+  import { HTTPerror, route, FormStates as States, formatError } from '$lib'
   import { onMount, tick } from 'svelte'
   import { slide } from 'svelte/transition'
   import { LoginActions, TOTPActions, UpgradeActions } from '$lib/auth-actions'
   import userStore from '$stores/user'
   import SecretModal from '$components/modals/totp-secret-modal.svelte'
+  import Spinner from '$components/spinner.svelte'
 
+  // Form state
   let enabled = false
   let editing = false
+  let state = States.Resting
+  let message = ''
 
   // Authentication actions
   let actions: LoginActions
@@ -42,27 +46,32 @@
 
 
   async function enableTOTP(): Promise<void> {
-    // Upgrade to level 2 auth
-    if (actions == null) {
-      actions = new LoginActions(new Worker('/argon2/worker.js'), new Worker('/ed25519/worker.js'))
-      await actions.loadArgon2({ wasmRoot: '/argon2', simd: true })
-      await actions.loadED25519({ wasmPath: '/ed25519/ed25519.wasm' })
-    }
-    await UpgradeActions.passwordUpgrade(actions, password)
-
-    // Enable TOTP and display the result
+    state = States.Saving
+    message = ''
     try {
+      // Upgrade to level 2 auth
+      if (actions == null) {
+        actions = new LoginActions(new Worker('/argon2/worker.js'), new Worker('/ed25519/worker.js'))
+        await actions.loadArgon2({ wasmRoot: '/argon2', simd: true })
+        await actions.loadED25519({ wasmPath: '/ed25519/ed25519.wasm' })
+      }
+      await UpgradeActions.passwordUpgrade(actions, password)
+
+      // Enable TOTP and display the result
       totpInfo = await TOTPActions.enable()
-      const uri = TOTPActions.URI('CSplan', $userStore.user.email, totpInfo.secret) // test value
+      state = States.Resting
       showSecretModal = true
+      const uri = TOTPActions.URI('CSplan', $userStore.user.email, totpInfo.secret)
+      // Wait for the modal to render before writing to the svg it contains
       await tick()
       TOTPActions.qr2svg(TOTPActions.qrCode(uri), qrcodeSVG, 0, 'white', 'black')
     } catch (err) {
+      state = States.Errored
+      message = formatError(err instanceof Error ? err.message : (err as string).toString())
+    } finally {
       // Downgrade auth
       await UpgradeActions.downgrade()
-      throw err
     }
-
   }
 
   async function disableTOTP(): Promise<void> {
@@ -78,7 +87,7 @@
   })
 </script>
 
-<SecretModal bind:svg={qrcodeSVG} show={showSecretModal} info={totpInfo}></SecretModal>
+<SecretModal bind:svg={qrcodeSVG} bind:show={showSecretModal} info={totpInfo}></SecretModal>
 
 <form class="totp-form" on:submit|preventDefault={submit}>
   <p class="totp-info">
@@ -110,6 +119,8 @@
         <input type="button" value="Cancel" class="cancel-button" on:click={toggleEditing}>
         <input type="submit" value="Confirm" class="submit-button">
       </div>
+
+      <Spinner {state} {message} size="2rem"/>
     </div>
   {/if}
 </form>

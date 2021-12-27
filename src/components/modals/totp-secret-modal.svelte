@@ -1,6 +1,10 @@
 <script lang="ts">
   import { browser } from '$app/env'
+  import Spinner from '$components/spinner.svelte'
   import { TOTPActions } from '$lib/auth-actions'
+  import { slide } from 'svelte/transition'
+  import { tick } from 'svelte'
+  import { FormStates as States } from '$lib'
 
   import Modal from './modal.svelte'
   // Show/hide the modal
@@ -10,13 +14,13 @@
   // The authentication information itself
   export let info: TOTPinfo
 
+  let state = States.Saved
+  let message = ''
+  let showSubmit = false
+
   let backupCodesURL = ''
   $: if (browser) {
-    if (backupCodesURL.length > 0) {
-      URL.revokeObjectURL(backupCodesURL)
-    }
-    const data = new Blob([info.backupCodes.join('\n')], { type: 'text/plain' })
-    backupCodesURL = URL.createObjectURL(data)
+    backupCodesURL = `data:text/plain,${encodeURIComponent(info.backupCodes.join('\n'))}`
   }
 
   let code: number
@@ -25,8 +29,24 @@
   }
 
   async function submit(): Promise<void> {
-    await TOTPActions.verify(code)
-    console.log('success')
+    state = States.Saving
+    message = ''
+    await tick()
+    try {
+      await TOTPActions.verify(code)
+    } catch (err) {
+      state = States.Errored
+      message = err instanceof Error ? err.message : err as string
+      return
+    }
+    state = States.Saved
+    message = 'Successfully verified TOTP authenticator'
+    await tick()
+    setTimeout(() => {
+      state = States.Resting
+      message = ''
+      show = false
+    }, 500)
   }
 </script>
 
@@ -34,7 +54,7 @@
   <article class="totp-authinfo">
     <section class="step-1">
       <header>1.</header>
-      <svg bind:this={svg}></svg>
+      <svg bind:this={svg}></svg> <!-- FIXME: svg in modal should be implemented as a named slot -->
       <span class="directions"><b>Option 1</b>: Scan this QR code with a TOTP authenticator.</span>
 
       <b>OR</b>
@@ -48,21 +68,25 @@
       <header>2.</header>
       <p>Save your backup codes. These are one-use codes that can be used to log in without a TOTP code, keep them somewhere safe!</p>
       <pre>{info.backupCodes.join('\n')}</pre>
-      <a href={backupCodesURL} download="csplan_backupcodes.txt">
+      <a href={backupCodesURL} download="csplan_backupcodes.txt" on:click={() => showSubmit = true}>
         <button>Save</button>
       </a>
     </section>
 
-    <section class="step-3 verify">
-      <header>3.</header>
-      <form on:submit|preventDefault={submit}>
-        <label class="directions">
-          <span>Enter a TOTP code to verify your authenticator</span>
-          <input type="text" on:input={oncodeinput} placeholder="{'0'.repeat(6)}">
-        </label>
-        <input type="submit" value="Submit">
-      </form>
-    </section>
+    {#if showSubmit}
+      <section class="step-3 verify" transition:slide={{ duration: 50 }}>
+        <header>3.</header>
+        <form class="verify-totp" on:submit|preventDefault={submit}>
+          <label class="directions">
+            <span>Enter a TOTP code to verify your authenticator</span>
+            <input type="text" on:input={oncodeinput} placeholder="{'0'.repeat(6)}">
+          </label>
+          <input type="submit" value="Submit">
+
+          <Spinner {state} {message} size="2rem"/>
+        </form>
+      </section>
+    {/if}
   </article> 
 </Modal>
 
@@ -119,6 +143,18 @@
     section.verify {
       label {
         margin: 0;
+      }
+      form {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        input[type="submit"] {
+          margin: 0.5rem 0;
+          // Larger bottom margin if there's content (assumed to be a progress component) beneath
+          &:not(:last-child) {
+            margin-bottom: 1rem;
+          }
+        }
       }
     }
 
