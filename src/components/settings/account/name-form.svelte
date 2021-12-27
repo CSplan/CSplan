@@ -9,7 +9,7 @@
 
   let name: Name
   name = cloneName($nameStore)
-  let editing = true
+  let editing = false
   let disabled = !editing
   $: disabled = !editing
 
