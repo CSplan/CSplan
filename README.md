@@ -15,15 +15,31 @@ Frontend for CSplan.
 - [x] Advanced authkey + cryptokey configuration
 - [x] Navigation bar
 - [ ] Replace unintended object casts with proper typed assignments
-- [ ] Settings page
+
+### Settings
+- [x] Profile Picture form
+- [x] Profile picture visibilities
+- [x] Password resets
+- [x] First and last name form (includes display name + private display name)
+- [x] First and last name visibilities
+- [ ] Respect private display name
+- [ ] Username form
+- [x] TOTP form
+- [ ] TOTP support in login form
+- [ ] Master key export
+- [ ] Session view/remote logout
+- [ ] Delete account form
+
+### Finalize Beta
 - [ ] JSON exports
 - [ ] Homepage
 - [ ] Info pages
-- [ ] General polishing
+- [ ] Prerender profile picture
+- [ ] SSR?
 - [ ] Deploy beta!
 More to come...
 
-## Typescript + SCSS
+### Typescript + SCSS
 Current progress for adding TypeScript and SCSS to components:
 - [x] Auth (register + login)
 - [x] Color picker
