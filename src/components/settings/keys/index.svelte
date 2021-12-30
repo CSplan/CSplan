@@ -1,11 +1,9 @@
 <script lang="ts">
-  import KeysForm from './keys-form.svelte'
+  import KeysMenu from './keys-menu.svelte'
 </script>
 
 <section class="settings-menu-container">
-  <article class="keys-menu">
-    <KeysForm/>
-  </article>
+  <KeysMenu/>
 </section>
 
 <style lang="scss">
@@ -15,16 +13,5 @@
   }
   section.settings-menu-container :global {
     @include form-styles;
-  }
-
-  article.keys-menu {
-    margin: 1.5rem 0;
-    color: #111;
-    border: 1px solid #aaa;
-    padding: $padding-m;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-
   }
 </style>

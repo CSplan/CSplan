@@ -75,6 +75,12 @@
 </article>
 
 <style lang="scss">
+  article.keys {
+    margin: 1.5rem 0;
+    color: #111;
+    border: 1px solid #aaa;
+    padding: $padding-m;
+  }
   article.keys,section {
     display: flex;
     flex-direction: column;
@@ -102,7 +108,6 @@
     background: $bold-blue;
     color: white;
   }
-
 
   hr {
     width: 100%;
