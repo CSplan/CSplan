@@ -3,8 +3,21 @@
   import { onMount } from 'svelte'
   import { FormStates as States } from '$lib'
   import Spinner from '$components/spinner.svelte'
+import { AuthLevels } from '$lib/auth-levels'
 
   let state = States.Loading
+
+  function dateField(n: number): string {
+    return n.toString().padStart(2, '0')
+  }
+  function dateFormat(d: Date): string {
+    const hours = dateField(d.getHours())
+    const minutes = dateField(d.getMinutes())
+    const month = dateField(d.getMonth())
+    const date = dateField(d.getDate())
+    const year = d.getFullYear() // padding is not going to be a problem soon enough for me to care
+    return `${hours}:${minutes},\n${month}-${date}-${year}`
+  }
 
   onMount(async () => {
     await sessionStore.init()
@@ -31,12 +44,12 @@
       <div class="row">
         <span class="id">{session.id}</span>
         <span class="is-current">{session.isCurrent}</span>
-        <span class="ip-address"></span>
-        <span class="os"></span>
-        <span class="browser"></span>
-        <span class="created">{session.created}</span>
-        <span class="last-used"></span>
-        <span class="authlevel"></span>
+        <span class="ip-address" class:empty={session.ip == null}>{session.ip || 'None'}</span>
+        <span class="os" class:empty={session.os == null}>{session.os || 'None'}</span>
+        <span class="browser" class:empty={session.browser == null}>{session.browser || 'None'}</span>
+        <span class="created">{dateFormat(session.created)}</span>
+        <span class="last-used">{dateFormat(session.lastUsed)}</span>
+        <span class="authlevel">{AuthLevels[session.authLevel]}</span>
       </div>
     {/each}
   {/if}
@@ -80,6 +93,9 @@
   }
 
   div.row > span {
+    display: block;
+    text-overflow: ellipsis;
+    overflow: hidden;
     border-left: 1px #aaa solid;
     border-right: 1px #aaa solid;
     padding: 0.3rem 0.45rem;
@@ -92,7 +108,11 @@
       border-right: none;
     }
   }
-  div.id {
-    grid-column: 1;
+  span.created, span.last-used {
+    white-space: pre-wrap;
+  }
+  span.empty {
+    pointer-events: none;
+    background-color: rgb(230, 230, 230);
   }
 </style>

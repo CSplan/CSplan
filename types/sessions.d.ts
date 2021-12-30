@@ -14,6 +14,14 @@ declare type SessionData = {
   isCurrent: boolean
 }
 
+declare type ParsedSessionData = {
+  id: string
+  created: Date
+  lastUsed: Date
+  authLevel: number
+  isCurrent: boolean
+}
+
 declare type SessionMeta = {
   meta?: {
     ip: string
@@ -22,7 +30,7 @@ declare type SessionMeta = {
   }
 }
 
-declare type Session = SessionData & Partial<SessionMeta['meta']>
+declare type Session = ParsedSessionData & Partial<SessionMeta['meta']>
 
 declare type SessionStore = {
   async init(): Promise<void>

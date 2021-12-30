@@ -37,7 +37,9 @@ function create(): Readable<Store> & SessionStore {
 
         // Add session to state
         // TODO: cache sessions (usable only if state of all sessions has not changed)
-        const { id, created, lastUsed, authLevel, isCurrent } = session
+        const { id, authLevel, isCurrent } = session
+        const created = new Date(session.created * 1000)
+        const lastUsed = new Date(session.lastUsed * 1000)
         const final: Session = {
           id,
           created,
@@ -61,9 +63,13 @@ function create(): Readable<Store> & SessionStore {
 
 export const sessions = create()
 
+function date2unix(d: Date): number {
+  return Math.floor(d.getTime() / 1000)
+}
+
 export const ordered = derived(sessions, ($sessions) => {
-  const now = Date.now()
-  return Object.values($sessions).sort((s1, s2) => (now - s1.lastUsed) - (now - s2.lastUsed)) // Sort from shortest to longest time since last use
+  const now = Math.floor(Date.now() / 1000)
+  return Object.values($sessions).sort((s1, s2) => (now - date2unix(s1.lastUsed)) - (now - date2unix(s2.lastUsed))) // Sort from shortest to longest time since last use
 })
 
 export default sessions

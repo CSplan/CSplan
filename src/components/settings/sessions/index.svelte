@@ -11,7 +11,8 @@
   section.settings-menu-container {
     @include settings-menu-container;
     max-width: max-content;
-    margin-left: 0;
+    margin-left: auto;
+    margin-right: auto;
   }
   section.settings-menu-container :global {
     @include form-styles;
