@@ -1,35 +1,11 @@
 <script lang="ts">
   import { mustGetByKey } from '$db'
-  import { onMount, onDestroy, tick } from 'svelte'
+  import { onMount, onDestroy } from 'svelte'
   import { rsa } from 'cs-crypto'
-  import DetailDropdown from '$components/templates/_detail-dropdown.svelte'
-  import SubmitCancel from '$components/forms/submit-cancel.svelte'
-  import { LoginActions } from '$lib/auth-actions'
-  import { dev } from '$app/env'
 
   let publicKeyURL = ''
-  let privateKeyURL = ''
 
   let publicKey: CryptoKey
-
-  let privateKeyExportEnabled = true
-  let showPasswordInput = false
-
-  let passwordInput: HTMLInputElement
-  let password = ''
-
-  async function togglePasswordInput(): Promise<void> {
-    showPasswordInput = !showPasswordInput
-    if (showPasswordInput) {
-      await tick()
-      passwordInput.focus()
-    }
-  }
-  function cancel(): void {
-    togglePasswordInput()
-    password = ''
-    privateKeyExportEnabled = false
-  }
 
   function keyType(key: CryptoKey): string {
     switch (key.algorithm.name) {
@@ -43,28 +19,22 @@
   }
   let pem = ''
 
-  const pemBorder = '-'.repeat(5)
-  const pemHeader = `${pemBorder}BEGIN PUBLIC KEY${pemBorder}`
-  const pemFooter = `${pemBorder}END PUBLIC KEY${pemBorder}`
   async function exportPublic(): Promise<void> {
     // Insert a newline every 50 characters
-    const raw = (await rsa.exportPublicKey(publicKey)).replaceAll(/(.{50})/g, '$1\n')
-    pem = `${pemHeader}\n${raw}\n${pemFooter}`
+    const raw = await rsa.exportPublicKey(publicKey)
+    pem = pemFormat(raw, false)
     publicKeyURL = URL.createObjectURL(new Blob([pem], { type: 'text/plain' }))
   }
 
-  async function preparePrivateKey(): Promise<void> {
-    // Initialize login actions
-    const argon2WorkerPath = `/argon2/worker${dev ? '.min' : ''}.js`
-    const ed25519WorkerPath = `/ed25519/worker${dev ? '.min' : ''}.js`
-    const actions = new LoginActions(new Worker(argon2WorkerPath), new Worker(ed25519WorkerPath))
-    await actions.loadArgon2({
-      wasmRoot: '/argon2',
-      simd: true
-    })
-    const { privateKey } = await actions.retrieveMasterKeypair(password, true)
-    console.log(privateKey)
+  function pemFormat(raw: string, isPrivate: boolean): string {
+    const pemBorder = '-'.repeat(5)
+    const pemHeader = `${pemBorder}BEGIN ${isPrivate ? 'PRIVATE' : 'PUBLIC'} KEY${pemBorder}`
+    const pemFooter = `${pemBorder}END ${isPrivate ? 'PRIVATE' : 'PUBLIC'} KEY${pemBorder}`
+    // Insert a newline every 70 characters
+    const body = raw.replaceAll(/(.{70})/g, '$1\n')
+    return `${pemHeader}\n${body}\n${pemFooter}`
   }
+
 
   onMount(async () => {
     const userID = (JSON.parse(localStorage.getItem('user')!) as UserStore['user']).id
@@ -101,49 +71,11 @@
         Export Public Key
       </a>
     {/if}
-
-    <hr>
-  </section>
-
-
-  <section class="private-key">
-    <header>Private Key</header>
-    <DetailDropdown summary="Private Key Export Warnings">
-        <p class="key-info">
-          Private key backups are not recommended. CSplan recommends backing up your account password using a secure password manager. 
-        </p>
-        <p class="private-key-warning">
-          WARNING: Do not proceed unless you are absolutely sure of what you're doing, and understand that mishandling your private key can and will endanger the security of your account.
-          CSplan is not responsible nor liable for the handling of user-exported private keys.
-        </p>
-
-        <label class="checkable">
-          <input type="checkbox" bind:checked={privateKeyExportEnabled}>
-          <span class="checkable">I have read, understood, and accepted the above warnings and disclaimers</span>
-        </label>
-    </DetailDropdown>
-
-    {#if !showPasswordInput}
-      <button class="export-button" disabled={!privateKeyExportEnabled} on:click={togglePasswordInput}>
-        <i class="fas fa-lock"></i>
-        Export Private Key
-      </button>
-    {/if}
-
-    {#if showPasswordInput}
-      <form class="export-private-key" on:submit|preventDefault={preparePrivateKey}>
-        <label>
-          <span>Password</span>
-          <input type="password" placeholder="Enter your password to export your master private key" bind:value={password} bind:this={passwordInput}>
-        </label>
-        <SubmitCancel on:cancel={cancel}/>
-      </form>
-    {/if}
   </section>
 </article>
 
 <style lang="scss">
-  article.keys,section,form.export-private-key {
+  article.keys,section {
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -157,38 +89,18 @@
     padding: 0.5rem 0;
   }
 
-  p.private-key-warning {
-    color: rgb(230, 0, 0);
-    border-left: 2px solid rgb(230, 0, 0);
-    padding-left: 0.5rem;
-  }
-  label.checkable {
-    margin-top: 1.5rem !important;
-  }
-
-  label {
-    width: 100%;
-  }
-
   span.key-type {
     padding: 0.3rem 0.45rem;
     border: 1px solid #aaa;
     background: rgb(230, 230, 230);
   } 
   a.export-button {
-    width: max-content;
-    margin: 0;
-  }
-  a.export-button, button.export-button {
     border-radius: $br-light;
     line-height: 1.5;
     padding: 0.3rem 0.45rem;
     margin: 0.5rem 0;
-    // Let picnic styling take over when a button is disabled
-    &:not(:disabled) {
-      background: $bold-blue;
-      color: white;
-    }
+    background: $bold-blue;
+    color: white;
   }
 
 
