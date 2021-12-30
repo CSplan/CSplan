@@ -1,3 +1,5 @@
+@import url("./variables.css");
+
 /* Custom button things */
 button.bold, .button, input[type="submit"] {
   background-color: var(--bold-blue);

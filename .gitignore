@@ -8,4 +8,5 @@ yarn-error.log
 static/**
 !static/css
 !static/css/global.css
+!static/css/variables.css
 !static/css/modals.css
