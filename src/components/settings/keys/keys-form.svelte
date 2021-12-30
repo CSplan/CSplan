@@ -1,14 +1,35 @@
 <script lang="ts">
   import { mustGetByKey } from '$db'
-  import { onMount, onDestroy } from 'svelte'
+  import { onMount, onDestroy, tick } from 'svelte'
   import { rsa } from 'cs-crypto'
   import DetailDropdown from '$components/templates/_detail-dropdown.svelte'
+  import SubmitCancel from '$components/forms/submit-cancel.svelte'
+  import { LoginActions } from '$lib/auth-actions'
+  import { dev } from '$app/env'
 
   let publicKeyURL = ''
+  let privateKeyURL = ''
 
   let publicKey: CryptoKey
 
-  let privateKeyExportEnabled = false
+  let privateKeyExportEnabled = true
+  let showPasswordInput = false
+
+  let passwordInput: HTMLInputElement
+  let password = ''
+
+  async function togglePasswordInput(): Promise<void> {
+    showPasswordInput = !showPasswordInput
+    if (showPasswordInput) {
+      await tick()
+      passwordInput.focus()
+    }
+  }
+  function cancel(): void {
+    togglePasswordInput()
+    password = ''
+    privateKeyExportEnabled = false
+  }
 
   function keyType(key: CryptoKey): string {
     switch (key.algorithm.name) {
@@ -28,9 +49,21 @@
   async function exportPublic(): Promise<void> {
     // Insert a newline every 50 characters
     const raw = (await rsa.exportPublicKey(publicKey)).replaceAll(/(.{50})/g, '$1\n')
-    console.log(raw)
     pem = `${pemHeader}\n${raw}\n${pemFooter}`
     publicKeyURL = URL.createObjectURL(new Blob([pem], { type: 'text/plain' }))
+  }
+
+  async function preparePrivateKey(): Promise<void> {
+    // Initialize login actions
+    const argon2WorkerPath = `/argon2/worker${dev ? '.min' : ''}.js`
+    const ed25519WorkerPath = `/ed25519/worker${dev ? '.min' : ''}.js`
+    const actions = new LoginActions(new Worker(argon2WorkerPath), new Worker(ed25519WorkerPath))
+    await actions.loadArgon2({
+      wasmRoot: '/argon2',
+      simd: true
+    })
+    const { privateKey } = await actions.retrieveMasterKeypair(password, true)
+    console.log(privateKey)
   }
 
   onMount(async () => {
@@ -45,7 +78,7 @@
   })
 </script>
 
-<form class="keys-form" on:submit|preventDefault>
+<article class="keys">
   <p class="key-info">
     Your master keypair is the set of cryptographic keys that are used to encrypt and decrypt all data you use CSplan to manage. This includes all lists and tags, any profile fields with visibility set to encrypted, and metadata describing active sessions (if opted in to saving session information). This page is intended for advanced users only.
   </p>
@@ -90,15 +123,27 @@
         </label>
     </DetailDropdown>
 
-    <button class="export-button" disabled={!privateKeyExportEnabled}>
-      <i class="fas fa-lock"></i>
-      Export Private Key
-    </button>
+    {#if !showPasswordInput}
+      <button class="export-button" disabled={!privateKeyExportEnabled} on:click={togglePasswordInput}>
+        <i class="fas fa-lock"></i>
+        Export Private Key
+      </button>
+    {/if}
+
+    {#if showPasswordInput}
+      <form class="export-private-key" on:submit|preventDefault={preparePrivateKey}>
+        <label>
+          <span>Password</span>
+          <input type="password" placeholder="Enter your password to export your master private key" bind:value={password} bind:this={passwordInput}>
+        </label>
+        <SubmitCancel on:cancel={cancel}/>
+      </form>
+    {/if}
   </section>
-</form>
+</article>
 
 <style lang="scss">
-  form.keys-form,section {
+  article.keys,section,form.export-private-key {
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -119,6 +164,10 @@
   }
   label.checkable {
     margin-top: 1.5rem !important;
+  }
+
+  label {
+    width: 100%;
   }
 
   span.key-type {
