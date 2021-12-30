@@ -11,6 +11,9 @@
 </details>
 
 <style lang="scss">
+  details {
+    width: 100%;
+  }
   i.fa-chevron-right {
     transition: transform 200ms var(--cubic-out);
     margin-right: 0.25rem;
