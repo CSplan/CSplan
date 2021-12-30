@@ -248,7 +248,7 @@ export class LoginActions {
     return AuthConditions.Success
   }
 
-  async retrieveMasterKeypair(password: string, exportablePrivateKey = false): Promise<CryptoKeyPair> {
+  async retrieveMasterKeypair(password: string, extractablePrivateKey = false): Promise<CryptoKeyPair> {
     // Fetch the user's master keypair
     const res = await fetch(route('/keys'), {
       method: 'GET',
@@ -271,15 +271,17 @@ export class LoginActions {
     this.onMessage('Decrypting master keypair')
     const tempKeyMaterial = await this.hashPassword(password, decode(keys.hashParams.salt), keys.hashParams)
     const tempKey = await aes.importKeyMaterial(tempKeyMaterial, Algorithms.AES_GCM)
-    const privateKey = await rsa.unwrapPrivateKey(keys.privateKey, tempKey, exportablePrivateKey)
+    const privateKey = await rsa.unwrapPrivateKey(keys.privateKey, tempKey, extractablePrivateKey)
 
     // Store keys in IDB
-    const userID = (<UserStore>get(userStore)).user.id
-    await db.addToStore('keys', {
-      id: userID,
-      publicKey,
-      privateKey
-    })
+    if (!extractablePrivateKey) { // Extractable private keys are only used for export, and shouldn't be stored
+      const userID = (<UserStore>get(userStore)).user.id
+      await db.addToStore('keys', {
+        id: userID,
+        publicKey,
+        privateKey
+      })
+    }
     return {
       publicKey,
       privateKey

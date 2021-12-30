@@ -6,7 +6,7 @@
   .modal-content {
     position: fixed;
     top: 35%;
-    min-width: 50%;
+    width: 50%;
     background: white;
   }
 </style>

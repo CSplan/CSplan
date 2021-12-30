@@ -25,7 +25,5 @@
     color: #111;
     border: 1px solid #aaa;
     padding: $padding-m;
-    display: flex;
-    flex-direction: column;
   }
 </style>
