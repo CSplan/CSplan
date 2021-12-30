@@ -3,36 +3,13 @@
   import { onMount } from 'svelte'
   import { FormStates as States } from '$lib'
   import Spinner from '$components/spinner.svelte'
-import { AuthLevels } from '$lib/auth-levels'
+  import { AuthLevels } from '$lib/auth-levels'
+  import { formatDate } from '$lib/date-format'
+  import userStore from '$stores/user'
 
   let state = States.Loading
 
 
-  const months = [
-    'Jan',
-    'Feb',
-    'Mar',
-    'Apr',
-    'May',
-    'Jun',
-    'Jul',
-    'Aug',
-    'Sep',
-    'Oct',
-    'Nov',
-    'Dec'
-  ]
-  function dateField(n: number): string {
-    return n.toString().padStart(2, '0')
-  }
-  function dateFormat(d: Date): string {
-    const hours = dateField(d.getHours())
-    const minutes = dateField(d.getMinutes())
-    const month = months[d.getMonth()]
-    const date = dateField(d.getDate())
-    const year = d.getFullYear() // padding is not going to be a problem soon enough for me to care
-    return `${month}. ${date}, ${year} - ${hours}:${minutes}`
-  }
 
   onMount(async () => {
     await sessionStore.init()
@@ -74,16 +51,16 @@ import { AuthLevels } from '$lib/auth-levels'
           <span>{session.browser || ''}</span>
         </div>
         <div class="created">
-          <span>{dateFormat(session.created)}</span>
+          <span>{formatDate(session.created)}</span>
         </div>
         <div class="last-used">
-          <span>{dateFormat(session.lastUsed)}</span>
+          <span>{formatDate(session.lastUsed)}</span>
         </div>
         <div class="auth-level">
           <span>{AuthLevels[session.authLevel]}</span>
         </div>
         <div class="logout">
-          <button disabled={!session.isCurrent}>
+          <button disabled={!session.isCurrent} on:click={session.isCurrent ? userStore.logout : null}>
             <i class="fas fa-times"></i>
           </button>
         </div>
@@ -107,6 +84,15 @@ import { AuthLevels } from '$lib/auth-levels'
     display: grid;
     grid-template-columns: repeat(8, 1fr) 0.75fr;
     grid-auto-flow: column;
+    border-top: 1px #aaa solid;
+    border-bottom: 1px #aaa solid;
+
+    &:first-child {
+      border-top: none;
+    }
+    &:last-child {
+      border-bottom: none;
+    }
   }
   div.headers {
     header {
@@ -117,7 +103,6 @@ import { AuthLevels } from '$lib/auth-levels'
       font-weight: 600;
 
       $border: 1px #aaa solid;
-      border-bottom: $border;
       border-left: $border;
       border-right: $border;
       &:first-child {
