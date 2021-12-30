@@ -30,3 +30,8 @@ declare type MetaState = {
 declare type IndexedMetaState = MetaState & {
   index: number
 }
+
+// MetaState with cryptoKey made optional
+declare type HybridMetaState = Omit<MetaState, 'cryptoKey'> & {
+  cryptoKey?: CryptoKey
+}

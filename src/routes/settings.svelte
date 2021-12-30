@@ -1,8 +1,8 @@
 <script>
   import SideMenu from '$components/settings/side-menu.svelte'
-  import Keys from '$components/settings/keys/index.svelte'
+  import Sessions from '$components/settings/sessions/index.svelte'
 
-  let menu = Keys
+  let menu = Sessions
 </script>
 
 <div class="container">

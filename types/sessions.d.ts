@@ -1,4 +1,4 @@
-declare type SessionDocument = Session & SessionMeta & SessionMetaResponse
+declare type SessionDocument = SessionData & SessionMeta & SessionMetaResponse
 
 declare type SessionMetaResponse = {
   meta?: {
@@ -22,6 +22,8 @@ declare type SessionMeta = {
   }
 }
 
-declare type Session = Omit<MetaState, 'cryptoKey'> & {
-  cryptoKey?: CryptoKey
-} & SessionData & SessionMeta['meta']
+declare type Session = SessionData & Partial<SessionMeta['meta']>
+
+declare type SessionStore = {
+  async init(): Promise<void>
+}
