@@ -7,16 +7,31 @@ import { AuthLevels } from '$lib/auth-levels'
 
   let state = States.Loading
 
+
+  const months = [
+    'Jan',
+    'Feb',
+    'Mar',
+    'Apr',
+    'May',
+    'Jun',
+    'Jul',
+    'Aug',
+    'Sep',
+    'Oct',
+    'Nov',
+    'Dec'
+  ]
   function dateField(n: number): string {
     return n.toString().padStart(2, '0')
   }
   function dateFormat(d: Date): string {
     const hours = dateField(d.getHours())
     const minutes = dateField(d.getMinutes())
-    const month = dateField(d.getMonth())
+    const month = months[d.getMonth()]
     const date = dateField(d.getDate())
     const year = d.getFullYear() // padding is not going to be a problem soon enough for me to care
-    return `${hours}:${minutes},\n${month}-${date}-${year}`
+    return `${month}. ${date}, ${year} - ${hours}:${minutes}`
   }
 
   onMount(async () => {
@@ -38,18 +53,40 @@ import { AuthLevels } from '$lib/auth-levels'
       <header>Created</header>
       <header>Last Used</header>
       <header>Auth Level</header>
+      <header>Log Out</header>
     </div>
 
     {#each $ordered as session (session.id)}
       <div class="row">
-        <span class="id">{session.id}</span>
-        <span class="is-current">{session.isCurrent}</span>
-        <span class="ip-address" class:empty={session.ip == null}>{session.ip || 'None'}</span>
-        <span class="os" class:empty={session.os == null}>{session.os || 'None'}</span>
-        <span class="browser" class:empty={session.browser == null}>{session.browser || 'None'}</span>
-        <span class="created">{dateFormat(session.created)}</span>
-        <span class="last-used">{dateFormat(session.lastUsed)}</span>
-        <span class="authlevel">{AuthLevels[session.authLevel]}</span>
+        <div class="id">
+          <span class="id">{session.id}</span>
+        </div>
+        <div class="is-current">
+          <span>{session.isCurrent ? 'Yes' : 'No'}</span>
+        </div>
+        <div class="ip-address" class:empty={session.ip == null}>
+          <span>{session.ip || ''}</span>
+        </div>
+        <div class="os" class:empty={session.os == null}>
+          <span>{session.os || ''}</span>
+        </div>
+        <div class="browser" class:empty={session.browser == null}>
+          <span>{session.browser || ''}</span>
+        </div>
+        <div class="created">
+          <span>{dateFormat(session.created)}</span>
+        </div>
+        <div class="last-used">
+          <span>{dateFormat(session.lastUsed)}</span>
+        </div>
+        <div class="auth-level">
+          <span>{AuthLevels[session.authLevel]}</span>
+        </div>
+        <div class="logout">
+          <button disabled={!session.isCurrent}>
+            <i class="fas fa-times"></i>
+          </button>
+        </div>
       </div>
     {/each}
   {/if}
@@ -68,7 +105,7 @@ import { AuthLevels } from '$lib/auth-levels'
 
   div.row {
     display: grid;
-    grid-template-columns: repeat(8, 1fr);
+    grid-template-columns: repeat(8, 1fr) 0.75fr;
     grid-auto-flow: column;
   }
   div.headers {
@@ -92,10 +129,7 @@ import { AuthLevels } from '$lib/auth-levels'
     }
   }
 
-  div.row > span {
-    display: block;
-    text-overflow: ellipsis;
-    overflow: hidden;
+  div.row > * {
     border-left: 1px #aaa solid;
     border-right: 1px #aaa solid;
     padding: 0.3rem 0.45rem;
@@ -104,14 +138,33 @@ import { AuthLevels } from '$lib/auth-levels'
     &:first-child {
       border-left: none;
     }
-    &:nth-child(8) {
+    &:last-child {
       border-right: none;
     }
   }
-  span.created, span.last-used {
-    white-space: pre-wrap;
+  // Dates don't need extra margin/spacing, they are already the largest element in the table
+  div.created, div.last-used {
+    span {
+      padding: 0;
+      margin: 0;
+    }
   }
-  span.empty {
+  div.row span {
+    display: block;
+    text-overflow: ellipsis;
+    overflow: hidden;
+  }
+  div.row button {
+    background: $danger-red;
+  }
+  div.is-current {
+    i {
+      font-size: 1.5rem;
+      margin: 0.5rem 0;
+      color: $success-green;
+    }
+  }
+  div.empty {
     pointer-events: none;
     background-color: rgb(230, 230, 230);
   }

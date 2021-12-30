@@ -23,6 +23,9 @@
       background-color: rgb(230, 230, 230);
     }
   }
+  button:disabled {
+    background-color: rgb(170, 170, 170);
+  }
 
   input[type="button"] {
     border: none;
