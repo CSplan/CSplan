@@ -5,12 +5,12 @@
   let menu = Sessions
 </script>
 
-<div class="container">
+<main class="container">
   <SideMenu bind:menu/>
   <div class="current-menu">
     <svelte:component this={menu}/>
   </div>
-</div>
+</main>
 
 <style lang="scss">
   @import '../scss/colors.scss';
@@ -31,7 +31,6 @@
 
   .container {
     @include settings-grid();
-    height: 100vh;
     overflow-y: hidden;
   }
 
