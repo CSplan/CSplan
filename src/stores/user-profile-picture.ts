@@ -5,6 +5,7 @@ import { mustGetByKey } from '../db'
 import { route } from '$lib/route'
 import * as db from '../db'
 import { Visibilities } from '$lib'
+import storage from '$db/storage'
 
 type UserPFPStore =  {
   init(): Promise<void>
@@ -28,7 +29,7 @@ function create(): Readable<UserPFP> & UserPFPStore {
       const res = await fetch(route('/profile-picture'), {
         method: 'GET',
         headers: {
-          'CSRF-Token': localStorage.getItem('CSRF-Token')!
+          'CSRF-Token': storage.getCSRFtoken()
         }
       })
       // If no PFP has been set for the user, nothing needs to be changed from initial state
@@ -129,7 +130,7 @@ function create(): Readable<UserPFP> & UserPFPStore {
       const res = await fetch(route('/profile-picture'), {
         method: 'PUT',
         headers: {
-          'CSRF-Token': localStorage.getItem('CSRF-Token')!,
+          'CSRF-Token': storage.getCSRFtoken(),
           'Content-Type': contentType,
           'X-Image-Meta': JSON.stringify(meta)
         },

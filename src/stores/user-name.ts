@@ -4,6 +4,7 @@ import { HTTPerror, DisplayNames, Visibilities } from '$lib'
 import { route } from '$lib'
 import { mustGetByKey, addToStore, getByKey, updateWithKey } from '$db'
 import  userStore from './user'
+import storage from '$db/storage'
 
 function create(): Readable<Name> & SingleResourceStore<NameData> {
   let initialized = false
@@ -31,7 +32,7 @@ function create(): Readable<Name> & SingleResourceStore<NameData> {
       const res = await fetch(route('/name'), {
         method: 'GET',
         headers: {
-          'CSRF-Token': localStorage.getItem('CSRF-Token')!
+          'CSRF-Token': storage.getCSRFtoken()
         }
       })
       if (res.status === 204) {
@@ -132,7 +133,7 @@ function create(): Readable<Name> & SingleResourceStore<NameData> {
       const res = await fetch(route('/name'), {
         method: 'PATCH',
         headers: {
-          'CSRF-Token': localStorage.getItem('CSRF-Token')!,
+          'CSRF-Token': storage.getCSRFtoken(),
           'Content-Type': 'application/json'
         },
         body: JSON.stringify(document)
@@ -157,7 +158,7 @@ function create(): Readable<Name> & SingleResourceStore<NameData> {
       const res = await fetch(route('/name'), {
         method: 'DELETE',
         headers: {
-          'CSRF-Token': localStorage.getItem('CSRF-Token')!
+          'CSRF-Token': storage.getCSRFtoken()
         }
       })
       if (res.status !== 204) {

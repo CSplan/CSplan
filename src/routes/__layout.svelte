@@ -4,6 +4,7 @@
   import { onMount } from 'svelte'
   import user from '$stores/user'
   import { route } from '$lib/route'
+  import storage from '$db/storage'
   class AuthError extends Error {
     constructor({ message = '', code = '' }) {
       super(message)
@@ -19,7 +20,7 @@
       try {
         const res = await fetch(route('/whoami'), {
           headers: {
-            'CSRF-Token': localStorage.getItem('CSRF-Token')
+            'CSRF-Token': storage.getCSRFtoken()
           },
           credentials: 'include'
         })
@@ -29,7 +30,7 @@
           const csrfToken = res.headers.get('CSRF-Token')
           console.log(csrfToken)
           if (csrfToken != null) {
-            localStorage.setItem('CSRF-Token', csrfToken)
+            storage.setCSRFtoken(csrfToken)
           }
           user.login({
             ...JSON.parse(localStorage.getItem('user')),

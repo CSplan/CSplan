@@ -4,6 +4,7 @@ import { addToStore, getByKey, updateWithKey, deleteFromStore, mustGetByKey } fr
 import { aes, rsa } from 'cs-crypto'
 import { CSRF, reqHeaders } from '../core/headers'
 import { encryptList, decryptList } from './encryption'
+import storage from '$db/storage'
 
 
 type Store = {
@@ -115,7 +116,7 @@ function create(): Readable<Store> & ListStore {
         body: JSON.stringify(document),
         headers: {
           'Content-Type': 'application/json',
-          'CSRF-Token': localStorage.getItem('CSRF-Token')!
+          'CSRF-Token': storage.getCSRFtoken()
         }
       })
       await checkResponse(res, 201)
@@ -210,7 +211,7 @@ function create(): Readable<Store> & ListStore {
       const res = await fetch(route(`/todos/${id}`), {
         method: 'DELETE',
         headers: {
-          'CSRF-Token': localStorage.getItem('CSRF-Token')!
+          'CSRF-Token': storage.getCSRFtoken()
         }
       })
       checkResponse(res, 204)

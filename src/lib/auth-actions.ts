@@ -6,6 +6,7 @@ import userStore from '$stores/user'
 import { get } from 'svelte/store'
 import { route, HTTPerror } from '$lib'
 import qrcodegen from './qrcodegen'
+import storage from '$db/storage'
 
 export type Challenge = {
   id: string
@@ -164,7 +165,7 @@ export class LoginActions {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'CSRF-Token': localStorage.getItem('CSRF-Token')!
+          'CSRF-Token': storage.getCSRFtoken()
         }
       })
     } else {
@@ -238,7 +239,7 @@ export class LoginActions {
     if (csrfToken == null) {
       throw new Error('Empty CSRF Token from API')
     }
-    localStorage.setItem('CSRF-Token', csrfToken)
+    storage.setCSRFtoken(csrfToken)
 
     // Login to state
     userStore.login({
@@ -254,7 +255,7 @@ export class LoginActions {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
-        'CSRF-Token': localStorage.getItem('CSRF-Token')!
+        'CSRF-Token': storage.getCSRFtoken()
       },
       credentials: 'include'
     })
@@ -351,10 +352,7 @@ export class RegisterActions extends LoginActions {
     const encryptedPrivateKey = await rsa.wrapPrivateKey(privateKey!, tempKey)
 
     // Store the keypair (along with the hash parameters used to reach them)
-    const CSRFtoken = localStorage.getItem('CSRF-Token')
-    if (typeof CSRFtoken !== 'string') {
-      throw new Error('Failed to retrieve CSRF-Token from localstorage.')
-    }
+    const CSRFtoken = storage.getCSRFtoken()
     const res = await fetch(route('/keys'), {
       method: 'POST',
       headers: {
@@ -372,8 +370,7 @@ export class RegisterActions extends LoginActions {
       })
     })
     if (res.status !== 201) {
-      const err: ErrorResponse = await res.json()
-      throw new Error(err.message || 'Failed to store master keypair')
+      throw new Error(await HTTPerror(res, 'Failed to store master keypair'))
     }
 
     // Store keys in IDB
@@ -431,7 +428,7 @@ export class PasswordChangeActions extends RegisterActions {
       method: 'PUT',
       headers: {
         'Content-Type': 'application/json',
-        'CSRF-Token': localStorage.getItem('CSRF-Token')!
+        'CSRF-Token': storage.getCSRFtoken()
       },
       body: JSON.stringify(<PasswordUpdate>{
         authKey: encode(publicKey!),
@@ -478,7 +475,7 @@ export const UpgradeActions = {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'CSRF-Token': localStorage.getItem('CSRF-Token')!
+        'CSRF-Token': storage.getCSRFtoken()
       },
       body: JSON.stringify(body)
     })
@@ -495,7 +492,7 @@ export const UpgradeActions = {
     const res = await fetch(route('/downgrade'), {
       method: 'POST',
       headers: {
-        'CSRF-Token': localStorage.getItem('CSRF-Token')!
+        'CSRF-Token': storage.getCSRFtoken()
       }
     })
     if (res.status !== 200) {
@@ -513,7 +510,7 @@ export const TOTPActions = {
     const res = await fetch(route('/totp?action=enable'), {
       method: 'POST',
       headers: {
-        'CSRF-Token': localStorage.getItem('CSRF-Token')!
+        'CSRF-Token': storage.getCSRFtoken()
       }
     })
     if (res.status !== 201) {
@@ -532,7 +529,7 @@ export const TOTPActions = {
     const res = await fetch(route('/totp/verify'), {
       method: 'POST',
       headers: {
-        'CSRF-Token': localStorage.getItem('CSRF-Token')!
+        'CSRF-Token': storage.getCSRFtoken()
       },
       body: JSON.stringify(body)
     })
@@ -551,7 +548,7 @@ export const TOTPActions = {
     const res = await fetch(route('/totp?action=disable'), {
       method: 'POST',
       headers: {
-        'CSRF-Token': localStorage.getItem('CSRF-Token')!
+        'CSRF-Token': storage.getCSRFtoken()
       }
     })
     if (res.status !== 204) {
