@@ -6,8 +6,11 @@
   import { AuthLevels } from '$lib/auth-levels'
   import { formatDate } from '$lib/date-format'
   import userStore from '$stores/user'
+  import UpgradeModal from '$components/modals/upgrade-modal.svelte'
 
   let state = States.Loading
+
+  let showUpgradeModal = true
 
 
 
@@ -16,6 +19,8 @@
     state = States.Resting
   })
 </script>
+
+<UpgradeModal bind:show={showUpgradeModal}/>
 
 <article class="sessions">
   {#if state === States.Loading}
