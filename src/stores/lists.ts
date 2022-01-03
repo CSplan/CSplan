@@ -1,9 +1,9 @@
 import { writable, derived, get, Readable } from 'svelte/store'
-import { checkResponse, route } from '../core'
 import { addToStore, getByKey, updateWithKey, deleteFromStore, mustGetByKey } from '../db'
 import { aes, rsa } from 'cs-crypto'
 import { encryptList, decryptList } from './encryption'
 import storage from '$db/storage'
+import { HTTPerror, route } from '$lib'
 
 
 type Store = {
@@ -120,7 +120,9 @@ function create(): Readable<Store> & ListStore {
           'CSRF-Token': storage.getCSRFtoken()
         }
       })
-      await checkResponse(res, 201)
+      if (res.status !== 201) {
+        throw new Error(await HTTPerror(res, 'Failed to create list with server'))
+      }
       const { id, meta }: IndexedMetaResponse = await res.json()
     
       // Update the list with server generated values
@@ -218,7 +220,9 @@ function create(): Readable<Store> & ListStore {
           'CSRF-Token': storage.getCSRFtoken()
         }
       })
-      checkResponse(res, 204)
+      if (res.status !== 204) {
+        throw new Error(await HTTPerror(res, 'Failed to delete list with server'))
+      }
 
       // Delete from IDB
       await deleteFromStore('lists', id)
