@@ -1,6 +1,8 @@
 import { goto } from '$app/navigation'
 import { Readable, writable } from 'svelte/store'
 import { clearAll, clearUserStores } from '../db'
+import { HTTPerror, route } from '$lib'
+import storage from '$db/storage'
 
 
 type UserActions = {
@@ -8,8 +10,6 @@ type UserActions = {
   logout(): void
 }
 
-// This store ONLY manages local state, all API interaction must be handled by components before calling these functions
-// TODO: this flow is stupid
 function create(): Readable<UserStore> & UserActions {
   const userStore = {
     user: {
@@ -18,16 +18,27 @@ function create(): Readable<UserStore> & UserActions {
     },
     isLoggedIn: false
   }
-  const { subscribe, update, set } = writable(userStore)
+  const { subscribe, set } = writable(userStore)
 
   return {
     subscribe,
     login(user: UserStore['user']) {
-      localStorage.setItem('user', JSON.stringify(user))
+      storage.setUser(user)
       localStorage.setItem('isLoggedIn', 'true')
-      update(store => ({ ...store, user, isLoggedIn: true }))
+      set({ user, isLoggedIn: true })
     },
-    async logout() {
+    async logout(informAPI = true) {
+      if (informAPI) {
+        const res = await fetch(route('/logout'), {
+          method: 'POST',
+          headers: {
+            'CSRF-Token': storage.getCSRFtoken()
+          }
+        })
+        if (res.status !== 204) {
+          throw new Error(await HTTPerror(res, 'Failed to log out from API'))
+        }
+      }
       await clearUserStores()
       // Clear localstorage
       localStorage.clear()
