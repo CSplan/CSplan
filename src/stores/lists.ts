@@ -2,7 +2,6 @@ import { writable, derived, get, Readable } from 'svelte/store'
 import { checkResponse, route } from '../core'
 import { addToStore, getByKey, updateWithKey, deleteFromStore, mustGetByKey } from '../db'
 import { aes, rsa } from 'cs-crypto'
-import { CSRF, reqHeaders } from '../core/headers'
 import { encryptList, decryptList } from './encryption'
 import storage from '$db/storage'
 
@@ -27,7 +26,9 @@ function create(): Readable<Store> & ListStore {
       // Get all todo lists from the API
       const res = await fetch(route('/todos'), {
         method: 'GET',
-        headers: CSRF.get()
+        headers: {
+          'CSRF-Token': storage.getCSRFtoken()!
+        }
       })
       if (res.status !== 200) {
         let err: ErrorResponse
@@ -176,7 +177,10 @@ function create(): Readable<Store> & ListStore {
       const res = await fetch(route(`/todos/${id}`), {
         method: 'PATCH',
         body: JSON.stringify(document),
-        headers: reqHeaders()
+        headers: {
+          'CSRF-Token': storage.getCSRFtoken(),
+          'Content-Type': 'application/json'
+        }
       })
       if (res.status !== 200) {
         const err: ErrorResponse = await res.json()

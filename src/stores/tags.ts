@@ -3,8 +3,8 @@ import { route } from '$lib/route'
 import { rsa, aes } from 'cs-crypto'
 import { addToStore, deleteFromStore, getByKey, mustGetByKey, updateWithKey } from '../db'
 import userStore from './user'
-import { checkResponse } from '../core/error'
-import { reqHeaders, CSRF } from '../core/headers'
+import { HTTPerror } from '$lib'
+import storage from '$db/storage'
 
 type Store = {
   [id: string]: Tag
@@ -23,10 +23,7 @@ function create(): Readable<Store> & TagStore {
         return
       }
       // Fetch tags from API
-      const res = await fetch(route('/tags'), {
-        method: 'GET',
-        headers: reqHeaders()
-      })
+      const res = await fetch(route('/tags'))
       if (res.status !== 200) {
         const err: ErrorResponse = await res.json()
         throw new Error(err.message || 'unknown error fetching tags')
@@ -99,7 +96,10 @@ function create(): Readable<Store> & TagStore {
       const res = await fetch(route('/tags'), {
         method: 'POST',
         body: JSON.stringify(document),
-        headers: reqHeaders()
+        headers: {
+          'CSRF-Token': storage.getCSRFtoken(),
+          'Content-Type': 'application/json'
+        }
       })
       if (res.status !== 201) {
         const err: ErrorResponse = await res.json()
@@ -151,10 +151,15 @@ function create(): Readable<Store> & TagStore {
       }, tag.cryptoKey)
       const res = await fetch(route(`/tags/${id}`), {
         method: 'PATCH',
-        headers: reqHeaders(),
+        headers: {
+          'CSRF-Token': storage.getCSRFtoken(),
+          'Content-Type': 'application/json'
+        },
         body: JSON.stringify(encrypted)
       })
-      await checkResponse(res, 200)
+      if (res.status !== 200) {
+        throw new Error(await HTTPerror(res, 'Failed to update tag with server'))
+      }
       const { meta }: MetaResponse = await res.json()
       tag.checksum = meta.checksum
 
@@ -175,11 +180,12 @@ function create(): Readable<Store> & TagStore {
       // Delete from API
       const res = await fetch(route(`/tags/${id}`), {
         method: 'DELETE',
-        headers: CSRF.get()
+        headers: {
+          'CSRF-Token': storage.getCSRFtoken()
+        }
       })
       if (res.status !== 204) {
-        const body = await res.json()
-        throw new Error(body.message)
+        throw new Error(await HTTPerror(res, 'Failed to delete tag from server'))
       }
 
       // Delete from IDB
