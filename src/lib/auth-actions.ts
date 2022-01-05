@@ -7,6 +7,7 @@ import { get } from 'svelte/store'
 import { route, HTTPerror } from '$lib'
 import qrcodegen from './qrcodegen'
 import storage from '$db/storage'
+import { dev } from '$app/env'
 
 export type Challenge = {
   id: string
@@ -73,6 +74,16 @@ export class LoginActions {
 
   protected hashResult: Uint8Array|null = null
   protected signingKey: Uint8Array|null = null
+
+  /** Expected path of argon2 web worker */
+  static Argon2_WorkerPath = `/argon2/worker${dev ? '' : '.min'}.js`
+  /** Expected path of ed25519 web worker */
+  static ED25519_WorkerPath = `/ed25519/worker${dev ? '' : '.min'}.js`
+
+  /** Expected root path for argon2 wasm binaries */
+  static Argon2_WASMRoot = '/argon2'
+  /** Expected path of ed25519 wasm binary */
+  static ED25519_WASMPath = '/ed25519/ed25519.wasm'
 
 
   // Initialize communication with web worker for multithreaded behavior
