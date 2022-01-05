@@ -3,11 +3,13 @@ import { ED25519 } from '@very-amused/ed25519-wasm'
 import { encode, aes, rsa, Algorithms, decode, makeSalt } from 'cs-crypto'
 import * as db from '../db'
 import userStore from '$stores/user'
+import { sessions as sessionStore } from '$stores/sessions'
 import { get } from 'svelte/store'
 import { route, HTTPerror } from '$lib'
 import qrcodegen from './qrcodegen'
 import storage from '$db/storage'
 import { dev } from '$app/env'
+import { AuthLevels } from './auth-levels'
 
 export type Challenge = {
   id: string
@@ -473,6 +475,8 @@ export const UpgradeActions = {
       email: '',
       password
     }, false, true)
+    await sessionStore.init()
+    sessionStore.setAuthLevel(AuthLevels.Upgraded)
   },
 
   /**
@@ -493,6 +497,8 @@ export const UpgradeActions = {
     if (res.status !== 200) {
       throw new Error(await HTTPerror(res, 'TOTP authorization failure'))
     }
+    await sessionStore.init()
+    sessionStore.setAuthLevel(AuthLevels.Upgraded)
   },
 
   /**
@@ -509,6 +515,8 @@ export const UpgradeActions = {
     if (res.status !== 200) {
       throw new Error(await HTTPerror(res, 'Failed to downgrade authentication level'))
     }
+    await sessionStore.init()
+    sessionStore.setAuthLevel(AuthLevels.Normal)
   }
 }
 

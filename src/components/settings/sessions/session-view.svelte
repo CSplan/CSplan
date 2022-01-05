@@ -7,11 +7,27 @@
   import { formatDate } from '$lib/date-format'
   import userStore from '$stores/user'
   import UpgradeModal from '$components/modals/upgrade-modal.svelte'
+  import storage from '$db/storage'
 
   let state = States.Loading
 
-  let showUpgradeModal = true
+  let showUpgradeModal = false
 
+  const remoteLogout = {
+    id: '',
+    init: async (id: string) => {
+      remoteLogout.id = id
+      const authLevel = storage.getAuthLevel()
+      if (authLevel === AuthLevels.Upgraded) {
+        await remoteLogout.logout()
+      } else {
+        showUpgradeModal = true
+      }
+    },
+    logout: async () => {
+      await sessionStore.logout(remoteLogout.id)
+    }
+  }
 
 
   onMount(async () => {
@@ -20,7 +36,7 @@
   })
 </script>
 
-<UpgradeModal bind:show={showUpgradeModal}/>
+<UpgradeModal bind:show={showUpgradeModal} on:upgrade={remoteLogout.logout}/>
 
 <article class="sessions">
   {#if state === States.Loading}
@@ -50,7 +66,7 @@
           <td class="last-used">{formatDate(session.lastUsed)}</td>
           <td class="auth-level">{AuthLevels[session.authLevel]}</td>
           <td class="logout">
-            <button disabled={!session.isCurrent} on:click={session.isCurrent ? userStore.logout : null}>
+            <button on:click={session.isCurrent ? userStore.logout : () => remoteLogout.init(session.id)}>
               <i class="fas fa-times"></i>
             </button>
           </td>

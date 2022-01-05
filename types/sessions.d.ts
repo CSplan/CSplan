@@ -34,4 +34,6 @@ declare type Session = ParsedSessionData & Partial<SessionMeta['meta']>
 
 declare type SessionStore = {
   async init(): Promise<void>
+  setAuthLevel(authlevel: AuthLevels): void
+  async logout(id: string): Promise<void>
 }

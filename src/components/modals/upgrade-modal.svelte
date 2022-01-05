@@ -3,11 +3,14 @@
   import SubmitCancel from '$components/forms/submit-cancel.svelte'
   import Checkbox from '$components/forms/checkbox.svelte'
   import { UpgradeActions, LoginActions } from '$lib/auth-actions'
-
-  import { onMount } from 'svelte'
+  import { onMount, createEventDispatcher } from 'svelte'
+  import storage from '$db/storage'
+  import { AuthLevels } from '$lib/auth-levels'
 
   export let show = false
   export let placeholder = 'Enter your password'
+
+  const dispatch = createEventDispatcher()
 
   let actions: LoginActions
 
@@ -18,6 +21,7 @@
 
   function cancel(): void {
     show = false
+    dispatch('cancel')
   }
 
   async function submit(): Promise<void> {
@@ -27,6 +31,8 @@
     const password = passwordInput.value
     await UpgradeActions.passwordUpgrade(actions, password)
     show = false
+    storage.setAuthLevel(AuthLevels.Upgraded)
+    dispatch('upgrade')
   }
 
   onMount(async () => {
@@ -42,14 +48,13 @@
       wasmPath: LoginActions.ED25519_WASMPath
     })
   })
-
 </script>
 
 <Modal bind:show lock={true}>
-  <form class="upgrade" novalidate on:submit|preventDefault={submit}>
+  <form class="upgrade" novalidate on:submit|preventDefault={submit} bind:this={form}>
     <label>
       <header>Password</header>
-      <input type="{showPassword ? 'text' : 'password'}" {placeholder} required>
+      <input type="{showPassword ? 'text' : 'password'}" {placeholder} bind:this={passwordInput} required>
     </label>
     <Checkbox value="Show Password" bind:checked={showPassword}/>
     <SubmitCancel on:cancel={cancel}/>
