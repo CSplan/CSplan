@@ -36,7 +36,7 @@ function create(): Readable<UserStore> & UserActions {
           }
         })
         if (res.status !== 204) {
-          throw new Error(await HTTPerror(res, 'Failed to log out from API'))
+          console.error(await HTTPerror(res, 'Failed to log out from API'))
         }
       }
       await clearUserStores()
