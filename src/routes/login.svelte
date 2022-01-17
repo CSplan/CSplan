@@ -8,7 +8,6 @@
 
 <style>
   main {
-    margin-top: 20vh;
     display: flex;
     flex-direction: row;
     align-items: stretch;

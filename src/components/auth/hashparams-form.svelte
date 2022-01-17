@@ -77,14 +77,17 @@
     on:blur={parseMemoryCost}
   />
   <!-- Prevent default trigger of form submission when hashparams form is saved -->
-  <button on:click|preventDefault={save}>Save</button>
+  <button class="save" on:click|preventDefault={save}>Save</button>
 </div>
 
 <style lang="scss">
   header {
-    padding: 0.3rem 0 !important;
+    padding: 0.5rem 0 !important;
+    border-bottom: 1px solid #aaa;
+    border-top: 1px solid #aaa;
   }
   div {
+    line-height: 1.5;
     margin: 0;
     * {
       margin: 0.3rem 0;
@@ -98,12 +101,15 @@
     button {
       margin-bottom: 0;
       background: var(--background-dark);
+      padding: .3em .9em;
     }
     label {
       grid-column: 1;
     }
     input {
       grid-column: 2;
+      padding: .3em .6em;
+      margin: 0.5rem 0;
     }
     label {
       margin-top: auto;
@@ -111,6 +117,5 @@
     }
   }
   input {
-    padding: 0 0.5rem;
   }
 </style>

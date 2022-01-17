@@ -51,7 +51,11 @@
       }
       await actions.retrieveMasterKeypair(password.value)
     } catch (err) {
-      error = err.message
+      if (err instanceof Error) {
+        error = err.message
+      } else {
+        error = 'An unknown error occured while logging in.'
+      }
       state = States.Error
       return
     }
@@ -90,8 +94,7 @@
       })
     } catch (err) {
       state = States.Error
-      error =
-        err.message || 'unknown error loading web workers and wasm binaries'
+      error = err as string || 'unknown error loading web workers and wasm binaries'
     }
   })
 </script>
@@ -136,6 +139,7 @@
     width: 20%;
     padding: 1rem;
     margin: 0;
+    margin-top: 20vh;
     * {
       margin: 0.5rem 0;
       &:last-child {

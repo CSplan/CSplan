@@ -122,13 +122,15 @@
       <input type="checkbox" bind:checked={showPassword}>
       <span class="checkable">Show Password</span>
     </label>
-    {#if state !== States.Loading} <!-- This isn't rendered until onMount has been run, because it expects actions to be initialized -->
     <details bind:open={showAdvanced}>
       <summary class="clickable"><i class="fas fa-chevron-right"></i>Advanced Cryptography Options</summary>
-      <HashparamsForm bind:actions={actions} on:close={() => showAdvanced = false}/>
+      {#if actions != null}
+        <HashparamsForm bind:actions={actions} on:close={() => showAdvanced = false}/>
+      {/if}
     </details>
+    {#if !showAdvanced}
+      <input type="submit" value="Submit">
     {/if}
-    <input type="submit" value="Submit">
   </form>
   <footer>
   {#if state === States.Submitting}
@@ -143,9 +145,8 @@
 <style lang="scss" global>
   .card {
     @media screen and (min-width: 850px) {
-      margin-top: 60px; 
-      min-width: 300px;
-      max-width: 25%;
+      width: 20%;
+      margin-top: 20vh;
     }
     @media screen and (max-width: 849px) {
       margin-top: 30px;
@@ -179,8 +180,7 @@
       transition: transform 200ms;
     }
     details[open=""] summary {
-      border-bottom: 1px solid #aaa;
-      padding-bottom: 0.3rem;
+      margin-bottom: 0.8rem;
     }
     details[open=""] i {
       transform: rotate(90deg) translate(0.35rem, 0.2rem);
