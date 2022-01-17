@@ -5,14 +5,13 @@
   import Spinner from '$components/spinner.svelte'
   import { AuthLevels } from '$lib/auth-levels'
   import { formatDate } from '$lib/date-format'
-  import userStore from '$stores/user'
   import UpgradeModal from '$components/modals/upgrade-modal.svelte'
   import LogoutModal from '$components/modals/logout-modal.svelte'
   import storage from '$db/storage'
 
   let state = States.Loading
 
-  let showLogoutModal = true
+  let showLogoutModal = false
   let showUpgradeModal = false
 
   const remoteLogout = {
@@ -70,7 +69,7 @@
           <td class="last-used">{formatDate(session.lastUsed)}</td>
           <td class="auth-level">{AuthLevels[session.authLevel]}</td>
           <td class="logout">
-            <button on:click={session.isCurrent ? userStore.logout : () => remoteLogout.init(session.id)}>
+            <button on:click={session.isCurrent ? () => showLogoutModal = true : () => remoteLogout.init(session.id)}>
               {session.isCurrent ? 'Log Out' : 'Revoke'}
             </button>
           </td>

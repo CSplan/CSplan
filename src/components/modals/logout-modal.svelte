@@ -3,13 +3,17 @@
   import Modal from './modal.svelte'
   import userStore from '$stores/user'
 
-  export let show = true
+  export let show = false
+
+  function cancel(): void {
+    show = false
+  }
 </script>
 
-<Modal bind:show lock={true}>
+<Modal bind:show>
   <form class="logout" on:submit|preventDefault={userStore.logout}>
     <h2>Are you sure you want to log out?</h2>
-    <SubmitCancel/>
+    <SubmitCancel on:cancel={cancel}/>
   </form>
 </Modal>
 

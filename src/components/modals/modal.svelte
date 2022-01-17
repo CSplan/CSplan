@@ -5,7 +5,7 @@
   export let lock = false
 
   import { fade } from 'svelte/transition'
-  import { quintOut } from 'svelte/easing'
+  import { cubicOut } from 'svelte/easing'
   import { formElementIsFocused } from '$lib'
 
   function onkeydown(evt: KeyboardEvent): void {
@@ -27,14 +27,14 @@
 <main 
   class="modal"
   on:click|self={onclick}
-  transition:fade={{ duration: 200, easing: quintOut }}>
+  transition:fade={{ duration: 200, easing: cubicOut }}>
 
   <!-- Placebo exit button, does the same thing as clicking anywhere else on the form -->
   {#if !lock}
     <i class="fas fa-times clickable" on:click|self={onclick}></i>
   {/if}
 
-  <section class="content" class:flex transition:fade={{ duration: 200, easing: quintOut }}>
+  <section class="content" class:flex>
     <slot></slot>
   </section>
 </main>
