@@ -1,10 +1,12 @@
 <script lang="ts">
   import { LoginActions, AuthConditions } from '$lib/auth-actions'
   import TwoFactorForm from './2fa-form.svelte'
-  import { onMount } from 'svelte'
+  import { onMount, tick } from 'svelte'
   import user from '$stores/user'
-  import { goto } from '$app/navigation'
+  import { goto, prefetch } from '$app/navigation'
   import { dev } from '$app/env'
+  import Spinner from '$components/spinner.svelte'
+  import { FormStates as States } from '$lib/form-states'
 
   // Elements
   let form: HTMLFormElement
@@ -18,16 +20,9 @@
   let actions: LoginActions
 
   // Form state management
-  const enum States {
-    Resting,
-    Submitting,
-    TwoFactor,
-    Error,
-    Success,
-  }
   let state = States.Resting
-  let stateMsg = ''
-  let error = ''
+  let showTOTPForm = false
+  let message = ''
   let showPassword = false
 
   async function login(): Promise<void> {
@@ -35,7 +30,8 @@
       return
     }
 
-    state = States.Submitting
+    state = States.Saving
+    message = ''
 
     try {
       const condition = await actions.authenticate({
@@ -46,32 +42,38 @@
       switch (condition) {
       case AuthConditions.TOTPRequired:
         // Show TOTP form and wait for submission
-        state = States.TwoFactor
+        state = States.Resting
+        showTOTPForm = true
         return
       }
       await actions.retrieveMasterKeypair(password.value)
+      state = States.Saved
+      message = 'Successfully logged in'
+      await prefetch('/')
     } catch (err) {
       if (err instanceof Error) {
-        error = err.message
+        message = err.message
       } else {
-        error = 'An unknown error occured while logging in.'
+        message = 'An unknown error occured while logging in.'
       }
-      state = States.Error
+      state = States.Errored
       return
     }
-    goto('/')
+    goto('/', { replaceState: true })
   }
 
   function onTOTPSubmit(evt: { detail: number }): void {
     // Resubmit the login form with totp
     totp = evt.detail
-    state = States.Submitting
+    state = States.Saving
+    message = ''
     login()
   }
 
   onMount(async () => {
     if ($user.isLoggedIn) {
-      goto('/')
+      // TODO: Redirects based on login state can be improved with SSR
+      goto('/', { replaceState: true })
     }
     // Initialize argon2 and ed25519 web workers
     const workerScript =
@@ -82,7 +84,7 @@
     // Initialize actions with workers
     actions = new LoginActions(argon2, ed25519)
     actions.onMessage = (msg: string) => {
-      stateMsg = msg
+      message = msg
     }
     try {
       await actions.loadArgon2({
@@ -93,46 +95,41 @@
         wasmPath: '/ed25519/ed25519.wasm'
       })
     } catch (err) {
-      state = States.Error
-      error = err as string || 'unknown error loading web workers and wasm binaries'
+      state = States.Errored
+      message = err as string || 'unknown error loading web workers and wasm binaries'
     }
   })
 </script>
 
-{#if state === States.TwoFactor}
+{#if showTOTPForm}
   <TwoFactorForm on:code-submit={onTOTPSubmit} />
-{:else}
-  <div class="card">
-    <header>Log In</header>
-    <form bind:this={form} on:submit|preventDefault={login}>
-      <input
-        bind:this={email}
-        type="email"
-        required
-        autocomplete="email"
-        placeholder="Email"
-      />
-      <input
-        bind:this={password}
-        type={showPassword ? 'text' : 'password'}
-        required
-        autocomplete="current-password"
-        placeholder="Password"
-      />
-      <label>
-        <input type="checkbox" bind:checked={showPassword} />
-        <span class="checkable">Show Password</span>
-      </label>
-      <input type="submit" value="Submit" />
-    </form>
-
-    {#if state === States.Submitting}
-      <span class="state">{stateMsg}</span>
-    {:else if state === States.Error}
-      <span class="error">{error}</span>
-    {/if}
-  </div>
 {/if}
+
+<div class="card">
+  <header>Log In</header>
+  <form bind:this={form} on:submit|preventDefault={login}>
+    <input
+      bind:this={email}
+      type="email"
+      required
+      autocomplete="email"
+      placeholder="Email"
+    />
+    <input
+      bind:this={password}
+      type={showPassword ? 'text' : 'password'}
+      required
+      autocomplete="current-password"
+      placeholder="Password"
+    />
+    <label>
+      <input type="checkbox" bind:checked={showPassword} />
+      <span class="checkable">Show Password</span>
+    </label>
+    <input type="submit" value="Submit" disabled={![States.Resting, States.Errored].includes(state)}/>
+    <Spinner {state} {message}/>
+  </form>
+</div>
 
 <style lang="scss">
   .card {
@@ -155,20 +152,12 @@
       display: flex;
       flex-direction: column;
       margin-bottom: 0;
+      // TODO: Clean up margin handling for the Spinner component
+      :global {
+        span {
+          margin: 0.5rem 0;
+        }
+      }
     }
-  }
-
-  /* Footer styles */
-  span.state {
-    text-align: left;
-    max-width: 100%;
-  }
-  span.error {
-    font-family: monospace;
-    color: rgb(199, 39, 39);
-    font-weight: 500;
-    border: 1px solid #aaa;
-    border-radius: 5px;
-    padding: 0.3rem 0.4rem;
   }
 </style>

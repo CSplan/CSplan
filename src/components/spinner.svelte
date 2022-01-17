@@ -1,6 +1,6 @@
 <script lang="ts">
   import { FormStates as States } from '$lib'
-  export let size = '1.25rem'
+  export let size = '2rem'
   // FIXME: only accept bottom margin in spinners, top margin should always be 0
   export let vm = '0rem'
   export let message = ''
