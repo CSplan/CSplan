@@ -1,8 +1,8 @@
 <script context="module">
-  export function load({ page }) {
+  export function load({ params }) {
     return {
       props: {
-        id: page.params.id
+        id: params.id
       }
     }
   }

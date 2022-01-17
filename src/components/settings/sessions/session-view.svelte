@@ -7,10 +7,12 @@
   import { formatDate } from '$lib/date-format'
   import userStore from '$stores/user'
   import UpgradeModal from '$components/modals/upgrade-modal.svelte'
+  import LogoutModal from '$components/modals/logout-modal.svelte'
   import storage from '$db/storage'
 
   let state = States.Loading
 
+  let showLogoutModal = true
   let showUpgradeModal = false
 
   const remoteLogout = {
@@ -36,6 +38,8 @@
   })
 </script>
 
+<LogoutModal bind:show={showLogoutModal}/>
+
 <UpgradeModal bind:show={showUpgradeModal} on:upgrade={remoteLogout.logout}/>
 
 <article class="sessions">
@@ -52,7 +56,7 @@
         <th class="created">Created</th>
         <th class="last-used">Last Used</th>
         <th class="auth-level">Auth Level</th>
-        <th class="logout">Log Out</th>
+        <th class="logout">Revoke Session</th>
       </tr>
       
       {#each $ordered as session (session.id)}
@@ -67,7 +71,7 @@
           <td class="auth-level">{AuthLevels[session.authLevel]}</td>
           <td class="logout">
             <button on:click={session.isCurrent ? userStore.logout : () => remoteLogout.init(session.id)}>
-              <i class="fas fa-times"></i>
+              {session.isCurrent ? 'Log Out' : 'Revoke'}
             </button>
           </td>
         </tr>

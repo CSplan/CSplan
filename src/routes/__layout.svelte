@@ -23,7 +23,7 @@
           // If a CSRF-Token header is sent from /whoami, it signals that the old CSRF token has expired and the new token must be used for further requests
           user.login({
             ...JSON.parse(localStorage.getItem('user')),
-            id: body.id
+            id: body.userID
           })
         } else {
           throw new AuthError({

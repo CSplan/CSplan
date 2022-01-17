@@ -2,6 +2,9 @@
   import { createEventDispatcher } from 'svelte'
   const dispatch = createEventDispatcher()
 
+  export let cancelText = 'Cancel'
+  export let submitText = 'Confirm'
+
   function cancel(): void {
     dispatch('cancel')
   }
@@ -11,8 +14,8 @@
 </script>
 
 <div class="bottom-buttons">
-  <input type="button" value="Cancel" class="cancel-button" on:click={cancel}>
-  <input type="submit" value="Confirm" class="submit-button" on:click={confirm}>
+  <input type="button" value="{cancelText}" class="cancel-button" on:click={cancel}>
+  <input type="submit" value="{submitText}" class="submit-button" on:click={confirm}>
 </div>
 
 <style lang="scss">
