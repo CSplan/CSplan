@@ -11,6 +11,14 @@
 
   let state = States.Loading
 
+  // Hidden columns
+  let hideOS: boolean
+  $: hideOS = $ordered.findIndex(session => session.os != null) === -1
+  let hideIP: boolean
+  $: hideIP = $ordered.findIndex(session => session.ip != null) === -1
+  let hideBrowser: boolean
+  $: hideBrowser = $ordered.findIndex(session => session.browser != null) === -1
+
   let showLogoutModal = false
   let showUpgradeModal = false
 
@@ -43,15 +51,15 @@
 
 <article class="sessions">
   {#if state === States.Loading}
-    <Spinner size="1.5rem"/>
+    <Spinner size="3rem"/>
   {:else}
     <table>
       <tr class="headers">
         <th class="id">ID</th>
         <th class="is-current">Current Session</th>
-        <th class="ip-address">IP Address</th>
-        <th class="os">OS</th>
-        <th class="browser">Browser</th>
+        <th class="ip-address" class:d-none={hideIP}>IP Address</th>
+        <th class="os" class:d-none={hideOS}>OS</th>
+        <th class="browser" class:d-none={hideBrowser}>Browser</th>
         <th class="created">Created</th>
         <th class="last-used">Last Used</th>
         <th class="auth-level">Auth Level</th>
@@ -62,14 +70,14 @@
         <tr class="session">
           <td class="id">{session.id}</td>
           <td class="is-current">{session.isCurrent ? 'Yes' : 'No'}</td>
-          <td class="ip-address" class:empty={session.ip == null}>{session.ip || ''}</td>
-          <td class="os" class:empty={session.os == null}>{session.os || ''}</td>
-          <td class="browser" class:empty={session.browser == null}>{session.browser || ''}</td>
+          <td class="ip-address" class:d-none={hideIP} class:empty={session.ip == null}>{session.ip || ''}</td>
+          <td class="os" class:d-none={hideOS} class:empty={session.os == null}>{session.os || ''}</td>
+          <td class="browser" class:d-none={hideBrowser} class:empty={session.browser == null}>{session.browser || ''}</td>
           <td class="created">{formatDate(session.created)}</td>
           <td class="last-used">{formatDate(session.lastUsed)}</td>
           <td class="auth-level">{AuthLevels[session.authLevel]}</td>
           <td class="logout">
-            <button on:click={session.isCurrent ? () => showLogoutModal = true : () => remoteLogout.init(session.id)}>
+            <button on:click={session.isCurrent ? () => showLogoutModal = true : () => remoteLogout.init(session.id)} class:revoke={!session.isCurrent}>
               {session.isCurrent ? 'Log Out' : 'Revoke'}
             </button>
           </td>
@@ -122,8 +130,18 @@
     }
   }
 
+  td.logout {
+    padding: 0.5rem;
+  }
   td.logout button {
     background: $danger-red;
+    width: 100%;
+    height: 100%;
+    margin: 0;
+    border-radius: $br-light;
+    &.revoke {
+      background: $bg-alt;
+    }
   }
   td.empty {
     pointer-events: none;
