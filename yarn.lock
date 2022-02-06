@@ -429,14 +429,15 @@
     "@typescript-eslint/types" "4.33.0"
     eslint-visitor-keys "^2.0.0"
 
-"@very-amused/argon2-wasm@^0.2.2-rc1.patch2":
-  version "0.2.2-rc1.patch2"
-  resolved "https://registry.yarnpkg.com/@very-amused/argon2-wasm/-/argon2-wasm-0.2.2-rc1.patch2.tgz#c8ed1926db3e0f9409b6282ac05baac571a65db1"
-  integrity sha512-FPqv8b7wnfH68G3xEUR6QaeJmgicdoLUlLXT4qEHu4JX7Fg7+b90Tx+P1qJ0xJOb2TqGfIVW55fKimEY4sDGiA==
+"@very-amused/argon2-wasm@^0.2.3":
+  version "0.2.3"
+  resolved "https://registry.yarnpkg.com/@very-amused/argon2-wasm/-/argon2-wasm-0.2.3.tgz#db04aa0d1a1b711b59ddd7adb979bf9120edd948"
+  integrity sha512-tXX0rV2B8FmLkNpuBWxlRpNuHOCWjN5KvlE0e/FjnPVtrgr0AE9TCP+3P1yH2Hv94QwjIfeKqRdIZ2pudxy4yg==
 
-"@very-amused/ed25519-wasm@./very-amused-ed25519-wasm-v0.1.0.tgz":
+"@very-amused/ed25519-wasm@^0.1.0":
   version "0.1.0"
-  resolved "./very-amused-ed25519-wasm-v0.1.0.tgz#b154379e4c3e3602cf113f9fba340cfb6f665e45"
+  resolved "https://registry.yarnpkg.com/@very-amused/ed25519-wasm/-/ed25519-wasm-0.1.0.tgz#0f377114b5ae94b07fb44b35362c374e324d6479"
+  integrity sha512-lxIEedSFYbdYZvtyqup63lIX6YX1a3JIasg3PEJZnnZCkH9klPKY43W5EpBEpyIsv45Z8F2tdI4mrQnqDqIt5A==
 
 acorn-jsx@^5.3.1:
   version "5.3.2"
