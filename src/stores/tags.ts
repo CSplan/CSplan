@@ -53,12 +53,14 @@ function create(): Readable<Store> & TagStore {
         // Decrypt the tag body
         const raw = await aes.deepDecrypt({
           name: tag.name,
-          color: tag.color
+          color: tag.color,
+          textColor: tag.textColor
         }, cryptoKey) as TagData
         const decrypted: Tag = {
           id: tag.id,
           name: raw.name,
           color: raw.color,
+          textColor: raw.textColor,
           cryptoKey,
           checksum: tag.meta.checksum
         }
@@ -82,13 +84,15 @@ function create(): Readable<Store> & TagStore {
       const { publicKey } = await getByKey('keys', user.id) as unknown as MasterKeys
       const encrypted: TagData = await aes.deepEncrypt({
         name: tag.name,
-        color: tag.color
-      }, cryptoKey) as unknown as TagData
+        color: tag.color,
+        textColor: tag.textColor
+      }, cryptoKey)
 
       // Store with API
       const document: TagDocument<MetaRequest> = {
         name: encrypted.name,
         color: encrypted.color,
+        textColor: encrypted.textColor,
         meta: {
           cryptoKey: await rsa.wrapKey(cryptoKey, publicKey)
         }

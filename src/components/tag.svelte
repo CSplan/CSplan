@@ -6,20 +6,50 @@
   import ColorPicker from './color-picker/color-picker.svelte'
   import { CEkeypress } from '../misc/contenteditable'
   import { onMount } from 'svelte'
+  import { parseLightness } from './color-picker/parse-lightness'
+  import { hexToRGB } from '$lib/hex-rgb'
 
   let state = states.loading
   let tag
   let mountColorPicker = false
+  let mountTextColorPicker = false
   let showColorPicker = false
+  let showTextColorPicker = false
 
   function toggleColorPicker() {
     if (!mountColorPicker) {
       mountColorPicker = true
+      mountTextColorPicker = false
     }
     showColorPicker = !showColorPicker
     if (!showColorPicker) {
       tags.commit(id)
     }
+  }
+  function toggleTextColorPicker() {
+    if (!mountTextColorPicker) {
+      mountTextColorPicker = true
+      mountColorPicker = false
+    }
+    showTextColorPicker = !showTextColorPicker
+    if (!showTextColorPicker) {
+      tags.commit(id)
+    }
+  }
+  // TODO: use color picker palette to implement cleaner BW switching
+  function toggleTextBW() {
+    // Don't toggle BW while the color picker is showing
+    if (showTextColorPicker) {
+      return
+    }
+    const lightness = parseLightness(hexToRGB($tags[id].textColor))
+    console.log(`lightness: ${lightness}`)
+    if (lightness > 0.5) {
+      tags.update(id, { textColor: '#000' })
+    } else {
+      tags.update(id, { textColor: '#FFF' })
+    }
+    tags.commit(id)
   }
 
   function deleteThis() {
@@ -34,13 +64,21 @@
   })
 </script>
 
-<svelte:window on:click={() => showColorPicker && toggleColorPicker()} />
+<svelte:window on:click={() => {
+  if (showColorPicker) {
+    toggleColorPicker()
+  }
+  if (showTextColorPicker) {
+    toggleTextColorPicker()
+  }
+}} />
 
 {#if state === states.resting || state === states.updating}
   <div class="card" style="--background-color: {$tags[id].color}">
     <div class="handle" />
 
     <header
+      style:color={$tags[id].textColor}
       contenteditable
       spellcheck="false"
       on:keypress={CEkeypress}
@@ -53,9 +91,21 @@
       <div class="handle" />
 
       <div class="icons" on:click|stopPropagation>
+        <div class="toggle" class:show={showTextColorPicker}>
+          <i class="fas fa-text clickable"
+            on:click|self={toggleTextColorPicker}
+            on:dblclick|self={toggleTextBW}/> 
+          {#if mountTextColorPicker}
+            <ColorPicker size=small
+              on:colorchange={(e) => {
+                tags.update(id, { textColor: e.detail })
+              }}/>
+          {/if}
+        </div>
+
         <div class="toggle {showColorPicker ? 'show' : ''}">
           <i class="fas fa-palette clickable"
-          on:click|self={toggleColorPicker}/>
+            on:click|self={toggleColorPicker}/>
           {#if mountColorPicker}
             <ColorPicker
               on:colorchange={(e) => tags.update(id, { color: e.detail })} />
