@@ -5,9 +5,10 @@
   export let show = false
   // FIXME: include color picker in tag creation modal
 
-  const tagSkeleton = {
+  const tagSkeleton: TagData = {
     name: '',
-    color: '#FFFFFF'
+    color: '#FFF',
+    textColor: '#000'
   }
   let tag = { ...tagSkeleton }
   async function createTag(): Promise<void> {

@@ -85,7 +85,7 @@
       <div class="options">
         {#if searchOptions.length > 0}
           {#each searchOptions as opt}
-            <p class="clickable" style="background-color: {opt.color};" on:click={addTag(opt)}>{opt.name}</p>
+            <p class="clickable" style:background-color={opt.color} style:color={opt.textColor} on:click={addTag(opt)}>{opt.name}</p>
           {/each}
         {:else}
           <p>No Tags Found</p>

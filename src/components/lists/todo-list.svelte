@@ -259,7 +259,7 @@
         <div class="tags">
         {#each item.tags as id (id)}
           {#if $tags[id]}
-            <span class="tag" style="background-color: {$tags[id].color};">
+            <span class="tag" style:background-color={$tags[id].color} style:color={$tags[id].textColor}>
                 <p spellcheck="false">{$tags[id].name}</p>
                 <i class="fas fa-times clickable" on:click={() => untagItem(i, id)}></i>
             </span>
