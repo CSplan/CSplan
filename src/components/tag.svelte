@@ -52,6 +52,10 @@
     tags.commit(id)
   }
 
+  function textLightness(color) {
+    return parseLightness(hexToRGB($tags[id].textColor))
+  }
+
   function deleteThis() {
     // Unmount component HTML to avoid any errors caused by values disappearing asynchronously
     state = states.destroyed
@@ -92,7 +96,7 @@
 
       <div class="icons" on:click|stopPropagation>
         <div class="toggle" class:show={showTextColorPicker}>
-          <i class="fas fa-text clickable"
+          <i class="fas fa-text clickable" style:color={$tags[id].textColor}
             on:click|self={toggleTextColorPicker}
             on:dblclick|self={toggleTextBW}/> 
           {#if mountTextColorPicker}
@@ -104,7 +108,7 @@
         </div>
 
         <div class="toggle {showColorPicker ? 'show' : ''}">
-          <i class="fas fa-palette clickable"
+          <i class="fas fa-palette clickable" style:color={$tags[id].textColor}
             on:click|self={toggleColorPicker}/>
           {#if mountColorPicker}
             <ColorPicker
@@ -112,7 +116,7 @@
           {/if}
         </div>
 
-        <i class="fas fa-times clickable" on:click={deleteThis} />
+        <i class="fas fa-times clickable" on:click={deleteThis} style:color={$tags[id].textColor}/>
       </div>
     </div>
   </div>
