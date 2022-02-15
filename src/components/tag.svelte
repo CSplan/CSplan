@@ -52,7 +52,7 @@
     tags.commit(id)
   }
 
-  function textLightness(color) {
+  function getLightness(color) {
     return parseLightness(hexToRGB($tags[id].textColor))
   }
 

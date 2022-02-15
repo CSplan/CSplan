@@ -485,7 +485,9 @@
     // Form for adding new tags
     &.tag-form {
       padding: 0;
+      padding-top: 0.3rem;
       margin-right: 0;
+      margin-left: 0.5rem;
     }
   }
   // #endregion
