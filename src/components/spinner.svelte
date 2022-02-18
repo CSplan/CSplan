@@ -5,14 +5,22 @@
   export let vm = '0rem'
   export let message = ''
   export let state: States = States.Saving
+  export let iconSaved = 'fa-check-circle'
+
+  // Custom icon colors/styling through classes
+  export let classSaved = 'saved'
 </script>
 
 <div class="spinner">
-  <i class="fas" 
+  <i class="fas
+    {state === States.Saved ? `${iconSaved} ${classSaved}` : ''}" 
   class:fa-circle-notch={state === States.Saving}
-  class:fa-check-circle={state === States.Saved} 
   class:fa-times-circle={state === States.Errored}
-  style="--size: {size}; --vm: {vm};"></i>
+
+  style:--size={size}
+  size:--vm={vm}
+  ></i>
+  
   {#if message.length > 0}
     <span class="message" class:success={state === States.Saved} class:error={state === States.Errored} style="--vm: {vm}">{message}</span>
   {/if}
@@ -43,7 +51,7 @@
     animation-timing-function: linear;
     color: $bold-blue;
   }
-  i.fa-check-circle {
+  i.saved {
     color: $success-green;
   }
   i.fa-times-circle {

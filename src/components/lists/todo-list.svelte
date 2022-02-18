@@ -10,18 +10,12 @@
   import { fade } from 'svelte/transition'
   import { flip } from 'svelte/animate'
   import DOMPurify from 'dompurify'
+  import { FormStates as States } from '$lib/form-states'
 
   export let id: string
 
   // #region State
   let list: List
-  enum States {
-    Loading,
-    Resting,
-    Error,
-    Saving,
-    Saved
-  }
   let state = States.Loading
   // #endregion
 
@@ -211,8 +205,16 @@
 <!-- Don't copy content on drop events -->
 <svelte:window on:drop|preventDefault on:keypress={onkeypress}/>
 
-{#if state !== States.Error && state !== States.Loading}
+{#if state !== States.Errored && state !== States.Loading}
 <div class="card {editMode ? 'editable' : ''}">
+  <div class="corner">
+    {#if [States.Saving, States.Saved].includes(state)}
+    <div transition:fade={{ duration: fadeDuration }}>
+      <Spinner size="1.5rem" iconSaved="fa-check" classSaved="bold" bind:state/>
+    </div>
+    {/if}
+  </div>
+
   <section class="title">
     <div class="spacer"/>
     <header class="title" contenteditable={editMode} spellcheck="false" on:keypress={CEkeypress} on:blur={updateTitle}>{list.title}</header>
@@ -248,7 +250,7 @@
         {#if i < list.items.length - 1}
           <i class="fas fa-arrow-down clickable" on:click={() => moveItem(i, i+1)} title="Move item down"></i>
         {/if}
-        <i class="fas fa-grip-vertical clickable" draggable="true" on:dragstart={e => ondragstart(e, i)} title="This item is draggable"></i>
+        <i class="fas fa-grip-vertical clickable drag-icon" draggable="true" on:dragstart={e => ondragstart(e, i)} title="This item is draggable"></i>
       {/if}
       <i class="fas fa-times clickable" on:click={() => deleteItem(i)}></i>
     </div>
@@ -280,13 +282,6 @@
       <i class="fas fa-plus"></i>
     </div>
   {/if}
-  <div class="corner">
-    {#if state === States.Saving}
-      <Spinner size="1.5rem"/>
-    {:else if state === States.Saved}
-      <i class="fas fa-check bold" transition:fade={{ duration: fadeDuration }}></i>
-    {/if}
-  </div>
 </div>
 {/if}
 
@@ -401,6 +396,7 @@
     .content, .tags {
       grid-column: 2 / span 1;
       width: max-content;
+      max-width: 100%;
       padding: 0;
       margin-top: auto;
       margin-bottom: auto;
@@ -413,6 +409,10 @@
       grid-template-rows: repeat(2, 1fr);
       row-gap: 0.4rem;
       column-gap: 0.25rem;
+      @media screen and (max-width: $mobile-max) {
+        font-size: 1.3rem;
+        column-gap: 0.8rem;
+      }
       i.fa-times {
         grid-column: 2;
         grid-row: 1;
@@ -420,6 +420,9 @@
       i.fa-grip-vertical {
         grid-column: 2;
         grid-row: 2;
+        @media screen and (max-width: $mobile-max) {
+          display: none;
+        }
       }
       i.fa-arrow-up {
         grid-column: 1;
@@ -428,6 +431,9 @@
       i.fa-arrow-down {
         grid-column: 1;
         grid-row: 2;
+        @media screen and (max-width: $mobile-max) {
+          grid-row: 1;
+        }
       }
       i:hover {
         transform: scale(1.25);

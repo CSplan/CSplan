@@ -27,8 +27,8 @@
     "typescript": "^4.3.5"
   },
   "devDependencies": {
-    "@sveltejs/adapter-node": "^1.0.0-next.61",
-    "@sveltejs/kit": "^1.0.0-next.232",
+    "@sveltejs/adapter-node": "^1.0.0-next.68",
+    "@sveltejs/kit": "^1.0.0-next.278",
     "@types/dompurify": "^2.3.1",
     "dompurify": "^2.3.3",
     "eslint": "^7.32.0",
