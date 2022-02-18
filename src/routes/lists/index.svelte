@@ -53,20 +53,29 @@
 </script>
 
 <main class="container">
-  <button class="bold" on:click={save}>
-    <i data-role="save-icon" class="fas fa-save"></i>
-  </button>
+  <h1>My Lists</h1>
   <TitleView/>
 </main>
 
-<style>
+<style lang="scss">
+  @media screen and (min-width: $desktop-min) {
+    main.container {
+      padding-left: 250px;
+      padding-right: 250px;
+    }
+  }
+  h1 {
+    border-bottom: 1px solid #aaa;
+    width: 100%;
+    text-align: center;
+  }
   button {
     position: absolute;
     left: 18%;
     top: 3rem;
     border-radius: 10%;
   }
-  @media screen and (max-width: 960px) {
+  @media screen and (max-width: $mobile-max) {
     main.container {
       max-width: 100%;
     }

@@ -84,17 +84,19 @@
           <p class="item-count">{completedItems(list.items)}/{list.items.length}</p>
       </div>
 
-        <a href="/lists/{list.id}" sveltekit:prefetch draggable="false"><div></div></a> <!-- draggable="false" is needed to override default the default html assumption that links can be dragged,
+        <a href="/lists/{list.id}" sveltekit:prefetch draggable="false" class="list-link"><div></div></a> <!-- draggable="false" is needed to override default the default html assumption that links can be dragged,
           inside div supresses compiler warning that <a> elements must contain children -->
         
       </div>
     
-      <header contenteditable on:keypress={CEkeypress} spellcheck="false" draggable="false" on:blur={e => onblur(e, list.id)}>{list.title}</header>
+      <div class="header-container">
+        <header contenteditable on:keypress={CEkeypress} spellcheck="false" draggable="false" on:blur={e => onblur(e, list.id)}>{list.title}</header>
+      </div>
 
       <!-- Group the clickable white space to the right of the list title and the drag/delete buttons to the side for alignment purposes -->
       <div class="row-end">
 
-        <a href="/lists/{list.id}" sveltekit:prefetch draggable="false"><div></div></a>
+        <a href="/lists/{list.id}" sveltekit:prefetch draggable="false" class="list-link"><div></div></a>
 
         <div class="icons">
           <!-- Up-down arrows for moving list position -->
@@ -140,9 +142,14 @@
 
 <style lang="scss">
   .card {
-    margin-top: 60px;
-    min-width: 50%;
-    max-width: 80%;
+    margin-top: 25px;
+    @media screen and (min-width: $desktop-min) {
+      min-width: 75%;
+      max-width: 100%;
+    }
+    @media screen and (max-width: $mobile-max) {
+      width: 100%;
+    }
     pre {
       margin: 0;
       text-align: center;
@@ -154,7 +161,12 @@
     color: initial;
     text-align: center;
     display: grid;
-    grid-template-columns: minmax(5rem, 1fr) minmax(0, auto) minmax(5rem, 1fr);
+    @media screen and (max-width: $mobile-max) {
+      grid-template-columns: minmax(2rem, 1fr) minmax(0, auto) minmax(2rem, 1fr);
+    }
+    @media screen and (min-width: $desktop-min) {
+      grid-template-columns: minmax(5rem, 1fr) minmax(0, auto) minmax(5rem, 1fr);
+    }
     grid-auto-flow: column;
     width: 100%;
   }
@@ -165,6 +177,11 @@
     display: grid;
     grid-auto-flow: column;
     grid-template-columns: max-content 1fr;
+  }
+  a.list-link {
+    @media screen and (max-width: $mobile-max) {
+      display: none;
+    }
   }
   .row-end {
     width: 100%;
@@ -185,8 +202,14 @@
     border-left: var(--bold-blue) 2px solid;
     border-right: var(--bold-blue) 2px solid;
   }
+  .row .header-container {
+    border-bottom: 1px #aaa solid;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+  }
   .row header {
-    word-break: break-all;
+    word-break: break-word;
     max-width: 100%;
   }
   .row-center {
@@ -200,6 +223,7 @@
     display: flex;
     flex-direction: row;
     align-items: center;
+    justify-content: end;
   }
   .icons i:not(.no-transform):hover {
     transform: scale(1.25)
@@ -207,11 +231,27 @@
   .icons i {
     margin: 0.5rem 0.8rem;
   }
-  .arrow-icons i:not(:last-child) {
-    margin-right: 0.3rem;
+  @media screen and (max-width: $mobile-max) {
+    .arrow-icons {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      i {
+        margin: 0.5rem 0;
+      }
+    }
+
+    i.fa-grip-vertical {
+      display: none;
+    }
   }
-  .arrow-icons i:last-child {
-    margin-left: 0.3rem;
+  @media screen and (min-width: $desktop-min) {
+    .arrow-icons i:not(:last-child) {
+      margin-right: 0.3rem;
+    }
+    .arrow-icons i:last-child {
+      margin-left: 0.3rem;
+    }
   }
 
   .row:hover, .row-center:hover {
