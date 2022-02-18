@@ -323,15 +323,15 @@
   }
 
   // Responsiveness
-  @media screen and (min-width: 850px) {
+  @media screen and (min-width: $desktop-min) {
     .card {
       min-width: 800px;
       max-width: 1200px;
     }
   }
-  @media screen and (max-width: 850px) {
+  @media screen and (max-width: $mobile-max) {
     .card {
-      margin: 2rem;
+      width: 100%;
     }
   }
 
@@ -469,7 +469,12 @@
     max-width: 100%;
     word-break: break-all;
     border-radius: 0;
-    font-size: small;
+    @media screen and (min-width: $desktop-min) {
+      font-size: small;
+    }
+    @media screen and (max-width: $mobile-max) {
+      font-size: medium;
+    }
     margin-right: 0.25rem;
     &:last-child {
       margin-right: 0;

@@ -36,8 +36,8 @@ main.container {
 }
 @media screen and (max-width: 850px) {
   main.container {
-    padding-left: 2rem;
-    padding-right: 2rem;
+    padding-left: 1rem;
+    padding-right: 1rem;
   }
 }
 main.container.vcenter {
