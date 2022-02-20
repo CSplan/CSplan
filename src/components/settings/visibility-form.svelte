@@ -7,15 +7,23 @@
 
   let showVisibilities = false
   let visibilityIcon: string
+
+  // Icons used
+  const enum Icons {
+    Encrypted = 'fa-lock',
+    SemiPublic = 'fa-user-unlock',
+    Public = 'fa-user'
+  }
+
   $: switch (visibility) {
   case Visibilities.Encrypted:
-    visibilityIcon = 'fas fa-lock'
+    visibilityIcon = `fas ${Icons.Encrypted}`
     break
   case Visibilities.SemiPublic:
-    visibilityIcon = 'far fa-eye-slash' // FIXME: Change to user-unlock with FA pro
+    visibilityIcon = `fas ${Icons.SemiPublic}`
     break
   case Visibilities.Public:
-    visibilityIcon = 'fas fa-user'
+    visibilityIcon = `fas ${Icons.Public}`
   }
 
   // If the visibility has changed from its last setting, hide the form
@@ -44,22 +52,22 @@
     <header>Visibility</header>
 
     <label>
-      <i class="fas fa-lock"/>
+      <i class="{visibility === Visibilities.Encrypted ? 'fas' : 'far'} {Icons.Encrypted}"/>
       <span>Encrypted</span>
       <!-- FIXME: These indicator icons are ugly, will be removed when better control of icon texture is available w FA-pro -->
       <i class="{visibility === Visibilities.Encrypted ? 'fas' : 'far'} fa-circle indicator"></i>
       <input type="radio" bind:group={visibility} value={Visibilities.Encrypted} on:change={onChange}>
     </label>
 
-    <label class="d-none">
-      <i class="far fa-eye-slash"></i>
+    <label>
+      <i class="{visibility === Visibilities.SemiPublic ? 'fas' : 'far'} {Icons.SemiPublic}"></i>
       <span>Semi-Public</span>
       <i class="{visibility === Visibilities.SemiPublic ? 'fas' : 'far'} fa-circle indicator"></i>
       <input type="radio" disabled>
     </label>
 
     <label>
-      <i class="fas fa-user"></i>
+      <i class="{visibility === Visibilities.Public ? 'fas' : 'far'} {Icons.Public}"></i>
       <span>Public</span>
       <i class="{visibility === Visibilities.Public ? 'fas' : 'far'} fa-circle indicator"></i>
       <input type="radio" id="vis-public" bind:group={visibility} value={Visibilities.Public} on:change={onChange}>
