@@ -1,0 +1,14 @@
+@mixin titleview-icons {
+  .icons {
+    width: 100%;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: end;
+  }
+
+  .icons>* {
+    margin: 0.5rem 0.8rem;
+    line-height: 1;
+  }
+}

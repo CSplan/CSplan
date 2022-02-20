@@ -6,6 +6,7 @@
   import { CEkeypress } from '../../misc/contenteditable'
   import Modal from '../modals/create-list-modal.svelte'
   import Spinner from '../spinner.svelte'
+  import CreateListForm from './create-list-form.svelte'
 
   let showModal = false
 
@@ -59,23 +60,6 @@
     initPromise = store.init()
   })
 
-  // #region Chin form (to be moved)
-
-  let title: string
-  let createListForm: HTMLFormElement
-
-  // Create a list from the chin form
-  async function createList(): Promise<void> {
-    // Validate form
-    if (!createListForm.reportValidity()) {
-      return
-    }
-
-    await store.create({ title, items: [] })
-    title = ''
-  }
-
-  // #endregion
 </script>
 
 <Modal bind:show={showModal}/>
@@ -153,16 +137,7 @@
     {#if isLoading}
       <div class="row"><Spinner size="1.5rem" vm="0.5rem"/></div>
     {:else}
-      <form bind:this={createListForm} class="row-create-form" novalidate on:submit|preventDefault={createList}>
-        <input type="text" bind:value={title} placeholder="Title" required>
-        <button class="transparent create" title="Create List">
-          <i class="fas fa-plus"></i>
-        </button>
-
-        <div class="icons">
-          <i class="fas fa-times clickable"></i>
-        </div>
-      </form>
+      <CreateListForm></CreateListForm>
     {/if}
   {:else}
     <div class="row-center noborder">
@@ -182,6 +157,8 @@
 </div>
 
 <style lang="scss">
+  @import './icons.scss';
+
   .card {
     margin-top: 25px;
     @media screen and (min-width: $desktop-min) {
@@ -210,45 +187,6 @@
     }
     grid-auto-flow: column;
     width: 100%;
-  }
-  .row-create-form {
-    display: grid;
-    grid-template-columns: 8fr;
-    grid-auto-columns: minmax(max-content, 2fr) max-content;
-    grid-auto-flow: column;
-    width: 100%;
-
-    >* {
-      margin: 0;
-    }
-
-    // Mimic header styling
-    input[type="text"] {
-      font-size: 1.1em;
-      font-weight: bold;
-      padding: .6em .8em;
-      border: none;
-      margin-top: auto;
-    }
-
-    i {
-      color: #111;
-    }
-
-    button.create {
-      display: flex;
-      flex-direction: row;
-      align-items: center;
-      justify-content: center;
-      padding: 0;
-      border: 1px #aaa solid;
-      border-top: none;
-      border-radius: 0;
-
-      i {
-        margin: 0.5rem 0.8rem;
-      }
-    }
   }
 
   // Row sections
@@ -298,19 +236,9 @@
       margin: 0.8rem;
     }
   }
-  .icons {
-    width: 100%;
-    display: flex;
-    flex-direction: row;
-    align-items: center;
-    justify-content: end;
-  }
+  @include titleview-icons;
   .icons i:not(.no-transform):hover {
     transform: scale(1.25)
-  }
-  .icons>* {
-    margin: 0.5rem 0.8rem;
-    line-height: 1;
   }
   @media screen and (max-width: $mobile-max) {
     .arrow-icons {
