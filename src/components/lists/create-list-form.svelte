@@ -50,7 +50,7 @@
   .row-center {
     text-align: center;
     padding: 0;
-    button,i {
+    i {
       margin: 0.8rem;
     }
   }

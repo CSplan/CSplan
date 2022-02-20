@@ -9,7 +9,6 @@
   import CreateListForm from './create-list-form.svelte'
 
   let showModal = false
-  let showCreateForm = false
 
   // Map of list ID -> if the list's row should be highlighted
   const highlightRow: { [id: string]: boolean } = {}
