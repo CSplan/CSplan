@@ -1,6 +1,8 @@
 <script lang="ts">
   import store from '$stores/lists'
 
+  export let show = false
+
   let title: string
   let form: HTMLFormElement
 
@@ -15,24 +17,43 @@
     title = ''
   }
 
+  function toggleForm(): void {
+    title = ''
+    show = !show
+  }
 </script>
 
 
-<form bind:this={form} class="row-create-form" novalidate on:submit|preventDefault={createList}>
-  <input type="text" bind:value={title} placeholder="Title" required>
-  <button class="transparent create" title="Create List">
-    <i class="fas fa-plus"></i>
-  </button>
+{#if show}
+  <form bind:this={form} class="row-create-form" novalidate on:submit|preventDefault={createList}>
+    <input type="text" bind:value={title} placeholder="Title" required>
+    <button class="transparent create" title="Create List">
+      <i class="fas fa-plus"></i>
+    </button>
 
-  <div class="icons">
-    <i class="fas fa-times clickable"></i>
-  </div>
-</form>
+    <div class="icons">
+      <i class="fas fa-times clickable" on:click={toggleForm}></i>
+    </div>
+  </form>
+{:else}
+  <section class="row-center clickable" on:click={toggleForm}>
+    <i class="fas fa-plus"></i>
+  </section>
+{/if}
 
 <style lang="scss">
   @import './icons.scss';
 
   @include titleview-icons;
+
+  // TODO: DRY css between title-view and create-list-form, place common styles in scss files
+  .row-center {
+    text-align: center;
+    padding: 0;
+    button,i {
+      margin: 0.8rem;
+    }
+  }
 
   .row-create-form {
     display: grid;
