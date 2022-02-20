@@ -132,9 +132,16 @@
     {#if isLoading}
       <div class="row"><Spinner size="1.5rem" vm="0.5rem"/></div>
     {:else}
-      <div class="row-center clickable" on:click={() => {
-        showModal = true
-      }}><i class="fas fa-plus"></i></div>
+      <form class="row-create-form">
+        <input type="text" placeholder="Title">
+        <button class="transparent create" title="Create List">
+          <i class="fas fa-plus"></i>
+        </button>
+
+        <div class="icons">
+          <i class="fas fa-times clickable"></i>
+        </div>
+      </form>
     {/if}
   {:else}
     <div class="row-center noborder">
@@ -182,6 +189,41 @@
     }
     grid-auto-flow: column;
     width: 100%;
+  }
+  .row-create-form {
+    display: grid;
+    grid-template-columns: 8fr;
+    grid-auto-columns: 2fr max-content;
+    grid-auto-flow: column;
+    width: 100%;
+
+    >* {
+      margin: 0;
+    }
+
+    // Mimic header styling
+    input[type="text"] {
+      font-size: 1.1em;
+      font-weight: bold;
+      padding: .6em .8em;
+      border: none;
+      margin-top: auto;
+    }
+
+    i {
+      color: #111;
+    }
+
+    button.create {
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+      justify-content: center;
+      padding: 0;
+      border: 1px #aaa solid;
+      border-top: none;
+      border-radius: 0;
+    }
   }
 
   // Row sections

@@ -14,7 +14,7 @@
 
 <div class="side-menu">
   <MenuGroup title="Account" icon="fas fa-user" on:click={() => setMenu(Account)}/>
-  <MenuGroup title="2FA" icon="fas fa-mobile" on:click={() => setMenu(TwoFactor)}/>
+  <MenuGroup title="2FA" icon="fas fa-mobile-screen-button" on:click={() => setMenu(TwoFactor)}/>
   <MenuGroup title="Keys & Backup" icon="fas fa-key" on:click={() => setMenu(Keys)}/>
   <MenuGroup title="Sessions" icon="fas fa-desktop" on:click={() => setMenu(Sessions)}/>
   <MenuGroup title="Delete Account" icon="fas fa-exclamation-circle" color="var(--danger-red)"/>
