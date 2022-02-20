@@ -3,7 +3,7 @@ import { addToStore, getByKey, updateWithKey, deleteFromStore, mustGetByKey } fr
 import { aes, rsa } from 'cs-crypto'
 import { encryptList, decryptList } from './encryption'
 import storage from '$db/storage'
-import { HTTPerror, route } from '$lib'
+import { FormStates, HTTPerror, route } from '$lib'
 
 
 type Store = {
@@ -54,6 +54,8 @@ function create(): Readable<Store> & ListStore {
           // Add the cached version to state and continue
           await updateWithKey('lists', { ...cached, id: encrypted.id, index: encrypted.meta.index }) // Update our index
           update((store) => {
+            // Clear any leftover flags
+            cached.flags = {}
             store[encrypted.id] = { ...cached }
             return store
           })
@@ -164,6 +166,16 @@ function create(): Readable<Store> & ListStore {
         throw new ReferenceError('List passed by ID does not exist')
       }
 
+      // Flag the list as saving if the commit operations lasts for more than 500ms
+      const savingFlagTimeout = setTimeout(() => {
+        update((store: Store) => {
+          store[id].flags = {
+            saveState: FormStates.Saving
+          }
+          return store
+        })
+      }, 500)
+
       // Encrypt the entire list and send the changes as a PATCH request
       // TODO: use flags.changes to make more precise and efficient patches
       const encrypted: EncryptedListData = await encryptList(list, list.cryptoKey)
@@ -184,17 +196,27 @@ function create(): Readable<Store> & ListStore {
           'Content-Type': 'application/json'
         }
       })
+      clearTimeout(savingFlagTimeout)
       if (res.status !== 200) {
         const err: ErrorResponse = await res.json()
         throw new Error(err.message || `Failed to update list with API (status ${res.status})`)
       }
-      const { meta }: IndexedMetaResponse = await res.json()
+      // Set the list's state as saved, set a timeout to clear this state after 500ms
+      update((store: Store) => {
+        store[id].flags = {
+          saveState: FormStates.Saved
+        }
+        return store
+      })
+      setTimeout(() => {
+        update((store: Store) => {
+          delete store[id].flags?.saveState
+          return store
+        })
+      }, 500)
 
       // Update the list's checksum
-      // Remove uncommitted flag
-      if (list.flags != null) {
-        delete list.flags.uncommitted
-      }
+      const { meta }: IndexedMetaResponse = await res.json()
       const final: List = {
         ...list,
         checksum: meta.checksum

@@ -12,7 +12,7 @@
 </script>
 
 <div class="spinner">
-  <i class="fas
+  <i class="fad
     {state === States.Saved ? `${iconSaved} ${classSaved}` : ''}" 
   class:fa-circle-notch={state === States.Saving}
   class:fa-times-circle={state === States.Errored}

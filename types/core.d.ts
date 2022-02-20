@@ -1,8 +1,9 @@
-declare type Flags = {
-  flags?: {
-    uncommitted?: boolean
-  }
-}
+declare type Flags = Partial<{
+  flags: Partial<{ // TODO: flags object itself should not be optional
+    uncommitted: boolean
+    saveState: import('$lib/form-states').FormStates
+  }>
+}>
 
 declare type SafeEvent<T = HTMLElement> = Event & { currentTarget: EventTarget & T }
 

@@ -116,8 +116,15 @@
           <!-- Drag and drop handle for moving list position-->
           <i class="fas fa-grip-vertical clickable" draggable="true" on:dragstart={e => ondragstart(e, list.id)} title="This item is draggable."></i>
 
-          <!-- Delete button for the list -->
-          <i class="fas fa-times clickable" on:click={store.delete(list.id)}></i>
+          {#if list.flags?.saveState != null}
+            <div class="spinner">
+              <!-- Saving spinner, 1.2em vs 1.1em size on other icons makes spinner attract attention -->
+              <Spinner size="1.2em" state={list.flags.saveState}/>
+            </div>
+          {:else}
+            <!-- Delete button for the list -->
+            <i class="fas fa-times clickable" on:click={store.delete(list.id)}></i>
+          {/if}
         </div>
       </div>
     </div>
@@ -234,8 +241,9 @@
   .icons i:not(.no-transform):hover {
     transform: scale(1.25)
   }
-  .icons i {
+  .icons>* {
     margin: 0.5rem 0.8rem;
+    line-height: 1;
   }
   @media screen and (max-width: $mobile-max) {
     .arrow-icons {
