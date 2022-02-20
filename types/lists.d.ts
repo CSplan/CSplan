@@ -29,7 +29,7 @@ declare type List = Flags & IndexedMetaState & ListData
 
 declare type ListStore = SMSXStore<List, ListData> & {
   // Commit all instances of a resource that have flagged updates
-  async commitUnsaved?(): Promise<void>
+  async commitUnsaved(): Promise<void>
   // Move a resource by modifying the necessary indexes
-  async move?(id: string, index: number): Promise<void>
+  async move(id: string, index: number): Promise<void>
 }

@@ -1,7 +1,6 @@
-<script>
-  /* eslint-disable */
+<script lang="ts">
   // Not written in TS
-  import { onMount, tick } from 'svelte'
+  import { onMount } from 'svelte'
   import { flip } from 'svelte/animate'
   import { lists as store, ordered } from '$stores/lists'
   import { CEkeypress } from '../../misc/contenteditable'
@@ -11,54 +10,72 @@
   let showModal = false
 
   // Map of list ID -> if the list's row should be highlighted
-  const highlightRow = {}
+  const highlightRow: { [id: string]: boolean } = {}
 
   // State pulled from child components
   let isLoading = false
 
   // Update event handlers
-  async function onblur(evt, id) {
-    store.update(id, { title: evt.target.textContent })
+  async function onblur(evt: SafeEvent, id: string): Promise<void> {
+    store.update(id, { title: evt.currentTarget.textContent || '' })
     await store.commit(id)
   }
 
   // Drag and drop event handlers
-  function ondragstart(evt, id) {
+  function ondragstart(evt: DragEvent, id: string): void {
     // Store the item's id in the data transfer
-    evt.dataTransfer.setData('text/plain', id)
+    evt.dataTransfer!.setData('text/plain', id)
   }
 
-  function ondragover(id) {
+  function ondragover(id: string): void {
     // Set a blue higlight
     highlightRow[id] = true
   }
 
-  function ondragleave(id) {
+  function ondragleave(id: string): void {
     // Remove row highlight
     highlightRow[id] = false
   }
 
-  async function ondrop(evt, index, id) {
-    const origin = evt.dataTransfer.getData('text/plain')
+  async function ondrop(evt: DragEvent, index: number, id: string): Promise<void> {
+    const origin = evt.dataTransfer!.getData('text/plain')
     await moveItem(origin, index)
     highlightRow[id] = false
   }
 
   // Move the list identified by id to index
-  async function moveItem(id, index) {
+  async function moveItem(id: string, index: number): Promise<void> {
     await store.move(id, index)
     await store.commit(id)
   }
 
-  function completedItems(items) {
+  function completedItems(items: ListItem[]): number {
     return items.reduce((count, item) => item.done ? ++count : count, 0)
   }
 
   // Initialize the list store
-  let initPromise
+  let initPromise: Promise<void>
   onMount(() => {
     initPromise = store.init()
   })
+
+  // #region Chin form (to be moved)
+
+  let title: string
+  let createListForm: HTMLFormElement
+
+  // Create a list from the chin form
+  async function createList(): Promise<void> {
+    // Validate form
+    if (!createListForm.reportValidity()) {
+      return
+    }
+
+    await store.create({ title, items: [] })
+    title = ''
+  }
+
+  // #endregion
 </script>
 
 <Modal bind:show={showModal}/>
@@ -76,9 +93,9 @@
   {#each $ordered as list, i (list.id)}
     <div animate:flip={{ duration: 200 }} class="row list-{list.id} {!list.title.length && 'empty'}"
       class:highlighted={highlightRow[list.id]}
-      on:dragover|preventDefault={_ => ondragover(list.id)}
-      on:dragleave|preventDefault={_ => ondragleave(list.id)}
-      on:dragexit|preventDefault={_ => ondragleave(list.id)}
+      on:dragover|preventDefault={() => ondragover(list.id)}
+      on:dragleave|preventDefault={() => ondragleave(list.id)}
+      on:dragexit|preventDefault={() => ondragleave(list.id)}
       on:drop|capture|preventDefault={e => ondrop(e, i, list.id)}>
 
       <div class="row-start">
@@ -105,10 +122,14 @@
           {#if $ordered.length > 1}
           <div class="arrow-icons">
             {#if i > 0}
-              <i class="fas fa-arrow-up clickable no-transform" title="Move item up" on:click={moveItem(list.id, i-1)}></i>
+              <i class="fas fa-arrow-up clickable no-transform" title="Move item up"
+              on:click={() => moveItem(list.id, i-1)}>
+            </i>
             {/if}
             {#if i + 1 < $ordered.length}
-              <i class="fas fa-arrow-down clickable no-transform" title="Move item down" on:click={moveItem(list.id, i+1)}></i>
+              <i class="fas fa-arrow-down clickable no-transform" title="Move item down"
+              on:click={() => moveItem(list.id, i+1)}>
+            </i>
             {/if}
           </div>
           {/if}
@@ -123,7 +144,7 @@
             </div>
           {:else}
             <!-- Delete button for the list -->
-            <i class="fas fa-times clickable" on:click={store.delete(list.id)}></i>
+            <i class="fas fa-times clickable" on:click={() => store.delete(list.id)}></i>
           {/if}
         </div>
       </div>
@@ -132,8 +153,8 @@
     {#if isLoading}
       <div class="row"><Spinner size="1.5rem" vm="0.5rem"/></div>
     {:else}
-      <form class="row-create-form">
-        <input type="text" placeholder="Title">
+      <form bind:this={createListForm} class="row-create-form" novalidate on:submit|preventDefault={createList}>
+        <input type="text" bind:value={title} placeholder="Title" required>
         <button class="transparent create" title="Create List">
           <i class="fas fa-plus"></i>
         </button>
@@ -193,7 +214,7 @@
   .row-create-form {
     display: grid;
     grid-template-columns: 8fr;
-    grid-auto-columns: 2fr max-content;
+    grid-auto-columns: minmax(max-content, 2fr) max-content;
     grid-auto-flow: column;
     width: 100%;
 
@@ -223,6 +244,10 @@
       border: 1px #aaa solid;
       border-top: none;
       border-radius: 0;
+
+      i {
+        margin: 0.5rem 0.8rem;
+      }
     }
   }
 

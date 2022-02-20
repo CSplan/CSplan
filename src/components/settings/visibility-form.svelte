@@ -54,7 +54,6 @@
     <label>
       <i class="{visibility === Visibilities.Encrypted ? 'fas' : 'far'} {Icons.Encrypted}"/>
       <span>Encrypted</span>
-      <!-- FIXME: These indicator icons are ugly, will be removed when better control of icon texture is available w FA-pro -->
       <i class="{visibility === Visibilities.Encrypted ? 'fas' : 'far'} fa-circle indicator"></i>
       <input type="radio" bind:group={visibility} value={Visibilities.Encrypted} on:change={onChange}>
     </label>
