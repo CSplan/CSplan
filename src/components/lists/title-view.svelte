@@ -5,8 +5,10 @@
   import { flip } from 'svelte/animate'
   import { lists as store, ordered } from '$stores/lists'
   import { CEkeypress } from '../../misc/contenteditable'
-  import Modal, { toggleModal } from '../create-list-modal.svelte'
+  import Modal from '../modals/create-list-modal.svelte'
   import Spinner from '../spinner.svelte'
+
+  let showModal = false
 
   // Map of list ID -> if the list's row should be highlighted
   const highlightRow = {}
@@ -59,7 +61,7 @@
   })
 </script>
 
-<Modal on:loadingChange={(e) => isLoading = e.detail.isLoading}/>
+<Modal bind:show={showModal}/>
 
 <div class="card">
 {#await initPromise}
@@ -123,14 +125,18 @@
     {#if isLoading}
       <div class="row"><Spinner size="1.5rem" vm="0.5rem"/></div>
     {:else}
-      <div class="row-center clickable" on:click={toggleModal}><i class="fas fa-plus"></i></div>
+      <div class="row-center clickable" on:click={() => {
+        showModal = true
+      }}><i class="fas fa-plus"></i></div>
     {/if}
   {:else}
     <div class="row-center noborder">
       <header>It's empty here...</header>
     </div>
     <div class="row-center">
-      <button class="bold" on:click={toggleModal}>
+      <button class="bold" on:click={() => {
+        showModal = true
+      }}>
         Create a Todo List
       </button>
     </div>
