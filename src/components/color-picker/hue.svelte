@@ -98,11 +98,27 @@
     h = Math.round(h * 60)
     return h <= 0 ? 0 - h : 360 - h
   }
+
+  // Copied from plane.svelte
+  function onWindowMouseup(): void {
+    if (moveCursor) {
+      document.addEventListener('click', (evt) => {
+        evt.stopPropagation()
+      }, {
+        once: true,
+        capture: true
+      })
+    }
+    moveCursor = false
+  }
 </script>
 
-<svelte:window on:mouseup={() => moveCursor = false} on:mousemove={updateCursor}/>
+<svelte:window on:mousemove={updateCursor} on:mouseup={onWindowMouseup}/>
 
-<canvas bind:this={canvasEl} class="hue-slider" on:mousedown={() => moveCursor = true} on:mousedown={updateCursor}/>
+<canvas bind:this={canvasEl} class="hue-slider"
+  on:mousedown={() => moveCursor = true}
+  on:mousedown={updateCursor}
+  on:mouseup|stopPropagation={() => moveCursor = false}/>
 
 <style>
   .hue-slider {

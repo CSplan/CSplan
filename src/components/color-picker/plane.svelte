@@ -119,11 +119,28 @@
     const hex = '#' + rgb.map(b => byteToHex[b]).join('')
     dispatch('colorchange', hex)
   }
+
+  // If the cursor was set down inside the canvas but set up outside the canvas, 
+  // prevent the following click event from propagating and causing unwanted side effects
+  function onWindowMouseup(): void {
+    if (moveCursor) {
+      document.addEventListener('click', (evt) => {
+        evt.stopPropagation()
+      }, {
+        once: true,
+        capture: true
+      })
+    }
+    moveCursor = false
+  }
 </script>
 
-<svelte:window on:mousemove={updateCursor} on:mouseup={() => moveCursor = false}/>
+<svelte:window on:mousemove={updateCursor} on:mouseup={onWindowMouseup}/>
 
-<canvas bind:this={canvasEl} class="color-plane" on:mousedown={() => moveCursor = true} on:mousedown={updateCursor}/>
+<canvas bind:this={canvasEl} class="color-plane"
+  on:mousedown={() => moveCursor = true}
+  on:mousedown={updateCursor}
+  on:mouseup|stopPropagation={() => moveCursor = false}/>
 
 <style>
   .color-plane {

@@ -87,11 +87,26 @@
     dispatch('lightnesschange', lightness)
   }
 
+  // Copied from plane.svelte
+  function onWindowMouseup(): void {
+    if (moveCursor) {
+      document.addEventListener('click', (evt) => {
+        evt.stopPropagation()
+      }, {
+        once: true,
+        capture: true
+      })
+    }
+    moveCursor = false
+  }
 </script>
 
-<canvas bind:this={canvasEl} class="lightness-slider" on:mousedown={() => moveCursor = true} on:mousedown={updateCursor}/>
+<svelte:window on:mousemove={updateCursor} on:mouseup={onWindowMouseup}/>
 
-<svelte:window on:mousemove={updateCursor} on:mouseup={() => moveCursor = false}/>
+<canvas bind:this={canvasEl} class="lightness-slider"
+  on:mousedown={() => moveCursor = true}
+  on:mousedown={updateCursor}
+  on:mouseup|stopPropagation={() => moveCursor = false}/>
 
 <style>
   .lightness-slider {

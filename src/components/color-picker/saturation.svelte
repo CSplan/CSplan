@@ -90,11 +90,26 @@
       return (cmax - cmin) / (cmax + cmin)
     }
   }
+
+  function onWindowMouseup(): void {
+    if (moveCursor) {
+      document.addEventListener('click', (evt) => {
+        evt.stopPropagation()
+      }, {
+        once: true,
+        capture: true
+      })
+    }
+    moveCursor = false
+  }
 </script>
 
-<svelte:window on:mouseup={() => moveCursor = false} on:mousemove={updateCursor}/>
+<svelte:window on:mousemove={updateCursor} on:mouseup={onWindowMouseup}/>
 
-<canvas bind:this={canvasEl} class="saturation-slider" on:mousedown={() => moveCursor = true} on:mousedown={updateCursor}/>
+<canvas bind:this={canvasEl} class="saturation-slider"
+  on:mousedown={() => moveCursor = true}
+  on:mousedown={updateCursor}
+  on:mouseup|stopPropagation={() => moveCursor = false}/>
 
 <style>
   canvas {
