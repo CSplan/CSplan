@@ -1,9 +1,11 @@
 <script lang="ts">
   import store from '$stores/lists'
+  import { tick } from 'svelte'
 
   export let show = false
 
   let title: string
+  let titleInput: HTMLInputElement
   let form: HTMLFormElement
 
   // Create a list from the chin form
@@ -17,16 +19,28 @@
     title = ''
   }
 
-  function toggleForm(): void {
+  async function toggleForm(): Promise<void> {
     title = ''
     show = !show
+    if (show) {
+      await tick()
+      titleInput.focus()
+    }
+  }
+
+  // Clear and hide the form when esc is pressed
+  function onkeydown(evt: KeyboardEvent): void {
+    if (show && evt.key === 'Escape') {
+      toggleForm()
+    }
   }
 </script>
 
+<svelte:window on:keydown={onkeydown}></svelte:window>
 
 {#if show}
   <form bind:this={form} class="row-create-form" novalidate on:submit|preventDefault={createList}>
-    <input type="text" bind:value={title} placeholder="Title" required>
+    <input type="text" bind:value={title} bind:this={titleInput} placeholder="Title" required>
     <button class="transparent create" title="Create List">
       <i class="fas fa-plus"></i>
     </button>
