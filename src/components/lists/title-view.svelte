@@ -4,11 +4,13 @@
   import { flip } from 'svelte/animate'
   import { lists as store, ordered } from '$stores/lists'
   import { CEkeypress } from '../../misc/contenteditable'
-  import Modal from '../modals/create-list-modal.svelte'
   import Spinner from '../spinner.svelte'
+  import CreateListModal from '../modals/create-list-modal.svelte'
   import CreateListForm from './create-list-form.svelte'
+  import DeleteConfirmationModal from '$components/modals/confirm-modal.svelte'
 
-  let showModal = false
+  let showCreateListModal = false
+  let showDeleteConfirmationModal = false
 
   // Map of list ID -> if the list's row should be highlighted
   const highlightRow: { [id: string]: boolean } = {}
@@ -60,9 +62,36 @@
     initPromise = store.init()
   })
 
+  // Delete confirmation
+  let deletePendingID = ''
+  let deleteMessage = ''
+  $: deleteMessage = `Are you sure you want to delete '${$store[deletePendingID]?.title}'?`
+
+  async function deleteList(id: string): Promise<void> {
+    // Delete any lists with no items without prompting for confirmation
+    if ($store[id].items.length === 0) {
+      await store.delete(id)
+      return
+    }
+
+    // Store the ID of the list pending deletion, and prompt the user for final confirmation
+    deletePendingID = id
+    showDeleteConfirmationModal = true
+  }
+
+  async function onDelete(): Promise<void> {
+    await store.delete(deletePendingID)
+    deletePendingID = ''
+  }
+
+  function onDeleteCancel(): void {
+    deletePendingID = ''
+  }
 </script>
 
-<Modal bind:show={showModal}/>
+<CreateListModal bind:show={showCreateListModal}/>
+
+<DeleteConfirmationModal bind:show={showDeleteConfirmationModal} message={deleteMessage} on:cancel={onDeleteCancel} on:submit={onDelete}/>
 
 <div class="card">
 {#await initPromise}
@@ -128,7 +157,7 @@
             </div>
           {:else}
             <!-- Delete button for the list -->
-            <i class="fas fa-times clickable" on:click={() => store.delete(list.id)}></i>
+            <i class="fas fa-times clickable" on:click={() => deleteList(list.id)}></i>
           {/if}
         </div>
       </div>
@@ -145,7 +174,7 @@
     </div>
     <div class="row-center">
       <button class="bold" on:click={() => {
-        showModal = true
+        showCreateListModal = true
       }}>
         Create a Todo List
       </button>

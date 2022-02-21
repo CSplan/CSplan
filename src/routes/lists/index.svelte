@@ -22,12 +22,6 @@
       padding-right: 250px;
     }
   }
-  button {
-    position: absolute;
-    left: 18%;
-    top: 3rem;
-    border-radius: 10%;
-  }
   @media screen and (max-width: $mobile-max) {
     main.container {
       max-width: 100%;

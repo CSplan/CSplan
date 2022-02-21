@@ -26,10 +26,12 @@
   }
   input.cancel-button {
     grid-column: 1;
+    margin: 0;
     background-color: $danger-red;
     color: white;
   }
   input.submit-button {
     grid-column: 3;
+    margin: 0;
   }
 </style>
