@@ -2,12 +2,15 @@
   export let title = ''
   export let icon = ''
   export let color = 'white'
+  export let href = ''
 </script>
 
-<button class="transparent" style="color: {color};" on:click>
+<a {href}>
+<button class="transparent" style="color: {color};">
   <i class={icon}></i>
   <span>{title}</span>
 </button>
+</a>
 
 <style lang="scss">
   button {

@@ -1,19 +1,16 @@
-<script>
+<script lang="ts">
   import SideMenu from '$components/settings/side-menu.svelte'
-  import Sessions from '$components/settings/sessions/index.svelte'
-
-  let menu = Sessions
 </script>
 
 <main class="container">
-  <SideMenu bind:menu/>
+  <SideMenu/>
   <div class="current-menu">
-    <svelte:component this={menu}/>
+    <slot></slot>
   </div>
 </main>
 
 <style lang="scss">
-  @import '../scss/colors.scss';
+  @import '../../scss/colors.scss';
 
   $v-gap: 1.5rem;
   $h-gap: 2rem;
