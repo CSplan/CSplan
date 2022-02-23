@@ -5,11 +5,9 @@
   import { lists as store, ordered } from '$stores/lists'
   import { CEkeypress } from '../../misc/contenteditable'
   import Spinner from '../spinner.svelte'
-  import CreateListModal from '../modals/create-list-modal.svelte'
   import CreateListForm from './create-list-form.svelte'
   import DeleteConfirmationModal from '$components/modals/confirm-modal.svelte'
 
-  let showCreateListModal = false
   let showDeleteConfirmationModal = false
 
   // Map of list ID -> if the list's row should be highlighted
@@ -89,8 +87,6 @@
   }
 </script>
 
-<CreateListModal bind:show={showCreateListModal}/>
-
 <DeleteConfirmationModal bind:show={showDeleteConfirmationModal} message={deleteMessage} on:cancel={onDeleteCancel} on:submit={onDelete}/>
 
 <div class="card">
@@ -114,7 +110,7 @@
       <div class="row-start">
         <div class="item-count-container">
           <p class="item-count">{completedItems(list.items)}/{list.items.length}</p>
-      </div>
+        </div>
 
         <a href="/lists/{list.id}" sveltekit:prefetch draggable="false" class="list-link"><div></div></a> <!-- draggable="false" is needed to override default the default html assumption that links can be dragged,
           inside div supresses compiler warning that <a> elements must contain children -->
@@ -165,21 +161,21 @@
   {/each}
     {#if isLoading}
       <div class="row"><Spinner size="1.5rem" vm="0.5rem"/></div>
-    {:else}
-      <CreateListForm></CreateListForm>
     {/if}
   {:else}
-    <div class="row-center noborder">
+    <div class="row-center border">
       <header>It's empty here...</header>
     </div>
-    <div class="row-center">
-      <button class="bold" on:click={() => {
-        showCreateListModal = true
-      }}>
-        Create a Todo List
-      </button>
-    </div>
   {/if}
+  <CreateListForm>
+    <svelte:fragment slot="icon">
+      {#if $ordered.length === 0}
+        <button class="bold">Create List</button>
+      {:else}
+        <i class="fas fa-plus"></i>
+      {/if}
+    </svelte:fragment>
+  </CreateListForm>
 {:catch err}
   <pre>{err instanceof Error ? err : `Error: ${err}`}</pre>
 {/await}
@@ -296,11 +292,8 @@
     background: whitesmoke;
   }
   /* Create separators */
-  .row:not(:last-child) {
+  .row:not(:last-child),.row-center.border {
     border-bottom: #ccc 1px solid;
-  }
-  .row.noborder {
-    border-bottom: none;
   }
   .row.empty {
     min-height: 3rem;

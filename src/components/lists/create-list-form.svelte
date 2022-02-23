@@ -51,7 +51,9 @@
   </form>
 {:else}
   <section class="row-center clickable" on:click={toggleForm}>
-    <i class="fas fa-plus"></i>
+    <slot name="icon">
+      <i class="fas fa-plus"></i>
+    </slot>
   </section>
 {/if}
 
@@ -64,9 +66,12 @@
   .row-center {
     text-align: center;
     padding: 0;
-    i {
+    :global(i) {
       margin: 0.8rem;
     }
+  }
+  .row-center:hover {
+    background: whitesmoke;
   }
 
   .row-create-form {
