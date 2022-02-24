@@ -58,6 +58,7 @@
   let initPromise: Promise<void>
   onMount(() => {
     initPromise = store.init()
+    isMobile = window.outerWidth <= 849
   })
 
   // Delete confirmation
@@ -85,6 +86,11 @@
   function onDeleteCancel(): void {
     deletePendingID = ''
   }
+
+  // #region Mobile mode-based interface
+
+  let isMobile = false
+  // #endregion
 </script>
 
 <DeleteConfirmationModal bind:show={showDeleteConfirmationModal} message={deleteMessage} on:cancel={onDeleteCancel} on:submit={onDelete}/>
@@ -156,6 +162,12 @@
             <i class="fas fa-times clickable" on:click={() => deleteList(list.id)}></i>
           {/if}
         </div>
+
+        <div class="icons-mobile">
+          <button class="transparent">
+            <i class="fas fa-ellipsis-vertical"></i>
+          </button>
+        </div>
       </div>
     </div>
   {/each}
@@ -205,7 +217,7 @@
     text-align: center;
     display: grid;
     @media screen and (max-width: $mobile-max) {
-      grid-template-columns: minmax(2rem, 1fr) minmax(0, auto) minmax(2rem, 1fr);
+      grid-template-columns: minmax(min-content, 1fr) minmax(0, auto) 1fr;
     }
     @media screen and (min-width: $desktop-min) {
       grid-template-columns: minmax(5rem, 1fr) minmax(0, auto) minmax(5rem, 1fr);
@@ -236,6 +248,7 @@
     display: flex;
     flex-direction: row;
     align-items: center;
+    border-right: 1px solid #ccc;
   }
   p.item-count {
     margin: 0.5rem 0.8rem;
@@ -266,20 +279,26 @@
     transform: scale(1.25)
   }
   @media screen and (max-width: $mobile-max) {
-    .arrow-icons {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      i {
-        margin: 0.5rem 0;
-      }
-    }
-
-    i.fa-grip-vertical {
+    .icons {
       display: none;
+    }
+    .icons-mobile {
+      display: flex;
+      flex-direction: row;
+      justify-content: end;
+      align-items: center;
+      button {
+        padding: 0 1rem;
+        margin: 0;
+        height: 100%;
+        color: #111;
+      }
     }
   }
   @media screen and (min-width: $desktop-min) {
+    .icons-mobile {
+      display: none;
+    }
     .arrow-icons i:not(:last-child) {
       margin-right: 0.3rem;
     }
