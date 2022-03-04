@@ -7,8 +7,11 @@
   import Spinner from '../spinner.svelte'
   import CreateListForm from './create-list-form.svelte'
   import DeleteConfirmationModal from '$components/modals/confirm-modal.svelte'
+  // Only used on mobile
+  import EditModal from './list-edit-modal.svelte'
 
   let showDeleteConfirmationModal = false
+  let showEditModal = false
 
   // Map of list ID -> if the list's row should be highlighted
   const highlightRow: { [id: string]: boolean } = {}
@@ -95,6 +98,8 @@
 
 <DeleteConfirmationModal bind:show={showDeleteConfirmationModal} message={deleteMessage} on:cancel={onDeleteCancel} on:submit={onDelete}/>
 
+<EditModal bind:show={showEditModal}></EditModal>
+
 <div class="card">
 {#await initPromise}
   <div class="row">
@@ -123,9 +128,16 @@
         
       </div>
     
-      <div class="header-container">
+      <!-- Desktop - title header is editable -->
+      <div class="header-container header-container-desktop">
         <header contenteditable on:keypress={CEkeypress} spellcheck="false" draggable="false" on:blur={e => onblur(e, list.id)}>{list.title}</header>
       </div>
+
+      <!-- Mobile - title header links to list page, title is editable through elipse menu -->
+      <a href="/lists/{list.id}" class="header-container header-container-mobile">
+        <header draggable="false">{list.title}</header>
+      </a>
+      
 
       <!-- Group the clickable white space to the right of the list title and the drag/delete buttons to the side for alignment purposes -->
       <div class="row-end">
@@ -164,7 +176,7 @@
         </div>
 
         <div class="icons-mobile">
-          <button class="transparent">
+          <button class="transparent" on:click={() => showEditModal = true}>
             <i class="fas fa-ellipsis-vertical"></i>
           </button>
         </div>
@@ -233,11 +245,6 @@
     grid-auto-flow: column;
     grid-template-columns: max-content 1fr;
   }
-  a.list-link {
-    @media screen and (max-width: $mobile-max) {
-      display: none;
-    }
-  }
   .row-end {
     width: 100%;
     display: grid;
@@ -258,11 +265,23 @@
     border-left: var(--bold-blue) 2px solid;
     border-right: var(--bold-blue) 2px solid;
   }
-  .row .header-container {
+  .header-container {
     border-bottom: 1px #aaa solid;
     display: flex;
     flex-direction: column;
     justify-content: center;
+    color: currentColor;
+  }
+  // Display desktop or mobile header container based on screen width
+  .header-container-desktop {
+    @media screen and (max-width: $mobile-max) {
+      display: none; 
+    }
+  }
+  .header-container-mobile {
+    @media screen and (min-width: $desktop-min) {
+      display: none;
+    }
   }
   .row header {
     word-break: break-word;

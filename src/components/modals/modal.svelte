@@ -3,6 +3,10 @@
   export let flex = false
   // Lock the modal, don't show an exit button, modal content is responsible for allowing the user to exit the modal
   export let lock = false
+  // Reduce side margins
+  export let mobile = false
+  // Align content with the bottom of the screen (useful with mobile)
+  export let bottom = false
 
   import { fade } from 'svelte/transition'
   import { cubicOut } from 'svelte/easing'
@@ -34,7 +38,7 @@
     <i class="fas fa-times clickable" on:click|self={onclick}></i>
   {/if}
 
-  <section class="content" class:flex>
+  <section class="content" class:flex class:mobile class:bottom>
     <slot></slot>
   </section>
 </main>
@@ -69,6 +73,13 @@
       flex-direction: column;
       left: 0;
       right: 0;
+    }
+    &.mobile {
+      left: 2rem;
+      right: 2rem;
+    }
+    &.bottom {
+      bottom: 0;
     }
   }
 
