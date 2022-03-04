@@ -12,6 +12,7 @@
 
   let showDeleteConfirmationModal = false
   let showEditModal = false
+  let editingID = ''
 
   // Map of list ID -> if the list's row should be highlighted
   const highlightRow: { [id: string]: boolean } = {}
@@ -98,7 +99,7 @@
 
 <DeleteConfirmationModal bind:show={showDeleteConfirmationModal} message={deleteMessage} on:cancel={onDeleteCancel} on:submit={onDelete}/>
 
-<EditModal bind:show={showEditModal}></EditModal>
+<EditModal bind:show={showEditModal} id={editingID}></EditModal>
 
 <div class="card">
 {#await initPromise}
@@ -176,7 +177,10 @@
         </div>
 
         <div class="icons-mobile">
-          <button class="transparent" on:click={() => showEditModal = true}>
+          <button class="transparent" on:click={() => {
+            editingID = list.id
+            showEditModal = true
+          }}>
             <i class="fas fa-ellipsis-vertical"></i>
           </button>
         </div>
