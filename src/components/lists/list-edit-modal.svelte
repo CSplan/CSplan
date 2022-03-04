@@ -29,7 +29,7 @@
 
 <DeleteConfirmationModal bind:show={showDeleteConfirmationModal} message={deleteMessage} on:submit={onDelete}/>
 
-<Modal bind:show lock mobile bottom>
+<Modal bind:show mobile bottom>
   <section class="card">
     <button class="transparent">
       <span>Edit Title</span>
