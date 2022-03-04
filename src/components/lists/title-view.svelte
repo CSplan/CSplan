@@ -9,6 +9,7 @@
   import DeleteConfirmationModal from '$components/modals/confirm-modal.svelte'
   // Only used on mobile
   import EditModal from './list-edit-modal.svelte'
+  import EditMenu from './list-edit-dropdown.svelte'
 
   let showDeleteConfirmationModal = false
   let showEditModal = false
@@ -94,6 +95,8 @@
   // #region Mobile mode-based interface
 
   let isMobile = false
+
+  let showEditMenu: { [id: string]: boolean } = {}
   // #endregion
 </script>
 
@@ -177,11 +180,11 @@
         </div>
 
         <div class="icons-mobile">
-          <button class="transparent" on:click={() => {
-            editingID = list.id
-            showEditModal = true
+          <button class="transparent edit-toggle" on:click|stopPropagation={() => {
+            showEditMenu[list.id] = !showEditMenu[list.id]
           }}>
             <i class="fas fa-ellipsis-vertical"></i>
+            <EditMenu id={list.id} bind:show={showEditMenu[list.id]}></EditMenu>
           </button>
         </div>
       </div>
@@ -226,6 +229,7 @@
       text-align: center;
       color: red;
     }
+    overflow: visible;
   }
   .row {
     --side-margin: 5rem;
@@ -311,6 +315,7 @@
       justify-content: end;
       align-items: center;
       button {
+        position: relative;
         padding: 0 1rem;
         margin: 0;
         height: 100%;
