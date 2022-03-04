@@ -218,8 +218,9 @@
   <section class="title">
     <div class="spacer"/>
     <header class="title" contenteditable={editMode} spellcheck="false" on:keypress={CEkeypress} on:blur={updateTitle}>{list.title}</header>
-    <div class="spacer"/>
-    <i class="edit-mode-toggle fas fa-pencil-alt clickable" style="color: {editMode ? 'var(--bold-blue)' : 'initial'}" on:click={toggleEditMode}/>
+    <div class="edit-icon-container">
+      <i class="edit-mode-toggle fas fa-pencil-alt clickable" style="color: {editMode ? 'var(--bold-blue)' : 'initial'}" on:click={toggleEditMode}/>
+    </div>
   </section>
 
   {#each list.items as item, i (item)}
@@ -312,13 +313,23 @@
 
   section.title {
     display: grid;
-    grid-template-columns: minmax(5rem, 1fr) max-content minmax(5rem, 1fr) max-content;
+    @media screen and (min-width: $desktop-min) {
+      grid-template-columns: 1fr auto 1fr;
+    }
+    @media screen and (max-width: $mobile-max) {
+      grid-template-columns: 1fr auto minmax(min-content, 1fr);
+    }
     grid-auto-flow: column;
     border-bottom: 1px solid #aaa;
     padding: var(--padding-m);
     header {
       padding: 0;
       border-bottom: none;
+    }
+    .edit-icon-container {
+      i {
+        float: right;
+      }
     }
   }
 
