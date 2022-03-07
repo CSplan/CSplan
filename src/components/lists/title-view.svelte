@@ -1,6 +1,5 @@
 <script lang="ts">
-  // Not written in TS
-  import { onMount } from 'svelte'
+  import { onMount, tick } from 'svelte'
   import { flip } from 'svelte/animate'
   import { lists as store, ordered } from '$stores/lists'
   import { CEkeypress } from '../../misc/contenteditable'
@@ -23,6 +22,7 @@
 
   // Update event handlers
   async function onblur(evt: SafeEvent, id: string): Promise<void> {
+    delete showEditableHeader[id]
     store.update(id, { title: evt.currentTarget.textContent || '' })
     await store.commit(id)
   }
@@ -97,6 +97,26 @@
   let isMobile = false
 
   let showEditMenu: { [id: string]: boolean } = {}
+
+  let showEditableHeader: { [id: string]: boolean } = {}
+
+  let headerElements: { [id: string]: HTMLElement } = {}
+
+  async function editTitle(id: string): Promise<void> {
+    showEditableHeader[id] = true
+    await tick() // Wait for the editable header to render
+    // Move the cursor to the end of the header element
+    const range = document.createRange()
+    range.selectNodeContents(headerElements[id])
+    range.collapse(false)
+    // Focus the range
+    const selection = getSelection()
+    if (selection === null) {
+      throw new Error('Error grabbing document selection')
+    }
+    selection.removeAllRanges()
+    selection.addRange(range)
+  }
   // #endregion
 </script>
 
@@ -133,12 +153,19 @@
       </div>
     
       <!-- Desktop - title header is editable -->
-      <div class="header-container header-container-desktop">
-        <header contenteditable on:keypress={CEkeypress} spellcheck="false" draggable="false" on:blur={e => onblur(e, list.id)}>{list.title}</header>
+      <div class="header-container header-container-desktop" class:editing-header-container={showEditableHeader[list.id]}>
+        <header
+          contenteditable on:keypress={CEkeypress}
+          spellcheck="false" draggable="false"
+          bind:this={headerElements[list.id]}
+          on:blur={e => onblur(e, list.id)}
+        >
+          {list.title}
+        </header>
       </div>
 
       <!-- Mobile - title header links to list page, title is editable through elipse menu -->
-      <a href="/lists/{list.id}" class="header-container header-container-mobile">
+      <a href="/lists/{list.id}" class="header-container header-container-mobile" class:d-none={showEditableHeader[list.id]}>
         <header draggable="false">{list.title}</header>
       </a>
       
@@ -180,11 +207,17 @@
         </div>
 
         <div class="icons-mobile">
-          <button class="transparent edit-toggle" on:click|stopPropagation={() => {
+          <button class="transparent edit-toggle"
+          on:click|stopPropagation={(evt) => { // Stop propagation to window click handlers
+            if (evt.buttons === 0) { // Ignore mobile 'ghost' clicks
+              return
+            }
             showEditMenu[list.id] = !showEditMenu[list.id]
           }}>
-            <i class="fas fa-ellipsis-vertical"></i>
-            <EditMenu id={list.id} bind:show={showEditMenu[list.id]}></EditMenu>
+            <i class="fas fa-ellipsis-vertical"/>
+            <EditMenu id={list.id} bind:show={showEditMenu[list.id]}
+              on:edit-title={() => editTitle(list.id)}
+            />
           </button>
         </div>
       </div>
@@ -281,7 +314,7 @@
     color: currentColor;
   }
   // Display desktop or mobile header container based on screen width
-  .header-container-desktop {
+  .header-container-desktop:not(.editing-header-container) {
     @media screen and (max-width: $mobile-max) {
       display: none; 
     }
@@ -320,6 +353,7 @@
         margin: 0;
         height: 100%;
         color: #111;
+        touch-action: manipulation;
       }
     }
   }

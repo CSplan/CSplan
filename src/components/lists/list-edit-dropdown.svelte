@@ -1,9 +1,13 @@
 <script lang="ts">
   import store from '$stores/lists'
   import DeleteConfirmationModal from '$components/modals/confirm-modal.svelte'
+  import { createEventDispatcher } from 'svelte'
 
   export let show = false
   export let id = ''
+
+  // Events
+  const dispatch = createEventDispatcher()
 
   // Delete confirmation
   let showDeleteConfirmationModal = false
@@ -17,6 +21,7 @@
     }
 
     // Store the ID of the list pending deletion, and prompt the user for final confirmation
+    show = false
     showDeleteConfirmationModal = true
   }
 
@@ -28,11 +33,18 @@
 
 <DeleteConfirmationModal bind:show={showDeleteConfirmationModal} message={deleteMessage} on:submit={onDelete}/>
 
-<svelte:window on:click={() => show = false}/>
+<svelte:window on:click={() => {
+  if (show) {
+    show = false
+  }
+}}/>
 
 {#if show}
-<section class="card">
-  <button class="transparent">
+<section class="card" on:click|stopPropagation>
+  <button class="transparent" on:click={() => {
+    show = false
+    dispatch('edit-title')
+  }}>
     <span>Edit Title</span>
     <i class="fas fa-pencil"></i>
   </button>
@@ -40,7 +52,10 @@
     <span>Delete List</span>
     <i class="fas fa-times"></i>
   </button>
-  <button class="transparent close-button" on:click={() => show = false}>
+  <button class="transparent close-button" on:click={() => {
+    show = false
+    console.debug('Clicked close button')
+  }}>
     <span>Close</span>
     <i class="fas fa-arrow-left"></i>
   </button>
