@@ -43,6 +43,13 @@
   })
 </script>
 
+<svelte:window on:click|capture={(evt) => {
+  // Don't let any 'ghost' mouse clicks fire on touch devices
+  if (evt.buttons === 0) {
+    evt.stopPropagation()
+  }
+}}/>
+
 <svelte:head>
   <title>CSplan</title>
 </svelte:head>

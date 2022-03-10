@@ -208,17 +208,14 @@
 
         <div class="icons-mobile">
           <button class="transparent edit-toggle"
-          on:click|stopPropagation={(evt) => { // Stop propagation to window click handlers
-            if (evt.buttons === 0) { // Ignore mobile 'ghost' clicks
-              return
-            }
+          on:click|stopPropagation={() => { // Stop propagation to window click handlers
             showEditMenu[list.id] = !showEditMenu[list.id]
           }}>
             <i class="fas fa-ellipsis-vertical"/>
-            <EditMenu id={list.id} bind:show={showEditMenu[list.id]}
-              on:edit-title={() => editTitle(list.id)}
-            />
           </button>
+          <EditMenu id={list.id} bind:show={showEditMenu[list.id]}
+            on:edit-title={() => editTitle(list.id)}
+          />
         </div>
       </div>
     </div>
@@ -347,13 +344,13 @@
       flex-direction: row;
       justify-content: end;
       align-items: center;
+      position: relative;
+      touch-action: manipulation;
       button {
-        position: relative;
         padding: 0 1rem;
         margin: 0;
         height: 100%;
         color: #111;
-        touch-action: manipulation;
       }
     }
   }

@@ -40,7 +40,7 @@
 }}/>
 
 {#if show}
-<section class="card" on:click|stopPropagation>
+<section class="card" on:click|stopPropagation> <!-- Stop propagation to window click handler -->
   <button class="transparent" on:click={() => {
     show = false
     dispatch('edit-title')
@@ -54,7 +54,6 @@
   </button>
   <button class="transparent close-button" on:click={() => {
     show = false
-    console.debug('Clicked close button')
   }}>
     <span>Close</span>
     <i class="fas fa-arrow-left"></i>
