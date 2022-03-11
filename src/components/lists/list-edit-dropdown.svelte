@@ -41,6 +41,12 @@
 
 {#if show}
 <section class="card" on:click|stopPropagation> <!-- Stop propagation to window click handler -->
+  <button class="transparent close-button" on:click={() => {
+    show = false
+  }}>
+    <span>Close</span>
+    <i class="fas fa-arrow-left"></i>
+  </button>
   <button class="transparent" on:click={() => {
     show = false
     dispatch('edit-title')
@@ -51,12 +57,6 @@
   <button class="transparent delete-button" on:click={deleteList}>
     <span>Delete List</span>
     <i class="fas fa-times"></i>
-  </button>
-  <button class="transparent close-button" on:click={() => {
-    show = false
-  }}>
-    <span>Close</span>
-    <i class="fas fa-arrow-left"></i>
   </button>
 </section>
 {/if}

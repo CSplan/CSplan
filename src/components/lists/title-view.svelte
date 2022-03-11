@@ -117,6 +117,9 @@
     selection.removeAllRanges()
     selection.addRange(range)
   }
+  
+  // A unix timestamp (millisecond precision) of when the last 0 button user click was fired
+  let lastClick = 0
   // #endregion
 </script>
 
@@ -208,9 +211,9 @@
 
         <div class="icons-mobile">
           <button class="transparent edit-toggle"
-          on:click|stopPropagation={() => { // Stop propagation to window click handlers
+          on:touchend|preventDefault={() => {
             showEditMenu[list.id] = !showEditMenu[list.id]
-          }}>
+          }} on:click|stopPropagation>
             <i class="fas fa-ellipsis-vertical"/>
           </button>
           <EditMenu id={list.id} bind:show={showEditMenu[list.id]}
@@ -345,8 +348,8 @@
       justify-content: end;
       align-items: center;
       position: relative;
-      touch-action: manipulation;
       button {
+        touch-action: manipulation;
         padding: 0 1rem;
         margin: 0;
         height: 100%;
