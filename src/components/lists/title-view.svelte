@@ -209,8 +209,14 @@
 
         <div class="icons-mobile">
           <button class="transparent edit-toggle"
-          on:touchend|preventDefault={() => {
+          on:pointerup|preventDefault={() => {
             showEditMenu[list.id] = !showEditMenu[list.id]
+            // Close any other open edit menus
+            for (const id in showEditMenu) {
+              if (id !== list.id && showEditMenu[id]) {
+                delete showEditMenu[id]
+              }
+            }
           }} on:click|stopPropagation>
             <i class="fas fa-ellipsis-vertical"/>
           </button>
