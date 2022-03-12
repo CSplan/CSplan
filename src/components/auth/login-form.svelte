@@ -133,7 +133,14 @@
 
 <style lang="scss">
   .card {
-    width: 20%;
+    @media screen and (min-width: 850px) {
+      width: 20%;
+      margin-top: 20vh;
+    }
+    @media screen and (max-width: 849px) {
+      margin-top: 30px;
+      width: 85%;
+    }
     padding: 1rem;
     margin: 0;
     margin-top: 20vh;

@@ -67,7 +67,7 @@
     z-index: 998;
   }
   /* Desktop styles */
-  @media screen and (min-width: 850px) {
+  @media screen and (min-width: $desktop-min) {
     .menu {
       display: flex;
       flex-direction: row;
@@ -89,19 +89,22 @@
     }
   }
   /* Mobile styles */
-  @media screen and (max-width: 850px) {
+  @media screen and (max-width: $mobile-max) {
     .menu {
       display: flex;
       flex-direction: column;
-      background: #333;
       width: 100%;
       padding: 1rem;
+      transition: none; // No slide out transition
+      * {
+        transition-duration: 200ms !important;
+      }
 
       >a {
         border-radius: 0;
       }
       >a:not(:last-child) {
-        border-left: 1px white solid;
+        border-left: 1px #ccc solid;
       }
     }
     .menu .right {
@@ -115,18 +118,31 @@
       padding: 0.3rem 0.9rem;
       margin-left: 0;
       margin-right: 0;
-      border-bottom: 1px white solid;
+      border-bottom: 1px #ccc solid;
     }
     .menu .right span {
       display: none;
     }
   }
   /* Item item spacing */
-  a {
-    margin: 0 0.3rem;
+  @media screen and (min-width: $desktop-min) {
+    a {
+      margin: 0 0.3rem;
+    }
+    .menu > a {
+      margin: 0.3rem 0;
+    }
   }
-  .menu > a {
-    margin: 0.3rem 0;
+  @media screen and (max-width: $mobile-max) {
+    a {
+      margin: 0.5rem 0;
+    }
+    .right {
+      border-top: 1px #aaa solid;
+      padding-top: 0.5rem;
+      margin: 0;
+      margin-top: 0.5rem;
+    }
   }
 
   /* Register and login buttons get special colors */

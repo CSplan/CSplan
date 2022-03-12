@@ -2,14 +2,6 @@
   import RegisterForm from '$components/auth/register-form.svelte'
 </script>
 
-<main>
+<main class="container">
   <RegisterForm/>
 </main>
-
-<style>
-  main {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-  }
-</style>
