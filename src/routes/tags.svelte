@@ -62,7 +62,7 @@
   }
 
   /* Add tag styles */
-  @media screen and (min-width: 850px) {
+  @media all and (min-width: 850px) {
     .add-tag-button {
       min-width: $content-large !important;
     }

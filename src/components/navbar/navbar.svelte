@@ -67,7 +67,7 @@
     z-index: 998;
   }
   /* Desktop styles */
-  @media screen and (min-width: $desktop-min) {
+  @media all and (min-width: $desktop-min) {
     .menu {
       display: flex;
       flex-direction: row;
@@ -89,7 +89,7 @@
     }
   }
   /* Mobile styles */
-  @media screen and (max-width: $mobile-max) {
+  @media all and (max-width: $mobile-max) {
     .menu {
       display: flex;
       flex-direction: column;
@@ -125,7 +125,7 @@
     }
   }
   /* Item item spacing */
-  @media screen and (min-width: $desktop-min) {
+  @media all and (min-width: $desktop-min) {
     a {
       margin: 0 0.3rem;
     }
@@ -133,7 +133,7 @@
       margin: 0.3rem 0;
     }
   }
-  @media screen and (max-width: $mobile-max) {
+  @media all and (max-width: $mobile-max) {
     a {
       margin: 0.5rem 0;
     }

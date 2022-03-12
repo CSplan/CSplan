@@ -313,10 +313,10 @@
 
   section.title {
     display: grid;
-    @media screen and (min-width: $desktop-min) {
+    @media all and (min-width: $desktop-min) {
       grid-template-columns: 1fr auto 1fr;
     }
-    @media screen and (max-width: $mobile-max) {
+    @media all and (max-width: $mobile-max) {
       grid-template-columns: 1fr auto minmax(min-content, 1fr);
     }
     grid-auto-flow: column;
@@ -334,13 +334,13 @@
   }
 
   // Responsiveness
-  @media screen and (min-width: $desktop-min) {
+  @media all and (min-width: $desktop-min) {
     .card {
       min-width: 800px;
       max-width: 1200px;
     }
   }
-  @media screen and (max-width: $mobile-max) {
+  @media all and (max-width: $mobile-max) {
     .card {
       width: 100%;
     }
@@ -420,7 +420,7 @@
       grid-template-rows: repeat(2, 1fr);
       row-gap: 0.4rem;
       column-gap: 0.25rem;
-      @media screen and (max-width: $mobile-max) {
+      @media all and (max-width: $mobile-max) {
         font-size: 1.3rem;
         column-gap: 0.8rem;
       }
@@ -431,7 +431,7 @@
       i.fa-grip-vertical {
         grid-column: 2;
         grid-row: 2;
-        @media screen and (max-width: $mobile-max) {
+        @media all and (max-width: $mobile-max) {
           display: none;
         }
       }
@@ -442,7 +442,7 @@
       i.fa-arrow-down {
         grid-column: 1;
         grid-row: 2;
-        @media screen and (max-width: $mobile-max) {
+        @media all and (max-width: $mobile-max) {
           grid-row: 1;
         }
       }
@@ -480,10 +480,10 @@
     max-width: 100%;
     word-break: break-all;
     border-radius: 0;
-    @media screen and (min-width: $desktop-min) {
+    @media all and (min-width: $desktop-min) {
       font-size: small;
     }
-    @media screen and (max-width: $mobile-max) {
+    @media all and (max-width: $mobile-max) {
       font-size: medium;
     }
     margin-right: 0.25rem;

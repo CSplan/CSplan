@@ -29,7 +29,7 @@
   form {
     padding: 0.8rem 1.5rem;
     background: white;
-    @media screen and (min-width: $desktop-min) {
+    @media all and (min-width: $desktop-min) {
       width: 25vw;
     }
     margin-top: 35vh;

@@ -16,13 +16,13 @@
 </main>
 
 <style lang="scss">
-  @media screen and (min-width: $desktop-min) {
+  @media all and (min-width: $desktop-min) {
     main.container {
       padding-left: 250px;
       padding-right: 250px;
     }
   }
-  @media screen and (max-width: $mobile-max) {
+  @media all and (max-width: $mobile-max) {
     main.container {
       max-width: 100%;
     }

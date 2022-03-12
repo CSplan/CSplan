@@ -154,7 +154,7 @@
   .card:not(:first-child) {
     margin-top: 1rem;
   }
-  @media screen and (min-width: 850px) {
+  @media all and (min-width: 850px) {
     .card {
       width: 800px;
     }

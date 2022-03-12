@@ -23,7 +23,7 @@
   }
 
   // Desktop styles
-  @media screen and (min-width: 850px) {
+  @media all and (min-width: 850px) {
     .side-menu {
       min-width: 225px;
     }

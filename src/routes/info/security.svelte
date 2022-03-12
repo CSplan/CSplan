@@ -27,12 +27,12 @@
 </main>
 
 <style>
-  @media screen and (min-width: 960px) {
+  @media all and (min-width: 960px) {
     div.content {
       width: 800px;
     }
   }
-  @media screen and (max-width: 960px) {
+  @media all and (max-width: 960px) {
     div.content {
       margin: 2rem;
     }

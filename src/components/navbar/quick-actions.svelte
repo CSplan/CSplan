@@ -44,7 +44,7 @@
     }
   }
 
-  @media screen and (max-width: 850px) {
+  @media all and (max-width: 850px) {
     // TODO: quickactions padding on mobile should be handled without breaking scope rules
     .dropdown {
       padding-top: 0 !important;
@@ -74,7 +74,7 @@
     font-size: 1.1rem;
     box-shadow: 0.5rem 0.3rem 1.25rem var(--background-dark);
   }
-  @media screen and (min-width: 850px) {
+  @media all and (min-width: 850px) {
     .dropdown:not(.desktop-show) {
       display: none;
     }

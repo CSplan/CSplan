@@ -249,11 +249,11 @@
 
   .card {
     margin-top: 25px;
-    @media screen and (min-width: $desktop-min) {
+    @media all and (min-width: $desktop-min) {
       min-width: 75%;
       max-width: 100%;
     }
-    @media screen and (max-width: $mobile-max) {
+    @media all and (max-width: $mobile-max) {
       width: 100%;
     }
     pre {
@@ -268,10 +268,10 @@
     color: initial;
     text-align: center;
     display: grid;
-    @media screen and (max-width: $mobile-max) {
+    @media all and (max-width: $mobile-max) {
       grid-template-columns: minmax(min-content, 1fr) minmax(0, auto) 1fr;
     }
-    @media screen and (min-width: $desktop-min) {
+    @media all and (min-width: $desktop-min) {
       grid-template-columns: minmax(5rem, 1fr) minmax(0, auto) minmax(5rem, 1fr);
     }
     grid-auto-flow: column;
@@ -314,12 +314,12 @@
   }
   // Display desktop or mobile header container based on screen width
   .header-container-desktop:not(.editing-header-container) {
-    @media screen and (max-width: $mobile-max) {
+    @media all and (max-width: $mobile-max) {
       display: none; 
     }
   }
   .header-container-mobile {
-    @media screen and (min-width: $desktop-min) {
+    @media all and (min-width: $desktop-min) {
       display: none;
     }
   }
@@ -337,7 +337,7 @@
   .icons i:not(.no-transform):hover {
     transform: scale(1.25)
   }
-  @media screen and (max-width: $mobile-max) {
+  @media all and (max-width: $mobile-max) {
     .icons {
       display: none;
     }
@@ -356,7 +356,7 @@
       }
     }
   }
-  @media screen and (min-width: $desktop-min) {
+  @media all and (min-width: $desktop-min) {
     .icons-mobile {
       display: none;
     }

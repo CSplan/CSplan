@@ -133,11 +133,11 @@
 
 <style lang="scss">
   .card {
-    @media screen and (min-width: 850px) {
+    @media all and (min-width: 850px) {
       width: 20%;
       margin-top: 20vh;
     }
-    @media screen and (max-width: 849px) {
+    @media all and (max-width: 849px) {
       margin-top: 30px;
       width: 85%;
     }

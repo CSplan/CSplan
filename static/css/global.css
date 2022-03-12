@@ -35,7 +35,7 @@ main.container {
   position: relative;
   width: 100%;
 }
-@media screen and (max-width: 850px) {
+@media all and (max-width: 850px) {
   main.container {
     padding-left: 1rem;
     padding-right: 1rem;
