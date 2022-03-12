@@ -7,12 +7,9 @@
   import CreateListForm from './create-list-form.svelte'
   import DeleteConfirmationModal from '$components/modals/confirm-modal.svelte'
   // Only used on mobile
-  import EditModal from './list-edit-modal.svelte'
   import EditMenu from './list-edit-dropdown.svelte'
 
   let showDeleteConfirmationModal = false
-  let showEditModal = false
-  let editingID = ''
 
   // Map of list ID -> if the list's row should be highlighted
   const highlightRow: { [id: string]: boolean } = {}
@@ -122,8 +119,6 @@
 </script>
 
 <DeleteConfirmationModal bind:show={showDeleteConfirmationModal} message={deleteMessage} on:cancel={onDeleteCancel} on:submit={onDelete}/>
-
-<EditModal bind:show={showEditModal} id={editingID}></EditModal>
 
 <div class="card">
 {#await initPromise}
