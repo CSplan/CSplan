@@ -118,8 +118,6 @@
     selection.addRange(range)
   }
   
-  // A unix timestamp (millisecond precision) of when the last 0 button user click was fired
-  let lastClick = 0
   // #endregion
 </script>
 
