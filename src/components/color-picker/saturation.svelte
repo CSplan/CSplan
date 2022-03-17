@@ -17,7 +17,7 @@
   // Lightness for calculating saturation value
   export let lightness = 0
 
-  function updateCursor(evt: MouseEvent): void {
+  function updateCursor(evt: PointerEvent): void {
     const { w, h, r } = canvas
     if (!moveCursor) {
       return
@@ -104,12 +104,12 @@
   }
 </script>
 
-<svelte:window on:mousemove={updateCursor} on:mouseup={onWindowMouseup}/>
+<svelte:window on:pointermove={updateCursor} on:pointerup={onWindowMouseup}/>
 
 <canvas bind:this={canvasEl} class="saturation-slider"
-  on:mousedown={() => moveCursor = true}
-  on:mousedown={updateCursor}
-  on:mouseup|stopPropagation={() => moveCursor = false}/>
+  on:pointerdown={() => moveCursor = true}
+  on:pointerdown={updateCursor}
+  on:pointerup|stopPropagation={() => moveCursor = false}/>
 
 <style>
   canvas {
