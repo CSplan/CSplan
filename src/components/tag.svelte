@@ -97,8 +97,7 @@
       <div class="icons" on:click|stopPropagation>
         <div class="toggle" class:show={showTextColorPicker}>
           <i class="fas fa-text clickable" style:color={$tags[id].textColor}
-            on:click|self={toggleTextColorPicker}
-            on:dblclick|self={toggleTextBW}/> 
+            on:pointerup|self={toggleTextColorPicker}/>
           {#if mountTextColorPicker}
             <ColorPicker size=small
               on:colorchange={(e) => {
@@ -109,7 +108,7 @@
 
         <div class="toggle {showColorPicker ? 'show' : ''}">
           <i class="fas fa-palette clickable" style:color={$tags[id].textColor}
-            on:click|self={toggleColorPicker}/>
+            on:pointerup|self={toggleColorPicker}/>
           {#if mountColorPicker}
             <ColorPicker
               on:colorchange={(e) => tags.update(id, { color: e.detail })} />
@@ -122,7 +121,7 @@
   </div>
 {/if}
 
-<style>
+<style lang="scss">
   .card {
     --min-handle: 3rem;
     font-size: 1.25rem;
@@ -135,6 +134,9 @@
 
     /* Let color picker overflow tag boundaries when shown */
     overflow: visible;
+    @media all and (max-width: $mobile-max) {
+      width: 100%;
+    }
   }
   .card header {
     margin: 0.5rem;
