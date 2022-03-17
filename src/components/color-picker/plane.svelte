@@ -19,7 +19,7 @@
   export let cursorRadius: number
 
   // Handle mouse movement/clicks
-  function updateCursor(evt: MouseEvent): void {
+  function updateCursor(evt: PointerEvent): void {
     if (!moveCursor) {
       return
     }
@@ -135,12 +135,12 @@
   }
 </script>
 
-<svelte:window on:mousemove={updateCursor} on:mouseup={onWindowMouseup}/>
+<svelte:window on:pointermove={updateCursor} on:pointerup={onWindowMouseup}/>
 
 <canvas bind:this={canvasEl} class="color-plane"
-  on:mousedown={() => moveCursor = true}
-  on:mousedown={updateCursor}
-  on:mouseup|stopPropagation={() => moveCursor = false}/>
+  on:pointerdown={() => moveCursor = true}
+  on:pointerdown={updateCursor}
+  on:pointerup|stopPropagation={() => moveCursor = false}/>
 
 <style>
   .color-plane {
