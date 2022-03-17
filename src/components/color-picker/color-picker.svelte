@@ -63,12 +63,13 @@
   </div>
 </div>
 
-<style>
+<style lang="scss">
   /* Card containing everything */
   .card {
     width: var(--width);
     height: var(--height);
 
+    touch-action: none; // Disabling touch zoom is needed for correct slider behavior
     /* Turn on for debugging */
     /* overflow: visible; */
   }
