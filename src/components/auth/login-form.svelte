@@ -102,10 +102,10 @@
 </script>
 
 {#if showTOTPForm}
-  <TwoFactorForm on:code-submit={onTOTPSubmit} />
+  <TwoFactorForm on:code-submit={onTOTPSubmit}/>
 {/if}
 
-<div class="card">
+<div class="card" class:d-none={showTOTPForm}>
   <header>Log In</header>
   <form bind:this={form} on:submit|preventDefault={login}>
     <input

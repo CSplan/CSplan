@@ -21,7 +21,7 @@ export type SignedChallenge = {
 }
 type ChallengeRequest = {
   email: string
-  totp?: number
+  TOTP_Code?: number
 }
 export type ChallengeResponse = {
   userID: string
@@ -182,7 +182,7 @@ export class LoginActions {
         }
       })
     } else {
-      const challengeRequest: ChallengeRequest = { email: user.email, totp: user.totp }
+      const challengeRequest: ChallengeRequest = { email: user.email, TOTP_Code: user.totp }
       res = await fetch(route('/challenge?action=request'), {
         method: 'POST',
         headers: {
