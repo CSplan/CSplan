@@ -21,7 +21,7 @@
 
   // Form state management
   let state = States.Resting
-  let showTOTPForm = false
+  let showTOTPForm = true
   let message = ''
   let showPassword = false
 
@@ -132,7 +132,7 @@
 </div>
 
 <style lang="scss">
-  .card {
+  :global(.card) {
     @media all and (min-width: 850px) {
       width: 20%;
       margin-top: 20vh;
