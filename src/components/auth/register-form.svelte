@@ -137,12 +137,16 @@
       {/if}
     </details>
 
-    <input type="submit" value="Submit" class:d-none={showAdvanced}>
+    {#if !showAdvanced}
+    <input type="submit" value="Submit">
+    {/if}
     <Spinner {state} {message} vm="0.5rem"/>
   </form>
 </div>
 
-<style lang="scss" global>
+<style lang="scss">
+  @import './register-form.scss';
+
   .card {
     @media all and (min-width: 850px) {
       width: 20%;
@@ -153,9 +157,6 @@
       width: 85%;
     }
     padding: 1rem;
-    * {
-      margin: 0.5rem 0;
-    }
     form {
       margin-bottom: 0;
     }
@@ -164,13 +165,6 @@
       padding-top: 0;
       margin-top: 0;
       border-bottom: 1px solid #aaa;
-    }
-    header {
-      line-height: 1.5;
-      text-align: center;
-      padding: 0.5rem 0;
-      margin: 0.3rem 0;
-      border-bottom: none;
     }
     label#beta-code {
       margin: 0;
@@ -181,6 +175,9 @@
       }
     }
     // TODO: Find a way to handle hashparam form alignment that isn't completely insane
+    details {
+      margin: 0;
+    }
     summary {
       margin: 0;
       margin-top: 0.8rem;
@@ -192,43 +189,10 @@
     }
     details summary {
       border-top: 1px solid #aaa;
+      padding-top: 0.5rem;
     }
     details[open=""] i {
       transform: rotate(90deg) translate(0.35rem, 0.2rem);
     }
-  }
-  form {
-    display: flex;
-    flex-direction: column;
-    label {
-      display: block;
-    }
-  }
-  input[type="submit"] {
-    width: 100%;
-  }
-
-  /* Footer styles */
-  @keyframes spin {
-    from {transform: rotate(0deg);}
-    to {transform: rotate(359deg);}
-  }
-  i.fa-circle-notch {
-    animation-name: spin;
-    animation-duration: 1.5s;
-    animation-iteration-count: infinite;
-    animation-timing-function: linear;
-    color: var(--bold-blue);
-  }
-  footer {
-    padding: 0 !important;
-    margin: 0 !important;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-  }
-  span.error {
-    color: red;
-    font-family: monospace;
   }
 </style>

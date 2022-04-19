@@ -83,11 +83,15 @@
 </div>
 
 <style lang="scss">
+  @import './register-form.scss';
+
+  div {
+    margin: 0;
+  }
+
   header {
-    margin-top: 0 !important;
     padding-top: 0;
-    border: none;
-    border-bottom: none;
+    padding-top: 0;
   }
   form {
     line-height: 1.5;
@@ -98,7 +102,7 @@
     display: grid;
     grid-template-columns: minmax(min-content, 1fr) 1fr;
     column-gap: 0.5rem;
-    header,input[type="submit"] {
+    input[type="submit"] {
       grid-column: 1 / span 2;
     }
     input[type="submit"] {
