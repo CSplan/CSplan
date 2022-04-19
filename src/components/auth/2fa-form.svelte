@@ -27,3 +27,7 @@
     <input type="submit" value="Submit">
   </form>
 </div>
+
+<style lang="scss">
+  @import './login-form.scss';
+</style>

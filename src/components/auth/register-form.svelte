@@ -2,25 +2,19 @@
   import { goto } from '$app/navigation'
   import user from '$stores/user'
   import { makeSalt } from 'cs-crypto'
-  import { onMount, tick } from 'svelte'
+  import { onMount } from 'svelte'
   import { RegisterActions } from '$lib/auth-actions'
   import { dev } from '$app/env'
-  import HashparamsForm from './hashparams-form.svelte'
+  import HashparamsForm from '$components/auth/hashparams-form.svelte'
+  import { FormStates as States } from '$lib/form-states'
+  import Spinner from '$components/spinner.svelte'
 
   // Form data
   let showPassword = false
   let showAdvanced = false
-  let error = ''
-  let stateMsg = ''
+  let message = ''
 
   // Form state
-  const enum States {
-    Loading,
-    Resting,
-    Submitting,
-    Error,
-    Success
-  }
   let state = States.Loading
   
   // Form elements
@@ -28,6 +22,7 @@
   let email: HTMLInputElement
   let password: HTMLInputElement
   let confirmPassword: HTMLInputElement
+  let betaCode: HTMLInputElement
 
   // Actions
   let actions: RegisterActions
@@ -36,6 +31,10 @@
   // FIXME: Handle automatic navigation in a not stupid way (how its done login-form.svelte)
 
   async function register(): Promise<void> {
+    if (!form.checkValidity()) {
+      return
+    }
+
     // Compare password fields
     if (password.value !== confirmPassword.value) {
       confirmPassword.setCustomValidity('Password confirmation isn\'t the same as password')
@@ -45,29 +44,25 @@
       confirmPassword.setCustomValidity('')
     }
 
-    if (!form.checkValidity()) {
-      form.reportValidity()
-      return
-    }
 
-    state = States.Submitting
+    state = States.Saving
     try {
       const authSalt = makeSalt(16)
       await actions.register({
         email: email.value,
-        password: password.value
+        password: password.value,
+        betaCode: betaCode.value
       }, authSalt)
 
       const cryptoSalt = makeSalt(16)
       await actions.generateMasterKeypair(password.value, cryptoSalt)
 
       await actions.confirmAccount()
-
     } catch (err) {
       console.error(err)
       user.logout()
-      state = States.Error
-      error = err instanceof Error ? err.message : err as string
+      state = States.Errored
+      message = err instanceof Error ? err.message : err as string
       return
     }
     goto('/')
@@ -87,12 +82,7 @@
 
     // Initialize actions class
     actions = new RegisterActions(argon2, ed25519)
-    // Set message handler
-    actions.onMessage = async (message: string) => {
-      stateMsg = message
-      await tick()
-    }
-    // Load argon2 binary, with SIMD support if available
+    // Set message handler 
     try {
       await actions.loadArgon2({
         wasmRoot,
@@ -102,8 +92,8 @@
         wasmPath: '/ed25519/ed25519.wasm'
       })
     } catch (err) {
-      state = States.Error
-      error = err instanceof Error ? err.message : err as string
+      state = States.Errored
+      message = err instanceof Error ? err.message : err as string
       return
     }
     state = States.Resting
@@ -114,39 +104,49 @@
 <div class="card register-form">
   <header>Register</header>
   <form bind:this={form} on:submit|preventDefault={register}>
-    <input data-field="email" type="email" required autocomplete="email" placeholder="Email" bind:this={email}>
-    <input id="password" data-field="password" type={ showPassword ? 'text' : 'password'} required autocomplete="new-password" placeholder="Password" bind:this={password}>
-    <input data-field="confirmPassword" type={ showPassword ? 'text' : 'password'} required autocomplete="new-password" placeholder="Confirm Password" bind:this={confirmPassword}>
+    <input
+      type="email"
+      required
+      autocomplete="email"
+      placeholder="Email"
+      bind:this={email}
+    />
+    <input 
+      type={ showPassword ? 'text' : 'password'}
+      required
+      autocomplete="new-password"
+      placeholder="Password"
+      bind:this={password}
+    />
+    <input type={ showPassword ? 'text' : 'password'} required autocomplete="new-password" placeholder="Confirm Password" bind:this={confirmPassword}/>
+
     <!-- TODO: use better checkboxes than picnic's -->
     <label>
-      <input type="checkbox" bind:checked={showPassword}>
+      <input type="checkbox" bind:checked={showPassword}/>
       <span class="checkable">Show Password</span>
     </label>
+    <label id="beta-code">
+      <header>Beta Access Code</header>
+      <input type="text" required minlength=6 maxlength=6 size=6 placeholder="ABCDEF" bind:this={betaCode}/>
+    </label>
+
     <details bind:open={showAdvanced}>
-      <summary class="clickable"><i class="fas fa-chevron-right"></i>Advanced Cryptography Options</summary>
+      <summary class="clickable"><i class="fas fa-chevron-right"></i>Advanced</summary>
       {#if actions != null}
         <HashparamsForm bind:actions={actions} on:close={() => showAdvanced = false}/>
       {/if}
     </details>
-    {#if !showAdvanced}
-      <input type="submit" value="Submit">
-    {/if}
+
+    <input type="submit" value="Submit" class:d-none={showAdvanced}>
+    <Spinner {state} {message} vm="0.5rem"/>
   </form>
-  <footer>
-  {#if state === States.Submitting}
-    <span>{stateMsg}</span>
-    <i class="fas fa-circle-notch fa-2x"></i>
-  {:else if state === States.Error}
-    <span class="error">{error}</span>
-  {/if}
-  </footer>
 </div>
 
 <style lang="scss" global>
   .card {
     @media all and (min-width: 850px) {
       width: 20%;
-      margin-top: 20vh;
+      margin-top: 10vh;
     }
     @media all and (max-width: 849px) {
       margin-top: 30px;
@@ -155,32 +155,43 @@
     padding: 1rem;
     * {
       margin: 0.5rem 0;
-      &:last-child {
-        margin-bottom: 0;
-      }
     }
     form {
       margin-bottom: 0;
     }
-    header {
+    >header:first-child {
       padding: 0.5rem 0;
+      padding-top: 0;
+      margin-top: 0;
+      border-bottom: 1px solid #aaa;
+    }
+    header {
+      line-height: 1.5;
       text-align: center;
-      &:first-child {
-        padding-top: 0;
-        margin-top: 0;
+      padding: 0.5rem 0;
+      margin: 0.3rem 0;
+      border-bottom: none;
+    }
+    label#beta-code {
+      margin: 0;
+      header {
+        margin-top: 0.8rem;
+        border-top: 1px solid #aaa;
+        border-bottom: none;
       }
     }
     // TODO: Find a way to handle hashparam form alignment that isn't completely insane
     summary {
       margin: 0;
+      margin-top: 0.8rem;
     }
     details i {
       padding-left: 0.1rem;
       padding-right: 0.8rem; // This is em to match the alignment from picnic, ew
       transition: transform 200ms;
     }
-    details[open=""] summary {
-      margin-bottom: 0.8rem;
+    details summary {
+      border-top: 1px solid #aaa;
     }
     details[open=""] i {
       transform: rotate(90deg) translate(0.35rem, 0.2rem);
@@ -193,7 +204,7 @@
       display: block;
     }
   }
-  input[type=submit] {
+  input[type="submit"] {
     width: 100%;
   }
 

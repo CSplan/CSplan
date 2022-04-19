@@ -60,33 +60,36 @@
 
 <div>
   <header>Argon2i Parameters</header>
-  <label for="time-cost">Time Cost:</label>
-  <input
-    name="time-cost"
-    type="number"
-    bind:value={timeCost}
-    min="0"
-    max="10"
-    on:input={checkTimeCost}
-  />
-  <label for="memory-cost">Memory Cost:</label>
-  <input
-    name="memory-cost"
-    type="string"
-    bind:value={memoryCostFormatted}
-    on:blur={parseMemoryCost}
-  />
-  <!-- Prevent default trigger of form submission when hashparams form is saved -->
-  <button class="save" on:click|preventDefault={save}>Save</button>
+  <form on:submit|preventDefault={save}>
+    <label for="time-cost">Time Cost:</label>
+    <input
+      name="time-cost"
+      type="number"
+      bind:value={timeCost}
+      min="0"
+      max="10"
+      on:input={checkTimeCost}
+    />
+    <label for="memory-cost">Memory Cost:</label>
+    <input
+      name="memory-cost"
+      type="string"
+      bind:value={memoryCostFormatted}
+      on:blur={parseMemoryCost}
+    />
+    <!-- Prevent default trigger of form submission when hashparams form is saved -->
+    <input type="submit" class="save" value="Save">
+  </form>
 </div>
 
 <style lang="scss">
   header {
-    padding: 0.5rem 0 !important;
-    border-bottom: 1px solid #aaa;
-    border-top: 1px solid #aaa;
+    margin-top: 0 !important;
+    padding-top: 0;
+    border: none;
+    border-bottom: none;
   }
-  div {
+  form {
     line-height: 1.5;
     margin: 0;
     * {
@@ -95,10 +98,10 @@
     display: grid;
     grid-template-columns: minmax(min-content, 1fr) 1fr;
     column-gap: 0.5rem;
-    header,button {
+    header,input[type="submit"] {
       grid-column: 1 / span 2;
     }
-    button {
+    input[type="submit"] {
       margin-bottom: 0;
       background: var(--background-dark);
       padding: .3em .9em;
@@ -106,7 +109,7 @@
     label {
       grid-column: 1;
     }
-    input {
+    input:not(input[type="submit"]) {
       grid-column: 2;
       padding: .3em .6em;
       margin: 0.5rem 0;
@@ -115,7 +118,5 @@
       margin-top: auto;
       margin-bottom: auto;
     }
-  }
-  input {
   }
 </style>

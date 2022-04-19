@@ -21,7 +21,6 @@
 
   let state = States.Resting
   let message = ''
-  let showSubmit = false
 
   let backupCodesURL = ''
   $: backupCodesURL = `data:text/plain,${encodeURIComponent(info.backupCodes.join('\n'))}`
@@ -57,7 +56,7 @@
   }
 </script>
 
-<Modal {show} flex={true} lock={true}>
+<Modal {show} flex lock>
   <article class="totp-authinfo">
     <section class="step-1">
       <header>1.</header>
@@ -75,25 +74,23 @@
       <header>2.</header>
       <p>Save your backup codes. These are one-use codes that can be used to log in without a TOTP code, keep them somewhere safe!</p>
       <pre>{info.backupCodes.join('\n')}</pre>
-      <a href={backupCodesURL} download="csplan_backupcodes.txt" on:click={() => showSubmit = true}>
+      <a href={backupCodesURL} download="csplan_backupcodes.txt">
         <button>Save</button>
       </a>
     </section>
 
-    {#if showSubmit}
-      <section class="step-3 verify">
-        <header>3.</header>
-        <form class="verify-totp" on:submit|preventDefault={submit}>
-          <label class="directions">
-            <span>Enter a TOTP code to verify your authenticator</span>
-            <input type="text" on:input={oncodeinput} placeholder="{'0'.repeat(6)}">
-          </label>
-          <input type="submit" value="Submit">
+    <section class="step-3 verify">
+      <header>3.</header>
+      <form class="verify-totp" on:submit|preventDefault={submit}>
+        <label class="directions">
+          <span>Enter a TOTP code to verify your authenticator</span>
+          <input type="text" on:input={oncodeinput} placeholder="{'0'.repeat(6)}">
+        </label>
+        <input type="submit" value="Submit">
 
-          <Spinner {state} {message} size="2rem"/>
-        </form>
-      </section>
-    {/if}
+        <Spinner {state} {message} size="2rem"/>
+      </form>
+    </section>
   </article> 
 </Modal>
 

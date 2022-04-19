@@ -21,7 +21,7 @@
 
   // Form state management
   let state = States.Resting
-  let showTOTPForm = true
+  let showTOTPForm = false
   let message = ''
   let showPassword = false
 
@@ -132,39 +132,5 @@
 </div>
 
 <style lang="scss">
-  :global(.card) {
-    @media all and (min-width: 850px) {
-      width: 20%;
-      margin-top: 20vh;
-    }
-    @media all and (max-width: 849px) {
-      margin-top: 30px;
-      width: 85%;
-    }
-    padding: 1rem;
-    margin: 0;
-    margin-top: 20vh;
-    * {
-      margin: 0.5rem 0;
-      &:last-child {
-        margin-bottom: 0;
-      }
-    }
-    header {
-      padding: 0;
-      padding-bottom: 0.5rem;
-      text-align: center;
-    }
-    form {
-      display: flex;
-      flex-direction: column;
-      margin-bottom: 0;
-      // TODO: Clean up margin handling for the Spinner component
-      :global {
-        span {
-          margin: 0.5rem 0;
-        }
-      }
-    }
-  }
+  @import './login-form.scss';
 </style>

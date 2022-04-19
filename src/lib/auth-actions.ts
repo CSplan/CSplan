@@ -31,6 +31,7 @@ type RegisterRequest = {
   email: string
   key: string
   hashParams: Argon2HashParams
+  betaCode: string // Beta access code
 }
 type AuthUser = {
   email: string
@@ -308,7 +309,7 @@ export class RegisterActions extends LoginActions {
     super(argon2, ed25519)
   }
 
-  async register(user: AuthUser, salt: Uint8Array): Promise<void> {
+  async register(user: AuthUser & { betaCode: string }, salt: Uint8Array): Promise<void> {
     // Hash the user's password (use whatever hash parameters are set before calling)
     this.hashParams.salt = encode(salt)
     this.onMessage('Generating authentication key')
@@ -319,16 +320,18 @@ export class RegisterActions extends LoginActions {
     this.signingKey = privateKey
 
     // Register the user (use whatever hash parameters are set before calling)
+    const registerRequest: RegisterRequest = {
+      email: user.email,
+      key: encode(publicKey!),
+      hashParams: this.hashParams,
+      betaCode: user.betaCode
+    }
     const res = await fetch(route('/register'), {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'
       },
-      body: JSON.stringify(<RegisterRequest>{
-        email: user.email,
-        key: encode(publicKey!),
-        hashParams: this.hashParams
-      })
+      body: JSON.stringify<RegisterRequest>(registerRequest)
     })
     if (res.status !== 201) {
       const err: ErrorResponse = await res.json()

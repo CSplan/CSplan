@@ -1,4 +1,3 @@
-import { goto } from '$app/navigation'
 import { Readable, writable } from 'svelte/store'
 import { clearAll, clearUserStores } from '../db'
 import { HTTPerror, route } from '$lib'
@@ -46,7 +45,6 @@ function create(): Readable<UserStore> & UserActions {
       await clearAll()
       // Reset in-memory state
       set(userStore)
-      goto('/')
     }
   }
 }
