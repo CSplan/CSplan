@@ -79,14 +79,14 @@ export class LoginActions {
   protected signingKey: Uint8Array|null = null
 
   /** Expected path of argon2 web worker */
-  static Argon2_WorkerPath = `/argon2/worker${dev ? '' : '.min'}.js`
+  public static readonly Argon2_WorkerPath = `/argon2/worker${dev ? '' : '.min'}.js`
   /** Expected path of ed25519 web worker */
-  static ED25519_WorkerPath = `/ed25519/worker${dev ? '' : '.min'}.js`
+  public static readonly ED25519_WorkerPath = `/ed25519/worker${dev ? '' : '.min'}.js`
 
   /** Expected root path for argon2 wasm binaries */
-  static Argon2_WASMRoot = '/argon2'
+  public static readonly Argon2_WASMRoot = '/argon2'
   /** Expected path of ed25519 wasm binary */
-  static ED25519_WASMPath = '/ed25519/ed25519.wasm'
+  public static readonly ED25519_WASMPath = '/ed25519/ed25519.wasm'
 
 
   // Initialize communication with web worker for multithreaded behavior
