@@ -15,7 +15,7 @@
       <header><i>C</i>ompletely <i>S</i>ecure Plans</header>
       <hr>
       <p>
-        Mauris accumsan felis massa, sit amet finibus erat dignissim et. Quisque venenatis lacus tincidunt felis pharetra iaculis. Fusce lobortis, nisl id ullamcorper facilisis, elit tellus tempor mi, id eleifend turpis odio sed magna. Interdum et malesuada fames ac ante ipsum primis in faucibus. Nulla elementum volutpat urna ac tincidunt. Nam efficitur ultricies felis id efficitur. Ut eget laoreet mi, et interdum purus. Praesent ut urna sit amet erat dictum volutpat. Vestibulum consectetur tincidunt arcu at fringilla. Sed accumsan risus tellus, sed congue est auctor sit amet. 
+        <tb></tb>CSplan is designed believing that security and uncompromising privacy protection can be, and must be, the foundation of an application. CSplan encrypts all user data by default, using a combination of 4096-bit RSA and 256-bit AES-GCM encryption. Furthermore, CSplan does not log or store IPs (unless explicitly enabled in settings), does not store passwords or hashes, and guarantees the ability to permanently delete your account at any time. 
       </p>
     </div>
 
@@ -26,7 +26,7 @@
       <header><i>C</i>omprehensive, <i>S</i>imple Plans</header>
       <hr>
       <p>
-        Fusce dignissim pretium metus vel tincidunt. Aliquam erat volutpat. Aenean in turpis id ligula imperdiet aliquam vel sed leo. Vestibulum nunc eros, rutrum in vehicula in, tempus nec erat. Nullam aliquet lacus nec lectus consectetur, sed faucibus velit molestie. Donec et suscipit justo, quis condimentum felis. Vivamus et pharetra mi. Nullam tincidunt nisi sagittis nunc pellentesque sagittis. Ut sagittis ex in fringilla feugiat. Vivamus quis faucibus ligula. Nunc consequat, sapien id fringilla feugiat, erat turpis euismod lectus, quis volutpat odio lorem ut turpis. 
+        Balanced in the contrast between completeness and simplicity, CSplan feels as light as a notepad and pencil, yet as powerful as a pipe organ. CSplan serves no ads, no trackers, and no bloated UI that impedes upon its users' actions. CSplan delivers organized productivity to any device, scaling as a PWA, and never letting the mobile experience rot in the name of native applications.
       </p>
     </div>
 
@@ -37,7 +37,6 @@
       <header><i>C</i>ommitted, <i>S</i>trong Plans</header>
       <hr>
       <p>
-        Phasellus euismod semper justo quis malesuada. Suspendisse potenti. Curabitur volutpat ante eros, sed aliquet sem pellentesque at. Nulla vestibulum ex vel lacus maximus euismod. Suspendisse iaculis blandit libero, sit amet convallis quam sollicitudin et. Nam vulputate convallis lacus, et hendrerit elit tempus in. Nam pellentesque ligula ante. Vivamus posuere nulla non mauris tempus vestibulum. Fusce vitae urna libero. Sed sit amet molestie orci, eget dapibus sapien. 
       </p>
     </div>
   </section>
@@ -92,8 +91,9 @@
         margin: 0;
       }
       p {
-        grid-column: 2;
+        grid-column: 1 / span 2;
         padding: 1rem;
+        text-indent: 0.5in;
       }
     }
   }
