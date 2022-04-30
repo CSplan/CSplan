@@ -106,7 +106,6 @@
       grid-column: 1 / span 2;
     }
     input[type="submit"] {
-      margin-bottom: 0;
       background: var(--background-dark);
       padding: .3em .9em;
     }

@@ -4,18 +4,26 @@
   import { HTTPerror } from '$lib'
   import Spinner from '$components/spinner.svelte'
   import { FormStates as States } from '$lib/form-states'
+  import { formatError } from '$lib'
+  import { LoginActions, UpgradeActions } from '$lib/auth-actions'
+  import userStore from '$stores/user'
+import { goto } from '$app/navigation';
+
+  // #region Mount
+  // #endregion
   
   // #region State
 
   let state = States.Resting
   let message = ''
 
+  // Authentication actions
+  let actions: LoginActions
+
   // Show the box to enter username or email to confirm account deletion
-  let showConfirm = true
-  // Email entered to confirmation box, must match with account email to confirm account deletion
-  let email: string
-  let emailMatches = false
-  $: emailMatches = email === storage.getUser().email
+  let showConfirm = false
+  // Password used to upgrade to level 2 auth
+  let password = ''
 
   // Token for API confirmation
   type DeleteToken = {
@@ -27,21 +35,61 @@
   // #region Logic
 
   async function deleteAccount(): Promise<void> {
-    state = States.Loading
-    message = 'Preparing account deletion'
-    const res = await fetch(route('/delete_my_account_please'), {
-      method: 'POST',
-      headers: {
-        'CSRF-Token': storage.getCSRFtoken()
+    state = States.Saving
+    message = 'Upgrading authentication level'
+
+    try {
+      // Upgrade to level 2 auth
+      if (actions == null) {
+        actions = new LoginActions(
+          new Worker(LoginActions.Argon2_WorkerPath),
+          new Worker(LoginActions.ED25519_WorkerPath))
+        await actions.loadArgon2({ wasmRoot: LoginActions.Argon2_WASMRoot, simd: true })
+        await actions.loadED25519({ wasmPath: LoginActions.ED25519_WASMPath })
       }
-    })
-    if (res.status !== 200) {
+      // TODO: use TOTP upgrade if available
+      await UpgradeActions.passwordUpgrade(actions, password)
+
+      // Request deletion token
+      let res = await fetch(route('/delete_my_account_please'), {
+        method: 'DELETE',
+        headers: {
+          'CSRF-Token': storage.getCSRFtoken()
+        }
+      })
+      if (res.status !== 200) {
+        throw new Error(await HTTPerror(res, 'Failed to initialize account deletion'))
+      }
+      // Store the deletion token, which is required to finalize account deletion
+      const token = (await res.json() as DeleteToken).token
+
+      // Finalize deletion
+      res = await fetch(route('/delete_my_account_please'), {
+        method: 'DELETE',
+        headers: {
+          'CSRF-Token': storage.getCSRFtoken(),
+          'X-Confirm': token
+        }
+      })
+      if (res.status !== 200) {
+        state = States.Errored
+        message = await HTTPerror(res, 'Failed to finalize account deletion')
+        return
+      }
+      // Show the user notification that their account has been deleted
+      state = States.Saved
+      message = 'Your account has been deleted; you will be redirected in 5 seconds.'
+    } catch (err) {
       state = States.Errored
-      message = await HTTPerror(res, 'Failed to initialize account deletion')
+      message = formatError(err instanceof Error ? err.message : (err as string).toString())
+      await UpgradeActions.downgrade() // If the account wasn't deleted, auth should be downgraded
       return
     }
-    // Store the deletion token, which is required to finalize account deletion
-    const token = (await res.json() as DeleteToken).token
+
+    userStore.logout()
+    setTimeout(() => {
+      goto('/')
+    }, 5000)
   }
 
 
@@ -75,17 +123,22 @@
       <h3>Confirm Account Deletion</h3>
 
       <label>
-        <header class="confirm-prompt">Enter your account's email address:</header>
-        <input type="email" placeholder="user@csplan.co" bind:value={email}>
+        <header class="confirm-prompt">Enter your password:</header>
+        <input type="password" placeholder={'*'.repeat(30)} bind:value={password}>
       </label>
 
-      <button class="delete-account" disabled={!emailMatches}>
+      <button class="delete-account" disabled={password.length === 0} on:click={() => {
+        deleteAccount()
+      }}>
         <i class="fas fa-exclamation-circle"></i>
         Permanently Delete CSplan Account
         <i class="fas fa-exclamation-circle"></i>
       </button>
 
+      <Spinner {state} {message}/>
+
       <button class="cancel" on:click={() => {
+        password = ''
         showConfirm = false
       }}>
         <i class="far fa-arrow-left"></i>
@@ -94,8 +147,6 @@
 
     </section>
     {/if}
-
-    <Spinner {state} {message}/>
   </article>
 </section>
 

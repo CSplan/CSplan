@@ -60,6 +60,7 @@
   span.message {
     margin: 0;
     margin-bottom: calc(var(--vm) / 2);
+    text-align: center;
     &.error {
       color: $danger-red;
     }

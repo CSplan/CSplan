@@ -46,6 +46,7 @@
 
 
     state = States.Saving
+    message = ''
     try {
       const authSalt = makeSalt(16)
       await actions.register({
@@ -138,7 +139,7 @@
     </details>
 
     {#if !showAdvanced}
-    <input type="submit" value="Submit">
+      <input type="submit" value="Submit">
     {/if}
     <Spinner {state} {message} vm="0.5rem"/>
   </form>
