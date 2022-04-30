@@ -27,6 +27,9 @@
   </label>
   
   <div class="menu">
+  <a href="/" class="logo-container">
+    <img src="/logo/Dark-CSplan-noslogan.svg" alt="CSplan logo" class="logo">
+  </a>
   {#if $user.isLoggedIn}
     <span class="account-text-mobile">{$user.user.email}</span>
   {/if}
@@ -61,7 +64,15 @@
     padding: 0;
     background: $bg-dark;
     color: whitesmoke;
+    height: 3.5rem;
   } 
+  img.logo {
+    height: 3rem;
+    margin: 0.25rem 0;
+  }
+  a.logo-container {
+    margin: 0 !important;
+  }
   nav {
     position: relative;
     z-index: 998;
@@ -127,10 +138,10 @@
   /* Item item spacing */
   @media all and (min-width: $desktop-min) {
     a {
-      margin: 0 0.3rem;
+      margin: auto 0.3rem;
     }
     .menu > a {
-      margin: 0.3rem 0;
+      margin: auto 0;
     }
   }
   @media all and (max-width: $mobile-max) {
