@@ -62,6 +62,9 @@ module.exports = {
       allowNullableObject: false,
       allowNullableBoolean: true
     }],
+    '@typescript-eslint/explicit-member-accessibility': ['error', { 
+      accessibility: 'no-public'
+    }],
     // Unicorn rules
     'unicorn/filename-case': ['error', {
       case: 'kebabCase'

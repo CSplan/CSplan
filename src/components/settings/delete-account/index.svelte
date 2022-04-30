@@ -7,7 +7,7 @@
   import { formatError } from '$lib'
   import { LoginActions, UpgradeActions } from '$lib/auth-actions'
   import userStore from '$stores/user'
-import { goto } from '$app/navigation';
+import { goto } from '$app/navigation'
 
   // #region Mount
   // #endregion

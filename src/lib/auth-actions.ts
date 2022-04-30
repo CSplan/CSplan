@@ -63,8 +63,8 @@ export enum AuthConditions {
 }
 
 export class LoginActions {
-  public onMessage: (message: string) => void = () => {}
-  public hashParams: Argon2HashParams = {
+  onMessage: (message: string) => void = () => {}
+  hashParams: Argon2HashParams = {
     type: 'argon2i',
     timeCost: 1,
     memoryCost: 128 * 1024,
@@ -79,14 +79,14 @@ export class LoginActions {
   protected signingKey: Uint8Array|null = null
 
   /** Expected path of argon2 web worker */
-  public static readonly Argon2_WorkerPath = `/argon2/worker${dev ? '' : '.min'}.js`
+  static readonly Argon2_WorkerPath = `/argon2/worker${dev ? '' : '.min'}.js`
   /** Expected path of ed25519 web worker */
-  public static readonly ED25519_WorkerPath = `/ed25519/worker${dev ? '' : '.min'}.js`
+  static readonly ED25519_WorkerPath = `/ed25519/worker${dev ? '' : '.min'}.js`
 
   /** Expected root path for argon2 wasm binaries */
-  public static readonly Argon2_WASMRoot = '/argon2'
+  static readonly Argon2_WASMRoot = '/argon2'
   /** Expected path of ed25519 wasm binary */
-  public static readonly ED25519_WASMPath = '/ed25519/ed25519.wasm'
+  static readonly ED25519_WASMPath = '/ed25519/ed25519.wasm'
 
 
   // Initialize communication with web worker for multithreaded behavior
