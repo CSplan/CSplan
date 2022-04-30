@@ -3,7 +3,7 @@
 
   <section class="summary">
     <p>
-      CSplan is a time management and project planning suite delivered as a web application with <b>full zero access encryption.</b> CSplan allows you to create lists, jot down plans including titles, descriptions, and custom-colored tags; and track progress for each item on each list. This process is carefully crafted to be secure, simple, fast, and pleasant. Time is always moving, CSplan helps you move with it.
+      CSplan is a time management and project planning suite delivered as a web application with <b>full zero access encryption.</b> CSplan allows you to create lists; jot down plans including titles, descriptions, and custom-colored tags; and track progress for each item on each list. This process is carefully crafted to be secure, simple, fast, and pleasant. Time is always moving, CSplan helps you move with it.
     </p>
   </section>
 
@@ -37,6 +37,7 @@
       <header><i>C</i>ommitted, <i>S</i>trong Plans</header>
       <hr>
       <p>
+        Every part of CSplan is designed around the basis of respect for its users. CSplan is committed to growing its scope and its capabilities, with plans for a future desktop application, calendars and reminders, and general note-taking support. CSplan will continue to work to build a privacy-first future, supporting users every step of the way.
       </p>
     </div>
   </section>
