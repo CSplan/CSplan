@@ -206,6 +206,7 @@ export class LoginActions {
 
     // Load argon2 parameters and decode salt from the challenge
     const salt = decode(challenge.hashParams.salt)
+    this.hashParams = challenge.hashParams
 
     // Hash the user's password (skip if authKey is already present)
     if (reuseAuthKey) {
