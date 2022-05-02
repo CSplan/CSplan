@@ -162,6 +162,7 @@ import { goto } from '$app/navigation'
   article {
     margin: 1.5rem 0;
     color: #111;
+    background: #fff;
     border: 1px solid $danger-red;
     padding: $padding-m;
   }

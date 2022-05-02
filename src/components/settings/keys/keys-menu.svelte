@@ -79,6 +79,7 @@
     margin: 1.5rem 0;
     color: #111;
     border: 1px solid #aaa;
+    background: #fff;
     padding: $padding-m;
   }
   article.keys,section {
