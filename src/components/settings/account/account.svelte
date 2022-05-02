@@ -53,6 +53,7 @@
       display: flex;
       flex-direction: column;
       padding: $padding-m;
+      min-width: 20vw;
 
       hr {
         width: 100%;

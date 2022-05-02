@@ -1,5 +1,9 @@
 @import url("./variables.css");
 
+body {
+  background: aliceblue !important;
+}
+
 /* Custom button things */
 button.bold, .button, input[type="submit"] {
   background-color: var(--bold-blue);

@@ -14,11 +14,13 @@
 
   $v-gap: 1.5rem;
   $h-gap: 2rem;
+  $side-menu-width: 225px;
 
   @mixin settings-grid {
     display: grid;
-    grid-template-columns: max-content auto;
+    grid-template-columns: $side-menu-width 1fr max-content 1fr $side-menu-width;
     grid-template-rows: max-content 1fr 10%;
+    grid-auto-flow: column;
     color: white;
 
     padding: $v-gap $h-gap;
@@ -32,7 +34,7 @@
   }
 
   .current-menu { 
-    grid-column: 2 / span 1;
+    grid-column: 3 / span 1;
     grid-row: 1 / span 2;
   }
 </style>
