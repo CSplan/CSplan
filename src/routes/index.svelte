@@ -12,7 +12,7 @@
       <div class="icons">
         <i class="fas fa-lock-keyhole"></i>
       </div>
-      <header><i>C</i>ompletely <i>S</i>ecure Plans</header>
+      <header>Completely Secure Plans</header>
       <hr>
       <p>
         <tb></tb>CSplan is designed believing that security and uncompromising privacy protection can be, and must be, the foundation of an application. CSplan encrypts all user data by default, using a combination of 4096-bit RSA and 256-bit AES-GCM encryption. Furthermore, CSplan does not log or store IPs (unless explicitly enabled in settings), does not store passwords or hashes, and guarantees the ability to permanently delete your account at any time. 
@@ -23,7 +23,7 @@
       <div class="icons">
         <i class="fal fa-list-tree"></i>
       </div>
-      <header><i>C</i>omprehensive, <i>S</i>imple Plans</header>
+      <header>Comprehensive, Simple Plans</header>
       <hr>
       <p>
         Balanced in the contrast between completeness and simplicity, CSplan feels as light as a notepad and pencil, yet as powerful as a pipe organ. CSplan serves no ads, no trackers, and no bloated UI that impedes upon its users' actions. CSplan delivers organized productivity to any device, scaling as a PWA, and never letting the mobile experience rot in the name of native applications.
@@ -34,7 +34,7 @@
       <div class="icons">
         <i class="fas fa-dumbbell"></i>
       </div>
-      <header><i>C</i>ommitted, <i>S</i>trong Plans</header>
+      <header>Committed, Strong Plans</header>
       <hr>
       <p>
         Every part of CSplan is designed around the basis of respect for its users. CSplan is committed to growing its scope and its capabilities, with plans for a future desktop application, calendars and reminders, and general note-taking support. CSplan will continue to work to build a privacy-first future, supporting users every step of the way.
