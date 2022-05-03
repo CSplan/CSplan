@@ -15,7 +15,7 @@
       <header>Completely Secure Plans</header>
       <hr>
       <p>
-        <tb></tb>CSplan is designed believing that security and uncompromising privacy protection can be, and must be, the foundation of an application. CSplan encrypts all user data by default, using a combination of 4096-bit RSA and 256-bit AES-GCM encryption. Furthermore, CSplan does not log or store IPs (unless explicitly enabled in settings), does not store passwords or hashes, and guarantees the ability to permanently delete your account at any time. 
+        <tb></tb>CSplan is designed believing that security and uncompromising privacy protection can be, and must be, the foundation of an application. We encrypt all user data by default, using a combination of 4096-bit RSA and 256-bit AES-GCM encryption. Furthermore, we do not log or store IPs (unless explicitly enabled in settings), we don't store passwords or hashes, and we guarantee the ability to permanently delete your account at any time. 
       </p>
     </div>
 
@@ -26,7 +26,7 @@
       <header>Comprehensive, Simple Plans</header>
       <hr>
       <p>
-        Balanced in the contrast between completeness and simplicity, CSplan feels as light as a notepad and pencil, yet as powerful as a pipe organ. CSplan serves no ads, no trackers, and no bloated UI that impedes upon its users' actions. CSplan delivers organized productivity to any device, scaling as a PWA, and never letting the mobile experience rot in the name of native applications.
+        Balanced in the contrast between completeness and simplicity, CSplan feels as light as a notepad and pencil, yet as powerful as a pipe organ. We serve no ads, no trackers, and no bloated UI that trample over your productivity.  CSplan delivers organized productivity to any device, scaling as a PWA, and never letting the mobile experience suffer in the name of native applications.
       </p>
     </div>
 
@@ -40,6 +40,10 @@
         Every part of CSplan is designed around the basis of respect for its users. CSplan is committed to growing its scope and its capabilities, with plans for a future desktop application, calendars and reminders, and general note-taking support. CSplan will continue to work to build a privacy-first future, supporting users every step of the way.
       </p>
     </div>
+  </section>
+
+  <section class="register-prompt">
+    <a href="/register" class="button bold" title="Register an Account">Register</a>
   </section>
 </main>
 
@@ -96,6 +100,14 @@
         padding: 1rem;
         text-indent: 0.5in;
       }
+    }
+  }
+
+  .register-prompt {
+    a.button {
+      padding: 1rem 5rem;
+      font-size: 150%;
+      font-weight: bold;
     }
   }
 

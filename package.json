@@ -21,6 +21,7 @@
     "@very-amused/argon2-wasm": "^0.2.3",
     "@very-amused/ed25519-wasm": "^0.1.0",
     "cs-crypto": "^0.7.4-rc2",
+    "markdown-it": "^13.0.1",
     "marked": "^4.0.10",
     "sass": "^1.38.2",
     "tslib": "^2.3.1",

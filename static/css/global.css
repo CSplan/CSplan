@@ -5,8 +5,8 @@ body {
 }
 
 /* Custom button things */
-button.bold, .button, input[type="submit"] {
-  background-color: var(--bold-blue);
+button.bold, .button.bold, input[type="submit"] {
+  background-color: var(--bold-blue) !important;
 }
 i.bold {
   color: var(--bold-blue);
