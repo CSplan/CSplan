@@ -27,7 +27,7 @@
   </label>
   
   <div class="menu">
-  <a href="/" class="logo-container">
+  <a href="/about" class="logo-container">
     <img src="/logo/Dark-CSplan-noslogan.svg" alt="CSplan logo" class="logo">
   </a>
   {#if $user.isLoggedIn}
