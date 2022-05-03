@@ -21,12 +21,26 @@
           user: 'very-amused',
           href: 'https://github.com/very-amused',
           icon: '/vendor/GitHub/GitHub-Mark/PNG/GitHub-Mark-64px.png'
+        },
+        {
+          title: 'Email (ProtonMail)',
+          user: 'kscr25@csplan.co',
+          href: 'mailto:kscr25@csplan.co',
+          icon: '/vendor/ProtonMail/protonmail-sign-purple.png'
         }
       ]
     },
     {
       name: 'Josie Satterfield',
-      work: 'Logo Design'
+      work: 'Logo Design',
+      links: [
+        {
+          title: 'Linktree',
+          user: 'Josie',
+          href: 'https://linktr.ee/josiesatt',
+          icon: '/vendor/Linktree/Linktree-Logo.png'
+        }
+      ]
     }
   ]
 
@@ -39,7 +53,7 @@
   </div>
 
   <article class="card">
-    <p>All feedback and suggestions are welcome, please submit to <a href="mailto:feedback@csplan.co">feedback@csplan.co</a> or on <a href="https://github.com/very-amused/CSplan/issues">CSplan's Github Issues</a>.</p>
+    <p>All feedback and suggestions are welcome and greatly appreciated. Please submit feedback to <a href="mailto:feedback@csplan.co">feedback@csplan.co</a> or on <a href="https://github.com/very-amused/CSplan/issues">CSplan's Github Issues</a>.</p>
 
     <p>Current version: <code>Private-Beta</code></p>
 
@@ -53,9 +67,10 @@
         <div class="links">
           {#each credit.links as link}
             {#if link.icon !== undefined}
-              <img src={link.icon} class="icon" alt="{link.title} icon">
+              <img src={link.icon} class="icon" alt="{link.title} icon" title={link.title}>
             {/if}
-            <span>{link.title}: <a href={link.href}>{link.user}</a></span>
+            <span>{link.title}: <a rel="external" href={link.href}>{link.user}</a></span>
+            <br>
           {/each}
         </div>
       {/if}
@@ -90,15 +105,25 @@
   }
   h2 {
     text-align: center;
+    border-top: 1px #ccc solid;
     border-bottom: 1px #ccc solid;
     margin-bottom: $spacing;
     padding-bottom: 0.6rem;
   }
   div.links {
     margin-left: $spacing;
+    display: grid;
+    grid-template-columns: auto 1fr;
+    column-gap: 0.5rem;
     img.icon {
       height: 1.1em;
       margin-bottom: -0.1em;
+      grid-column: 1;
+      margin-left: auto;
+      margin-right: auto;
+    }
+    span {
+      grid-column: 2;
     }
   }
 </style>
