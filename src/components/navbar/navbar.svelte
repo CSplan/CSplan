@@ -3,8 +3,8 @@
   import QuickActions from './quick-actions.svelte'
   const links = [
     {
-      title: 'Home',
-      href: '/'
+      title: 'About',
+      href: '/about'
     },
     {
       title: 'Lists',
@@ -27,7 +27,7 @@
   </label>
   
   <div class="menu">
-  <a href="/about" class="logo-container">
+  <a href="/" class="logo-container">
     <img src="/logo/Dark-CSplan-noslogan.svg" alt="CSplan logo" class="logo">
   </a>
   {#if $user.isLoggedIn}
@@ -46,8 +46,8 @@
       <!-- Quick actions dropdown -->
       <QuickActions/>
     {:else}
-      <a class="pseudo button login" href="/login">Log In</a>
-      <a class="pseudo button register" href="/register">Register</a>
+      <a class="pseudo button login" sveltekit:prefetch href="/login">Log In</a>
+      <a class="pseudo button register" sveltekit:prefetch href="/register">Register</a>
     {/if}
   </div>
   </div>
