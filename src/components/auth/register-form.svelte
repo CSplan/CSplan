@@ -4,7 +4,6 @@
   import { makeSalt } from 'cs-crypto'
   import { onMount } from 'svelte'
   import { RegisterActions } from '$lib/auth-actions'
-  import { dev } from '$app/env'
   import HashparamsForm from '$components/auth/hashparams-form.svelte'
   import { FormStates as States } from '$lib/form-states'
   import Spinner from '$components/spinner.svelte'
@@ -75,18 +74,15 @@
       goto('/')
     }
     // Initialize argon2 and ed25519 workers
-    const wasmRoot = '/argon2'
-    const workerScript = dev ? 'worker.js' : 'worker.min.js'
-
-    const argon2 = new Worker(`${wasmRoot}/${workerScript}`)
-    const ed25519 = new Worker(`/ed25519/${workerScript}`)
+    const argon2 = new Worker(RegisterActions.Argon2_WorkerPath)
+    const ed25519 = new Worker(RegisterActions.ED25519_WorkerPath)
 
     // Initialize actions class
     actions = new RegisterActions(argon2, ed25519)
     // Set message handler 
     try {
       await actions.loadArgon2({
-        wasmRoot,
+        wasmRoot: RegisterActions.Argon2_WASMRoot,
         simd: true
       })
       await actions.loadED25519({
@@ -182,6 +178,9 @@
     summary {
       margin: 0;
       margin-top: 0.8rem;
+    }
+    summary::-webkit-details-marker {
+      display: none;
     }
     details i {
       padding-left: 0.1rem;

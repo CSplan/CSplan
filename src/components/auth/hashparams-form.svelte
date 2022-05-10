@@ -61,22 +61,24 @@
 <div>
   <header>Argon2i Parameters</header>
   <form on:submit|preventDefault={save}>
-    <label for="time-cost">Time Cost:</label>
-    <input
-      name="time-cost"
-      type="number"
-      bind:value={timeCost}
-      min="0"
-      max="10"
-      on:input={checkTimeCost}
-    />
-    <label for="memory-cost">Memory Cost:</label>
-    <input
-      name="memory-cost"
-      type="string"
-      bind:value={memoryCostFormatted}
-      on:blur={parseMemoryCost}
-    />
+    <label>
+      <span>Time Cost:</span>
+      <input
+        type="number"
+        bind:value={timeCost}
+        min="0"
+        max="10"
+        on:input={checkTimeCost}
+      />
+    </label>
+    <label>
+      <span>Memory Cost:</span>
+      <input
+        type="string"
+        bind:value={memoryCostFormatted}
+        on:blur={parseMemoryCost}
+      />
+    </label>
     <!-- Prevent default trigger of form submission when hashparams form is saved -->
     <input type="submit" class="save" value="Save">
   </form>
@@ -94,32 +96,30 @@
     padding-top: 0;
   }
   form {
+    max-width: 100%;
     line-height: 1.5;
     margin: 0;
     * {
       margin: 0.3rem 0;
     }
-    display: grid;
-    grid-template-columns: minmax(min-content, 1fr) 1fr;
-    column-gap: 0.5rem;
-    input[type="submit"] {
-      grid-column: 1 / span 2;
-    }
     input[type="submit"] {
       background: var(--background-dark);
       padding: .3em .9em;
+      width: auto;
     }
     label {
-      grid-column: 1;
-    }
-    input:not(input[type="submit"]) {
-      grid-column: 2;
-      padding: .3em .6em;
-      margin: 0.5rem 0;
-    }
-    label {
+      display: flex;
+      flex-direction: row;
+      align-items: center;
       margin-top: auto;
       margin-bottom: auto;
+      span {
+        width: 100%;
+      }
+    }
+    input:not(input[type="submit"]) {
+      padding: .3em .6em;
+      margin: 0.5rem 0;
     }
   }
 </style>

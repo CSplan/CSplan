@@ -11,8 +11,7 @@
     "export": "svelte-kit export",
     "start": "node build",
     "prepare-ed25519": "[ ! -d static/ed25519 ] && mkdir static/ed25519; cp node_modules/@very-amused/ed25519-wasm/build/* static/ed25519/",
-    "prepare-argon2": "[ ! -d static/argon2 ] && mkdir static/argon2; cp node_modules/@very-amused/argon2-wasm/build/* static/argon2/",
-    "prepare": "yarn prepare-ed25519 && yarn prepare-argon2"
+    "prepare-argon2": "[ ! -d static/argon2 ] && mkdir static/argon2; cp node_modules/@very-amused/argon2-wasm/build/* static/argon2/"
   },
   "dependencies": {
     "@types/marked": "^2.0.0",
@@ -20,7 +19,7 @@
     "@typescript-eslint/parser": "^4.29.2",
     "@very-amused/argon2-wasm": "^0.2.3",
     "@very-amused/ed25519-wasm": "^0.1.0",
-    "cs-crypto": "^0.7.4-rc2",
+    "cs-crypto": "^0.8.0",
     "markdown-it": "^13.0.1",
     "marked": "^4.0.10",
     "sass": "^1.38.2",
