@@ -1,3 +1,7 @@
+<script lang="ts">
+  let showFeatureCardsMobile = false
+</script>
+
 <main class="container">
   <img src="/logo/Light-CSplan.svg" alt="CSplan: Own your time." class="title-logo">
 
@@ -7,6 +11,14 @@
     </p>
   </section>
 
+  <button class="learn-more" class:rotate={showFeatureCardsMobile} on:pointerup={() => {
+    showFeatureCardsMobile = !showFeatureCardsMobile
+  }}>
+    <i class="fas fa-chevron-right"></i>
+    Learn More
+  </button>
+
+  {#if showFeatureCardsMobile}
   <section class="feature-cards">
     <div class="card feature-card">
       <div class="icons">
@@ -41,6 +53,7 @@
       </p>
     </div>
   </section>
+  {/if}
 
   <section class="register-prompt">
     <a href="/register" class="button bold" title="Register an Account">Register</a>
@@ -50,20 +63,52 @@
 <style lang="scss">
   .title-logo {
     margin: 2rem 0;
+    max-width: 100%;
   }
 
   .summary {
-    width: 85%;
     float: left;
     padding-right: 10%;
+    @media (min-width: $desktop-min) {
+      padding-left: 10%;
+    }
+  }
+
+  button.learn-more {
+    @media (max-width: $mobile-max) {
+      padding: 1rem 1.5rem;
+      font-size: 150%;
+      font-weight: bold;
+      background: $bg-dark;
+      box-shadow: none;
+      touch-action: none;
+      i {
+        transition: transform 200ms var(--cubic-out);
+        margin-right: 1rem;
+      }
+      &.rotate {
+        i {
+          transform: rotate(90deg);
+        }
+      }
+    }
+    @media (min-width: $desktop-min) {
+      display: none;
+    }
   }
 
   .feature-cards {
     display: grid;
-    grid-auto-flow: column;
+    @media (max-width: $mobile-max) {
+      grid-auto-flow: row;
+      row-gap: 1rem;
+    }
+    @media (min-width: $desktop-min) {
+      grid-auto-flow: column;
+      column-gap: 1rem;
+      padding: 2rem;
+    }
     grid-auto-columns: minmax(min-content, 1fr);
-    column-gap: 1rem;
-    padding: 2rem;
 
     .feature-card {
       display: grid;
