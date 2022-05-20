@@ -233,7 +233,8 @@ export class LoginActions {
       },
       body: JSON.stringify(<SignedChallenge>{
         signature: encode(signature)
-      })
+      }),
+      credentials: 'include'
     })
     if (res.status === 401) {
       throw new Error('Authorization failure, password is incorrect')
@@ -250,7 +251,7 @@ export class LoginActions {
     }
 
     const response: ChallengeResponse = await res.json()
-    const csrfToken = res.headers.get('CSRF-Token')
+    const csrfToken = res.headers.get('csrf-token')
     if (csrfToken == null) {
       throw new Error('Empty CSRF Token from API')
     }
