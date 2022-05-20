@@ -18,8 +18,7 @@
     Learn More
   </button>
 
-  {#if showFeatureCardsMobile}
-  <section class="feature-cards">
+  <section class="feature-cards" class:show-mobile={showFeatureCardsMobile}>
     <div class="card feature-card">
       <div class="icons">
         <i class="fas fa-lock-keyhole"></i>
@@ -53,7 +52,6 @@
       </p>
     </div>
   </section>
-  {/if}
 
   <section class="register-prompt">
     <a href="/register" class="button bold" title="Register an Account">Register</a>
@@ -100,6 +98,9 @@
   .feature-cards {
     display: grid;
     @media (max-width: $mobile-max) {
+      &:not(.show-mobile) {
+        display: none;
+      }
       grid-auto-flow: row;
       row-gap: 1rem;
     }

@@ -1,7 +1,7 @@
 {
   "name": "csplan",
   "description": "TODO",
-  "version": "0.0.1",
+  "version": "0.0.1-rc1",
   "license": "UNLICENSED",
   "type": "module",
   "scripts": {
