@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { HTTPerror, route, FormStates as States, formatError } from '$lib'
+  import { HTTPerror, route, FormStates as States, formatError, csfetch } from '$lib'
   import { onMount, tick } from 'svelte'
   import { slide } from 'svelte/transition'
   import { LoginActions, TOTPActions, UpgradeActions } from '$lib/auth-actions'
@@ -107,7 +107,7 @@
   }
 
   onMount(async () => {
-    const res = await fetch(route('/totp/status'))
+    const res = await csfetch(route('/totp/status'))
     if (res.status !== 200) {
       throw new Error(await HTTPerror(res, 'Failed to retrieve TOTP status'))
     }

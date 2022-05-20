@@ -5,7 +5,7 @@ import * as db from '../db'
 import userStore from '$stores/user'
 import { sessions as sessionStore } from '$stores/sessions'
 import { get } from 'svelte/store'
-import { route, HTTPerror } from '$lib'
+import { route, HTTPerror, csfetch } from '$lib'
 import qrcodegen from './qrcodegen'
 import storage from '$db/storage'
 import { dev } from '$app/env'
@@ -175,7 +175,7 @@ export class LoginActions {
     // Request an authentication challenge
     let res: Response
     if (upgrade) {
-      res = await fetch(route('/upgrade?method=challenge&action=request'), {
+      res = await csfetch(route('/upgrade?method=challenge&action=request'), {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -184,7 +184,7 @@ export class LoginActions {
       })
     } else {
       const challengeRequest: ChallengeRequest = { email: user.email, TOTP_Code: user.totp }
-      res = await fetch(route('/challenge?action=request'), {
+      res = await csfetch(route('/challenge?action=request'), {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
@@ -226,7 +226,7 @@ export class LoginActions {
     this.onMessage('Signing challenge')
     const signature = await this.signChallenge(decode(challenge.data), this.signingKey)
     this.onMessage('Submitting challenge')
-    res = await fetch(route(`/challenge/${challenge.id}?${upgrade ? 'type=upgrade&' : ''}action=submit`), {
+    res = await csfetch(route(`/challenge/${challenge.id}?${upgrade ? 'type=upgrade&' : ''}action=submit`), {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'
@@ -267,7 +267,7 @@ export class LoginActions {
 
   async retrieveMasterKeypair(password: string, extractablePrivateKey = false): Promise<CryptoKeyPair> {
     // Fetch the user's master keypair
-    const res = await fetch(route('/keys'), {
+    const res = await csfetch(route('/keys'), {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
@@ -277,7 +277,7 @@ export class LoginActions {
     })
     if (res.status !== 200) {
       const err: ErrorResponse = await res.json()
-      throw new Error(err.message || 'Failed to fetch master keypair')
+      throw new Error(err.message || 'Failed to csfetch master keypair')
     }
     const keys: MasterKeys = await res.json()
 
@@ -328,7 +328,7 @@ export class RegisterActions extends LoginActions {
       hashParams: this.hashParams,
       betaCode: user.betaCode
     }
-    const res = await fetch(route('/register'), {
+    const res = await csfetch(route('/register'), {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'
@@ -371,7 +371,7 @@ export class RegisterActions extends LoginActions {
 
     // Store the keypair (along with the hash parameters used to reach them)
     const CSRFtoken = storage.getCSRFtoken()
-    const res = await fetch(route('/keys'), {
+    const res = await csfetch(route('/keys'), {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -407,7 +407,7 @@ export class RegisterActions extends LoginActions {
    */
   async confirmAccount(): Promise<void> {
     const userID = (get(userStore) as UserStore).user.id
-    const res = await fetch(route(`/confirm_account/${userID}`), {
+    const res = await csfetch(route(`/confirm_account/${userID}`), {
       method: 'POST'
     })
     if (res.status !== 204) {
@@ -442,7 +442,7 @@ export class PasswordChangeActions extends RegisterActions {
     const encryptedPrivateKey = await rsa.wrapPrivateKey(privateKey!, tempKey)
 
     // Update the authentication and private key with the API
-    const res = await fetch(route('/change_password'), {
+    const res = await csfetch(route('/change_password'), {
       method: 'PUT',
       headers: {
         'Content-Type': 'application/json',
@@ -491,7 +491,7 @@ export const UpgradeActions = {
     const body: TOTPRequest = {
       TOTP_Code: code
     }
-    const res = await fetch(route('/upgrade?method=totp'), {
+    const res = await csfetch(route('/upgrade?method=totp'), {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -511,7 +511,7 @@ export const UpgradeActions = {
    * (authentication downgrades automatically occur serverside 10 minutes after upgrade if not manually performed beforehand)
    */
   async downgrade(): Promise<void> {
-    const res = await fetch(route('/downgrade'), {
+    const res = await csfetch(route('/downgrade'), {
       method: 'POST',
       headers: {
         'CSRF-Token': storage.getCSRFtoken()
@@ -531,7 +531,7 @@ export const TOTPActions = {
    */
   async enable(): Promise<TOTPinfo> {
     // Enable TOTP for the user
-    const res = await fetch(route('/totp?action=enable'), {
+    const res = await csfetch(route('/totp?action=enable'), {
       method: 'POST',
       headers: {
         'CSRF-Token': storage.getCSRFtoken()
@@ -550,7 +550,7 @@ export const TOTPActions = {
     const body: TOTPRequest = {
       TOTP_Code: code
     }
-    const res = await fetch(route('/totp/verify'), {
+    const res = await csfetch(route('/totp/verify'), {
       method: 'POST',
       headers: {
         'CSRF-Token': storage.getCSRFtoken()
@@ -569,7 +569,7 @@ export const TOTPActions = {
    * Disable TOTP authentication for the user (requires level 2 auth)
    */
   async disable(): Promise<void> {
-    const res = await fetch(route('/totp?action=disable'), {
+    const res = await csfetch(route('/totp?action=disable'), {
       method: 'POST',
       headers: {
         'CSRF-Token': storage.getCSRFtoken()

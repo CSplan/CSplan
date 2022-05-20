@@ -2,9 +2,8 @@ import { aes, rsa } from 'cs-crypto'
 import userStore from './user'
 import { get, Readable, Writable, writable } from 'svelte/store'
 import { mustGetByKey } from '../db'
-import { route } from '$lib/route'
 import * as db from '../db'
-import { Visibilities } from '$lib'
+import { Visibilities, route, csfetch } from '$lib'
 import storage from '$db/storage'
 
 type UserPFPStore =  {
@@ -26,7 +25,7 @@ function create(): Readable<UserPFP> & UserPFPStore {
         return
       }
 
-      const res = await fetch(route('/profile-picture'), {
+      const res = await csfetch(route('/profile-picture'), {
         method: 'GET',
         headers: {
           'CSRF-Token': storage.getCSRFtoken()
@@ -127,7 +126,7 @@ function create(): Readable<UserPFP> & UserPFPStore {
 
       // Store the encrypted data with the backend
       const contentType = visibility === Visibilities.Encrypted ? 'application/octet-stream' : encoding
-      const res = await fetch(route('/profile-picture'), {
+      const res = await csfetch(route('/profile-picture'), {
         method: 'PUT',
         headers: {
           'CSRF-Token': storage.getCSRFtoken(),

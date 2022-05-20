@@ -1,6 +1,6 @@
 import { Readable, writable } from 'svelte/store'
 import { clearAll, clearUserStores } from '../db'
-import { HTTPerror, route } from '$lib'
+import { HTTPerror, route, csfetch } from '$lib'
 import storage from '$db/storage'
 
 
@@ -28,7 +28,7 @@ function create(): Readable<UserStore> & UserActions {
     },
     async logout(informAPI = true) {
       if (informAPI) {
-        const res = await fetch(route('/logout'), {
+        const res = await csfetch(route('/logout'), {
           method: 'POST',
           headers: {
             'CSRF-Token': storage.getCSRFtoken()

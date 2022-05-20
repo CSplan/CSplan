@@ -1,13 +1,13 @@
 <script lang="ts">
   import { route } from '$lib/route'
   import { storage } from '$db/storage'
-  import { HTTPerror } from '$lib'
+  import { HTTPerror, csfetch } from '$lib'
   import Spinner from '$components/spinner.svelte'
   import { FormStates as States } from '$lib/form-states'
   import { formatError } from '$lib'
   import { LoginActions, UpgradeActions } from '$lib/auth-actions'
   import userStore from '$stores/user'
-import { goto } from '$app/navigation'
+  import { goto } from '$app/navigation'
 
   // #region Mount
   // #endregion
@@ -51,7 +51,7 @@ import { goto } from '$app/navigation'
       await UpgradeActions.passwordUpgrade(actions, password)
 
       // Request deletion token
-      let res = await fetch(route('/delete_my_account_please'), {
+      let res = await csfetch(route('/delete_my_account_please'), {
         method: 'DELETE',
         headers: {
           'CSRF-Token': storage.getCSRFtoken()
@@ -64,7 +64,7 @@ import { goto } from '$app/navigation'
       const token = (await res.json() as DeleteToken).token
 
       // Finalize deletion
-      res = await fetch(route('/delete_my_account_please'), {
+      res = await csfetch(route('/delete_my_account_please'), {
         method: 'DELETE',
         headers: {
           'CSRF-Token': storage.getCSRFtoken(),

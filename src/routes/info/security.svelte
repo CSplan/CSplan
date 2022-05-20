@@ -1,12 +1,13 @@
 <script>
   import { onMount } from 'svelte'
   import { dev } from '$app/env'
+  import { csfetch } from '$lib'
 
   onMount(async () => {
     if (!dev) {
       return
     }
-    const res = await fetch('https://localhost:3030/md/security.md')
+    const res = await csfetch('https://localhost:3030/md/security.md')
     const text = await res.text()
     content = marked(text)
   })

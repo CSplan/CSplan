@@ -1,9 +1,8 @@
 import { writable, derived, get, Readable } from 'svelte/store'
-import { route } from '$lib/route'
 import { rsa, aes } from 'cs-crypto'
 import { addToStore, deleteFromStore, getByKey, mustGetByKey, updateWithKey } from '../db'
 import userStore from './user'
-import { HTTPerror } from '$lib'
+import { HTTPerror, csfetch, route } from '$lib'
 import storage from '$db/storage'
 
 type Store = {
@@ -23,7 +22,7 @@ function create(): Readable<Store> & TagStore {
         return
       }
       // Fetch tags from API
-      const res = await fetch(route('/tags'))
+      const res = await csfetch(route('/tags'))
       if (res.status !== 200) {
         const err: ErrorResponse = await res.json()
         throw new Error(err.message || 'unknown error fetching tags')
@@ -97,7 +96,7 @@ function create(): Readable<Store> & TagStore {
           cryptoKey: await rsa.wrapKey(cryptoKey, publicKey)
         }
       }
-      const res = await fetch(route('/tags'), {
+      const res = await csfetch(route('/tags'), {
         method: 'POST',
         body: JSON.stringify(document),
         headers: {
@@ -153,7 +152,7 @@ function create(): Readable<Store> & TagStore {
         color: tag.color || '#FFFFFF' // TODO: tag color should be guaranteed, 
         // this guard is here because tag colors are not implemented and should be removed in the future
       }, tag.cryptoKey)
-      const res = await fetch(route(`/tags/${id}`), {
+      const res = await csfetch(route(`/tags/${id}`), {
         method: 'PATCH',
         headers: {
           'CSRF-Token': storage.getCSRFtoken(),
@@ -182,7 +181,7 @@ function create(): Readable<Store> & TagStore {
       }
 
       // Delete from API
-      const res = await fetch(route(`/tags/${id}`), {
+      const res = await csfetch(route(`/tags/${id}`), {
         method: 'DELETE',
         headers: {
           'CSRF-Token': storage.getCSRFtoken()

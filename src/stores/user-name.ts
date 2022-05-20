@@ -1,7 +1,6 @@
 import { aes, rsa } from 'cs-crypto'
 import { Readable, writable, get } from 'svelte/store'
-import { HTTPerror, DisplayNames, Visibilities } from '$lib'
-import { route } from '$lib'
+import { HTTPerror, DisplayNames, Visibilities, route, csfetch } from '$lib'
 import { mustGetByKey, addToStore, getByKey, updateWithKey } from '$db'
 import  userStore from './user'
 import storage from '$db/storage'
@@ -29,7 +28,7 @@ function create(): Readable<Name> & SingleResourceStore<NameData> {
       }
 
       const user: UserStore['user'] = JSON.parse(localStorage.getItem('user')!)
-      const res = await fetch(route('/name'), {
+      const res = await csfetch(route('/name'), {
         method: 'GET',
         headers: {
           'CSRF-Token': storage.getCSRFtoken()
@@ -130,7 +129,7 @@ function create(): Readable<Name> & SingleResourceStore<NameData> {
           cryptoKey: encryptedKey
         }
       }
-      const res = await fetch(route('/name'), {
+      const res = await csfetch(route('/name'), {
         method: 'PATCH',
         headers: {
           'CSRF-Token': storage.getCSRFtoken(),
@@ -155,7 +154,7 @@ function create(): Readable<Name> & SingleResourceStore<NameData> {
       initialized = true
     },
     async delete(): Promise<void> {
-      const res = await fetch(route('/name'), {
+      const res = await csfetch(route('/name'), {
         method: 'DELETE',
         headers: {
           'CSRF-Token': storage.getCSRFtoken()

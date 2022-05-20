@@ -1,4 +1,4 @@
-import { HTTPerror, route } from '$lib'
+import { HTTPerror, route, csfetch } from '$lib'
 import { derived, Readable, writable, get } from 'svelte/store'
 import { aes, rsa } from 'cs-crypto'
 import { mustGetByKey } from '$db'
@@ -21,9 +21,9 @@ function create(): Readable<Store> & SessionStore {
         return
       }
       // Fetch sessions from API
-      const res = await fetch(route('/sessions'))
+      const res = await csfetch(route('/sessions'))
       if (res.status !== 200) {
-        throw new Error(await HTTPerror(res, 'Failed to fetch sessions'))
+        throw new Error(await HTTPerror(res, 'Failed to csfetch sessions'))
       }
       const sessions: SessionDocument[] = await res.json()
 
@@ -78,7 +78,7 @@ function create(): Readable<Store> & SessionStore {
      * @authlevel 2
      */
     async logout(id: string): Promise<void> {
-      const res = await fetch(route(`/logout/${id}`), {
+      const res = await csfetch(route(`/logout/${id}`), {
         method: 'POST',
         headers: {
           'CSRF-Token': storage.getCSRFtoken()

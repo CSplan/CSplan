@@ -3,7 +3,7 @@ import { addToStore, getByKey, updateWithKey, deleteFromStore, mustGetByKey } fr
 import { aes, rsa } from 'cs-crypto'
 import { encryptList, decryptList } from './encryption'
 import storage from '$db/storage'
-import { FormStates, HTTPerror, route } from '$lib'
+import { FormStates, HTTPerror, route, csfetch } from '$lib'
 
 
 type Store = {
@@ -24,7 +24,7 @@ function create(): Readable<Store> & ListStore {
         return
       }
       // Get all todo lists from the API
-      const res = await fetch(route('/todos'), {
+      const res = await csfetch(route('/todos'), {
         method: 'GET',
         headers: {
           'CSRF-Token': storage.getCSRFtoken()!
@@ -114,7 +114,7 @@ function create(): Readable<Store> & ListStore {
       }
 
       // Store the encrypted list in the API
-      const res = await fetch(route('/todos'), {
+      const res = await csfetch(route('/todos'), {
         method: 'POST',
         body: JSON.stringify(document),
         headers: {
@@ -188,7 +188,7 @@ function create(): Readable<Store> & ListStore {
       }
 
       // Commit
-      const res = await fetch(route(`/todos/${id}`), {
+      const res = await csfetch(route(`/todos/${id}`), {
         method: 'PATCH',
         body: JSON.stringify(document),
         headers: {
@@ -236,7 +236,7 @@ function create(): Readable<Store> & ListStore {
         return
       }
       // Delete with API
-      const res = await fetch(route(`/todos/${id}`), {
+      const res = await csfetch(route(`/todos/${id}`), {
         method: 'DELETE',
         headers: {
           'CSRF-Token': storage.getCSRFtoken()
