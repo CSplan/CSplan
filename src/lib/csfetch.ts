@@ -22,7 +22,10 @@ export function csfetch(input: RequestInfo, init?: RequestInit): Promise<Respons
     if (input.toString().startsWith(`https://${domain}`)) {
       init.credentials = 'include'
       if (!safeMethods[init.method || 'GET']) {
-        headers['CSRF-Token'] = storage.getCSRFtoken()
+        const csrfToken = storage.getCSRFtoken()
+        if (csrfToken != null) {
+          headers['CSRF-Token'] = storage.getCSRFtoken()
+        }
       }
       break
     }
