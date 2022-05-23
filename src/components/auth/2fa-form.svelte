@@ -1,5 +1,10 @@
 <script lang="ts">
+  import type { FormStates } from '$lib'
+  import Spinner from '$components/spinner.svelte'
   import { createEventDispatcher } from 'svelte'
+
+  export let state: FormStates
+  export let message: string
 
   let codeInput: HTMLInputElement
 
@@ -25,6 +30,8 @@
   <form on:submit|preventDefault={dispatchCode}>
     <input type="text" placeholder="000000" bind:this={codeInput}>
     <input type="submit" value="Submit">
+
+    <Spinner {state} {message} vm="0.5rem"/>
   </form>
 </div>
 

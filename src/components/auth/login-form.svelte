@@ -43,6 +43,7 @@
       case AuthConditions.TOTPRequired:
         // Show TOTP form and wait for submission
         state = States.Resting
+        message = ''
         showTOTPForm = true
         return
       }
@@ -102,7 +103,7 @@
 </script>
 
 {#if showTOTPForm}
-  <TwoFactorForm on:code-submit={onTOTPSubmit}/>
+  <TwoFactorForm on:code-submit={onTOTPSubmit} {state} {message}/>
 {/if}
 
 <div class="card" class:d-none={showTOTPForm}>
