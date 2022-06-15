@@ -1,6 +1,7 @@
 import node from '@sveltejs/adapter-node'
 import preprocess from 'svelte-preprocess'
 import path from 'path'
+import { readFileSync } from 'fs'
 
 /**
  * @typedef {import('@sveltejs/kit').Config} SvelteKitConfig
@@ -28,7 +29,11 @@ const config = {
             changeOrigin: true,
             rewrite: path => path.replace(/^\/api/, '')
           }
-        } : {}
+        } : {},
+        https: process.env.CSPLAN_CERTSDIR != null ? {
+          cert: readFileSync(`${process.env.CSPLAN_CERTSDIR}/fullchain.pem`),
+          key: readFileSync(`${process.env.CSPLAN_CERTSDIR}/privkey.pem`)
+        } : false
       },
       resolve: {
         alias: {

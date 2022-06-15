@@ -78,6 +78,9 @@ export class LoginActions {
   protected hashResult: Uint8Array|null = null
   protected signingKey: Uint8Array|null = null
 
+  // Private beta account transition
+  privateBetaAccount = false
+
   /** Expected path of argon2 web worker */
   static readonly Argon2_WorkerPath = `/argon2/worker${dev ? '' : '.min'}.js`
   /** Expected path of ed25519 web worker */
@@ -203,17 +206,19 @@ export class LoginActions {
       throw new Error(err.message || 'Unknown error requesting an auth challenge')
     }
     const challenge: Challenge = await res.json()
-
+    this.privateBetaAccount = res.headers.get('X-Private-Beta-Account') != null
+      
     // Load argon2 parameters and decode salt from the challenge
     const salt = decode(challenge.hashParams.salt)
     this.hashParams = challenge.hashParams
 
     // Hash the user's password (skip if authKey is already present)
+    const normalizedPassword = this.privateBetaAccount ? user.password.normalize('NFKC') : user.password.normalize('NFC')
     if (reuseAuthKey) {
       this.onMessage('Using already generated authentication key')
     } else {
       this.onMessage('Generating authentication key')
-      this.hashResult = await this.hashPassword(user.password, salt, this.hashParams)
+      this.hashResult = await this.hashPassword(normalizedPassword, salt, this.hashParams)
     }
      
     this.onMessage('Solving authentication challenge')
@@ -285,8 +290,9 @@ export class LoginActions {
     const publicKey = await rsa.importPublicKey(keys.publicKey)
 
     // Decrypt master private key
+    const normalizedPassword = this.privateBetaAccount ? password.normalize('NFKC') : password.normalize('NFC')
     this.onMessage('Decrypting master keypair')
-    const tempKeyMaterial = await this.hashPassword(password, decode(keys.hashParams.salt), keys.hashParams)
+    const tempKeyMaterial = await this.hashPassword(normalizedPassword, decode(keys.hashParams.salt), keys.hashParams)
     const tempKey = await aes.importKeyMaterial(tempKeyMaterial, Algorithms.AES_GCM)
     const privateKey = await rsa.unwrapPrivateKey(keys.privateKey, tempKey, extractablePrivateKey)
 
@@ -315,7 +321,8 @@ export class RegisterActions extends LoginActions {
     // Hash the user's password (use whatever hash parameters are set before calling)
     this.hashParams.salt = encode(salt)
     this.onMessage('Generating authentication key')
-    this.hashResult = await this.hashPassword(user.password, salt)
+    const normalizedPassword = user.password.normalize('NFC')
+    this.hashResult = await this.hashPassword(normalizedPassword, salt)
 
     this.onMessage('Generating signing key')
     const { publicKey, privateKey } = await this.generateSigningKey(this.hashResult!, false)
@@ -356,8 +363,9 @@ export class RegisterActions extends LoginActions {
    * The salt used here MUST be different from the salt used for the authentication key, otherwise CSplan's encryption is rendered useless
    */
   async generateMasterKeypair(password: string, salt: Uint8Array, keysize = 4096): Promise<void> {
+    const normalizedPassword = this.privateBetaAccount ? password.normalize('NFKC') : password.normalize('NFC')
     this.onMessage('Generating master keypair')
-    const tempKeyMaterial = await this.hashPassword(password, salt)
+    const tempKeyMaterial = await this.hashPassword(normalizedPassword, salt)
     const tempKey = await aes.importKeyMaterial(tempKeyMaterial, Algorithms.AES_GCM)
 
     // Perform the actual RSA generation, in the future, other kinds of master keypairs will be allowed, and possibly even default
@@ -430,14 +438,18 @@ export class PasswordChangeActions extends RegisterActions {
    * @param cryptoSalt The salt to be used in deriving the tempkey used to decrypt the user's master private key
    */
   async changePassword(oldPassword: string, newPassword: string,
-    authSalt: Uint8Array, cryptoSalt: Uint8Array): Promise<void> {
+    authSalt: Uint8Array, cryptoSalt: Uint8Array, privateBetaTransition = false): Promise<void> {
+    // Normalize both passwords
+    const normalizedNewPassword = newPassword.normalize('NFC')
+
     // Derive an authentication keypair from the new password and salt
-    this.hashResult = await this.hashPassword(newPassword, authSalt)
+    this.hashResult = await this.hashPassword(normalizedNewPassword, authSalt)
     const { publicKey } = await this.generateSigningKey(this.hashResult!, false)
 
     // Fetch and re-encrypt the user's master private key
-    const { privateKey } = await this.retrieveMasterKeypair(oldPassword, true)
-    const tempKeyMaterial = await this.hashPassword(newPassword, cryptoSalt)
+    this.privateBetaAccount = privateBetaTransition // TODO: pain. remove legacy transition stuff the minute it can be removed.
+    const { privateKey } = await this.retrieveMasterKeypair(oldPassword, true) // Normalization is done internally
+    const tempKeyMaterial = await this.hashPassword(normalizedNewPassword, cryptoSalt)
     const tempKey = await aes.importKeyMaterial(tempKeyMaterial, Algorithms.AES_GCM)
     const encryptedPrivateKey = await rsa.wrapPrivateKey(privateKey!, tempKey)
 

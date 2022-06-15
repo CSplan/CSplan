@@ -7,6 +7,7 @@
   import { dev } from '$app/env'
   import Spinner from '$components/spinner.svelte'
   import { FormStates as States } from '$lib/form-states'
+  import { SlogClient } from '@very-amused/slog/build/client'
 
   // Elements
   let form: HTMLFormElement
@@ -24,6 +25,8 @@
   let showTOTPForm = false
   let message = ''
   let showPassword = false
+
+  let slog: SlogClient
 
   async function login(): Promise<void> {
     if (!form.checkValidity()) {
@@ -76,6 +79,7 @@
       // TODO: Redirects based on login state can be improved with SSR
       goto('/', { replaceState: true })
     }
+
     // Initialize argon2 and ed25519 web workers
     const workerScript =
       dev ? 'worker.js' : 'worker.min.js'
@@ -99,6 +103,10 @@
       state = States.Errored
       message = err as string || 'unknown error loading web workers and wasm binaries'
     }
+
+    // Initialize slog client
+    slog = new SlogClient('https://ws1.dev.csplan.co:4040')
+    slog.log('New connection')
   })
 </script>
 
