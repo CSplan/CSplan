@@ -638,3 +638,71 @@ export const TOTPActions = {
     svg.appendChild(path)
   }
 }
+
+class Argon2ParamTester {
+  private hashPassword: (password: string, salt: Uint8Array, hashParams?: Argon2HashParams) => Promise<Uint8Array>
+  onMessage: LoginActions['onMessage'] = () => {}
+  private password: string
+  private salt: Uint8Array = makeSalt(16) // Random salt
+
+  private hashParams: Argon2HashParams = { ...Argon2ParamTester.BaseHashParams }
+
+  private static readonly BaseHashParams: Readonly<Argon2HashParams> = Object.freeze({
+    type: 'argon2i',
+    timeCost: 1,
+    memoryCost: 50 * 1024, // 50MB
+    threads: 1,
+    salt: ''
+  })
+
+  constructor(hashPassword: Argon2ParamTester['hashPassword'], password?: string) {
+    this.hashPassword = hashPassword
+    if (password != null) {
+      this.password = password
+    } else {
+      this.password = Argon2ParamTester.randomPassword(20)
+    }
+  }
+
+  /** Generate a random password of a specified length. The password will be composed of uppercase and lowercase letters, as well as numbers. */
+  private static randomPassword(len: number): string {
+    // Populate an array of [a-zA-Z0-9]
+    const chars: string[] = Array(62)
+    {
+      const upperStart = 'A'.charCodeAt(0)
+      const lowerStart = 'a'.charCodeAt(0)
+      // Populate letters
+      for (let i = 0; i < 26; i++) {
+        chars[i] = String.fromCodePoint(upperStart + i)
+        chars[i+26] = String.fromCodePoint(lowerStart + i)
+      }
+      // Populate numbers
+      for (let i = 0; i < 10; i++) {
+        chars[i+52] = i.toString()
+      }
+    }
+  
+    // Generate a random password
+    let password = ''
+    const rand = crypto.getRandomValues(new Uint8Array(len))
+    for (let i = 0; i < len; i++) {
+      password += chars[Math.floor((rand[i] / 255) * (chars.length - 1))] // Convert random number from 0-255 to 0-(chars.length - 1)
+    }
+    return password
+  }
+
+  /** Calculate a set of hash params based on a target hash time in ms. */
+  async calculateParams(targetTime = 500): Promise<Argon2HashParams> {
+    await this.calculateMemory(targetTime)
+    await this.calculateTime(targetTime)
+    return this.hashParams
+  }
+
+  private async calculateMemory(targetTime: number): Promise<void> {
+
+  }
+
+  private async calculateTime(targetTime: number): Promise<void> {
+
+  }
+}
