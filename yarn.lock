@@ -430,10 +430,10 @@
     "@typescript-eslint/types" "4.33.0"
     eslint-visitor-keys "^2.0.0"
 
-"@very-amused/argon2-wasm@^0.2.3":
-  version "0.2.3"
-  resolved "https://registry.yarnpkg.com/@very-amused/argon2-wasm/-/argon2-wasm-0.2.3.tgz#db04aa0d1a1b711b59ddd7adb979bf9120edd948"
-  integrity sha512-tXX0rV2B8FmLkNpuBWxlRpNuHOCWjN5KvlE0e/FjnPVtrgr0AE9TCP+3P1yH2Hv94QwjIfeKqRdIZ2pudxy4yg==
+"@very-amused/argon2-wasm@^0.3.1":
+  version "0.3.1"
+  resolved "https://registry.yarnpkg.com/@very-amused/argon2-wasm/-/argon2-wasm-0.3.1.tgz#1645c16a005066f41d062541035fb65fad1cf25c"
+  integrity sha512-VJ+ldKRS4EnlROZZLFJqT9jGTPkqOLq94xHfcwS6UxbosnIughWH7auuqGOJW0DrlH8OnKdox5HI3jSvEmtD3Q==
 
 "@very-amused/ed25519-wasm@^0.1.0":
   version "0.1.0"

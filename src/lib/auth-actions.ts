@@ -74,6 +74,9 @@ export class LoginActions {
 
   protected argon2: Argon2.WorkerConnection
   protected ed25519: ED25519.WorkerConnection
+  // Temporarily needed for public beta transition
+  private argon2Worker: Worker
+  private ed25519Worker: Worker
 
   protected hashResult: Uint8Array|null = null
   protected signingKey: Uint8Array|null = null
@@ -96,6 +99,8 @@ export class LoginActions {
   constructor(argon2: Worker, ed25519: Worker) {
     this.argon2 = new Argon2.WorkerConnection(argon2)
     this.ed25519 = new ED25519.WorkerConnection(ed25519)
+    this.argon2Worker = argon2
+    this.ed25519Worker = ed25519
   }
 
   // Load argon2 WASM into the web worker's scope
@@ -137,6 +142,10 @@ export class LoginActions {
       }
     })
     if (message.code !== Argon2.ErrorCodes.ARGON2_OK) {
+      if (dev) {
+        console.debug(`Argon2 memory cost: ${hashParams.memoryCost}`)
+        throw new Error(`Error running argon2, error code: ${Argon2.ErrorCodes[message.code]}`)
+      }
       throw new Error('Error running argon2.')
     }
     return message.body!
@@ -218,7 +227,7 @@ export class LoginActions {
       this.onMessage('Using already generated authentication key')
     } else {
       this.onMessage('Generating authentication key')
-      this.hashResult = await this.hashPassword(normalizedPassword, salt, this.hashParams)
+      this.hashResult = await this.hashPassword(normalizedPassword, salt)
     }
      
     this.onMessage('Solving authentication challenge')
@@ -270,7 +279,7 @@ export class LoginActions {
     return AuthConditions.Success
   }
 
-  async retrieveMasterKeypair(password: string, extractablePrivateKey = false): Promise<CryptoKeyPair> {
+  async retrieveMasterKeypair(password: string, extractablePrivateKey = false, noRecursiveTransition = false): Promise<CryptoKeyPair> {
     // Fetch the user's master keypair
     const res = await csfetch(route('/keys'), {
       method: 'GET',
@@ -305,23 +314,54 @@ export class LoginActions {
         privateKey
       })
     }
+    // Transition private beta accounts
+    if (this.privateBetaAccount && !noRecursiveTransition) {
+      // Upgrade to level 2 auth
+      await UpgradeActions.passwordUpgrade(this, normalizedPassword)
+      await this.publicBetaTransition(password, decode(keys.hashParams.salt))
+    }
+
     return {
       publicKey,
       privateKey
     }
   }
+
+  /** 
+   * Transition a private beta account to the new systems of normalization and automatic hash parameters used for CSplan's public beta. 
+   * @param password A pre-normalization form of the user's password.
+   * @param cryptoSalt The salt used in decrypting the user's private key.
+   */
+  async publicBetaTransition(password: string, cryptoSalt: Uint8Array): Promise<void> {
+    // Auth level 2 is required to change hash params
+    await UpgradeActions.passwordUpgrade(this, password)
+    // Change the user's password and hash params
+    const actions = new PasswordChangeActions(this.argon2Worker, this.ed25519Worker)
+    const authSalt = decode(this.hashParams.salt)
+    this.onMessage('Transitioning account to public beta')
+    await actions.changePassword(password, password, authSalt, cryptoSalt, true)
+  }
 }
 
 export class RegisterActions extends LoginActions {
+  /** Whether to generate hash parameters based on a targeted 1s login time, or use manually set parameters. */
+  useAutoHashParams = true
+
   constructor(argon2: Worker, ed25519: Worker) {
     super(argon2, ed25519)
   }
 
   async register(user: AuthUser & { betaCode: string }, salt: Uint8Array): Promise<void> {
-    // Hash the user's password (use whatever hash parameters are set before calling)
+    const normalizedPassword = user.password.normalize('NFC')
+    // Calculate hash parameters
+    if (this.useAutoHashParams) {
+      const autoParams = new Argon2AutoParams(this.argon2, this.hashPassword, normalizedPassword)
+      this.hashParams = await autoParams.calculateParams()
+    }
+
+    // Hash the user's password
     this.hashParams.salt = encode(salt)
     this.onMessage('Generating authentication key')
-    const normalizedPassword = user.password.normalize('NFC')
     this.hashResult = await this.hashPassword(normalizedPassword, salt)
 
     this.onMessage('Generating signing key')
@@ -350,12 +390,6 @@ export class RegisterActions extends LoginActions {
     // The rest of the authentication flow is identical
     this.authenticate(user, true)
     return
-  }
-
-  async testHashParams(password: string): Promise<number> {
-    const start = performance.now()
-    await this.hashPassword(password, makeSalt(16)) // random salts are used for each run for security purposes
-    return performance.now() - start
   }
 
   /** 
@@ -439,22 +473,30 @@ export class PasswordChangeActions extends RegisterActions {
    */
   async changePassword(oldPassword: string, newPassword: string,
     authSalt: Uint8Array, cryptoSalt: Uint8Array, privateBetaTransition = false): Promise<void> {
-    // Normalize both passwords
+    // Normalize the new password
     const normalizedNewPassword = newPassword.normalize('NFC')
+    
+    this.privateBetaAccount = privateBetaTransition // TODO: pain. remove legacy transition stuff the minute it can be removed.
+    // Fetch the user's existing private key material
+    const { privateKey } = await this.retrieveMasterKeypair(oldPassword, true, true) // Normalization is done internally
+    // If transitioning from a private beta account, generate new automatic hash parameters
+    if (this.privateBetaAccount) {
+      const autoParams = new Argon2AutoParams(this.argon2, this.hashPassword, normalizedNewPassword)
+      this.hashParams = await autoParams.calculateParams()
+      console.log(this.hashParams)
+    }
 
     // Derive an authentication keypair from the new password and salt
     this.hashResult = await this.hashPassword(normalizedNewPassword, authSalt)
     const { publicKey } = await this.generateSigningKey(this.hashResult!, false)
 
-    // Fetch and re-encrypt the user's master private key
-    this.privateBetaAccount = privateBetaTransition // TODO: pain. remove legacy transition stuff the minute it can be removed.
-    const { privateKey } = await this.retrieveMasterKeypair(oldPassword, true) // Normalization is done internally
+    // Re-encrypt the user's master private key
     const tempKeyMaterial = await this.hashPassword(normalizedNewPassword, cryptoSalt)
     const tempKey = await aes.importKeyMaterial(tempKeyMaterial, Algorithms.AES_GCM)
     const encryptedPrivateKey = await rsa.wrapPrivateKey(privateKey!, tempKey)
 
     // Update the authentication and private key with the API
-    const res = await csfetch(route('/change_password'), {
+    const res = await csfetch(route('/change_password' + (this.privateBetaAccount ? '?public_beta_transition' : '')), {
       method: 'PUT',
       headers: {
         'Content-Type': 'application/json',
@@ -641,8 +683,8 @@ export const TOTPActions = {
 
 /** Class used to automatically calculate a set of Argon2 parameters for an account. */
 class Argon2AutoParams {
+  private argon2: Argon2.WorkerConnection // Needed for hashPassword to work
   private hashPassword: (password: string, salt: Uint8Array, hashParams?: Argon2HashParams) => Promise<Uint8Array>
-  onMessage: LoginActions['onMessage'] = () => {}
   private password: string
   private salt: Uint8Array = makeSalt(16) // Random salt
 
@@ -661,47 +703,18 @@ class Argon2AutoParams {
     salt: ''
   })
 
-  constructor(hashPassword: Argon2AutoParams['hashPassword'], password?: string) {
+  constructor(argon2: Argon2.WorkerConnection, hashPassword: Argon2AutoParams['hashPassword'], password: string) {
+    this.argon2 = argon2
     this.hashPassword = hashPassword
-    if (password != null) {
-      this.password = password
-    } else {
-      this.password = Argon2AutoParams.randomPassword(20)
-    }
-  }
-
-  /** Generate a random password of a specified length. The password will be composed of uppercase and lowercase letters, as well as numbers. */
-  private static randomPassword(len: number): string {
-    // Populate an array of [a-zA-Z0-9]
-    const chars: string[] = Array(62)
-    {
-      const upperStart = 'A'.charCodeAt(0)
-      const lowerStart = 'a'.charCodeAt(0)
-      // Populate letters
-      for (let i = 0; i < 26; i++) {
-        chars[i] = String.fromCodePoint(upperStart + i)
-        chars[i+26] = String.fromCodePoint(lowerStart + i)
-      }
-      // Populate numbers
-      for (let i = 0; i < 10; i++) {
-        chars[i+52] = i.toString()
-      }
-    }
-  
-    // Generate a random password
-    let password = ''
-    const rand = crypto.getRandomValues(new Uint8Array(len))
-    for (let i = 0; i < len; i++) {
-      password += chars[Math.floor((rand[i] / 255) * (chars.length - 1))] // Convert random number from 0-255 to 0-(chars.length - 1)
-    }
-    return password
+    this.password = password.normalize('NFC')
   }
 
   /** Calculate a set of hash params based on a target hash time in ms. */
   async calculateParams(targetTime = 500): Promise<Argon2HashParams> {
+    // TODO: add tests
     // Get a base hash time with the base parameters
     const baseTime = await this.hashTime()
-    // Store the ratio of the base hash time to the target hash time, which can be factored into multipliers for memory and time parameters
+    // Store the ratio of the target hash time to the base hash time, which can be factored into multipliers for memory and time parameters
     const ratio = (targetTime / baseTime)
     if (ratio < 1) {
       return this.hashParams
@@ -718,13 +731,13 @@ class Argon2AutoParams {
     while ((ratio / this.hashParams.timeCost) > maxMemoryMultiplier) {
       this.hashParams.timeCost++
     }
-    this.hashParams.memoryCost = Math.floor(ratio / this.hashParams.timeCost)
+    this.hashParams.memoryCost = Math.floor((ratio / this.hashParams.timeCost) * this.hashParams.memoryCost)
 
     return this.hashParams
   }
 
   /** Return the time is takes to hash the user's password */
-  async hashTime(): Promise<number> {
+  private async hashTime(): Promise<number> {
     const start = performance.now()
     await this.hashPassword(this.password, this.salt, this.hashParams)
     return performance.now() - start

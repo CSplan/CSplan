@@ -17,7 +17,7 @@
     "@types/marked": "^2.0.0",
     "@typescript-eslint/eslint-plugin": "^4.29.2",
     "@typescript-eslint/parser": "^4.29.2",
-    "@very-amused/argon2-wasm": "^0.2.3",
+    "@very-amused/argon2-wasm": "^0.3.1",
     "@very-amused/ed25519-wasm": "^0.1.0",
     "cs-crypto": "^0.8.0",
     "dompurify": "^2.3.8",
