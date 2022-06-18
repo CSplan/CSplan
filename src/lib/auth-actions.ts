@@ -639,28 +639,34 @@ export const TOTPActions = {
   }
 }
 
-class Argon2ParamTester {
+/** Class used to automatically calculate a set of Argon2 parameters for an account. */
+class Argon2AutoParams {
   private hashPassword: (password: string, salt: Uint8Array, hashParams?: Argon2HashParams) => Promise<Uint8Array>
   onMessage: LoginActions['onMessage'] = () => {}
   private password: string
   private salt: Uint8Array = makeSalt(16) // Random salt
 
-  private hashParams: Argon2HashParams = { ...Argon2ParamTester.BaseHashParams }
+  private hashParams: Argon2HashParams = { ...Argon2AutoParams.BaseHashParams }
+
+  /** The minimum memory parameter CSplan will use in automatically calculated hash parameters. Lower values can be selected in manual hash parameters. */
+  static readonly MinMemory = 128 * 1024
+  /** The maximum memory parameter CSplan will use in automatically calculated hash params. Higher values can be selected in manual hash parameters. */
+  static readonly MaxMemory = 512 * 1024
 
   private static readonly BaseHashParams: Readonly<Argon2HashParams> = Object.freeze({
     type: 'argon2i',
     timeCost: 1,
-    memoryCost: 50 * 1024, // 50MB
+    memoryCost: this.MinMemory,
     threads: 1,
     salt: ''
   })
 
-  constructor(hashPassword: Argon2ParamTester['hashPassword'], password?: string) {
+  constructor(hashPassword: Argon2AutoParams['hashPassword'], password?: string) {
     this.hashPassword = hashPassword
     if (password != null) {
       this.password = password
     } else {
-      this.password = Argon2ParamTester.randomPassword(20)
+      this.password = Argon2AutoParams.randomPassword(20)
     }
   }
 
@@ -693,16 +699,34 @@ class Argon2ParamTester {
 
   /** Calculate a set of hash params based on a target hash time in ms. */
   async calculateParams(targetTime = 500): Promise<Argon2HashParams> {
-    await this.calculateMemory(targetTime)
-    await this.calculateTime(targetTime)
+    // Get a base hash time with the base parameters
+    const baseTime = await this.hashTime()
+    // Store the ratio of the base hash time to the target hash time, which can be factored into multipliers for memory and time parameters
+    const ratio = (targetTime / baseTime)
+    if (ratio < 1) {
+      return this.hashParams
+    }
+
+    // The target may possibly be reached by only increasing memory without the max memory value
+    const maxMemoryMultiplier = (Argon2AutoParams.MaxMemory / Argon2AutoParams.MinMemory) // = 4
+    if (ratio <= maxMemoryMultiplier) {
+      this.hashParams.memoryCost = Math.floor(ratio * this.hashParams.memoryCost)
+      return this.hashParams
+    }
+
+    // Otherwise, increase the time value until a memory value between 128MB and 512MB can be used
+    while ((ratio / this.hashParams.timeCost) > maxMemoryMultiplier) {
+      this.hashParams.timeCost++
+    }
+    this.hashParams.memoryCost = Math.floor(ratio / this.hashParams.timeCost)
+
     return this.hashParams
   }
 
-  private async calculateMemory(targetTime: number): Promise<void> {
-
-  }
-
-  private async calculateTime(targetTime: number): Promise<void> {
-
+  /** Return the time is takes to hash the user's password */
+  async hashTime(): Promise<number> {
+    const start = performance.now()
+    await this.hashPassword(this.password, this.salt, this.hashParams)
+    return performance.now() - start
   }
 }
