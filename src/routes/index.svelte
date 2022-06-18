@@ -1,4 +1,5 @@
 <script lang="ts">
+  import user from '$stores/user'
   let showFeatureCardsMobile = false
 </script>
 
@@ -53,9 +54,11 @@
     </div>
   </section>
 
+  {#if !$user.isLoggedIn}
   <section class="register-prompt">
     <a href="/register" class="button bold" title="Register an Account">Register</a>
   </section>
+  {/if}
 </main>
 
 <style lang="scss">
@@ -69,6 +72,9 @@
     padding-right: 10%;
     @media (min-width: $desktop-min) {
       padding-left: 10%;
+    }
+    @media (max-width: $mobile-max) {
+      font-size: 110%;
     }
   }
 
@@ -144,7 +150,6 @@
       p {
         grid-column: 1 / span 2;
         padding: 1rem;
-        text-indent: 0.5in;
       }
     }
   }

@@ -1,6 +1,14 @@
 <script lang="ts">
   import user from '$stores/user'
   import QuickActions from './quick-actions.svelte'
+  import { afterNavigate } from '$app/navigation'
+
+  // Re-hide navbar after page navigation
+  let show: boolean
+  afterNavigate(() => {
+    show = false
+  })
+
   const links = [
     {
       title: 'About',
@@ -21,7 +29,7 @@
 
 <nav>
   <!-- Magic stuff for mobile -->
-  <input id="bmenub" type="checkbox" class="show">
+  <input id="bmenub" type="checkbox" class="show" bind:checked={show}>
   <label for="bmenub" class="burger pseudo button">
     <i class="fas fa-bars"></i>
   </label>
@@ -58,6 +66,7 @@
 
   :root {
     --user-name-margin: 1rem;
+    overflow-y: hidden;
   }
   /* Navbar styling */
   nav, .menu {
@@ -105,10 +114,11 @@
       display: flex;
       flex-direction: column;
       width: 100%;
+      height: 100vh;
       padding: 1rem;
       transition: none; // No slide out transition
       * {
-        transition-duration: 200ms !important;
+        transition: none !important;
       }
 
       >a {

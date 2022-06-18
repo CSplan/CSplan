@@ -23,7 +23,7 @@
           icon: '/vendor/GitHub/GitHub-Mark/PNG/GitHub-Mark-64px.png'
         },
         {
-          title: 'Email (ProtonMail)',
+          title: 'Email',
           user: 'kscr25@csplan.co',
           href: 'mailto:kscr25@csplan.co',
           icon: '/vendor/ProtonMail/protonmail-sign-purple.png'
@@ -61,7 +61,9 @@
 
     {#each credits as credit}
       <p>
-        <b>{credit.work}</b> - {credit.name}
+        <b>{credit.name}</b>
+        <br>
+        <span class="work">{credit.work}</span>
       </p>
       {#if credit.links !== undefined}
         <div class="links">
@@ -82,26 +84,47 @@
   $spacing: 1.5rem;
   div.title {
     display: flex;
-    flex-direction: row;
+    @media screen and (min-width: $desktop-min) {
+      flex-direction: row;
+      margin: $spacing auto;
+    }
+    @media screen and (max-width: $mobile-max) {
+      flex-direction: column;
+      margin: auto $spacing;
+    }
     align-items: center;
     justify-content: center;
 
-    margin: $spacing auto;
 
     h1 {
       font-size: 4rem;
       padding-bottom: 0;
-      margin-right: $spacing;
-      margin-top: -1rem;
+      @media screen and (min-width: $desktop-min) {
+        padding-top: $spacing;
+        margin-right: $spacing;
+      }
+      @media screen and (max-width: $mobile-max) {
+        padding-top: 0;
+      }
     }
     img.CSplan-logo {
       margin-right: 0;
       height: 8rem;
+      @media screen and (max-width: $mobile-max) {
+        margin-bottom: $spacing;
+      }
     }
   }
 
   article {
     padding: $padding-m;
+    @media (max-width: $mobile-max) {
+      font-size: 110%;
+      p {
+        padding-left: 0;
+        padding-right: 0;
+      }
+    }
   }
   h2 {
     text-align: center;
@@ -109,6 +132,7 @@
     border-bottom: 1px #ccc solid;
     margin-bottom: $spacing;
     padding-bottom: 0.6rem;
+    padding-top: 0.6rem;
   }
   div.links {
     margin-left: $spacing;
