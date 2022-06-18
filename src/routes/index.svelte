@@ -8,7 +8,7 @@
 
   <section class="summary">
     <p>
-      CSplan is a time management and project planning suite delivered as a web application with <b>full zero access encryption.</b> CSplan allows you to create lists; jot down plans including titles, descriptions, and custom-colored tags; and track progress for each item on each list. This process is carefully crafted to be secure, simple, fast, and pleasant. Time is always moving, CSplan helps you move with it.
+      CSplan is a time management and project planning suite that stores data with <b>full zero-knowledge encryption.</b> With CSplan, you can create lists; write down plans (including titles, descriptions, and color-coded tags) and track progress for each item on every list. Time is always moving, CSplan helps you move with it.
     </p>
   </section>
 
@@ -27,7 +27,9 @@
       <header>Completely Secure Plans</header>
       <hr>
       <p>
-        <tb></tb>CSplan is designed believing that security and uncompromising privacy protection can be, and must be, the foundation of an application. We encrypt all user data by default, using a combination of 4096-bit RSA and 256-bit AES-GCM encryption. Furthermore, we do not log or store IPs (unless explicitly enabled in settings), we don't store passwords or hashes, and we guarantee the ability to permanently delete your account at any time. 
+        <tb></tb>CSplan was built on the belief that security and uncompromising privacy protection should be and must be the foundation of an application. All user data is stored using zero-knowledge encryption, using a combination of 4096-bit RSA and 256-bit AES-GCM encryption.
+        <br>
+        We never log or stores your IP address (unless explicitly enabled in settings), your password is never stored or known to anyone but you, and we guarantee the ability to permanently delete your account and your data at any time.
       </p>
     </div>
 
@@ -38,7 +40,7 @@
       <header>Comprehensive, Simple Plans</header>
       <hr>
       <p>
-        Balanced in the contrast between completeness and simplicity, CSplan feels as light as a notepad and pencil, yet as powerful as a pipe organ. We serve no ads, no trackers, and no bloated UI that trample over your productivity.  CSplan delivers organized productivity to any device, scaling as a PWA, and never letting the mobile experience suffer in the name of native applications.
+        Balanced between power and simplicity, CSplan aims to deliver a full featureset inside a lightweight design. We serve no ads, no trackers, and no sluggish and bloated UI.  Also, CSplan runs on any device that has a web browser. Cutting-edge technologies such as WebAssembly and WebCrypto are utilized to deliver native performance as a web application.
       </p>
     </div>
 
@@ -49,7 +51,9 @@
       <header>Committed, Strong Plans</header>
       <hr>
       <p>
-        Every part of CSplan is designed around the basis of respect for its users. CSplan is committed to growing its scope and its capabilities, with plans for a future desktop application, calendars and reminders, and general note-taking support. CSplan will continue to work to build a privacy-first future, supporting users every step of the way.
+        Every part of CSplan is designed around the basis of respect for its users. We guarantee to uphold the rights to privacy and data sovereignty at the core of all current and future parts of CSplan.
+        <br>
+        CSplan as a project is committed to growing in both scope and features. Plans exist for <b>calendars and reminder notifications</b>, general-purpose <b>note-taking</b>, a <b>desktop application</b>, and much more.
       </p>
     </div>
   </section>
@@ -73,9 +77,7 @@
     @media (min-width: $desktop-min) {
       padding-left: 10%;
     }
-    @media (max-width: $mobile-max) {
-      font-size: 110%;
-    }
+    font-size: 110%;
   }
 
   button.learn-more {
