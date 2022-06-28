@@ -241,7 +241,7 @@
     display: flex;
     flex-direction: column;
     align-items: center;
-    justify-content: flex-start;
+    justify-content: center;
     grid-column: 1 / span 1;
     grid-row: 1 / span 1;
     border-bottom-right-radius: $br-light;

@@ -2,6 +2,7 @@
   import user from '$stores/user'
   import QuickActions from './quick-actions.svelte'
   import { afterNavigate } from '$app/navigation'
+  import { onMount } from 'svelte'
 
   // Re-hide navbar after page navigation
   let show: boolean
@@ -25,6 +26,19 @@
       needsLogin: true
     }
   ]
+
+  // Hack to prevent navbar from overflowing without disabling scroll anywhere else
+  let html: HTMLElement
+  onMount(() => {
+    html = document.querySelector(':root')!
+  })
+  $: if (html != null) {
+    if (show) {
+      html.style.overflowY = 'hidden'
+    } else {
+      html.style.overflowY = 'initial'
+    }
+  }
 </script>
 
 <nav>

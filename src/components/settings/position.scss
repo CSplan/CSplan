@@ -1,8 +1,14 @@
 @mixin settings-menu-container {
-  width: 800px;
-  height: 100%;
+  @media (min-width: $desktop-min) {
+    width: 800px;
+    height: 100%;
 
-  display: flex;
-  flex-direction: column;
-  line-height: 1;
+    display: flex;
+    flex-direction: column;
+    line-height: 1;
+  }
+  @media (max-width: $mobile-max) {
+    width: auto;
+    overflow-x: scroll;
+  }
 }

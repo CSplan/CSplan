@@ -14,7 +14,7 @@
     position: fixed;
     bottom: 0;
     width: 100%;
-    height: 2.5rem;
+    min-height: 2.5rem;
     font-size: 110%;
     background: $dark-red;
     color: white;
@@ -25,7 +25,10 @@
     justify-content: center;
   }
   span {
-    margin: 0.5rem;
+    margin: 0.6rem;
+  }
+  i {
+    margin-left: 0.6rem;
   }
 
   a {

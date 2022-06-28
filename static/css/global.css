@@ -110,13 +110,19 @@ label.overlay i.fa-times {
   border-bottom-left-radius: 0.25rem;
 }
 
-/* Transition properties */
-:root {
-  --cubic-out: cubic-bezier(.22,.61,.36,1);
+@media (max-width: 700px) { 
+  button,.clickable,input[type="submit"] {
+    font-size: 110% !important;
+  }
 }
 
-/* Global sizes */
+/* Transition properties */
 :root {
+  
+  /* Curves */
+  --cubic-out: cubic-bezier(.22,.61,.36,1);
+
+  /* Global sizes */
   --content-large: 800px;
 
   /* Padding/margin values */
