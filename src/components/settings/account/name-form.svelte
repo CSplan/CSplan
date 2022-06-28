@@ -7,13 +7,22 @@
   import { slide } from 'svelte/transition'
   import Spinner from '$components/spinner.svelte'
 
+  // Form state
   let name: Name
   name = cloneName($nameStore)
-  let editing = false
-  let disabled = !editing
-  $: disabled = !editing
+  let open = false
+  $: open = $navState.isEditing === FormIDs.ChangeName
+  let disabled = !open
+  $: disabled = !open
 
-  // Form state
+  function toggleEditing(): void {
+    if (open) {
+      $navState.isEditing = null
+    } else {
+      $navState.isEditing = FormIDs.ChangeName
+    }
+  }
+
   let state = States.Resting
   let status = ''
 
@@ -25,9 +34,6 @@
   $: hasPublicFirstName = name.firstName.length > 0 && name.visibility.firstName === Visibilities.Public
   $: hasPublicLastName = name.lastName.length > 0 && name.visibility.lastName === Visibilities.Public
 
-  function toggleEditing(): void {
-    editing = !editing
-  }
 
   // Copy a name object without any references (cryptoKey may still be a reference)
   function cloneName(n: Name): Name {
@@ -49,7 +55,7 @@
       setTimeout(() => {
         state = States.Resting
         status = ''
-        editing = false
+        open = false
       }, 500)
     } catch (err) {
       state = States.Errored
@@ -63,8 +69,8 @@
   })
 </script>
 
-<form class="name-form" class:disabled={$navState.isEditing !== null && $navState.isEditing !== FormIDs.ChangeName} class:editing on:submit|preventDefault={submit}>
-  <i class="fas fa-edit clickable edit-button" class:editing on:click={toggleEditing}></i>
+<form class="name-form" class:open on:submit|preventDefault={submit}>
+  <i class="fas fa-edit clickable edit-button" class:open on:click={toggleEditing}></i>
 
   <label for="firstname">First Name</label>
   <div class="input-group">
@@ -78,7 +84,7 @@
     <VisibilityForm bind:visibility={name.visibility.lastName} {disabled}/>
   </div>
 
-  {#if editing}
+  {#if open}
     <div class="editable" transition:slide={{ duration: 50 }}>
       <!-- FIXME: HTML selects look terrible, but provide good keyboard and accessibility. These need to be replaced sooner than later with a custom component that doesn't sacrifice functoinality -->
       <label for="public-name-pref">Display Name</label>
@@ -142,7 +148,7 @@
     margin-right: 0.5rem;
     margin-bottom: 0.5rem;
   }
-  i.editing {
+  i.open {
     color: $bold-blue;
   }
 </style>

@@ -1,6 +1,6 @@
 <script lang="ts">
-  import user from '$stores/user'
   import ProfilePictureForm from './pfp-form.svelte'
+  import EmailForm from './email.form.svelte'
   import PasswordForm from './password-form.svelte'
   import NameForm from './name-form.svelte'
 </script>
@@ -12,11 +12,7 @@
     
     <section class="user-details" on:submit|preventDefault>
 
-      <form>
-        <label for="email">Email</label>
-        <input id="email" type="email" value={$user.user.email} disabled>
-      </form>
-
+      <EmailForm/>
       <PasswordForm/>
       <hr>
       <NameForm/>

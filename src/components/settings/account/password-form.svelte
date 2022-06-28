@@ -7,12 +7,12 @@
   import Spinner from '$components/spinner.svelte'
 
   let open = false
+  $: open = $navState.isEditing === FormIDs.ChangePassword
   function toggleOpen(): void {
-    open = !open
     if (open) {
-      $navState.isEditing = FormIDs.ChangePassword
-    } else {
       $navState.isEditing = null
+    } else {
+      $navState.isEditing = FormIDs.ChangePassword
     }
   }
   const oldPlaceholder = '*'.repeat(20)
