@@ -1,0 +1,109 @@
+:root {
+  --user-name-margin: 1rem;
+  overflow-y: hidden;
+}
+/* Navbar styling */
+nav, .menu {
+  padding: 0;
+  background: $bg-dark;
+  color: whitesmoke;
+  height: 3.5rem;
+} 
+img.logo {
+  height: 3rem;
+  margin: 0.25rem 0;
+}
+a.logo-container {
+  margin: 0 !important;
+}
+nav {
+  position: relative;
+  z-index: 998;
+}
+/* Desktop styles */
+@media all and (min-width: $desktop-min) {
+  .menu {
+    display: flex;
+    flex-direction: row;
+    width: 100%;
+    padding: 0 1rem;
+  }
+  .menu .right {
+    margin-left: auto;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+  }
+  .account-text-mobile {
+    display: none;
+  }
+  /* Extra right margin for the user's name */
+  .menu .right span {
+    margin-right: var(--user-name-margin);
+  }
+}
+/* Mobile styles */
+@media all and (max-width: $mobile-max) {
+  .menu {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    height: 100vh;
+    padding: 1rem;
+    transition: none; // No slide out transition
+    * {
+      transition: none !important;
+    }
+
+    >a {
+      border-radius: 0;
+    }
+    >a:not(:last-child) {
+      border-left: 1px #ccc solid;
+    }
+  }
+  .menu .right {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    text-align: center; /* Show the user's name/email in the center of the menu without enabling full center alignment */
+  }
+  /* Extra bottom margin for the user's name */
+  .account-text-mobile {
+    padding: 0.3rem 0.9rem;
+    margin-left: 0;
+    margin-right: 0;
+    border-bottom: 1px #ccc solid;
+  }
+  .menu .right span {
+    display: none;
+  }
+}
+/* Item item spacing */
+@media all and (min-width: $desktop-min) {
+  a {
+    margin: auto 0.3rem;
+  }
+  .menu > a {
+    margin: auto 0;
+  }
+}
+@media all and (max-width: $mobile-max) {
+  a {
+    margin: 0.5rem 0;
+  }
+  .right {
+    border-top: 1px #aaa solid;
+    padding-top: 0.5rem;
+    margin: 0;
+    margin-top: 0.5rem;
+  }
+}
+
+/* Register and login buttons get special colors */
+.register {
+  background: var(--bold-blue);
+}
+.login {
+  background: var(--light-purple)
+}

@@ -1,6 +1,7 @@
 <script>
   // @ts-nocheck
   import Navbar from '$components/navbar/navbar.svelte'
+  import VerificationBanner from '$components/banner/verification-banner.svelte'
   import { onMount } from 'svelte'
   import user from '$stores/user'
   import { route, csfetch } from '$lib'
@@ -50,3 +51,7 @@
 <Navbar/>
 
 <slot></slot>
+
+{#if $user.isLoggedIn && !$user.user.verified}
+  <VerificationBanner/>
+{/if}

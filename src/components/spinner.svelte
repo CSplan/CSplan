@@ -6,6 +6,7 @@
   export let message = ''
   export let state: States = States.Saving
   export let iconSaved = 'fa-check-circle'
+  export let colorOverride = ''
 
   // Custom icon colors/styling through classes
   export let classSaved = 'saved'
@@ -16,9 +17,11 @@
     {state === States.Saved ? `${iconSaved} ${classSaved}` : ''}" 
   class:fa-circle-notch={state === States.Saving}
   class:fa-times-circle={state === States.Errored}
+  class:use-color-override={colorOverride.length > 0}
 
   style:--size={size}
-  size:--vm={vm}
+  style:--vm={vm}
+  style:--color-override={colorOverride}
   ></i>
   
   {#if message.length > 0}
@@ -43,6 +46,9 @@
     margin: var(--vm) 0;
     font-size: var(--size);
     align-self: center;
+  }
+  i.use-color-override {
+    color: var(--color-override) !important;
   }
   i.fa-circle-notch {
     animation-name: spin;
