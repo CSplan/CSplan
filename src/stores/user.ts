@@ -3,10 +3,10 @@ import { clearAll, clearUserStores } from '../db'
 import { HTTPerror, route, csfetch } from '$lib'
 import storage from '$db/storage'
 
-
 type UserActions = {
   login(user: UserStore['user']): void
-  logout(): void
+  logout(): Promise<void>
+  sendVerificationEmail(): Promise<void>
 }
 
 function create(): Readable<UserStore> & UserActions {
@@ -46,6 +46,24 @@ function create(): Readable<UserStore> & UserActions {
       await clearAll()
       // Reset in-memory state
       set(userStore)
+    },
+    async sendVerificationEmail()  {
+      const res = await csfetch(route('/send-verification-email'), {
+        method: 'PUT',
+        headers: {
+          'CSRF-Token': storage.getCSRFtoken()
+        }
+      })
+      if (res.status !== 204) {
+        let error: string
+        try {
+          const err: ErrorResponse = await res.json()
+          error = err.message
+        } catch {
+          error = 'Unknown error sending verification email.'
+        }
+        throw new Error(error)
+      }
     }
   }
 }
