@@ -21,7 +21,6 @@
   let email: HTMLInputElement
   let password: HTMLInputElement
   let confirmPassword: HTMLInputElement
-  let betaCode: HTMLInputElement
 
   // Actions
   let actions: RegisterActions
@@ -50,8 +49,7 @@
       const authSalt = makeSalt(16)
       await actions.register({
         email: email.value,
-        password: password.value,
-        betaCode: betaCode.value
+        password: password.value
       }, authSalt)
 
       const cryptoSalt = makeSalt(16)
@@ -122,10 +120,6 @@
       <input type="checkbox" bind:checked={showPassword}/>
       <span class="checkable">Show Password</span>
     </label>
-    <label id="beta-code">
-      <header>Beta Access Code</header>
-      <input type="text" required minlength=6 maxlength=6 size=6 placeholder="ABCDEF" bind:this={betaCode}/>
-    </label>
 
     <details bind:open={showAdvanced}>
       <summary class="clickable"><i class="fas fa-chevron-right"></i>Advanced</summary>
@@ -162,14 +156,6 @@
       padding-top: 0;
       margin-top: 0;
       border-bottom: 1px solid #aaa;
-    }
-    label#beta-code {
-      margin: 0;
-      header {
-        margin-top: 0.8rem;
-        border-top: 1px solid #aaa;
-        border-bottom: none;
-      }
     }
     // TODO: Find a way to handle hashparam form alignment that isn't completely insane
     details {

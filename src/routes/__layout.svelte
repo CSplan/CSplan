@@ -20,10 +20,10 @@
         const res = await csfetch(route('/whoami'))
         const body = await res.json()
         if (res.status === 200) {
-          // If a CSRF-Token header is sent from /whoami, it signals that the old CSRF token has expired and the new token must be used for further requests
           user.login({
             ...JSON.parse(localStorage.getItem('user')),
-            id: body.userID
+            id: body.userID,
+            verified: body.verified
           })
         } else {
           throw new AuthError({
@@ -34,7 +34,7 @@
       } catch (err) {
         if (err.code === 'NOT_LOGGED_IN') {
           console.error('failed backend authentication')
-          // user.logout()
+          user.logout()
         } else {
           alert('Either you\'re offline or the API is down. Check /status for more information.')
         }

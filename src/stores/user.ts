@@ -13,7 +13,8 @@ function create(): Readable<UserStore> & UserActions {
   const userStore = {
     user: {
       id: '',
-      email: ''
+      email: '',
+      verified: false
     },
     isLoggedIn: false
   }

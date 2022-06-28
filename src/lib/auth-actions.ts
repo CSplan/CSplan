@@ -26,12 +26,12 @@ type ChallengeRequest = {
 export type ChallengeResponse = {
   userID: string
   sessionID: string
+  verified: boolean
 }
 type RegisterRequest = {
   email: string
   key: string
   hashParams: Argon2HashParams
-  betaCode: string // Beta access code
 }
 type AuthUser = {
   email: string
@@ -274,7 +274,8 @@ export class LoginActions {
     // Login to state
     userStore.login({
       email: user.email,
-      id: response.userID
+      id: response.userID,
+      verified: response.verified
     })
     return AuthConditions.Success
   }
@@ -351,7 +352,7 @@ export class RegisterActions extends LoginActions {
     super(argon2, ed25519)
   }
 
-  async register(user: AuthUser & { betaCode: string }, salt: Uint8Array): Promise<void> {
+  async register(user: AuthUser, salt: Uint8Array): Promise<void> {
     const normalizedPassword = user.password.normalize('NFC')
     // Calculate hash parameters
     if (this.useAutoHashParams) {
@@ -372,8 +373,7 @@ export class RegisterActions extends LoginActions {
     const registerRequest: RegisterRequest = {
       email: user.email,
       key: encode(publicKey!),
-      hashParams: this.hashParams,
-      betaCode: user.betaCode
+      hashParams: this.hashParams
     }
     const res = await csfetch(route('/register'), {
       method: 'POST',
@@ -682,7 +682,7 @@ export const TOTPActions = {
 }
 
 /** Class used to automatically calculate a set of Argon2 parameters for an account. */
-class Argon2AutoParams {
+export class Argon2AutoParams {
   private argon2: Argon2.WorkerConnection // Needed for hashPassword to work
   private hashPassword: (password: string, salt: Uint8Array, hashParams?: Argon2HashParams) => Promise<Uint8Array>
   private password: string
@@ -695,9 +695,12 @@ class Argon2AutoParams {
   /** The maximum memory parameter CSplan will use in automatically calculated hash params. Higher values can be selected in manual hash parameters. */
   static readonly MaxMemory = 512 * 1024
 
+  /** https://github.com/P-H-C/phc-winner-argon2/blob/master/argon2-specs.pdf [Sec 5.6] */
+  static readonly MinTime = 3
+
   private static readonly BaseHashParams: Readonly<Argon2HashParams> = Object.freeze({
     type: 'argon2i',
-    timeCost: 1,
+    timeCost: this.MinTime,
     memoryCost: this.MinMemory,
     threads: 1,
     salt: ''

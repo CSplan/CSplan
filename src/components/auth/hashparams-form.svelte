@@ -1,14 +1,15 @@
 <script lang="ts">
   import { parseByteSize, formatByteSize } from '$lib/byte-size'
   import type { RegisterActions } from '$lib/auth-actions'
+  import { Argon2AutoParams } from '$lib/auth-actions'
   import { createEventDispatcher } from 'svelte'
   
   const dispatch = createEventDispatcher()
 
   export let actions: RegisterActions
 
-  let timeCost = 1
-  let memoryCost = 10 * 1024 * 1024
+  let timeCost = Argon2AutoParams.MinTime
+  let memoryCost = Argon2AutoParams.MinMemory
   let memoryCostFormatted = formatByteSize(memoryCost)
 
   // Save the hashparams to the register actions instance
