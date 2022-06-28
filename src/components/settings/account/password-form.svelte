@@ -99,10 +99,14 @@
         <span class="checkable">Show Old Password</span>
       </label>
 
-      <label for="new-password">New Password</label>
-      <input id="new-password" type="{showNewPassword ? 'text' : 'password'}" bind:this={newPassword} {placeholder} required>
-      <label for="confirm-new-password">Confirm New Password</label>
-      <input id="confirm-new-password" type="{showNewPassword ? 'text' : 'password'}" bind:this={confirmPassword} {placeholder} required>
+      <label>
+        <span>New Password</span>
+        <input id="new-password" type="{showNewPassword ? 'text' : 'password'}" bind:this={newPassword} {placeholder} required>
+      </label>
+      <label>
+        <span>Confirm New Password</span>
+        <input id="confirm-new-password" type="{showNewPassword ? 'text' : 'password'}" bind:this={confirmPassword} {placeholder} required>
+      </label>
       <label class="checkable">
         <input type="checkbox" bind:checked={showNewPassword}>
         <span class="checkable">Show New Passwords</span>
@@ -126,6 +130,9 @@
   form.password-form,div.editable {
     display: flex;
     flex-direction: column;
+  }
+  input#new-password,input#confirm-new-password {
+    width: calc(100% - (17.6px + 1.5rem));
   }
   input[type="submit"] {
     align-self: center;

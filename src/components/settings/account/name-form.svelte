@@ -133,6 +133,9 @@
     display: flex;
     flex-direction: column;
   }
+  select#public-name-pref, select#name-pref {
+    width: calc(100% - (15.4px + 1.5rem));
+  }
   p.form-status {
     align-self: center;
     line-height: 1.5;

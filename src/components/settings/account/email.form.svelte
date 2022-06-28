@@ -32,7 +32,7 @@
     <div class="editable" transition:slide={{ duration: 50 }}>
       <label>
         <span>New Email</span>
-        <input type="email" bind:this={newEmail}>
+        <input id="new-email" type="email" bind:this={newEmail}>
       </label>
 
       <Spinner size="2rem" vm="0.5rem" bind:state bind:message/>
@@ -53,6 +53,9 @@
         align-self: center;
       }
     }
+  }
+  input#new-email {
+    width: calc(100% - (17.6px + 1.5rem)); // Align with email form
   }
   input[type="submit"] {
     align-self: center;
