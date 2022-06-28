@@ -10,6 +10,7 @@
 
 <script>
   import TodoList from '$components/lists/todo-list.svelte'
+  import VerificationBanner from '$components/banner/verification-banner.svelte'
 
   export let id
 </script>
@@ -21,6 +22,8 @@
 <main class="container">
   <TodoList {id}/>
 </main>
+
+<VerificationBanner/>
 
 <style>
   .back-button i {

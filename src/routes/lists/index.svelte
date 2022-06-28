@@ -2,6 +2,7 @@
   /* eslint-disable */
   import TitleView from '$components/lists/title-view.svelte'
   import lists from '$stores/lists'
+  import VerificationBanner from '$components/banner/verification-banner.svelte'
   import { onMount } from 'svelte'
 
   // FIXME: this entire route is pretty bad
@@ -14,6 +15,8 @@
 <main class="container">
   <TitleView/>
 </main>
+
+<VerificationBanner/>
 
 <style lang="scss">
   @media all and (min-width: $desktop-min) {

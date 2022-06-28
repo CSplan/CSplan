@@ -4,6 +4,7 @@
   import { ordered, tags } from '$stores/tags'
   import Loading from '$components/loading.svelte'
   import Modal from '$components/modals/create-tag-modal.svelte'
+  import VerificationBanner from '$components/banner/verification-banner.svelte'
   let showModal = false
 
   const states = {
@@ -54,6 +55,8 @@
     <pre>{stateMsg}</pre>
   </main>
 {/if}
+
+<VerificationBanner/>
 
 
 <style lang="scss">

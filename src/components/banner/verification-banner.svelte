@@ -1,20 +1,13 @@
 <script lang="ts">
-  //import user from '$stores/user'
-  import Spinner from '$components/spinner.svelte'
-
-
+  import user from '$stores/user'
 </script>
 
-<footer class="verification-banner">
-  <i class="fas fa-triangle-exclamation"></i>
-  <span>Please verify your CSplan account's email address.
-    <span class="clickable resend-link">
-      <i class="far fa-envelope"></i>
-      Resend Verification Email
-    </span>
-  </span>
-  <Spinner colorOverride='white'/>
-</footer>
+{#if $user.isLoggedIn && !$user.user.verified}
+  <footer class="verification-banner">
+    <i class="fas fa-triangle-exclamation"></i>
+    <span>Please verify your CSplan account's email address. Go to <a href="/settings/account">settings</a> to resend a verification email.</span>
+  </footer>
+{/if}
 
 <style lang="scss">
   footer.verification-banner {
@@ -34,8 +27,10 @@
   span {
     margin: 0.5rem;
   }
-  span.resend-link {
+
+  a {
+    color: inherit;
+    text-decoration: underline;
     font-weight: 600;
-    border-bottom: 2px white solid;
   }
 </style>
