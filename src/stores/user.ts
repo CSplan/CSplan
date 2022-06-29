@@ -7,6 +7,7 @@ type UserActions = {
   login(user: UserStore['user']): void
   logout(): Promise<void>
   sendVerificationEmail(): Promise<void>
+  setEmail(email: string): void
 }
 
 function create(): Readable<UserStore> & UserActions {
@@ -18,7 +19,7 @@ function create(): Readable<UserStore> & UserActions {
     },
     isLoggedIn: false
   }
-  const { subscribe, set } = writable(userStore)
+  const { subscribe, set, update } = writable(userStore)
 
   return {
     subscribe,
@@ -47,7 +48,7 @@ function create(): Readable<UserStore> & UserActions {
       // Reset in-memory state
       set(userStore)
     },
-    async sendVerificationEmail()  {
+    async sendVerificationEmail() {
       const res = await csfetch(route('/send-verification-email'), {
         method: 'PUT',
         headers: {
@@ -64,6 +65,16 @@ function create(): Readable<UserStore> & UserActions {
         }
         throw new Error(error)
       }
+    },
+    setEmail(email: string) {
+      update((store) => {
+        store.user.email = email
+        return store
+      }) 
+      storage.setUser({
+        ...storage.getUser(),
+        email
+      })
     }
   }
 }

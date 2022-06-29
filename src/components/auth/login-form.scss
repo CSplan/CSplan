@@ -1,9 +1,9 @@
 .card {
-  @media all and (min-width: 850px) {
+  @media all and (min-width: $desktop-min) {
     width: 20%;
     margin-top: 20vh;
   }
-  @media all and (max-width: 849px) {
+  @media all and (max-width: $mobile-max) {
     margin-top: 30px;
     width: 85%;
   }

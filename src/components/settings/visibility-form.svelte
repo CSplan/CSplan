@@ -58,12 +58,14 @@
       <input type="radio" bind:group={visibility} value={Visibilities.Encrypted} on:change={onChange}>
     </label>
 
+    {#if false}
     <label>
       <i class="{visibility === Visibilities.SemiPublic ? 'fas' : 'far'} {Icons.SemiPublic}"></i>
       <span>Semi-Public</span>
       <i class="{visibility === Visibilities.SemiPublic ? 'fas' : 'far'} fa-circle indicator"></i>
       <input type="radio" disabled>
     </label>
+    {/if}
 
     <label>
       <i class="{visibility === Visibilities.Public ? 'fas' : 'far'} {Icons.Public}"></i>

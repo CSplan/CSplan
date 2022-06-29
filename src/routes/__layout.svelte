@@ -23,7 +23,8 @@
           user.login({
             ...JSON.parse(localStorage.getItem('user')),
             id: body.userID,
-            verified: body.verified
+            verified: body.verified,
+            email: body.email
           })
         } else {
           throw new AuthError({

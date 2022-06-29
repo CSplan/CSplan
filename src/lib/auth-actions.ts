@@ -11,6 +11,8 @@ import storage from '$db/storage'
 import { dev } from '$app/env'
 import { AuthLevels } from './auth-levels'
 
+// #region Types
+
 export type Challenge = {
   id: string
   data: string
@@ -51,6 +53,11 @@ type PasswordUpdate = {
     crypto: Argon2HashParams
   }
 }
+type EmailUpdate = {
+  email: string
+}
+
+// #endregion
 
 
 // All authkeys are 32 bytes long
@@ -521,6 +528,37 @@ export class PasswordChangeActions extends RegisterActions {
       const err: ErrorResponse = await res.json()
       throw new Error(err.message || 'error updating password with API')
     }
+  }
+}
+
+export const EmailChangeActions = {
+  /**
+   * Change a user's email address. A verification email will be sent to the old address.
+   * Both the old and new address can be used to log in until the new email is verified. 
+   * If the new email is now verified within 24hr, the account will revert to the old email.
+   */
+  async changeEmail(actions: LoginActions, password: string, newEmail: string): Promise<void> {
+    // Email changes require lvl 2 auth
+    await UpgradeActions.passwordUpgrade(actions, password)
+
+    const body: EmailUpdate = {
+      email: newEmail
+    }
+    const res = await csfetch(route('/change-email'), {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+        'CSRF-Token': storage.getCSRFtoken()
+      },
+      body: JSON.stringify(body)
+    })
+    if (res.status !== 204) {
+      const err: ErrorResponse = await res.json()
+      throw new Error(err.message || 'Unknown error changing email.')
+    }
+    userStore.setEmail(newEmail)
+
+    await UpgradeActions.downgrade()
   }
 }
 
