@@ -11,6 +11,8 @@
     icon?: string
   }
 
+  const version = __APP_VERSION__
+
   const credits: Credit[] = [
     {
       name: 'Keith Scroggs',
@@ -55,7 +57,7 @@
   <article class="card">
     <p>All feedback and suggestions are welcome and greatly appreciated. Please submit feedback to <a href="mailto:feedback@csplan.co">feedback@csplan.co</a> or on <a href="https://github.com/very-amused/CSplan/issues">CSplan's Github Issues</a>.</p>
 
-    <p>Current version: <code>Private-Beta</code></p>
+    <p>Current version: <code>{version}</code></p>
 
     <h2>Credits</h2>
 

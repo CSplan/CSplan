@@ -2,6 +2,7 @@ import node from '@sveltejs/adapter-node'
 import preprocess from 'svelte-preprocess'
 import path from 'path'
 import { readFileSync } from 'fs'
+import pkg from './package.json' assert {type: 'json'}
 
 /**
  * @typedef {import('@sveltejs/kit').Config} SvelteKitConfig
@@ -45,6 +46,9 @@ const config = {
       optimizeDeps: {
         exclude: ['cs-crypto']
       },
+      define: {
+        __APP_VERSION__: `'Public Beta ${pkg.version}'`
+      }
     }
   },
   preprocess: preprocess({

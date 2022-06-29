@@ -1,9 +1,10 @@
 {
   "name": "csplan",
   "description": "TODO",
-  "version": "0.0.1-rc1",
+  "version": "0.5.0",
   "license": "UNLICENSED",
   "type": "module",
+  "private": true,
   "scripts": {
     "dev": "svelte-kit dev --port=3030",
     "lint": "eslint --fix src",
