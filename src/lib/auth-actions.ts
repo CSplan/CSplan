@@ -230,12 +230,15 @@ export class LoginActions {
 
     // Hash the user's password (skip if authKey is already present)
     const normalizedPassword = this.privateBetaAccount ? user.password.normalize('NFKC') : user.password.normalize('NFC')
+    /*
     if (reuseAuthKey) {
       this.onMessage('Using already generated authentication key')
     } else {
-      this.onMessage('Generating authentication key')
-      this.hashResult = await this.hashPassword(normalizedPassword, salt)
-    }
+      */
+    this.onMessage('Generating authentication key')
+    this.hashResult = await this.hashPassword(normalizedPassword, salt)
+    
+    //}
      
     this.onMessage('Solving authentication challenge')
     // Use the argon2 output as a seed to derive an ed25519 keypair
