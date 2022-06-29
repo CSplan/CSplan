@@ -211,6 +211,8 @@ export class LoginActions {
         body: JSON.stringify(challengeRequest)
       })
     }
+    this.privateBetaAccount = res.headers.get('X-Private-Beta-Account') != null
+
     if (res.status === 412) {
       return AuthConditions.TOTPRequired
     }
@@ -222,7 +224,6 @@ export class LoginActions {
       throw new Error(err.message || 'Unknown error requesting an auth challenge')
     }
     const challenge: Challenge = await res.json()
-    this.privateBetaAccount = res.headers.get('X-Private-Beta-Account') != null
       
     // Load argon2 parameters and decode salt from the challenge
     const salt = decode(challenge.hashParams.salt)
