@@ -29,7 +29,7 @@
       <p>
         <tb></tb>CSplan was built on the belief that security and uncompromising privacy protection should be and must be the foundation of an application. All user data is stored using zero-knowledge encryption, using a combination of 4096-bit RSA and 256-bit AES-GCM encryption.
         <br>
-        We never log or stores your IP address (unless explicitly enabled in settings), your password is never stored or known to anyone but you, and we guarantee the ability to permanently delete your account and your data at any time.
+        We never log or store your IP address (unless explicitly enabled in settings), your password is never stored or known to anyone but you, and we guarantee the ability to permanently delete your account and your data at any time.
       </p>
     </div>
 

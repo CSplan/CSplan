@@ -230,6 +230,7 @@ export class LoginActions {
     this.hashParams = challenge.hashParams
 
     // Hash the user's password (skip if authKey is already present)
+    console.log(`private beta account: ${this.privateBetaAccount}`)
     const normalizedPassword = this.privateBetaAccount ? user.password.normalize('NFKC') : user.password.normalize('NFC')
     /*
     if (reuseAuthKey) {
