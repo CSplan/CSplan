@@ -78,6 +78,9 @@
     // Initialize actions class
     actions = new RegisterActions(argon2, ed25519)
     // Set message handler 
+    actions.onMessage = (msg) => {
+      message = msg
+    }
     try {
       await actions.loadArgon2({
         wasmRoot: RegisterActions.Argon2_WASMRoot,

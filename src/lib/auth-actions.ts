@@ -211,8 +211,6 @@ export class LoginActions {
         body: JSON.stringify(challengeRequest)
       })
     }
-    this.privateBetaAccount = res.headers.get('X-Private-Beta-Account') != null
-
     if (res.status === 412) {
       return AuthConditions.TOTPRequired
     }
@@ -224,23 +222,20 @@ export class LoginActions {
       throw new Error(err.message || 'Unknown error requesting an auth challenge')
     }
     const challenge: Challenge = await res.json()
+    this.privateBetaAccount = res.headers.get('X-Private-Beta-Account') != null
       
     // Load argon2 parameters and decode salt from the challenge
     const salt = decode(challenge.hashParams.salt)
     this.hashParams = challenge.hashParams
 
     // Hash the user's password (skip if authKey is already present)
-    console.log(`private beta account: ${this.privateBetaAccount}`)
     const normalizedPassword = this.privateBetaAccount ? user.password.normalize('NFKC') : user.password.normalize('NFC')
-    /*
     if (reuseAuthKey) {
       this.onMessage('Using already generated authentication key')
     } else {
-      */
-    this.onMessage('Generating authentication key')
-    this.hashResult = await this.hashPassword(normalizedPassword, salt)
-    
-    //}
+      this.onMessage('Generating authentication key')
+      this.hashResult = await this.hashPassword(normalizedPassword, salt)
+    }
      
     this.onMessage('Solving authentication challenge')
     // Use the argon2 output as a seed to derive an ed25519 keypair
