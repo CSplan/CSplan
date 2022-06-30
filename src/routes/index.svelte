@@ -8,7 +8,7 @@
 
   <section class="summary">
     <p>
-      CSplan is a time management and project planning suite that stores data with <b>full zero-knowledge encryption.</b> With CSplan, you can create lists; write down plans (including titles, descriptions, and color-coded tags) and track progress for each item on every list. Time is always moving, CSplan helps you move with it.
+      CSplan is a time management and project planning suite that stores data with <b>full zero-knowledge encryption.</b> With CSplan, you can create lists, write down plans (including titles, descriptions, and color-coded tags), and track progress for each item on every list. Time is always moving, CSplan helps you move with it.
     </p>
   </section>
 

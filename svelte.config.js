@@ -2,7 +2,7 @@ import node from '@sveltejs/adapter-node'
 import preprocess from 'svelte-preprocess'
 import path from 'path'
 import { readFileSync } from 'fs'
-import pkg from './package.json' assert {type: 'json'}
+const pkg = JSON.parse(readFileSync('./package.json'))
 
 /**
  * @typedef {import('@sveltejs/kit').Config} SvelteKitConfig
