@@ -119,6 +119,14 @@
     e: {
       handler: toggleEditMode,
       ignoreInForm: true
+    },
+    n: {
+      handler: () => {
+        if (editMode) {
+          addItem()
+        }
+      },
+      ignoreInForm: true
     }
   }
   // #endregion

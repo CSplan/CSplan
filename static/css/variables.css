@@ -4,13 +4,13 @@
   --br-light: 3px;
 
   --background-dark: #22223F;
-  --background-alt: rgb(47, 76, 207);
+  --background-alt: #2f4ccf;
   --bold-blue: rgb(0, 119, 255);
   --primary-purple: #7b1fa2;
   --light-purple: #ae52d4;
   --danger-red: #ff4d4d;
   --dark-red: #d30000;
-  --success-green: hsl(152, 100%, 32%);
+  --success-green: #00a357;
   --success-accent: hsl(152, 100%, 25%);
 
   --picnic-input-padding: 0.3em 0.45em;

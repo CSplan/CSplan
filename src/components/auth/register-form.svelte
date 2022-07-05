@@ -25,9 +25,6 @@
   // Actions
   let actions: RegisterActions
 
-  // If the user is already logged in, redirect them
-  // FIXME: Handle automatic navigation in a not stupid way (how its done login-form.svelte)
-
   async function register(): Promise<void> {
     if (!form.checkValidity()) {
       return
