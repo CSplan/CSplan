@@ -105,7 +105,7 @@ label.overlay i.fa-times {
 
 @media (max-width: 700px) { 
   button,.clickable,input[type="submit"] {
-    font-size: 110% !important;
+    font-size: 110%;
   }
 }
 

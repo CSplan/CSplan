@@ -1,6 +1,8 @@
-// Variables are defined in static/variables.css
+// Variables are defined in static/css/variables.css and static/css/theme/*.css
 
+$bg-lessdark: var(--background-lessdark);
 $bg-dark: var(--background-dark);
+$bg-darker: var(--background-darker);
 $bg-alt: var(--background-alt);
 $mobile-max: 849px;
 $desktop-min: 850px;

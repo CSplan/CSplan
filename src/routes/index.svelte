@@ -1,10 +1,11 @@
 <script lang="ts">
   import user from '$stores/user'
+  import { settings } from '$stores/settings'
   let showFeatureCardsMobile = false
 </script>
 
 <main class="container">
-  <img src="/logo/Light-CSplan.svg" alt="CSplan: Own your time." class="title-logo">
+  <img src="/logo/{$settings.darkMode ? 'Dark' : 'Light'}-CSplan.svg" alt="CSplan: Own your time." class="title-logo">
 
   <section class="summary">
     <p>
@@ -72,10 +73,10 @@
   }
 
   .summary {
-    float: left;
     padding-right: 10%;
     @media (min-width: $desktop-min) {
       padding-left: 10%;
+      text-align: center;
     }
     font-size: 110%;
   }
@@ -85,7 +86,7 @@
       padding: 1rem 1.5rem;
       font-size: 150%;
       font-weight: bold;
-      background: $bg-dark;
+      background: $bg-lessdark;
       box-shadow: none;
       touch-action: none;
       i {

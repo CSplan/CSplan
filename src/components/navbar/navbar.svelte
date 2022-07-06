@@ -1,5 +1,6 @@
 <script lang="ts">
   import user from '$stores/user'
+  import settings from '$stores/settings'
   import QuickActions from './quick-actions.svelte'
   import { afterNavigate } from '$app/navigation'
   import { onMount } from 'svelte'
@@ -41,7 +42,7 @@
   }
 </script>
 
-<nav>
+<nav class:dark={$settings.darkMode}>
   <!-- Magic stuff for mobile -->
   <input id="bmenub" type="checkbox" class="show" bind:checked={show}>
   <label for="bmenub" class="burger pseudo button">
@@ -76,6 +77,10 @@
 </nav>
 
 <style lang="scss">
-  @import '../../scss/colors.scss';
   @import './navbar.scss';
+  @media (max-width: $mobile-max) {
+    nav.dark {
+      background: inherit;
+    }
+  }
 </style>

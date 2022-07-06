@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { settings } from '$stores/settings'
   type Credit = {
     name: string
     work: string
@@ -51,7 +52,7 @@
 <main class="container">
   <div class="title">
     <h1 class="title">About</h1>
-    <img src="/logo/Light-CSplan-noslogan.svg" alt="CSplan Logo" class="CSplan-logo">
+    <img src="/logo/{$settings.darkMode ? 'Dark' : 'Light'}-CSplan-noslogan.svg" alt="CSplan Logo" class="CSplan-logo">
   </div>
 
   <article class="card">
