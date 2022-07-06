@@ -6,8 +6,11 @@
   export const load: Load = ({ session }) => {
     const s = session as RenderSession
     // If the user is logged in, initialize settings from cookies
+    console.log(s)
     if (s.isLoggedIn) {
-      settings.init(s.settings) 
+      if (s.settings != null) {
+        settings.init(s.settings) 
+      }
     }
 
     return {}

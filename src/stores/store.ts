@@ -3,7 +3,7 @@ import { writable } from 'svelte/store'
 
 /** A store instance with protected update and set methods. */
 export class Store<T> implements Readable<T> {
-  protected readonly initialValue: T
+  readonly initialValue: T
 
   readonly subscribe: Readable<T>['subscribe']
   protected readonly update: Writable<T>['update']

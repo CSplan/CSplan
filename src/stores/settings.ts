@@ -15,7 +15,7 @@ class SettingsStore extends Store<Settings> {
     No initialization from cache is required, all values are set from cookies. */
   }
 
-  /** Initialize values, should be done serverside after parsing settings from cookies. */
+  /** Initialize values, should be done serverside after retrieving user settings */
   init(settings: Settings): void {
     this.set(settings)
   }

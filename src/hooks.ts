@@ -1,7 +1,8 @@
 import type { Handle, GetSession } from '@sveltejs/kit'
-import type { Settings } from '$stores/settings'
-import { dev } from '$app/env'
+import { Settings } from '$stores/settings'
 import cookie from 'cookie'
+import { HTTPerror, route } from '$lib'
+import { dev } from '$app/env'
 
 export type RenderSession = {
   isLoggedIn: true
@@ -12,24 +13,38 @@ export type RenderSession = {
 
 // Serverside request hook, used to parse session cookies for SSR
 export const handle: Handle = async ({ event, resolve }) => {
-  const cookies = cookie.parse(
-    event.request.headers.get('cookie') || '')
-
   const locals = event.locals as RenderSession
 
-  const authCookie = cookies[`Authorization${dev ? '_DEV' : ''}`].split(':')
-  if (authCookie.length > 0) {
-    locals.isLoggedIn = true
-  }
+  // If an authorization cookie is present, assume the user is logged in
+  // TODO: validate logins serverside
+  const cookies = cookie.parse(
+    event.request.headers.get('cookie') || '') as Record<string, string|undefined>
+  const authCookie = cookies['Authorization']
+  locals.isLoggedIn = authCookie != null && authCookie.length > 0
 
   if (locals.isLoggedIn) {
+    // Get settings from API
+    const path = '/settings?filter=appearance'
+    const url = dev ? `http://localhost:3000${path}` : route(path)
+    const res = await fetch(url, {
+      headers: {
+        // Cookies have to manually be passed in serverside fetch requests
+        Cookie: `Authorization=${authCookie}`
+      }
+    })
+    if (res.status !== 200) {
+      console.error(await HTTPerror(res, 'Failed to fetch settings'))
+      return resolve(event)
+    }
+
+    const body: Settings = await res.json()
+
     locals.settings = {
-      darkMode: cookies['DarkMode'] !== `${false}`
+      darkMode: body.darkMode
     }
   }
 
-  const response = await resolve(event)
-  return response
+  return resolve(event)
 }
 
 // Return a session object based on SSR locals set from cookies
@@ -38,9 +53,7 @@ export const getSession: GetSession = (event) => {
 
   const session: RenderSession = locals.isLoggedIn ? {
     isLoggedIn: locals.isLoggedIn,
-    settings: {
-      darkMode: locals.settings.darkMode
-    }
+    settings: locals.settings
   } : {
     isLoggedIn: locals.isLoggedIn
   }
