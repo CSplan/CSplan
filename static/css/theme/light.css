@@ -1,0 +1,11 @@
+:root {
+  --background-dark: #22223F;
+}
+
+body {
+  background: aliceblue !important;
+}
+[contenteditable]:empty:not(.no-empty-effect):not(:focus) {
+  border-bottom: #22222F 2px solid !important;
+  animation: pulse linear 1.5s infinite;
+}

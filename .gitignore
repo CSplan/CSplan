@@ -11,3 +11,5 @@ static/**
 !static/css/variables.css
 !static/css/modals.css
 !static/fonts
+!static/css/theme
+!static/css/theme/*.css
