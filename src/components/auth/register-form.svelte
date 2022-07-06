@@ -137,48 +137,4 @@
 
 <style lang="scss">
   @import './register-form.scss';
-
-  .card {
-    @media all and (min-width: 850px) {
-      width: 20%;
-      margin-top: 10vh;
-    }
-    @media all and (max-width: 849px) {
-      margin-top: 30px;
-      width: 85%;
-    }
-    padding: 1rem;
-    form {
-      margin-bottom: 0;
-    }
-    >header:first-child {
-      padding: 0.5rem 0;
-      padding-top: 0;
-      margin-top: 0;
-      border-bottom: 1px solid #aaa;
-    }
-    // TODO: Find a way to handle hashparam form alignment that isn't completely insane
-    details {
-      margin: 0;
-    }
-    summary {
-      margin: 0;
-      margin-top: 0.8rem;
-    }
-    summary::-webkit-details-marker {
-      display: none;
-    }
-    details i {
-      padding-left: 0.1rem;
-      padding-right: 0.8rem; // This is em to match the alignment from picnic, ew
-      transition: transform 200ms;
-    }
-    details summary {
-      border-top: 1px solid #aaa;
-      padding-top: 0.5rem;
-    }
-    details[open=""] i {
-      transform: rotate(90deg) translate(0.35rem, 0.2rem);
-    }
-  }
 </style>

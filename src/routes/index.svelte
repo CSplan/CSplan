@@ -20,7 +20,8 @@
     Learn More
   </button>
 
-  <section class="feature-cards" class:show-mobile={showFeatureCardsMobile}>
+  {#if showFeatureCardsMobile}
+  <section class="feature-cards">
     <div class="card feature-card">
       <div class="icons">
         <i class="fas fa-lock-keyhole"></i>
@@ -58,6 +59,7 @@
       </p>
     </div>
   </section>
+  {/if}
 
   {#if !$user.isLoggedIn}
   <section class="register-prompt">
@@ -107,9 +109,6 @@
   .feature-cards {
     display: grid;
     @media (max-width: $mobile-max) {
-      &:not(.show-mobile) {
-        display: none;
-      }
       grid-auto-flow: row;
       row-gap: 1rem;
     }

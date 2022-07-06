@@ -1,5 +1,5 @@
 :root {
-  --background-lessdark: #17172b;
+  --background-lessdark: #22223F;
   --background-dark: #17172b;
   --background-darker: #11111F;
   --text-normal: #fbfbfb;
@@ -9,6 +9,10 @@ body,.card,code,input {
   background: var(--background-darker);
 }
 code,input {
+  color: var(--text-bright);
+}
+
+:checked[type="checkbox"] + .checkable::after {
   color: var(--text-bright);
 }
 

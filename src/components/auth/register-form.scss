@@ -1,44 +1,88 @@
-form {
-  display: flex;
-  flex-direction: column;
-  label {
-    display: block;
+.card {
+  max-width: 320px;
+  @media all and (min-width: $desktop-min) {
+    width: 320px;
+    margin-top: 20vh;
   }
-}
-* {
-  margin: 0.5rem 0;
-}
-header {
-  line-height: 1.5;
-  text-align: center;
-  padding: 0.5rem 0;
-  margin: 0.3rem 0;
-  border-bottom: none;
-}
-input[type="submit"] {
-  width: 100%;
-}
+  @media all and (max-width: $mobile-max) {
+    margin-top: 30px;
+    width: 85%;
+  }
+  padding: 1rem;
+  form {
+    display: flex;
+    flex-direction: column;
+    label {
+      display: block;
+    }
+  }
+  * {
+    margin: 0.5rem 0;
+  }
+  header {
+    line-height: 1.5;
+    text-align: center;
+    padding: 0.5rem 0;
+    margin: 0.3rem 0;
+    border-bottom: none;
+  }
+  input[type="submit"] {
+    width: 100%;
+  }
 
-/* Footer styles */
-@keyframes spin {
-  from {transform: rotate(0deg);}
-  to {transform: rotate(359deg);}
-}
-i.fa-circle-notch {
-  animation-name: spin;
-  animation-duration: 1.5s;
-  animation-iteration-count: infinite;
-  animation-timing-function: linear;
-  color: var(--bold-blue);
-}
-footer {
-  padding: 0 !important;
-  margin: 0 !important;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-}
-span.error {
-  color: red;
-  font-family: monospace;
+  /* Footer styles */
+  @keyframes spin {
+    from {transform: rotate(0deg);}
+    to {transform: rotate(359deg);}
+  }
+  i.fa-circle-notch {
+    animation-name: spin;
+    animation-duration: 1.5s;
+    animation-iteration-count: infinite;
+    animation-timing-function: linear;
+    color: var(--bold-blue);
+  }
+  footer {
+    padding: 0 !important;
+    margin: 0 !important;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+  span.error {
+    color: red;
+    font-family: monospace;
+  }
+  form {
+    margin-bottom: 0;
+  }
+  >header:first-child {
+    padding: 0.5rem 0;
+    padding-top: 0;
+    margin-top: 0;
+    border-bottom: 1px solid #aaa;
+  }
+  // TODO: Find a way to handle hashparam form alignment that isn't completely insane
+  details {
+    margin: 0;
+  }
+  summary {
+    margin: 0;
+    margin-top: 0.8rem;
+  }
+  summary::-webkit-details-marker {
+    display: none;
+  }
+  details i {
+    padding-left: 0.1rem;
+    padding-right: 0.8rem; // This is em to match the alignment from picnic, ew
+    transition: transform 200ms;
+  }
+  details summary {
+    border-top: 1px solid #aaa;
+    padding-top: 0.5rem;
+  }
+  details[open=""] i {
+    transform: rotate(90deg) translate(0.35rem, 0.2rem);
+  }
 }
