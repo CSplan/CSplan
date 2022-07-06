@@ -40,7 +40,8 @@ const config = {
         alias: {
           '$stores': path.resolve('src/stores'),
           '$components': path.resolve('src/components'),
-          '$db': path.resolve('src/db')
+          '$db': path.resolve('src/db'),
+          '$hooks': path.resolve('src/hooks')
         }
       },
       optimizeDeps: {

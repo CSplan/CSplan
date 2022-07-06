@@ -1,3 +1,19 @@
+<script context="module" lang="ts">
+  import type { Load } from '@sveltejs/kit'
+  import type { RenderSession } from '$hooks'
+  import { settings } from '$stores/settings'
+
+  export const load: Load = ({ session }) => {
+    const s = session as RenderSession
+    // If the user is logged in, initialize settings from cookies
+    if (s.isLoggedIn) {
+      settings.init(s.settings) 
+    }
+
+    return {}
+  }
+</script>
+
 <script>
   // @ts-nocheck
   import Navbar from '$components/navbar/navbar.svelte'

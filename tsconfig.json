@@ -21,7 +21,8 @@
       "$stores/*": ["stores/*"],
       "$components/*": ["components/*"],
       "$db": ["db"],
-      "$db/*": ["db/*"]
+      "$db/*": ["db/*"],
+      "$hooks": ["hooks"]
     }
   }
 }

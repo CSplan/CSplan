@@ -87,7 +87,7 @@
   <label for="email">
     <span>Email</span>
     <div class="input-group">
-      <input id="email" type="email" bind:value={$user.user.email} disabled={true} class:unverified>
+      <input id="email" type="email" value={$user.user.email} disabled={true} class:unverified>
       <i class="fas fa-edit clickable" class:open on:click={toggleOpen}></i>
     </div>
   </label>
