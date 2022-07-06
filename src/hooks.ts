@@ -23,6 +23,9 @@ export const handle: Handle = async ({ event, resolve }) => {
   locals.isLoggedIn = authCookie != null && authCookie.length > 0
 
   if (locals.isLoggedIn) {
+    // Get user session info from API
+
+
     // Get settings from API
     const path = '/settings?filter=appearance'
     const url = dev ? `http://localhost:3000${path}` : route(path)

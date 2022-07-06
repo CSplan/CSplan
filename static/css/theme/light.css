@@ -1,5 +1,7 @@
 :root {
   --background-dark: #22223F;
+  --text-normal: #111;
+  --text-bright: var(--text-normal);
 }
 
 body {

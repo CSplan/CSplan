@@ -20,9 +20,8 @@
     Learn More
   </button>
 
-  {#if showFeatureCardsMobile}
-  <section class="feature-cards">
-    <div class="card feature-card">
+  <section class="feature-cards" class:show-mobile={showFeatureCardsMobile}>
+    <div class="card darker feature-card">
       <div class="icons">
         <i class="fas fa-lock-keyhole"></i>
       </div>
@@ -35,7 +34,7 @@
       </p>
     </div>
 
-    <div class="card feature-card" name="#test">
+    <div class="card darker feature-card" name="#test">
       <div class="icons">
         <i class="fal fa-list-tree"></i>
       </div>
@@ -46,7 +45,7 @@
       </p>
     </div>
 
-    <div class="card feature-card">
+    <div class="card darker feature-card">
       <div class="icons">
         <i class="fas fa-dumbbell"></i>
       </div>
@@ -59,7 +58,6 @@
       </p>
     </div>
   </section>
-  {/if}
 
   {#if !$user.isLoggedIn}
   <section class="register-prompt">
@@ -109,6 +107,9 @@
   .feature-cards {
     display: grid;
     @media (max-width: $mobile-max) {
+      &:not(.show-mobile) {
+        display: none;
+      }
       grid-auto-flow: row;
       row-gap: 1rem;
     }

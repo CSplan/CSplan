@@ -5,10 +5,13 @@
   --text-normal: #fbfbfb;
   --text-bright: white;
 }
-body,.card,code,input {
+body,.card.darker {
   background: var(--background-darker);
 }
-code,input {
+.card,code,input {
+  background: var(--background-dark);
+}
+code,input,button {
   color: var(--text-bright);
 }
 
@@ -16,7 +19,7 @@ code,input {
   color: var(--text-bright);
 }
 
-body,.card {
+body,.card * {
   color: var(--text-normal);
 }
 

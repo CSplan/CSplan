@@ -1,5 +1,6 @@
 <script lang="ts">
   import store from '$stores/lists'
+  import settings from '$stores/settings'
   import { tick } from 'svelte'
 
   export let show = false
@@ -39,7 +40,7 @@
 <svelte:window on:keydown={onkeydown}></svelte:window>
 
 {#if show}
-  <form bind:this={form} class="row-create-form" novalidate on:submit|preventDefault={createList}>
+  <form bind:this={form} class="row-create-form" class:dark={$settings.darkMode} novalidate on:submit|preventDefault={createList}>
     <input type="text" bind:value={title} bind:this={titleInput} placeholder="Title" required>
     <button class="transparent create" title="Create List">
       <i class="fas fa-plus"></i>
@@ -50,7 +51,7 @@
     </div>
   </form>
 {:else}
-  <section class="row-center clickable" on:click={toggleForm}>
+  <section class="row-center clickable" class:dark={$settings.darkMode} on:click={toggleForm}>
     <slot name="icon">
       <i class="fas fa-plus"></i>
     </slot>
@@ -72,6 +73,9 @@
   }
   .row-center:hover {
     background: whitesmoke;
+    &.dark {
+      background: $bg-lessdark;
+    }
   }
 
   .row-create-form {
@@ -95,7 +99,7 @@
     }
 
     i {
-      color: #111;
+      color: $text-bright;
     }
 
     button.create {

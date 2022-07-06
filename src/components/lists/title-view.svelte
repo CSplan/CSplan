@@ -8,6 +8,7 @@
   import DeleteConfirmationModal from '$components/modals/confirm-modal.svelte'
   // Only used on mobile
   import EditMenu from './list-edit-dropdown.svelte'
+  import settings from '$stores/settings'
 
   let showDeleteConfirmationModal = false
 
@@ -132,7 +133,7 @@
   {#if $ordered.length > 0}
   {#each $ordered as list, i (list.id)}
     <div animate:flip={{ duration: 200 }} class="row list-{list.id} {!list.title.length && 'empty'}"
-      class:highlighted={highlightRow[list.id]}
+      class:highlighted={highlightRow[list.id]} class:dark={$settings.darkMode}
       on:dragover|preventDefault={() => ondragover(list.id)}
       on:dragleave|preventDefault={() => ondragleave(list.id)}
       on:dragexit|preventDefault={() => ondragleave(list.id)}
@@ -226,7 +227,7 @@
       <div class="row"><Spinner size="1.5rem" vm="0.5rem"/></div>
     {/if}
   {:else}
-    <div class="row-center border">
+    <div class="row-center border" class:dark={$settings.darkMode}>
       <header>It's empty here...</header>
     </div>
   {/if}
@@ -248,6 +249,7 @@
   @import './icons.scss';
 
   .card {
+    background: $bg-dark;
     margin-top: 25px;
     @media all and (min-width: $desktop-min) {
       min-width: 75%;
@@ -370,6 +372,9 @@
 
   .row:hover, .row-center:hover {
     background: whitesmoke;
+    &.dark {
+      background: $bg-lessdark;
+    }
   }
   /* Create separators */
   .row:not(:last-child),.row-center.border {
