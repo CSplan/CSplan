@@ -43,6 +43,5 @@ class SettingsStore extends Store<Settings> {
   }
 }
 
-export const settings = new SettingsStore()
 
-export default settings
+export default new SettingsStore()

@@ -1,6 +1,6 @@
 <script lang="ts">
   import user from '$stores/user'
-  import { settings } from '$stores/settings'
+  import settings from '$stores/settings'
   let showFeatureCardsMobile = false
 </script>
 

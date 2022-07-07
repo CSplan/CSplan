@@ -7,6 +7,7 @@
   "private": true,
   "scripts": {
     "dev": "svelte-kit dev --port=3030",
+    "svelte-check": "svelte-check --use-new-transformation true --compiler-warnings 'css-unused-selector:ignore'",
     "lint": "eslint --fix src",
     "build": "NODE_ENV=production svelte-kit build",
     "export": "svelte-kit export",

@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { settings } from '$stores/settings'
+  import settings from '$stores/settings'
   type Credit = {
     name: string
     work: string
