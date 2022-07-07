@@ -65,7 +65,7 @@
   }
 
   /* Add tag styles */
-  @media all and (min-width: 850px) {
+  @media (min-width: 850px) {
     .add-tag-button {
       min-width: $content-large !important;
     }
@@ -87,7 +87,7 @@
     margin: 0.3rem;
   }
   .add-tag-button:hover {
-    background: whitesmoke;
+    background: $bg-hover;
   }
   .add-tag-button:not(:last-child) {
     display: none;

@@ -2,18 +2,32 @@
   import Modal from './modal.svelte'
   import ModalContent from './modal-content.svelte'
   import tags from '$stores/tags'
+  import colors from '$components/color-picker/colors/colors'
   export let show = false
-  // FIXME: include color picker in tag creation modal
+  // FIXME: Make tag creation similar to list creation
+  
+  const pastels = Object.values(colors.pastel)
+  let lastPastel: string
+  // Return a random pastel color, used for new tags
+  function randomPastel(): string {
+    let result: string
+    do {
+      result = pastels[Math.floor(Math.random() * pastels.length)]
+    } while (result === lastPastel)
+    lastPastel = result
+    return result
+  }
 
   const tagSkeleton: TagData = {
     name: '',
-    color: '#FFF',
+    color: randomPastel(),
     textColor: '#000'
   }
   let tag = { ...tagSkeleton }
   async function createTag(): Promise<void> {
     show = false
     await tags.create(tag)
+    tagSkeleton.color = randomPastel()
     tag = { ...tagSkeleton }
   }
 </script>

@@ -311,6 +311,7 @@
     overflow: visible; // Don't clip any forms or dropdowns that extend beyond the edges of the list
     section.content {
       p {
+        cursor: text;
         &:empty {
           display: block;
           &::before {
