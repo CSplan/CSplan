@@ -22,9 +22,8 @@
       font-size: 1.5rem;
     }
     margin: 1.5rem 0;
-    color: #111;
-    border: 1px solid #aaa;
-    background: #fff;
+    border: 1px solid $border-normal;
+    background: $bg-primary;
     padding: $padding-m;
   }
 </style>

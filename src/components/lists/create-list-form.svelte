@@ -108,7 +108,7 @@
       align-items: center;
       justify-content: center;
       padding: 0;
-      border: 1px #aaa solid;
+      border: 1px $border-alt solid;
       border-top: none;
       border-radius: 0;
 

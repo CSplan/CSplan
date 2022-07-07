@@ -234,17 +234,23 @@
 <style lang="scss">
   .user-picture {
     padding: 0.4rem 0.8rem;
-    border: 1px solid #aaa;
+    border: 1px solid $border-alt;
+    @media (min-width: $desktop-min) {
+      border-right: none;
+    }
+    @media (max-width: $mobile-max) {
+      border-bottom: none;
+    }
 
     line-height: 1;
     padding: 0.8rem;
     display: flex;
     flex-direction: column;
     align-items: center;
-    justify-content: center;
+    justify-content: flex-start;
     grid-column: 1 / span 1;
     grid-row: 1 / span 1;
-    border-bottom-right-radius: $br-light;
+    border-bottom-left-radius: $br-light;
 
     >span.error {
       margin-top: 0.5rem;

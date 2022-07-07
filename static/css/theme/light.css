@@ -7,7 +7,8 @@
 
   --text-normal: #111;
   --text-bright: var(--text-normal);
-  --text-disabled: #0000004d;
+  --text-disabled: #575757;
+  --text-disabled-light: #0000004d;
 
   --border-normal: #ccc;
   --border-alt: #aaa;

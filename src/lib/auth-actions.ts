@@ -695,7 +695,7 @@ export const TOTPActions = {
    * @copyright Project Nayuki. (MIT License)
    * https://www.nayuki.io/page/qr-code-generator-library
    * 
-   * Modified version of Nayuki's toSvgString function, returns an actual SVG element
+   * Modified version of Nayuki's toSvgString function, operates on a SVG element
    */
   qr2svg(qr: qrcodegen.QrCode, svg: SVGSVGElement, border: number, lightColor: string, darkColor: string): void {
     if (border < 0) {

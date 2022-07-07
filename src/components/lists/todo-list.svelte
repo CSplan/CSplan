@@ -316,7 +316,7 @@
           display: block;
           &::before {
             content: "Description";
-            color: $text-disabled;
+            color: $text-disabled-light;
           }
         }
       }

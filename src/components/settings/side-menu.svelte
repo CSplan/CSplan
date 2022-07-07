@@ -19,7 +19,6 @@
     padding: 0.8rem;
     border-radius: 0.2rem;
     font-size: 1.1rem;
-    box-shadow: 0.3rem 0.3rem 1.25rem var(--background-dark);
   }
 
   // Desktop styles

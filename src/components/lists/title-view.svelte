@@ -297,7 +297,7 @@
     display: flex;
     flex-direction: row;
     align-items: center;
-    border-right: 1px solid $border-normal;
+    border-right: 1px solid $border-alt;
   }
   p.item-count {
     margin: 0.5rem 0.8rem;
@@ -378,7 +378,7 @@
   }
   /* Create separators */
   .row:not(:last-child),.row-center.border {
-    border-bottom: $border-normal 1px solid;
+    border-bottom: $border-alt 1px solid;
   }
   .row.empty {
     min-height: 3rem;

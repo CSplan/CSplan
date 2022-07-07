@@ -83,7 +83,7 @@
 
 </script>
 
-  {#if $userStore.isLoggedIn}
+{#if $userStore.isLoggedIn}
 <form class="email-form" novalidate on:submit|preventDefault={changeEmail} bind:this={form}>
   <label for="email">
     <span>Email</span>

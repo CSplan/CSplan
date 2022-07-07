@@ -78,9 +78,9 @@
 <style lang="scss">
   article.keys {
     margin: 1.5rem 0;
-    color: #111;
-    border: 1px solid #aaa;
-    background: #fff;
+    color: $text-normal;
+    border: 1px solid $border-alt;
+    background: $bg-primary;
     padding: $padding-m;
   }
   article.keys,section {
@@ -98,10 +98,11 @@
   }
 
   span.key-type {
-    padding: 0.3rem 0.45rem;
-    border: 1px solid #aaa;
-    background: rgb(230, 230, 230);
-  } 
+    padding: 0.6rem 0.8rem;
+    border: 1px solid $border-alt;
+    background: $bg-disabled; 
+    color: $text-bright;
+  }
   a.export-button {
     border-radius: $br-light;
     line-height: 1.5;
@@ -113,7 +114,7 @@
 
   hr {
     width: 100%;
-    border-top: 1px #aaa solid;
+    border-top: 1px $border-alt solid;
     border-bottom: none;
   }
 </style>

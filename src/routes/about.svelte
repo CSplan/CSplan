@@ -131,8 +131,8 @@
   }
   h2 {
     text-align: center;
-    border-top: 1px #ccc solid;
-    border-bottom: 1px #ccc solid;
+    border-top: 1px $border-normal solid;
+    border-bottom: 1px $border-normal solid;
     margin-bottom: $spacing;
     padding-bottom: 0.6rem;
     padding-top: 0.6rem;

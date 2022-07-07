@@ -127,7 +127,7 @@
   <hr>
 
   <div class="totp-indicator" class:enabled>
-    <i class="{enabled ? 'fas fa-check-circle' : 'fas fa-minus-circle'} totp-indicator"></i>
+    <i class="fas {enabled ? 'fa-check-circle' : 'fa-minus-circle'} totp-indicator"></i>
     <span>TOTP is {enabled ? 'enabled' : 'disabled'}</span>
   </div>
   {#if !editing}
@@ -175,7 +175,7 @@
     align-items: center;
 
     font-size: 110%;
-    color: rgb(87, 87, 87);
+    color: $text-disabled;
     i {
       font-size: 150%;
       margin-right: 0.5rem;
@@ -201,7 +201,7 @@
 
   hr {
     width: 100%;
-    color: #aaa;
+    color: $border-alt;
     border-top: 1px;
   }
 

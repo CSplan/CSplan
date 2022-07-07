@@ -77,7 +77,7 @@
 }} />
 
 {#if state === states.resting || state === states.updating}
-  <div class="card" style="--background-color: {$tags[id].color}">
+  <div class="card noborder" style="--background-color: {$tags[id].color}">
     <div class="handle" />
 
     <header

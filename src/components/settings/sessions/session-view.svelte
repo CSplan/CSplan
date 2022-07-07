@@ -90,8 +90,8 @@
 <style lang="scss">
   article.sessions {
     margin: 1.5rem 0;
-    color: #111;
-    border: 1px solid #aaa;
+    color: $text-normal;
+    border: 1px solid $border-alt;
     padding: 0;
 
     display: flex;
@@ -107,8 +107,8 @@
       padding: 0.3rem 0.35rem;
     }
     tr {
-      background: white;
-      $border: 1px #aaa solid;
+      background: $bg-primary;
+      $border: 1px $border-alt solid;
       &:not(:first-child) {
         border-top: $border;
       }
@@ -120,7 +120,7 @@
       text-align: center;
       background: inherit;
       color: inherit;
-      $border: 2px #aaa solid;
+      $border: 2px $border-alt solid;
       &:not(:first-child) {
         border-left: $border;
       }
@@ -146,6 +146,6 @@
   td.empty {
     pointer-events: none;
     cursor: not-allowed;
-    background-color: rgb(230, 230, 230);
+    background-color: $bg-disabled;
   }
 </style>

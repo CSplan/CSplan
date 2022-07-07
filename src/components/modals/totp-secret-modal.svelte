@@ -103,14 +103,14 @@
     grid-template-columns: 1fr 1fr;
     grid-template-rows: max-content;
 
-    background: white;
+    background: $bg-primary;
     padding: 1.5rem 2rem;
     max-width: 850px;
 
     section.step-1 {
       grid-column: 1;
       grid-row: 1;
-      border-right: solid #aaa 1px;
+      border-right: solid $border-alt 1px;
     }
     section.step-2 {
       grid-column: 2;
@@ -119,7 +119,7 @@
     section.step-3 {
       grid-column: 1 / span 2;
       grid-row: 2;
-      border-top: solid #aaa 1px;
+      border-top: solid $border-alt 1px;
     }
     section.step-1,section.step-2,section.step-3 {
       padding: 0.6rem 0.8rem;
@@ -170,7 +170,7 @@
     }
     pre {
       margin: 0;
-      background: rgb(230, 230, 230);
+      background: $bg-disabled;
       border-radius: 0;
     }
     p {

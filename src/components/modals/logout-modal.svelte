@@ -35,7 +35,7 @@
   }
   h2 {
     font-size: 150%;
-    border-bottom: 1px #aaa solid;
+    border-bottom: 1px $border-alt solid;
     margin-bottom: 1rem;
     padding-bottom: 1rem;
   }

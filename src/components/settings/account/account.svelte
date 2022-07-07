@@ -45,7 +45,7 @@
       grid-template-rows: min-content 1fr;
     }
     >* {
-      border: 1px solid #aaa;
+      border: 1px solid $border-alt;
     }
 
     section.user-details {
@@ -62,7 +62,7 @@
 
       hr {
         width: 100%;
-        color: #aaa;
+        color: $border-alt;
         border-top: 1px;
       }
     }

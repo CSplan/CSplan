@@ -161,8 +161,8 @@
 
   article {
     margin: 1.5rem 0;
-    color: #111;
-    background: #fff;
+    background: $bg-primary;
+    color: $text-normal;
     border: 1px solid $danger-red;
     padding: $padding-m;
   }
@@ -201,6 +201,6 @@
   section.confirmation {
     padding-top: 1rem;
     margin-top: 1rem;
-    border-top: 1px solid #ccc;
+    border-top: 1px solid $border-normal;
   }
 </style>

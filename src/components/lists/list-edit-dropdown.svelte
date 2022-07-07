@@ -91,7 +91,7 @@
     margin-bottom: 0;
     width: max-content;
     border-radius: $br-light !important;
-    box-shadow: -0.5rem 0.3rem 1rem #aaa;
+    box-shadow: -0.5rem 0.3rem 1rem $border-alt;
     z-index: 1;
   }
   button:not(.in-row) {
@@ -111,27 +111,27 @@
     padding: 0;
     display: flex;
     flex-direction: row;
-    border-bottom: 1px #ccc solid;
+    border-bottom: 1px $border-normal solid;
     button {
       border-bottom: none;
       border-radius: 0;
       margin: 0;
       &:first-child {
-        border-right: 1px solid #ccc;
+        border-right: 1px solid $border-normal;
       }
       &:last-child {
-        border-left: 1px solid #ccc;
+        border-left: 1px solid $border-normal;
       }
     }
   }
   header {
     font-weight: normal;
     padding: 0.3rem 1rem;
-    border-bottom: 1px #ccc solid;
+    border-bottom: 1px $border-normal solid;
     text-align: center;
   }
   button:not(:last-child) {
-    border-bottom: 1px #ccc solid;
+    border-bottom: 1px $border-normal solid;
   }
   button.delete-button {
     color: $danger-red;

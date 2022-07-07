@@ -124,7 +124,7 @@
       {status}
     </p>
 
-    <input type="submit" value="Submit" class:d-none={[States.Loading, States.Saved].includes(state)}>
+    <input type="submit" value="Save" class:d-none={[States.Loading, States.Saved].includes(state)}>
   {/if}
 </form>
 
@@ -153,5 +153,9 @@
   }
   i.open {
     color: $bold-blue;
+  }
+  input[type="submit"] {
+    align-self: center;
+    min-width: 150px;
   }
 </style>
