@@ -284,8 +284,6 @@
       display: none;
     }
 
-
-
     input[type="submit"] {
       background: var(--bold-blue);
       &.saved {

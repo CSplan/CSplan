@@ -93,9 +93,9 @@
     z-index: 1;
     right: 0;
     margin-top: 0.5rem;
-    border: 1px solid #aaa;
+    border: 1px solid $border-alt;
     border-radius: 3px;
-    background: white;
+    background: $bg-primary;
 
     display: flex;
     flex-direction: column;
@@ -106,7 +106,7 @@
     label,header {
       padding: 0.6rem 0.8rem;
       width: 100%;
-      border-bottom: 1px solid #aaa;
+      border-bottom: 1px solid $border-alt;
       text-align: left;
     }
     label {
@@ -123,7 +123,7 @@
         font-size: 75%;
       }
       &:hover {
-        background: whitesmoke;
+        background: $bg-hover;
       }
     }
     header {
