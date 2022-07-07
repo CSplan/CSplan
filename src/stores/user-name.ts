@@ -93,7 +93,6 @@ function create(): Readable<Name> & SingleResourceStore<NameData> {
       }
       // Get the user's ID
       const user = get(userStore) as Assert<User, 'isLoggedIn'>
-      console.log(user.id)
 
       // Generate a key if there are any fields that need to be encrypted
       const visibility = name.visibility
