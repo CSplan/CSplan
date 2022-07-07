@@ -2,14 +2,31 @@
   --background-lessdark: #22223F;
   --background-dark: #17172b;
   --background-darker: #11111F;
+  --background-hover: var(--background-lessdark);
+  --background-disabled: #11111F;
+
+  --background-primary: var(--background-dark);
+
   --text-normal: #fbfbfb;
   --text-bright: white;
+  --text-disabled: #ffffff4d;
+
+  --border-normal: #aaa;
+  --border-alt: #bebebe;
 }
-body,.card.darker {
+
+.card {
+  border: 1px solid var(--border-alt);
+}
+
+code,input,.card,.primary {
+  background: var(--background-dark);
+}
+body,.darker {
   background: var(--background-darker);
 }
-.card,code,input {
-  background: var(--background-dark);
+.darker * {
+  background: inherit;
 }
 code,input,button {
   color: var(--text-bright);
@@ -19,7 +36,7 @@ code,input,button {
   color: var(--text-bright);
 }
 
-body,.card * {
+body,.card *, article.primary, p {
   color: var(--text-normal);
 }
 
@@ -28,5 +45,5 @@ nav {
 }
 
 button {
-  box-shadow: 0 0 0.2rem rgba(170,170,170,0.2);
+  box-shadow: none;
 }

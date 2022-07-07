@@ -297,7 +297,7 @@
     display: flex;
     flex-direction: row;
     align-items: center;
-    border-right: 1px solid #ccc;
+    border-right: 1px solid $border-normal;
   }
   p.item-count {
     margin: 0.5rem 0.8rem;
@@ -308,7 +308,7 @@
     border-right: var(--bold-blue) 2px solid;
   }
   .header-container {
-    border-bottom: 1px #aaa solid;
+    border-bottom: 1px $border-alt solid;
     display: flex;
     flex-direction: column;
     justify-content: center;
@@ -378,7 +378,7 @@
   }
   /* Create separators */
   .row:not(:last-child),.row-center.border {
-    border-bottom: #ccc 1px solid;
+    border-bottom: $border-normal 1px solid;
   }
   .row.empty {
     min-height: 3rem;

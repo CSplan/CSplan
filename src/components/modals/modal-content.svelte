@@ -1,4 +1,4 @@
-<div class="modal-content">
+<div class="modal-content primary">
   <slot></slot>
 </div>
 
@@ -7,6 +7,5 @@
     position: fixed;
     top: 35%;
     width: 50%;
-    background: white;
   }
 </style>

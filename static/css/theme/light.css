@@ -1,7 +1,16 @@
 :root {
   --background-dark: #22223F;
+  --background-hover: whitesmoke;
+  --background-disabled: rgb(230, 230, 230);
+
+  --background-primary: white;
+
   --text-normal: #111;
   --text-bright: var(--text-normal);
+  --text-disabled: #0000004d;
+
+  --border-normal: #ccc;
+  --border-alt: #aaa;
 }
 
 body {

@@ -20,11 +20,11 @@
   input[type="text"],input[type="password"],input[type="email"],select {
     &:disabled,&:not(select):read-only {
       transition: none;
-      background-color: rgb(230, 230, 230);
+      background-color: $bg-disabled;
     }
   }
   button:disabled {
-    background-color: rgb(170, 170, 170);
+    background-color: $bg-disabled;
   }
 
   input[type="button"] {

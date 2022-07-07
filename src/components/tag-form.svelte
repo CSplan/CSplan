@@ -111,11 +111,11 @@
   .tag-select .options {
     min-width: 100%;
     margin: 0;
-    background-color: white;
+    background-color: $bg-primary;
     position: absolute;
     top: 100%;
     text-align: left;
-    border: 1px solid #aaa;
+    border: 1px solid $border-alt;
   }
   .tag-select input {
     transition: none;

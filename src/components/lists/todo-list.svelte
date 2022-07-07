@@ -227,7 +227,7 @@
     <div class="spacer"/>
     <header class="title" contenteditable={editMode} spellcheck="false" on:keypress={CEkeypress} on:blur={updateTitle}>{list.title}</header>
     <div class="edit-icon-container">
-      <i class="edit-mode-toggle fas fa-pencil-alt clickable" style="color: {editMode ? 'var(--bold-blue)' : 'initial'}" on:click={toggleEditMode}/>
+      <i class="edit-mode-toggle fas fa-pencil-alt clickable" style="color: {editMode ? 'var(--bold-blue)' : 'inherit'}" on:click={toggleEditMode}/>
     </div>
   </section>
 
@@ -312,7 +312,7 @@
           display: block;
           &::before {
             content: "Description";
-            color: rgba(0, 0, 0, 0.3);
+            color: $text-disabled;
           }
         }
       }
@@ -321,14 +321,14 @@
 
   section.title {
     display: grid;
-    @media all and (min-width: $desktop-min) {
+    @media (min-width: $desktop-min) {
       grid-template-columns: 1fr auto 1fr;
     }
-    @media all and (max-width: $mobile-max) {
+    @media (max-width: $mobile-max) {
       grid-template-columns: 1fr auto minmax(min-content, 1fr);
     }
     grid-auto-flow: column;
-    border-bottom: 1px solid #aaa;
+    border-bottom: 1px solid $border-alt;
     padding: var(--padding-m);
     header {
       padding: 0;
@@ -364,7 +364,9 @@
     width: 100%;
     line-height: 1.25;
     color: initial;
-    border-bottom: #ccc 1px solid;
+    &:not(:last-child) {
+      border-bottom: $border-normal 1px solid;
+    }
     // Alignment
     text-align: left;
     padding: var(--padding-m);
@@ -379,7 +381,7 @@
       grid-template-rows: minmax(0, auto);
     }
     &:hover {
-      background: whitesmoke;
+      background: $bg-hover;
     }
 
     // Default child alignment
@@ -450,9 +452,6 @@
       i.fa-arrow-down {
         grid-column: 1;
         grid-row: 2;
-        @media all and (max-width: $mobile-max) {
-          grid-row: 1;
-        }
       }
       i:hover {
         transform: scale(1.25);
@@ -481,7 +480,7 @@
     align-items: center;
     div.tags {
       padding-top: 0.25rem;
-      border-top: dashed #aaa 1px;
+      border-top: dashed $border-alt 1px;
     }
   }
   .tag {

@@ -201,7 +201,7 @@
 </script>
 
 
-<div class="user-picture">
+<div class="user-picture primary">
   {#if isEmpty}
     <i class="fas fa-user-circle"></i>
   {/if}

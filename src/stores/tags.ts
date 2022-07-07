@@ -80,7 +80,7 @@ function create(): Readable<Store> & TagStore {
       // Encrypt
       const cryptoKey = await aes.generateKey('AES-GCM')
       const user = get(userStore) as Assert<User, 'isLoggedIn'>
-      const { publicKey } = await getByKey('keys', user.id) as unknown as MasterKeys
+      const { publicKey } = await mustGetByKey<MasterKeys>('keys', user.id)
       const encrypted: TagData = await aes.deepEncrypt({
         name: tag.name,
         color: tag.color,

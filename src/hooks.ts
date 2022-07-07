@@ -13,6 +13,13 @@ export type RenderSession = {
   isLoggedIn: false
 }
 
+type AuthorizedResponse = {
+  userID: string
+  sessionID: string
+  email: string
+  verified: boolean
+}
+
 // Create a full URL for use in SSR requests
 function serverRoute(path: string): string {
   return dev ? 'http://localhost:3000' + path : route(path)
@@ -43,10 +50,12 @@ async function getUser(authCookie: string): Promise<User|null> {
     return null
   }
 
-  const body: Omit<Assert<User, 'isLoggedIn'>, 'isLoggedIn'> = await res.json() // API responses have no 'isLoggedIn' property
+  const body: AuthorizedResponse = await res.json() // API responses have no 'isLoggedIn' property
   return {
-    ...body,
-    isLoggedIn: true
+    isLoggedIn: true,
+    id: body.userID,
+    email: body.email,
+    verified: body.verified
   }
 }
 

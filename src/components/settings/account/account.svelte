@@ -10,7 +10,7 @@
 
     <ProfilePictureForm/>
     
-    <section class="user-details" on:submit|preventDefault>
+    <section class="user-details primary" on:submit|preventDefault>
 
       <EmailForm/>
       <hr>
@@ -44,7 +44,6 @@
     @media (max-width: $mobile-max) {
       grid-template-rows: min-content 1fr;
     }
-    color: #111;
     >* {
       border: 1px solid #aaa;
     }
