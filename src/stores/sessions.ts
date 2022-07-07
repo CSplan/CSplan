@@ -3,6 +3,7 @@ import { derived, Readable, writable, get } from 'svelte/store'
 import { aes, rsa } from 'cs-crypto'
 import { mustGetByKey } from '$db'
 import storage from '$db/storage'
+import userStore, { User } from '$stores/user'
 import { AuthLevels } from '$lib/auth-levels'
 
 type Store = {
@@ -28,7 +29,7 @@ function create(): Readable<Store> & SessionStore {
       const sessions: SessionDocument[] = await res.json()
 
       // Retrieve master cryptokey
-      const user: UserStore['user'] = JSON.parse(localStorage.getItem('user')!)
+      const user = get(userStore) as Assert<User, 'isLoggedIn'>
       const { privateKey } = await mustGetByKey<MasterKeys>('keys', user.id)
 
       for (const session of sessions) {

@@ -2,7 +2,7 @@
   import user from '$stores/user'
 </script>
 
-{#if $user.isLoggedIn && !$user.user.verified}
+{#if $user.isLoggedIn && !$user.verified}
   <footer class="verification-banner">
     <i class="fas fa-triangle-exclamation"></i>
     <span>Please verify your CSplan account's email address. Go to <a href="/settings/account">settings</a> to resend a verification email.</span>

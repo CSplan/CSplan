@@ -3,7 +3,7 @@
   import { FormStates as States } from '$lib/form-states'
   import { slide } from  'svelte/transition'
   import Spinner from '$components/spinner.svelte'
-  import user from '$stores/user'
+  import userStore from '$stores/user'
   import { EmailChangeActions, LoginActions } from '$lib/auth-actions'
 
   let open = false
@@ -17,7 +17,7 @@
   }
 
   let unverified = false
-  $: unverified = $user.isLoggedIn && !$user.user.verified
+  $: unverified = $userStore.isLoggedIn && !$userStore.verified
 
   let form: HTMLFormElement
   let newEmail: HTMLInputElement
@@ -67,7 +67,7 @@
   async function sendVerificationEmail(): Promise<void> {
     try {
       state = States.Saving
-      await user.sendVerificationEmail()
+      await userStore.sendVerificationEmail()
     } catch (err) {
       state = States.Errored
       message = err instanceof Error ? err.message : `${err}`
@@ -83,31 +83,30 @@
 
 </script>
 
+  {#if $userStore.isLoggedIn}
 <form class="email-form" novalidate on:submit|preventDefault={changeEmail} bind:this={form}>
   <label for="email">
     <span>Email</span>
     <div class="input-group">
-      <input id="email" type="email" value={$user.user.email} disabled={true} class:unverified>
+      <input id="email" type="email" value={$userStore.email} disabled={true} class:unverified>
       <i class="fas fa-edit clickable" class:open on:click={toggleOpen}></i>
     </div>
   </label>
   <!-- Avoid showing anything about verification status until we know it's accurate -->
-  {#if $user.isLoggedIn}
-    {#if unverified}
-      <span class="unverified-message">This email address isn't verified.</span>
-      {#if !open}
-        <button class="resend-verification" on:click={sendVerificationEmail} disabled={state !== States.Resting}>
-          <i class="far fa-envelope"></i>
-          Resend Verification Email
-        </button>
-        <Spinner size="2rem" vm="0.5rem" bind:state bind:message/>
-      {/if}
-    {:else if !open}
-      <span class="verified-message">
-        <i class="far fa-envelope-circle-check"></i>
-        This email address is verified.
-      </span>
+  {#if unverified}
+    <span class="unverified-message">This email address isn't verified.</span>
+    {#if !open}
+      <button class="resend-verification" on:click={sendVerificationEmail} disabled={state !== States.Resting}>
+        <i class="far fa-envelope"></i>
+        Resend Verification Email
+      </button>
+      <Spinner size="2rem" vm="0.5rem" bind:state bind:message/>
     {/if}
+  {:else if !open}
+    <span class="verified-message">
+      <i class="far fa-envelope-circle-check"></i>
+      This email address is verified.
+    </span>
   {/if}
 
   {#if open}
@@ -137,6 +136,7 @@
     </div>
   {/if}
 </form>
+{/if}
 
 <style lang="scss">
   form.email-form,div.editable {

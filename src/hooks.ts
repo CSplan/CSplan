@@ -1,7 +1,7 @@
 import type { Handle, GetSession } from '@sveltejs/kit'
-import { Settings } from '$stores/settings'
+import type { Settings } from '$stores/settings'
 import cookie from 'cookie'
-import { HTTPerror, route } from '$lib'
+import { route } from '$lib'
 import { dev } from '$app/env'
 
 export type RenderSession = {
@@ -10,6 +10,12 @@ export type RenderSession = {
 } | {
   isLoggedIn: false
 }
+
+// Create a full URL for use in SSR requests
+function serverRoute(path: string): string {
+  return dev ? 'http://localhost:3000' + path : route(path)
+}
+
 
 // Serverside request hook, used to parse session cookies for SSR
 export const handle: Handle = async ({ event, resolve }) => {
@@ -24,19 +30,23 @@ export const handle: Handle = async ({ event, resolve }) => {
 
   if (locals.isLoggedIn) {
     // Get user session info from API
-
+    let res = await fetch(serverRoute('/whoami'), {
+      headers: {
+        Cookie: `Authorization=${authCookie}`
+      }
+    })
+    if (res.status !== 200) {
+      return resolve(event)
+    }
 
     // Get settings from API
-    const path = '/settings?filter=appearance'
-    const url = dev ? `http://localhost:3000${path}` : route(path)
-    const res = await fetch(url, {
+    res = await fetch(serverRoute('/settings?filter=appearance'), {
       headers: {
         // Cookies have to manually be passed in serverside fetch requests
         Cookie: `Authorization=${authCookie}`
       }
     })
     if (res.status !== 200) {
-      console.error(await HTTPerror(res, 'Failed to fetch settings'))
       return resolve(event)
     }
 

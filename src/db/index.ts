@@ -98,15 +98,6 @@ export async function addToStore(storeName: string, data: KeyedObject): Promise<
   })
 }
 
-// Clear all stores containing user information
-export async function clearUserStores(): Promise<void> {
-  for (const store of stores) {
-    if (store.scope === Scopes.User) {
-      await clearStore(store.name)
-    }
-  }
-}
-
 // Clear a specified object store
 export async function clearStore(storeName: string): Promise<void> {
   const db = await getDB()

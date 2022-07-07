@@ -54,7 +54,7 @@
     <img src="/logo/Dark-CSplan-noslogan.svg" alt="CSplan logo" class="logo">
   </a>
   {#if $user.isLoggedIn}
-    <span class="account-text-mobile">{$user.user.email}</span>
+    <span class="account-text-mobile">{$user.email}</span>
   {/if}
   {#each links as link}
     {#if link.needsLogin && $user.isLoggedIn}
@@ -65,7 +65,7 @@
   {/each}
   <div class="right">
     {#if $user.isLoggedIn}
-      <span>{$user.user.email}</span>
+      <span>{$user.email}</span>
       <!-- Quick actions dropdown -->
       <QuickActions/>
     {:else}

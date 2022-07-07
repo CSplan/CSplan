@@ -3,6 +3,7 @@ import { Readable, writable, get } from 'svelte/store'
 import { HTTPerror, DisplayNames, Visibilities, route, csfetch } from '$lib'
 import { mustGetByKey, addToStore, getByKey, updateWithKey } from '$db'
 import  userStore from './user'
+import type { User } from './user'
 import storage from '$db/storage'
 
 function create(): Readable<Name> & SingleResourceStore<NameData> {
@@ -27,7 +28,7 @@ function create(): Readable<Name> & SingleResourceStore<NameData> {
         return
       }
 
-      const user: UserStore['user'] = JSON.parse(localStorage.getItem('user')!)
+      const user = get(userStore) as Assert<User, 'isLoggedIn'>
       const res = await csfetch(route('/name'), {
         method: 'GET',
         headers: {
@@ -91,7 +92,8 @@ function create(): Readable<Name> & SingleResourceStore<NameData> {
         throw new TypeError(`Expected type object, received type ${typeof name}`)
       }
       // Get the user's ID
-      const { user } = get(userStore)
+      const user = get(userStore) as Assert<User, 'isLoggedIn'>
+      console.log(user.id)
 
       // Generate a key if there are any fields that need to be encrypted
       const visibility = name.visibility

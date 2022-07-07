@@ -2,6 +2,8 @@
   import { mustGetByKey } from '$db'
   import { onMount, onDestroy } from 'svelte'
   import { rsa } from 'cs-crypto'
+  import userStore from '$stores/user'
+  import type { User } from '$stores/user'
 
   let publicKeyURL = ''
 
@@ -37,8 +39,7 @@
 
 
   onMount(async () => {
-    const userID = (JSON.parse(localStorage.getItem('user')!) as UserStore['user']).id
-    const keys = await mustGetByKey<MasterKeys>('keys', userID)
+    const keys = await mustGetByKey<MasterKeys>('keys', ($userStore as Assert<User, 'isLoggedIn'>).id)
     publicKey = keys.publicKey
     await exportPublic()
   })

@@ -2,7 +2,7 @@ import { Argon2 } from '@very-amused/argon2-wasm'
 import { ED25519 } from '@very-amused/ed25519-wasm'
 import { encode, aes, rsa, Algorithms, decode, makeSalt } from 'cs-crypto'
 import * as db from '../db'
-import userStore from '$stores/user'
+import userStore, { type User } from '$stores/user'
 import { sessions as sessionStore } from '$stores/sessions'
 import { get } from 'svelte/store'
 import { route, HTTPerror, csfetch } from '$lib'
@@ -278,12 +278,15 @@ export class LoginActions {
     }
     storage.setCSRFtoken(csrfToken)
 
-    // Login to state
-    userStore.login({
+    // Set logged in state
+    const session: User = {
+      isLoggedIn: true,
       email: user.email,
       id: response.userID,
       verified: response.verified
-    })
+    }
+    userStore.set(session)
+    storage.setUser(session)
     return AuthConditions.Success
   }
 
@@ -315,9 +318,9 @@ export class LoginActions {
 
     // Store keys in IDB
     if (!extractablePrivateKey) { // Extractable private keys are only used for export, and shouldn't be stored
-      const userID = (<UserStore>get(userStore)).user.id
+      const user = get(userStore) as Assert<User, 'isLoggedIn'>
       await db.addToStore('keys', {
-        id: userID,
+        id: user.id,
         publicKey,
         privateKey
       })
@@ -442,9 +445,9 @@ export class RegisterActions extends LoginActions {
 
     // Store keys in IDB
     // TODO: store checksum with master keypair
-    const userID = (<UserStore>get(userStore)).user.id
+    const user = get(userStore) as Assert<User, 'isLoggedIn'>
     db.addToStore('keys', {
-      id: userID,
+      id: user.id,
       publicKey,
       privateKey
     })
@@ -455,8 +458,8 @@ export class RegisterActions extends LoginActions {
    * accounts will be pruned within one minute of registration if this endpoint isn't hit by then
    */
   async confirmAccount(): Promise<void> {
-    const userID = (get(userStore) as UserStore).user.id
-    const res = await csfetch(route(`/confirm_account/${userID}`), {
+    const user = get(userStore) as Assert<User, 'isLoggedIn'>
+    const res = await csfetch(route(`/confirm_account/${user.id}`), {
       method: 'POST'
     })
     if (res.status !== 204) {
@@ -556,7 +559,10 @@ export const EmailChangeActions = {
       const err: ErrorResponse = await res.json()
       throw new Error(err.message || 'Unknown error changing email.')
     }
-    userStore.setEmail(newEmail)
+    userStore.update((store) => {
+      (store as Assert<User, 'isLoggedIn'>).email = newEmail
+      return store
+    })
 
     await UpgradeActions.downgrade()
   }

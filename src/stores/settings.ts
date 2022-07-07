@@ -7,6 +7,8 @@ export type Settings = {
 
 /** User settings (currently only used for appearance). */
 class SettingsStore extends Store<Settings> {
+  declare set: Store<Settings>['set']
+
   constructor() {
     super({
       darkMode: true
@@ -15,13 +17,8 @@ class SettingsStore extends Store<Settings> {
     No initialization from cache is required, all values are set from cookies. */
   }
 
-  /** Initialize values, should be done serverside after retrieving user settings */
-  init(settings: Settings): void {
-    this.set(settings)
-  }
-
   /** Update the value of one or more settings and immediately save to API. */
-  async saveAndCommit(patch: Partial<Settings>): Promise<void> {
+  async saveAndCommit(this: SettingsStore, patch: Partial<Settings>): Promise<void> {
     // Update the memory store
     this.update((store) => {
       for (const key in patch) {

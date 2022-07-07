@@ -11,7 +11,9 @@
 
 <svelte:body on:click={() => show = false}/>
 
-<div class="container" on:click|stopPropagation on:mouseenter={userPFP.init}>
+<div class="container" on:click|stopPropagation on:mouseenter={() => {
+  userPFP.init()
+}}>
   <i class="fas fa-chevron-down clickable quick-actions-toggle" on:click={toggle} class:open={show}/>
 
   {#key show}
@@ -21,7 +23,9 @@
           <i class="fas fa-cog"/>
           Settings
         </a>
-        <button class="transparent" on:click={user.logout}>
+        <button class="transparent" on:click={() => {
+          user.logout()
+        }}>
           Log Out
         </button>
       </div>

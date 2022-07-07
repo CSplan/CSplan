@@ -1,5 +1,5 @@
 import { aes, rsa } from 'cs-crypto'
-import userStore from './user'
+import userStore, { User } from './user'
 import { get, Readable, Writable, writable } from 'svelte/store'
 import { mustGetByKey } from '../db'
 import * as db from '../db'
@@ -47,7 +47,7 @@ function create(): Readable<UserPFP> & UserPFPStore {
   
       const meta: Required<UserPFPMeta> = JSON.parse(res.headers.get('X-Image-Meta')!)
       // Use cache if checksums match
-      const { user } = get(userStore)
+      const user = get(userStore) as Assert<User, 'isLoggedIn'>
       const cached: Required<UserPFP>|undefined = await db.getByKey('user-profile-picture', user.id)
       if (cached != null && cached.checksum === meta.checksum) {
         update((store) => {
@@ -101,7 +101,7 @@ function create(): Readable<UserPFP> & UserPFPStore {
 
       let rawImage: Uint8Array
       let meta: UserPFPMeta
-      const { user } = get(userStore)
+      const user = get(userStore) as Assert<User, 'isLoggedIn'>
 
       // Encrypt/encode the image depending on visibility
       if (visibility === Visibilities.Encrypted) {
