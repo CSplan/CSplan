@@ -267,17 +267,20 @@
 
     {#if item.tags.length > 0 || editMode}
       <section class="tags">
-        <div class="tags">
-        {#each item.tags as id (id)}
-          {#if $tags[id]}
-            <span class="tag" style:background-color={$tags[id].color} style:color={$tags[id].textColor}>
-                <p spellcheck="false">{$tags[id].name}</p>
-                <i class="fas fa-times clickable" on:click={() => untagItem(i, id)}></i>
-            </span>
-          {/if}
-        {/each}
-        </div>
+        {#if item.tags.length > 0}
+          <div class="tags">
+          {#each item.tags as id (id)}
+            {#if $tags[id]}
+              <span class="tag" style:background-color={$tags[id].color} style:color={$tags[id].textColor}>
+                  <p spellcheck="false">{$tags[id].name}</p>
+                  <i class="fas fa-times clickable" on:click={() => untagItem(i, id)}></i>
+              </span>
+            {/if}
+          {/each}
+          </div>
+        {/if}
         {#if editMode}
+          <div class="flex-break"/>
           <span class="tag tag-form">
             <TagForm on:newtag={e => tagItem(i, e.detail)} currentTags={item.tags}/>
           </span>
@@ -414,6 +417,13 @@
       }
     }
 
+    .flex-break {
+      height: 0;
+      @media (max-width: $mobile-max) {
+        flex-basis: 100%;
+      }
+    }
+
     .content, .tags {
       grid-column: 2 / span 1;
       width: max-content;
@@ -517,6 +527,9 @@
       padding-top: 0.3rem;
       margin-right: 0;
       margin-left: 0.5rem;
+      &:nth-child(2) { // 2nd child after the flex break element
+        margin-left: 0;
+      }
     }
   }
   // #endregion
