@@ -55,7 +55,6 @@ export const handle: Handle = async ({ event, resolve }) => {
   const locals = event.locals as RenderSession
 
   // If an authorization cookie is present, assume the user is logged in
-  // TODO: validate logins serverside
   const cookies = cookie.parse(
     event.request.headers.get('cookie') || '') as Record<string, string|undefined>
   const authCookie = cookies['Authorization']
