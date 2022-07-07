@@ -493,7 +493,6 @@ export class PasswordChangeActions extends RegisterActions {
     if (this.privateBetaAccount) {
       const autoParams = new Argon2AutoParams(this.argon2, this.hashPassword, normalizedNewPassword)
       this.hashParams = await autoParams.calculateParams()
-      console.log(this.hashParams)
     }
 
     // Derive an authentication keypair from the new password and salt

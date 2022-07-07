@@ -43,7 +43,6 @@
       return
     }
     const lightness = parseLightness(hexToRGB($tags[id].textColor))
-    console.log(`lightness: ${lightness}`)
     if (lightness > 0.5) {
       tags.update(id, { textColor: '#000' })
     } else {
