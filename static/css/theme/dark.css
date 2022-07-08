@@ -23,7 +23,7 @@
   border: none;
 }
 
-code,.card,.primary,form,input,select {
+code,.card,.primary,form,input,select,pre {
   background: var(--background-dark);
 }
 body,.darker {
@@ -32,7 +32,7 @@ body,.darker {
 .darker * {
   background: inherit;
 }
-code,input,select,button {
+code,input,select,button,pre {
   color: var(--text-bright);
 }
 

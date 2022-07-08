@@ -4,6 +4,7 @@
 
 <div class="side-menu">
   <MenuGroup href="/settings/account" title="Account" icon="fas fa-user"/>
+  <MenuGroup href="/settings/appearance" title="Appearance" icon="fas fa-palette"/>
   <MenuGroup href="/settings/2fa" title="2FA" icon="fas fa-mobile-screen-button"/>
   <MenuGroup href="/settings/keys" title="Keys & Backup" icon="fas fa-key"/>
   <MenuGroup href="/settings/sessions" title="Sessions" icon="fas fa-desktop"/>

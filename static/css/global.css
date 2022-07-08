@@ -5,6 +5,9 @@
 button.bold, .button.bold, input[type="submit"] {
   background-color: var(--bold-blue) !important;
 }
+button.alt, .button.alt {
+  background-color: var(--background-alt);
+}
 i.bold {
   color: var(--bold-blue);
 }
