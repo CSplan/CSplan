@@ -249,11 +249,11 @@
   @import './icons.scss';
 
   .card {
-    background: $bg-dark;
-    margin-top: 25px;
+    background: $bg-primary;
     @media all and (min-width: $desktop-min) {
       min-width: 75%;
       max-width: 100%;
+      margin-top: 25px;
     }
     @media all and (max-width: $mobile-max) {
       width: 100%;

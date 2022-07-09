@@ -22,14 +22,15 @@
       grid-template-columns: $side-menu-width 1fr max-content 1fr $side-menu-width;
       grid-template-rows: max-content 1fr 10%;
       grid-auto-flow: column;
+      padding: $v-gap $h-gap;
     }
     @media screen and (max-width: $mobile-max) {
-      grid-template-rows: $side-menu-width 1fr max-content;
+      grid-template-rows: repeat(max-content, 2);
       grid-auto-flow: row;
+      padding-left: $h-gap;
+      padding-right: $h-gap;
     }
-    color: white;
 
-    padding: $v-gap $h-gap;
     column-gap: $h-gap;
     row-gap: $v-gap;
   }
@@ -47,11 +48,12 @@
   .current-menu { 
     @media screen and (max-width: $mobile-max) {
       grid-column: 1;
-      grid-row: 3 / span 1;
+      grid-row: 2 / span 1;
     }
     @media screen and (min-width: $desktop-min) {
       grid-column: 3 / span 1;
       grid-row: 1 / span 2;
     }
+    margin-bottom: auto;
   }
 </style>

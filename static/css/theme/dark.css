@@ -9,7 +9,7 @@
 
   --text-normal: #fbfbfb;
   --text-bright: white;
-  --text-disabled: #989898;
+  --text-disabled: rgb(152, 152, 152);
   --text-disabled-light: #ffffff4d;
 
   --border-normal: #bebebe;
@@ -31,17 +31,6 @@ body,.darker {
 }
 .darker * {
   background: inherit;
-}
-code,input,select,button,pre {
-  color: var(--text-bright);
-}
-
-:checked[type="checkbox"] + .checkable::after {
-  color: var(--text-bright);
-}
-
-body,.card *, article.primary, p {
-  color: var(--text-normal);
 }
 
 nav {

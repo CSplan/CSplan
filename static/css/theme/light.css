@@ -7,11 +7,18 @@
 
   --text-normal: #111;
   --text-bright: var(--text-normal);
-  --text-disabled: #575757;
+  --text-disabled: rgb(87, 87, 87);
   --text-disabled-light: #0000004d;
 
   --border-normal: #ccc;
   --border-alt: #aaa;
+}
+
+.card {
+  border: 1px solid var(--border-normal);
+}
+.card.noborder {
+  border: none;
 }
 
 body {

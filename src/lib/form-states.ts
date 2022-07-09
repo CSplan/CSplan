@@ -5,3 +5,5 @@ export enum FormStates {
   Saving,
   Saved
 }
+
+export default FormStates

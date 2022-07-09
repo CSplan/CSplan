@@ -1,8 +1,9 @@
 <script lang="ts">
   import MenuGroup from './menu-group.svelte'
+  import settings from '$stores/settings'
 </script>
 
-<div class="side-menu">
+<div class="side-menu" class:shadow={!$settings.darkMode}>
   <MenuGroup href="/settings/account" title="Account" icon="fas fa-user"/>
   <MenuGroup href="/settings/appearance" title="Appearance" icon="fas fa-palette"/>
   <MenuGroup href="/settings/2fa" title="2FA" icon="fas fa-mobile-screen-button"/>
@@ -20,6 +21,9 @@
     padding: 0.8rem;
     border-radius: 0.2rem;
     font-size: 1.1rem;
+    &.shadow {
+      box-shadow: 0.3rem 0.3rem 1.25rem $bg-dark;
+    }
   }
 
   // Desktop styles

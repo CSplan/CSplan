@@ -128,3 +128,15 @@ label.overlay i.fa-times {
 form {
   line-height: 1;
 }
+
+/* Dark/light theme */
+:checked[type="checkbox"] + .checkable::after {
+  color: var(--text-bright);
+}
+
+body,.card *, article.primary, p {
+  color: var(--text-normal);
+}
+code,input,select,pre {
+  color: var(--text-bright);
+}
