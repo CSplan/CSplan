@@ -16,6 +16,20 @@ class SettingsStore extends Store<Settings> {
     /* The root __layout populates this store from the user's SSR session information, 
     No initialization from cache is required, all values are set from cookies. */
   }
+  
+  /** Update settings without committing to API */
+  localPatch(this: SettingsStore, patch: Partial<Settings>): void {
+    this.update((store) => {
+      for (const key in patch) {
+        const k = key as keyof Settings
+        if (patch[k] == null) {
+          continue
+        }
+        store[k] = patch[k]
+      }
+      return store
+    })
+  }
 
   /** Update the value of one or more settings and immediately save to API. */
   async saveAndCommit(this: SettingsStore, patch: Partial<Settings>): Promise<void> {

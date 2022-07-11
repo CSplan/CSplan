@@ -2,8 +2,19 @@
   import user from '$stores/user'
   import settings from '$stores/settings'
   import QuickActions from './quick-actions.svelte'
+  import cookie from 'js-cookie'
   import { afterNavigate } from '$app/navigation'
   import { onMount } from 'svelte'
+  
+  function toggleDarkModeCookie(): void {
+    // Current value of the setting before being toggled
+    const v = cookie.get('DarkMode') === `${true}`
+    // Update the value in memory state and set a new cookie
+    settings.localPatch( { darkMode: !v })
+    cookie.set('DarkMode', `${!v}`, {
+      sameSite: 'strict'
+    })
+  }
   
   // Re-hide navbar after page navigation
   let show: boolean
@@ -69,6 +80,9 @@
       <!-- Quick actions dropdown -->
       <QuickActions/>
     {:else}
+      <i class="darkmode-indicator clickable {$settings.darkMode ? 'fas' : 'far'} fa-moon" on:click={() => {
+        toggleDarkModeCookie()
+      }}></i>
       <a class="pseudo button login" sveltekit:prefetch href="/login">Log In</a>
       <a class="pseudo button register" sveltekit:prefetch href="/register">Register</a>
     {/if}
@@ -82,5 +96,8 @@
     nav.dark {
       background: inherit;
     }
+  }
+  i.darkmode-indicator {
+    font-size: 1.3rem;
   }
 </style>

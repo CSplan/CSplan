@@ -9,9 +9,9 @@
     // If the user is logged in, initialize settings from cookies
     if (s.isLoggedIn) {
       user.set(s.user)
-      if (s.settings != null) {
-        settings.set(s.settings) 
-      }
+    }
+    if (s.settings != null) {
+      settings.set(s.settings) 
     }
 
     return {}

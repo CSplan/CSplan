@@ -134,9 +134,3 @@ form {
   color: var(--text-bright);
 }
 
-body,.card *, article.primary, p {
-  color: var(--text-normal);
-}
-code,input,select,pre {
-  color: var(--text-bright);
-}

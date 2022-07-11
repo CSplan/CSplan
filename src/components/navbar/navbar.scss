@@ -78,9 +78,9 @@ nav {
     display: none;
   }
 }
-/* Item item spacing */
+/* Item spacing */
 @media all and (min-width: $desktop-min) {
-  a {
+  a,i {
     margin: auto 0.3rem;
   }
   .menu > a {
@@ -88,7 +88,7 @@ nav {
   }
 }
 @media all and (max-width: $mobile-max) {
-  a {
+  a,i {
     margin: 0.5rem 0;
   }
   .right {

@@ -5,12 +5,13 @@ import cookie from 'cookie'
 import { HTTPerror, route } from '$lib'
 import { dev } from '$app/env'
 
-export type RenderSession = {
+export type RenderSession = ({
   isLoggedIn: true
-  settings?: Settings
   user: User
 } | {
   isLoggedIn: false
+}) & {
+  settings?: Settings
 }
 
 type AuthorizedResponse = {
@@ -76,6 +77,9 @@ export const handle: Handle = async ({ event, resolve }) => {
     }
   } catch {
     locals.isLoggedIn = false
+    locals.settings = {
+      darkMode: cookies['DarkMode'] !== 'false'
+    }
   }
 
   return resolve(event)
@@ -90,7 +94,8 @@ export const getSession: GetSession = (event) => {
     settings: locals.settings,
     user: locals.user
   } : {
-    isLoggedIn: locals.isLoggedIn
+    isLoggedIn: locals.isLoggedIn,
+    settings: locals.settings
   }
   
   return session
