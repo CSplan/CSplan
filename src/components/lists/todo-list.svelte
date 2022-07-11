@@ -11,6 +11,7 @@
   import { flip } from 'svelte/animate'
   import DOMPurify from 'dompurify'
   import { FormStates as States } from '$lib/form-states'
+  import Limits from '$lib/limits'
 
   export let id: string
 
@@ -42,6 +43,10 @@
     CEtrim(evt)
     const title = evt.currentTarget
     if (title.textContent == null || !title.textContent.length) {
+      if (list.items[i].title.length === 0) {
+        list.items[i].title = 'Untitled Item'
+        list.items = list.items
+      }
       title.textContent = list.items[i].title
       return
     }
@@ -70,6 +75,9 @@
   }
   // Add a new item, and focus the item's title
   async function addItem(): Promise<void> {
+    if (itemLimitHit) {
+      return
+    }
     list.items.push({ ...itemSkeleton, tags: [] }) // js randomly implementing pointers amirite
     list.items = list.items
     // Wait for the DOM to update and focus the new item 
@@ -202,6 +210,14 @@
   }
   // #endregion
   
+  // #region Limits
+
+  let itemLimitHit = false
+  $: if (list != null) {
+    itemLimitHit = list.items.length >= Limits.free.itemsPerList
+  }
+
+  // #endregion
   onMount(async () => {
     await lists.init()
     await tags.init()
@@ -290,9 +306,17 @@
   </div>
   {/each}
   {#if editMode}
+    {#if !itemLimitHit}
     <div class="row-bottom centered clickable" on:click={addItem}>
       <i class="fas fa-plus"></i>
     </div>
+    {:else}
+    <div class="row-bottom centered">
+      <i class="fas fa-times" style:color="var(--danger-red)"></i> 
+      <div class="flex-break"></div>
+      <span>Free accounts are limited to 10 items per list.</span>
+    </div>
+    {/if}
   {/if}
 </div>
 {/if}
@@ -474,11 +498,8 @@
     border-right: var(--bold-blue) 2px solid;
   }
   .row-bottom {
-    display: flex;
-    flex-direction: row;
-    align-items: center;
-    justify-content: center;
     padding: 0.5rem;
+    text-align: center;
   }
   // #endregion
 
