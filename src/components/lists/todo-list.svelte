@@ -538,6 +538,7 @@
     // Tag content (text + buttons)
     * {
       background-color: inherit;
+      color: inherit;
       margin: 0 0.2em;
       padding: 0;
     }
