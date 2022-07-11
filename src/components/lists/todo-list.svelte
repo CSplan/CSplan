@@ -1,7 +1,7 @@
 <script lang="ts">
   import { onMount, tick } from 'svelte'
   // import { flip } from 'svelte/animate'
-  import lists from '$stores/lists'
+  import lists, { itemsTotal } from '$stores/lists'
   import tags from '$stores/tags'
   import Spinner from '$components/spinner.svelte'
   import TagForm from '$components/tag-form.svelte'
@@ -211,13 +211,12 @@
   // #endregion
   
   // #region Limits
-
   let itemLimitHit = false
   $: if (list != null) {
-    itemLimitHit = list.items.length >= Limits.free.itemsPerList
+    itemLimitHit = list.items.length >= Limits.free.itemsPerList || $itemsTotal >= Limits.free.totalItems
   }
+  // #endregion 
 
-  // #endregion
   onMount(async () => {
     await lists.init()
     await tags.init()

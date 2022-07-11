@@ -304,4 +304,9 @@ export const ordered = derived(lists, ($lists) => {
   return Object.values($lists).sort((l1, l2) => l1.index - l2.index)
 })
 
+// The total number of items
+export const itemsTotal = derived(lists, ($lists) => {
+  return Object.values($lists).reduce((prev, v) => prev + v.items.length, 0)
+})
+
 export default lists
