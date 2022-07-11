@@ -2,7 +2,7 @@ import type { Handle, GetSession } from '@sveltejs/kit'
 import type { Settings } from '$stores/settings'
 import type { User } from '$stores/user'
 import cookie from 'cookie'
-import { route } from '$lib'
+import { HTTPerror, route } from '$lib'
 import { dev } from '$app/env'
 
 export type RenderSession = {
@@ -40,14 +40,14 @@ async function getSettings(authCookie: string): Promise<Settings|undefined> {
 }
 
 // Get user and session info
-async function getUser(authCookie: string): Promise<User|null> {
+async function getUser(authCookie: string): Promise<User> {
   const res = await fetch(serverRoute('/whoami'), {
     headers: {
       Cookie: `Authorization=${authCookie}`
     }
   })
   if (res.status !== 200) {
-    return null
+    throw new Error(await HTTPerror(res, 'Failed backend authentication.'))
   }
 
   const body: AuthorizedResponse = await res.json() // API responses have no 'isLoggedIn' property
@@ -69,15 +69,13 @@ export const handle: Handle = async ({ event, resolve }) => {
   const authCookie = cookies['Authorization']
   locals.isLoggedIn = authCookie !== undefined && authCookie.length > 0
 
-  if (locals.isLoggedIn) {
-    const user = await getUser(authCookie!)
-    if (user == null) {
-      event.locals = { isLoggedIn: false }
-      return resolve(event)
+  try {
+    if (locals.isLoggedIn && authCookie != null) {
+      locals.user = await getUser(authCookie)
+      locals.settings = await getSettings(authCookie)
     }
-    locals.user = user
-
-    locals.settings = await getSettings(authCookie!)
+  } catch {
+    locals.isLoggedIn = false
   }
 
   return resolve(event)
@@ -86,7 +84,7 @@ export const handle: Handle = async ({ event, resolve }) => {
 // Return a session object based on SSR locals set from cookies
 export const getSession: GetSession = (event) => {
   const locals = event.locals as RenderSession
-
+  
   const session: RenderSession = locals.isLoggedIn ? {
     isLoggedIn: locals.isLoggedIn,
     settings: locals.settings,
@@ -94,6 +92,6 @@ export const getSession: GetSession = (event) => {
   } : {
     isLoggedIn: locals.isLoggedIn
   }
-
+  
   return session
 }

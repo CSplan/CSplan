@@ -4,7 +4,7 @@
   import QuickActions from './quick-actions.svelte'
   import { afterNavigate } from '$app/navigation'
   import { onMount } from 'svelte'
-
+  
   // Re-hide navbar after page navigation
   let show: boolean
   afterNavigate(() => {
