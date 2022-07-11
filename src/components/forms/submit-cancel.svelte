@@ -24,11 +24,13 @@
     display: grid;
     grid-template-columns: max-content 8fr 2fr;
   }
+  input {
+    border: none;
+  }
   input.cancel-button {
     grid-column: 1;
     margin: 0;
     background-color: $danger-red;
-    color: white;
   }
   input.submit-button {
     grid-column: 3;
