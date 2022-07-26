@@ -7,7 +7,9 @@
 
 <a {href}>
 <button class="transparent" style="color: {color};">
-  <i class={icon}></i>
+  <slot name="icon">
+    <i class={icon}></i>
+  </slot>
   <span>{title}</span>
 </button>
 </a>
