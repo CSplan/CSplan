@@ -37,9 +37,6 @@
 
   .container {
     @include settings-grid();
-    @media screen and (min-width: $desktop-min) {
-      overflow-y: hidden;
-    }
     @media (max-width: $mobile-max) {
       overflow-x: hidden;
     }
