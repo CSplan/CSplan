@@ -10,8 +10,8 @@
   --text-disabled: rgb(87, 87, 87);
   --text-disabled-light: #0000004d;
 
-  --border-normal: #ccc;
-  --border-alt: #aaa;
+  --border-normal: #aaa;
+  --border-alt: #ccc;
 }
 
 .card {

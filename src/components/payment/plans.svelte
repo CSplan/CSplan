@@ -1,10 +1,10 @@
 <script lang="ts">
-  import user from '$stores/user'
-  import settings from '$stores/settings'
   import AccountTypes from '$lib/account-types'
+  import settings from '$stores/settings'
+  import user from '$stores/user'
 </script>
 
-<section class="settings-menu-container">
+<article class="plans">
   <div class="plan-info primary">
     <img src="/logo/plans/{$settings.darkMode ? 'Dark' : 'Light'}-CSplan-Free-noslogan.svg" alt="CSplan Free Logo">
     <hr>
@@ -34,16 +34,16 @@
     <img src="/logo/plans/{$settings.darkMode ? 'Dark' : 'Light'}-CSplan-Pro-noslogan.svg" alt="CSplan Pro Logo">
     <hr>
     <div class="price">
-      <span class="strikethrough">$10.00/month</span>
+      <span class="strikethrough">$10/month</span>
       <br>
-      <span class="discount-price">$8.00</span>/month (monthly)
+      <span class="discount-price">$8</span>/month (monthly)
       <br>
       OR
       <br>
-      <span class="discount-price">$7.00</span>/month (prepaid)
+      <span class="discount-price">$7</span>/month (prepaid)
     </div>
     <br>
-    <span class="discount-disclaimer">Offer is valid through August 31. Subscription users will receive the discounted rate for their first 3 months.</span>
+    <span class="discount-disclaimer">Offer is valid through August 31, 2022. Subscription users will receive the discounted rate for their first 3 months.</span>
     <hr>
     <span>Everything in CSplan Free, and...</span>
     <ul class="bullet-points">
@@ -65,17 +65,31 @@
     <ul class="bullet-points">
       <li>Reminder push notifications on iOS</li>
     </ul>
+    {#if $user.isLoggedIn && $user.accountType === AccountTypes.Pro}
+      <hr>
+      <b>You've already bought CSplan Pro, thank you for your support!</b>
+      <a href="/payment">
+        <button style:background="var(--background-alt)">Go to Payment Management</button>
+      </a>
+    {:else}
+      <a href="/payment/buy" class="purchase-button">
+        <button style:background="var(--success-green)">Buy CSplan Pro</button>
+      </a>
+    {/if}
   </div>
-</section>
+</article>
 
 <style lang="scss">
-  @import '../position.scss';
-  section.settings-menu-container {
+  article.plans {
     display: grid;
+    margin-top: 25px;
     @media (min-width: $desktop-min) {
       grid-auto-flow: column;
       column-gap: 5rem;
-      width: 90%;
+    }
+    @media (max-width: $mobile-max) {
+      grid-auto-flow: row;
+      row-gap: 5rem;
     }
   }
   .plan-info {

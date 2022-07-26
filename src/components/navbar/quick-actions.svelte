@@ -23,6 +23,10 @@
           <i class="fas fa-cog"/>
           Settings
         </a>
+        <a href="/payment">
+          <i class="fad fa-credit-card" style:color="var(--success-green)"/>
+          CSplan Pro
+        </a>
         <button class="transparent" on:click={() => {
           user.logout()
         }}>
@@ -72,11 +76,11 @@
     position: relative;
   }
   .dropdown {
-    background: var(--background-alt);
+    background: $bg-dark;
     padding: 0.8rem;
     border-radius: 0.2rem;
     font-size: 1.1rem;
-    box-shadow: 0.5rem 0.3rem 1.25rem var(--background-dark);
+    box-shadow: 0.5rem 0.3rem 1.25rem $bg-dark;
   }
   @media all and (min-width: 850px) {
     .dropdown:not(.desktop-show) {

@@ -51,7 +51,7 @@
 </script>
 
 <Modal bind:show lock={true}>
-  <form class="upgrade" novalidate on:submit|preventDefault={submit} bind:this={form}>
+  <form class="upgrade primary" novalidate on:submit|preventDefault={submit} bind:this={form}>
     <label>
       <header>Password</header>
       <input type="{showPassword ? 'text' : 'password'}" {placeholder} bind:this={passwordInput} required>
@@ -68,8 +68,6 @@
     margin-right: auto;
     margin-left: auto;
 
-    background: white;
-    color: #111;
     padding: $padding-m;
     text-align: left;
   }
