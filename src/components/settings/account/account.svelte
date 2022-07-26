@@ -1,5 +1,6 @@
 <script lang="ts">
   import ProfilePictureForm from './pfp-form.svelte'
+  import AccountTypeGraphic from './account-type.svelte'
   import EmailForm from './email-form.svelte'
   import PasswordForm from './password-form.svelte'
   import NameForm from './name-form.svelte'
@@ -9,6 +10,7 @@
   <article class="submenu account-card">
 
     <ProfilePictureForm/>
+    <AccountTypeGraphic/>
     
     <section class="user-details primary" on:submit|preventDefault>
 

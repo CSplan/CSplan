@@ -1,12 +1,14 @@
 import { Store } from './store'
 import { clearAll } from '../db'
 import { HTTPerror, route, csfetch } from '$lib'
+import AccountTypes from '$lib/account-types'
 
 export type User = {
   isLoggedIn: true
   id: string
   email: string
   verified: boolean
+  accountType: AccountTypes
 } | {
   isLoggedIn: false
 }

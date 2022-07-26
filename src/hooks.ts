@@ -1,6 +1,7 @@
 import type { Handle, GetSession } from '@sveltejs/kit'
 import type { Settings } from '$stores/settings'
 import type { User } from '$stores/user'
+import AccountTypes from '$lib/account-types'
 import cookie from 'cookie'
 import { HTTPerror, route } from '$lib'
 import { dev } from '$app/env'
@@ -19,6 +20,7 @@ type AuthorizedResponse = {
   sessionID: string
   email: string
   verified: boolean
+  accountType: AccountTypes
 }
 
 // Create a full URL for use in SSR requests
@@ -56,7 +58,8 @@ async function getUser(authCookie: string): Promise<User> {
     isLoggedIn: true,
     id: body.userID,
     email: body.email,
-    verified: body.verified
+    verified: body.verified,
+    accountType: body.accountType
   }
 }
 
