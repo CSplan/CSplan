@@ -2,6 +2,7 @@
   import type { Load } from '@sveltejs/kit'
   import type { RenderSession } from '$hooks'
   import settings from '$stores/settings'
+  import paymentStatus from '$stores/payment-status'
   import user from '$stores/user'
 
   export const load: Load = ({ session }) => {
@@ -9,6 +10,9 @@
     // If the user is logged in, initialize settings from cookies
     if (s.isLoggedIn) {
       user.set(s.user)
+      if (s.paymentStatus != null) {
+        paymentStatus.set(s.paymentStatus)
+      }
     }
     if (s.settings != null) {
       settings.set(s.settings) 

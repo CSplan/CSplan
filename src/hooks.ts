@@ -1,5 +1,6 @@
 import type { Handle, GetSession } from '@sveltejs/kit'
 import type { Settings } from '$stores/settings'
+import type { PaymentStatus } from '$stores/payment-status'
 import type { User } from '$stores/user'
 import AccountTypes from '$lib/account-types'
 import cookie from 'cookie'
@@ -9,6 +10,7 @@ import { dev } from '$app/env'
 export type RenderSession = ({
   isLoggedIn: true
   user: User
+  paymentStatus?: PaymentStatus
 } | {
   isLoggedIn: false
 }) & {
@@ -33,6 +35,19 @@ async function getSettings(authCookie: string): Promise<Settings|undefined> {
   const res = await fetch(serverRoute('/settings?filter=appearance'), {
     headers: {
       // Cookies have to manually be passed in serverside fetch requests
+      Cookie: `Authorization=${authCookie}`
+    }
+  })
+  if (res.status !== 200) {
+    return
+  }
+  return res.json()
+}
+
+// Get user payment status
+async function getPaymentStatus(authCookie: string): Promise<PaymentStatus|undefined> {
+  const res = await fetch(serverRoute('/payment-status'), {
+    headers: {
       Cookie: `Authorization=${authCookie}`
     }
   })
@@ -77,6 +92,7 @@ export const handle: Handle = async ({ event, resolve }) => {
     if (locals.isLoggedIn && authCookie != null) {
       locals.user = await getUser(authCookie)
       locals.settings = await getSettings(authCookie)
+      locals.paymentStatus = await getPaymentStatus(authCookie)
     }
   } catch {
     locals.isLoggedIn = false
@@ -95,6 +111,7 @@ export const getSession: GetSession = (event) => {
   const session: RenderSession = locals.isLoggedIn ? {
     isLoggedIn: locals.isLoggedIn,
     settings: locals.settings,
+    paymentStatus: locals.paymentStatus,
     user: locals.user
   } : {
     isLoggedIn: locals.isLoggedIn,

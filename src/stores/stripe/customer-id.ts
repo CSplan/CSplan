@@ -68,4 +68,41 @@ class StripeCustomerIDStore extends Store<StripeCustomerID> {
 
     this.initialized = true
   }
+
+  async create(address: StripeAddress): Promise<string> {
+    // Create customer ID with Stripe via API
+    const res = await csfetch(route('/stripe/customer-id'), {
+      method: 'POST',
+      body: JSON.stringify(address)
+    })
+    if (res.status !== 201) {
+      throw new Error(await HTTPerror(res, 'Failed to create customer ID with Stripe'))
+    }
+
+    // Decode the response body
+    const body: Assert<StripeCustomerID<true>, 'exists'> & Meta = await res.json()
+
+    // Decrypt the response body
+    const user = Store.get(userStore) as Assert<User, 'isLoggedIn'>
+    const { privateKey } = await mustGetByKey<MasterKeys>('keys', user.id)
+    const cryptoKey = await rsa.unwrapKey(body.meta.cryptoKey, privateKey, 'AES-GCM')
+    const final: StripeCustomerID & MetaState & KeyedObject<'userID'> = {
+      exists: true,
+      id: await aes.decrypt(body.id, cryptoKey),
+      address: await aes.deepDecrypt(body.address, cryptoKey),
+      cryptoKey,
+      checksum: body.meta.checksum,
+      userID: user.id
+    }
+    // Add to memory state
+    this.set(final)
+    // Add to IDB
+    await addToStore<'userID'>('stripe/customer-id', final)
+
+    return final.id
+  }
 }
+
+export const stripe = new StripeCustomerIDStore()
+
+export default stripe

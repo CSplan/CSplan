@@ -13,7 +13,6 @@ export type User = {
   isLoggedIn: false
 }
 
-
 class UserStore extends Store<User> {
   declare set: Store<User>['set']
   declare update: Store<User>['update']
