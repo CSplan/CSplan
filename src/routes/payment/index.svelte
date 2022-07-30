@@ -1,7 +1,7 @@
 <script lang="ts">
-  import paymentStatus from '$stores/payment-status'
+  import Status from '$components/payment/status.svelte'
 </script>
 
 <main class="container">
-  <pre>{JSON.stringify($paymentStatus, '', 2)}</pre>
+  <Status/>
 </main>

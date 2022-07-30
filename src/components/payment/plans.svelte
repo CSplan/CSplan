@@ -107,7 +107,6 @@
     height:fit-content;
     font-size: 110%;
     ul {
-      font-size: 110%;
       width: 100%;
     }
     img {
