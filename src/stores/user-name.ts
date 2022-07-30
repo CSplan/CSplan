@@ -143,7 +143,7 @@ function create(): Readable<Name> & SingleResourceStore<NameData> {
       }
 
       // Update local state and IDB
-      const { meta }: MetaResponse = await res.json()
+      const { meta }: Meta = await res.json()
       const final: Name = {
         ...name,
         id: user.id,

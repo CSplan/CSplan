@@ -108,7 +108,7 @@ function create(): Readable<Store> & TagStore {
         const err: ErrorResponse = await res.json()
         throw new Error(err.message || 'unknown error creating tag')
       }
-      const { id, meta }: MetaResponse = await res.json()
+      const { id, meta }: Meta = await res.json()
 
       // Update the tag with values from API
       const final: Tag = {
@@ -163,7 +163,7 @@ function create(): Readable<Store> & TagStore {
       if (res.status !== 200) {
         throw new Error(await HTTPerror(res, 'Failed to update tag with server'))
       }
-      const { meta }: MetaResponse = await res.json()
+      const { meta }: Meta = await res.json()
       tag.checksum = meta.checksum
 
       // Commit to IDB

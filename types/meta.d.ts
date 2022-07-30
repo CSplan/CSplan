@@ -1,12 +1,12 @@
-declare type MetaResponse = {
+declare type Meta = {
   id: string
   meta: {
     cryptoKey: string
     checksum: string
   }
 }
-declare type IndexedMetaResponse = MetaResponse & {
-  meta: MetaResponse['meta'] & {
+declare type IndexedMetaResponse = Meta & {
+  meta: Meta['meta'] & {
     index: number
   }
 }

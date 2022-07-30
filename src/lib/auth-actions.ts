@@ -10,6 +10,7 @@ import qrcodegen from './qrcodegen'
 import storage from '$db/storage'
 import { dev } from '$app/env'
 import { AuthLevels } from './auth-levels'
+import AccountTypes from '$lib/account-types'
 
 // #region Types
 
@@ -29,6 +30,7 @@ export type ChallengeResponse = {
   userID: string
   sessionID: string
   verified: boolean
+  accountType: AccountTypes
 }
 type RegisterRequest = {
   email: string
@@ -283,7 +285,8 @@ export class LoginActions {
       isLoggedIn: true,
       email: user.email,
       id: response.userID,
-      verified: response.verified
+      verified: response.verified,
+      accountType: response.accountType
     }
     userStore.set(session)
     storage.setUser(session)

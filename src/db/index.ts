@@ -1,5 +1,5 @@
 const DB_NAME = 'CSplan'
-const DB_VER = 1
+const DB_VER = 2
 let cachedIDB: IDBDatabase|null = null
 
 const enum Scopes {
@@ -8,53 +8,54 @@ const enum Scopes {
 }
 
 type StoreTemplate = {
-  name: string
   scope: Scopes
   options: IDBObjectStoreParameters
 }
 
-const stores: StoreTemplate[] = [
-  {
-    name: 'keys',
+const stores: { [name: string]: StoreTemplate } = {
+  keys: {
     scope: Scopes.User,
     options: {
       keyPath: 'id',
       autoIncrement: false
     }
   },
-  {
-    name: 'lists',
+  lists: {
     scope: Scopes.User,
     options: {
       keyPath: 'id',
       autoIncrement: false
     }
   },
-  {
-    name: 'tags',
+  tags: {
     scope: Scopes.User,
     options: {
       keyPath: 'id',
       autoIncrement: false
     }
   },
-  {
-    name: 'user-profile-picture',
+  'user-profile-picture': {
     scope: Scopes.User,
     options: {
       keyPath: 'id',
       autoIncrement: false
     }
   },
-  {
-    name: 'user-name',
+  'user-name': {
     scope: Scopes.User,
     options: {
       keyPath: 'id',
+      autoIncrement: false
+    }
+  },
+  'stripe/customer-id': {
+    scope: Scopes.User,
+    options: {
+      keyPath: 'userID',
       autoIncrement: false
     }
   }
-]
+}
 
 // Get an IDBDatabase instance to request transactions
 export function getDB(): Promise<IDBDatabase> {
@@ -68,8 +69,10 @@ export function getDB(): Promise<IDBDatabase> {
     req.onupgradeneeded = () => {
       const db = req.result
       // Create stores from the declared templates
-      for (const store of stores) {
-        db.createObjectStore(store.name, store.options)
+      for (const name in stores) {
+        if (!db.objectStoreNames.contains(name)) {
+          db.createObjectStore(name, stores[name].options)
+        }
       }
     }
 
@@ -83,7 +86,7 @@ export function getDB(): Promise<IDBDatabase> {
   })
 }
 
-export async function addToStore(storeName: string, data: KeyedObject): Promise<void> {
+export async function addToStore<K>(storeName: string, data: KeyedObject<K extends string ? K : 'id'>): Promise<void> {
   const db = await getDB()
   return new Promise((resolve, reject) => {
     const store = db.transaction(storeName, 'readwrite').objectStore(storeName)
@@ -115,11 +118,11 @@ export async function clearStore(storeName: string): Promise<void> {
 }
 
 // Retrieve a record from an object store by key
-export async function getByKey<T>(storeName: string, key: string): Promise<(KeyedObject & T)|undefined> {
+export async function getByKey<T, K = unknown>(storeName: string, key: string): Promise<(KeyedObject<K extends string ? K : 'id'> & T)|undefined> {
   const db = await getDB()
   return new Promise((resolve, reject) => {
     const store = db.transaction(storeName, 'readonly').objectStore(storeName)
-    const req: IDBRequest<KeyedObject & T> = store.get(key)
+    const req: IDBRequest<KeyedObject<K extends string ? K : 'id'> & T> = store.get(key)
 
     req.onerror = () => {
       reject(req.error)
@@ -131,8 +134,8 @@ export async function getByKey<T>(storeName: string, key: string): Promise<(Keye
 }
 
 // Call getByKey, reject with an error message if result is undefined
-export async function mustGetByKey<T>(storeName: string, key: string): Promise<KeyedObject & T> {
-  const result = await getByKey<T>(storeName, key)!
+export async function mustGetByKey<T, K = unknown>(storeName: string, key: string): Promise<KeyedObject<K extends string ? K : 'id'> & T> {
+  const result = await getByKey<T, K>(storeName, key)!
   if (result === undefined) {
     throw new Error(`IDB error - resource expected but not found (store \`${storeName}\`, key \`${key}\`)`)
   }
@@ -140,7 +143,7 @@ export async function mustGetByKey<T>(storeName: string, key: string): Promise<K
 }
 
 // Update an object store's record with an object including a key
-export async function updateWithKey(storeName: string, data: KeyedObject): Promise<void> {
+export async function updateWithKey<K>(storeName: string, data: KeyedObject<K extends string ? K : 'id'>): Promise<void> {
   const db = await getDB()
   return new Promise((resolve, reject) => {
     const store = db.transaction(storeName, 'readwrite').objectStore(storeName)
@@ -172,9 +175,9 @@ export async function deleteFromStore(storeName: string, key: string): Promise<v
 }
 
 export async function clearAll(): Promise<void> {
-  for (const store of stores) {
+  for (const name in  stores) {
     await new Promise<void>((resolve, reject) => {
-      const req = indexedDB.deleteDatabase(store.name)
+      const req = indexedDB.deleteDatabase(name)
 
       req.onerror = () => {
         console.error(req.error)

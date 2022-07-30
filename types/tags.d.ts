@@ -1,7 +1,7 @@
 /**
  * @encrypted
  */
-declare type TagDocument<M = MetaResponse> = M & TagData
+declare type TagDocument<M = Meta> = M & TagData
 
 declare type TagData = {
   name: string

@@ -18,7 +18,6 @@ declare type MasterKeys = {
   privateKey: CryptoKey
 }
 
-declare type KeyedObject = {
-  id: string
-  [index: string]: unknown
-}
+declare type KeyedObject<K extends string> = {
+  [keyPath in K]: string
+} & Record<string, unknown>
