@@ -1,0 +1,238 @@
+
+header.title {
+  font-size: 24px;
+  text-align: center;
+}
+
+.row header, .row .content p {
+  max-width: 100%;
+  word-break: break-word;
+}
+.card.editable {
+  overflow: visible; // Don't clip any forms or dropdowns that extend beyond the edges of the list
+  section.content {
+    p {
+      cursor: text;
+      &:empty {
+        display: block;
+        &::before {
+          content: "Description";
+          color: $text-disabled-light;
+        }
+      }
+    }
+  }
+}
+
+section.title {
+  display: grid;
+  @media (min-width: $desktop-min) {
+    grid-template-columns: 1fr auto 1fr;
+  }
+  @media (max-width: $mobile-max) {
+    grid-template-columns: 1fr auto minmax(min-content, 1fr);
+  }
+  grid-auto-flow: column;
+  border-bottom: 1px solid $border-alt;
+  padding: var(--padding-m);
+  header {
+    padding: 0;
+    border-bottom: none;
+  }
+  .edit-icon-container {
+    i {
+      float: right;
+    }
+  }
+}
+
+// Responsiveness
+@media all and (min-width: $desktop-min) {
+  .card {
+    min-width: 800px;
+    max-width: 1200px;
+  }
+}
+@media all and (max-width: $mobile-max) {
+  .card {
+    width: 100%;
+  }
+}
+
+.checkbox {
+  font-size: 1.75rem;
+}
+
+// #region Rows
+.row {
+  // Dimensions + color
+  width: 100%;
+  line-height: 1.25;
+  color: initial;
+  &:not(:last-child) {
+    border-bottom: $border-normal 1px solid;
+  }
+  // Alignment
+  text-align: left;
+  padding: var(--padding-m);
+  display: grid;
+  grid-auto-flow: column;
+  grid-template-columns: min-content minmax(0, auto) min-content;
+  column-gap: 0.5rem;
+  row-gap: 0.3rem;
+  grid-template-rows: minmax(0, auto) minmax(0, auto);
+  // Modifiers
+  &.tagless {
+    grid-template-rows: minmax(0, auto);
+  }
+
+  // Default child alignment
+  * {
+    grid-row: 1 / span 1;
+  }
+  i.checkbox {
+    grid-row: 1 / -1;
+  }
+
+  // Content contains an item's title and description
+  .content {
+    color: initial;
+    display: flex;
+    flex-direction: column;
+    text-align: left;
+    z-index: 1;
+    * {
+      border: none;
+      padding: 0;
+      margin-top: 0;
+      margin-bottom: 0;
+    }
+    p {
+      padding: 0.2rem 0;
+    }
+    // Hide empty descriptions
+    p:empty {
+      display: none;
+    }
+  }
+
+  .flex-break {
+    height: 0;
+    @media (max-width: $mobile-max) {
+      flex-basis: 100%;
+    }
+  }
+
+  .content, .tags {
+    grid-column: 2 / span 1;
+    width: max-content;
+    max-width: 100%;
+    padding: 0;
+    margin-top: auto;
+    margin-bottom: auto;
+    height: max-content;
+  }
+  // Scale icons on hover
+  .icons {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    grid-template-rows: repeat(2, 1fr);
+    row-gap: 0.4rem;
+    column-gap: 0.25rem;
+    @media all and (max-width: $mobile-max) {
+      font-size: 1.3rem;
+      column-gap: 0.8rem;
+    }
+    i.fa-times {
+      grid-column: 2;
+      grid-row: 1;
+    }
+    i.fa-grip-vertical {
+      grid-column: 2;
+      grid-row: 2;
+      @media all and (max-width: $mobile-max) {
+        display: none;
+      }
+    }
+    i.fa-arrow-up {
+      grid-column: 1;
+      grid-row: 1;
+    }
+    i.fa-arrow-down {
+      grid-column: 1;
+      grid-row: 2;
+    }
+    i:hover {
+      transform: scale(1.25);
+    }
+  }
+}
+.row.highlighted {
+  border-left: var(--bold-blue) 2px solid;
+  border-right: var(--bold-blue) 2px solid;
+}
+.row-bottom {
+  padding: 0.5rem;
+  text-align: center;
+}
+// #endregion
+
+// #region Tags
+section.tags {
+  grid-row: 2 / span 1;
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  align-items: center;
+  div.tags {
+    padding-top: 0.25rem;
+    border-top: dashed $border-alt 1px;
+  }
+}
+.tag {
+  max-width: 100%;
+  word-break: break-all;
+  border-radius: 0;
+  @media all and (min-width: $desktop-min) {
+    font-size: small;
+  }
+  @media all and (max-width: $mobile-max) {
+    font-size: medium;
+  }
+  margin-right: 0.25rem;
+  &:last-child {
+    margin-right: 0;
+  }
+  padding: 0.3rem 0.5rem;
+  padding-top: 0.3rem;
+  display: inline-flex;
+  flex-direction: row;
+  align-items: center;
+  // TODO: adjust tag height
+
+  // Tag content (text + buttons)
+  * {
+    background-color: inherit;
+    color: inherit;
+    margin: 0 0.2em;
+    padding: 0;
+  }
+
+  // Form for adding new tags
+  &.tag-form {
+    padding: 0;
+    padding-top: 0.3rem;
+    margin-right: 0;
+    margin-left: 0.5rem;
+    &:nth-child(2) { // 2nd child after the flex break element
+      margin-left: 0;
+    }
+  }
+}
+// #endregion
+
+.corner {
+  position: absolute;
+  top: 0.5rem;
+  left: 0.5rem;
+}

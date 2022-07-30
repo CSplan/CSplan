@@ -2,14 +2,17 @@
   import paymentStatus from '$stores/payment-status'
   import settings from '$stores/settings'
   import AccountTypes from '$lib/account-types'
-
+  
+  let isPaid = false
   let planName: string
   $: switch ($paymentStatus.accountType) {
   case AccountTypes.Pro:
     planName = 'Pro'
+    isPaid = true
     break
   default:
     planName = 'Free'
+    isPaid = false
     break
   }
 
@@ -40,13 +43,21 @@
     <p class="detail-label">Account Type:</p>
     <p class="value">CSplan {planName}</p>
 
-    {#if $paymentStatus.paidUntil != null}
-      <p class="detail-label">Paid Until:</p>
-      <p class="value" title="All payments are truncated to midnight UTC for privacy purposes. Payment can be completed up to 24 hours later than this time before account features will be lost.">{formatTimestamp($paymentStatus.paidUntil)}</p>
+    {#if isPaid}
+      {#if $paymentStatus.paidUntil != null}
+        <p class="detail-label">Paid Until:</p>
+        <p class="value" title="All payments are truncated to midnight UTC for privacy purposes. Payment can be completed up to 24 hours later than this time before account features will be lost.">{formatTimestamp($paymentStatus.paidUntil)}</p>
+      {/if}
+      <p class="detail-label">Subscription:</p>
+      <p class="value">{$paymentStatus.subscribed > 0 ? 'Active' : 'None (Prepaid)'}</p>
     {/if}
-    <p class="detail-label">Subscription:</p>
-    <p class="value">{$paymentStatus.subscribed > 0 ? 'Active' : 'None (Prepaid)'}</p>
   </section>
+
+  <a href="/payment/purchase">
+    <button class="purchase-button" style:background="var(--{isPaid ? 'background-alt' : 'success-green'})">
+      {isPaid ? 'Buy more Time' : 'Buy CSplan Pro'}
+    </button>
+  </a>
 </article>
 
 <style lang="scss">
