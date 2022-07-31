@@ -28,6 +28,13 @@ For the duration that open transaction ID is stored alongside a CSplan user ID, 
 Subscriptions can be thought of as a continously open transaction. CSplan's servers must be ready at any time to associate the ID of a active subscription that has been paid with the internal ID of the paying user. When a user has an active subscription, their Stripe Customer ID and CSplan account ID can be associated by CSplan. ***Any user with an active subscription could have their account associated with their full personal identity in the event of a subponea to CSplan, Stripe, and the user's bank.*** Users who cannot tolerate or wish to avoid this implication should not pay via subscription.
 
 ## Section III: Fulfillment
+CSplan Pro is billed "monthly", where one month is equal to 30 24-hour days, including the date of purchase.
+
+### Purchased Time
+All purchased time is truncated to expire at midnight (00:00) UTC. For example, if 1 month of CSplan pro is purchased at 9:00 UTC on July 1, the account that purchased will have access to CSplan Pro's features until 0:00 UTC on July 31.
+
+### Features
+For the duration of a user's purchased time, the user will have access to all [features of CSplan Pro](/payment/plans). When a user's purchased time expires, their account will lose access to these paid features until they pay for CSplan Pro again. Resources, such a lists, list items, and tags that exceed free account limits will **not** be deleted or otherwise lost when a user's paid time expires. These resources will remain able to be read, moved in position, and deleted, but they cannot be edited until the user pays for CSplan Pro again.
 
 ## Section IV: Refunds
 CSplan currently does not provide refunds or prorate subscription cancellations. CSplan will warn users before account deletion if their account has paid time remaining. In the event of an accidental purchase, email [support@csplan.co](mailto:support@csplan.co) with 'refund' in the subject to request a manually issued refund.
