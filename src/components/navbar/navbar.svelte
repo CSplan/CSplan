@@ -24,10 +24,6 @@
 
   const links = [
     {
-      title: 'About',
-      href: '/about'
-    },
-    {
       title: 'Lists',
       href: '/lists',
       needsLogin: true
@@ -36,6 +32,14 @@
       title: 'Tags',
       href: '/tags',
       needsLogin: true
+    },
+    {
+      title: 'About',
+      href: '/about'
+    },
+    {
+      title: 'Information',
+      href: '/info'
     }
   ]
 

@@ -1,5 +1,6 @@
 import node from '@sveltejs/adapter-node'
 import preprocess from 'svelte-preprocess'
+import { mdsvex } from 'mdsvex'
 import path from 'path'
 import { readFileSync } from 'fs'
 const pkg = JSON.parse(readFileSync('./package.json'))
@@ -52,11 +53,17 @@ const config = {
       }
     }
   },
-  preprocess: preprocess({
-    scss: {
-      prependData: `@import "${path.resolve('src/scss')}/index.scss";`
-    }
-  })
+  extensions: ['.svelte', '.md'],
+  preprocess: [
+    preprocess({
+      scss: {
+        prependData: `@import "${path.resolve('src/scss')}/index.scss";`
+      }
+    }),
+    mdsvex({
+      extensions: ['.md']
+    })
+  ]
 }
 
 export default config
