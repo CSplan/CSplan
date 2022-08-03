@@ -7,4 +7,7 @@
   * {
     text-align: center;
   }
+  ul {
+    padding-left: 0;
+  }
 </style>

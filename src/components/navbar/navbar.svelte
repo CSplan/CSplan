@@ -22,7 +22,12 @@
     show = false
   })
 
-  const links = [
+  type Link = {
+    title: string
+    href: string
+    needsLogin?: boolean // True/false if user must/must not be logged in, undefined if always present
+  }
+  const links: Link[] = [
     {
       title: 'Lists',
       href: '/lists',
@@ -35,11 +40,8 @@
     },
     {
       title: 'About',
-      href: '/about'
-    },
-    {
-      title: 'Information',
-      href: '/info'
+      href: '/info',
+      needsLogin: false
     }
   ]
 
@@ -74,10 +76,13 @@
   {#each links as link}
     {#if link.needsLogin && $user.isLoggedIn}
       <a class="pseudo button" sveltekit:prefetch href={link.href}>{link.title}</a>
-    {:else if !link.needsLogin}
+    {:else if !link.needsLogin && !$user.isLoggedIn}
+      <a class="pseudo button" sveltekit:prefetch href={link.href}>{link.title}</a>
+    {:else if link.needsLogin == null}
       <a class="pseudo button" sveltekit:prefetch href={link.href}>{link.title}</a>
     {/if}
   {/each}
+
   <div class="right">
     {#if $user.isLoggedIn}
       <span>{$user.email}</span>

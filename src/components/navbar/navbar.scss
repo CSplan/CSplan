@@ -1,5 +1,5 @@
 :root {
-  --user-name-margin: 1rem;
+  --user-name-margin: 0.8rem;
 }
 /* Navbar styling */
 nav, .menu {
@@ -39,6 +39,12 @@ nav {
   /* Extra right margin for the user's name */
   .menu .right span {
     margin-right: var(--user-name-margin);
+  }
+  .dropdown-text {
+    margin-right: var(--user-name-margin) !important;
+  }
+  .dropdown-icon {
+    margin-left: 0;
   }
 }
 /* Mobile styles */
