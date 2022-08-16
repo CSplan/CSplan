@@ -11,29 +11,8 @@
 
 <style lang="scss">
   @import '../../scss/colors.scss';
+  @import '../../components/settings/layout.scss'; 
 
-  $v-gap: 1.5rem;
-  $h-gap: 2rem;
-  $side-menu-width: 225px;
-
-  @mixin settings-grid {
-    display: grid;
-    @media screen and (min-width: $desktop-min) {
-      grid-template-columns: $side-menu-width 1fr max-content 1fr $side-menu-width;
-      grid-template-rows: max-content 1fr 10%;
-      grid-auto-flow: column;
-      padding: $v-gap $h-gap;
-    }
-    @media screen and (max-width: $mobile-max) {
-      grid-template-rows: repeat(max-content, 2);
-      grid-auto-flow: row;
-      padding-left: $h-gap;
-      padding-right: $h-gap;
-    }
-
-    column-gap: $h-gap;
-    row-gap: $v-gap;
-  }
 
   .container {
     @include settings-grid();

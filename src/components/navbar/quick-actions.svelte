@@ -31,10 +31,6 @@
           <i class="fas fa-book"></i>
           Information
         </a>
-        <a href="/about" sveltekit:prefetch>
-          <i class="fas fa-circle-info"></i>
-          About
-        </a>
         <button class="transparent" on:click={() => {
           user.logout()
         }}>
