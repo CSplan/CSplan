@@ -15,6 +15,7 @@
     grid-auto-flow: row;
     padding-left: $h-gap;
     padding-right: $h-gap;
+    overflow-x: hidden;
   }
 
   column-gap: $h-gap;

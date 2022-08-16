@@ -1,12 +1,14 @@
 <script lang="ts">
   import purchaseState, { PlanTypes } from '../state'
 
-  let planType: PlanTypes = PlanTypes.Prepaid
-  let prepaidMonths = 1
+  let prepaidMonths = $purchaseState.prepaidMonths
 
-  function next(): void {
-    purchaseState.setPlan(planType, prepaidMonths)
-    purchaseState.nextStep()
+  // Set the payment plan type to be purchased
+  function setPlan(planType: PlanTypes): void {
+    purchaseState.update((store) => {
+      store.planType = planType
+      return store
+    })
   }
 </script>
 
@@ -28,15 +30,17 @@
     </ul>
 
     <i class="select-icon clickable
-    { planType === PlanTypes.Subscription ? 'fas fa-circle-check' : 'far fa-circle'}"
+    { $purchaseState.planType === PlanTypes.Subscription ? 'fas fa-circle-check' : 'far fa-circle'}"
     on:click={() => {
-      planType = PlanTypes.Subscription
+      setPlan(PlanTypes.Subscription)
     }}></i>
 
-    {#if planType === PlanTypes.Subscription}
+    {#if $purchaseState.planType === PlanTypes.Subscription}
       <p class="price">Total: $8</p>
 
-      <button class="bold next" on:click={next}>
+      <button class="bold next" on:click={() => {
+        purchaseState.nextStep()
+      }}>
         Next
         <i class="fas fa-chevron-right"/>
       </button>
@@ -60,20 +64,28 @@
     </ul>
   
     <i class="select-icon clickable
-    { planType === PlanTypes.Prepaid ? 'fas fa-circle-check add-pb' : 'far fa-circle'}"
+    { $purchaseState.planType === PlanTypes.Prepaid ? 'fas fa-circle-check add-pb' : 'far fa-circle'}"
     on:click={() => {
-      planType = PlanTypes.Prepaid
+      setPlan(PlanTypes.Prepaid)
     }}></i>
 
-    {#if planType === PlanTypes.Prepaid}
+    {#if $purchaseState.planType === PlanTypes.Prepaid}
       <label class="select-months">
         <p>Months</p>
-        <input type="number" min=1 max=12 bind:value={prepaidMonths} required>
+        <input type="number" min=1 max=12 bind:value={prepaidMonths}
+        on:change={() => {
+          purchaseState.update((store) => {
+            store.prepaidMonths = prepaidMonths
+            return store
+          })
+        }}>
       </label>
 
       <p class="price">Total: ${prepaidMonths * 7}</p>
 
-      <button class="bold next" on:click={next}>
+      <button class="bold next" on:click={() => {
+        purchaseState.nextStep()
+      }}>
         Next
         <i class="fas fa-chevron-right"/>
       </button>
@@ -100,6 +112,9 @@
     padding: $padding-m;
     border: 1px solid $border-normal;
     margin: 1.5rem;
+    @media (max-width: $mobile-max) {
+      margin: 1.5rem 0;
+    }
     h2,div.price {
       padding: 0.5rem 0;
     }

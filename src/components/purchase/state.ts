@@ -13,12 +13,17 @@ export enum PlanTypes {
 export type PurchaseState = {
   steps: Step[]
   currentStep: number
+  // The minimum and maximum steps the user may navigate to
+  minStep: number
+  maxStep: number
 
   planType: PlanTypes
   prepaidMonths: number
 }
 
 class PurchaseStateStore extends Store<PurchaseState> {
+  declare update: Store<PurchaseState>['update']
+
   constructor() {
     super({
       steps: [
@@ -36,23 +41,28 @@ class PurchaseStateStore extends Store<PurchaseState> {
         }
       ],
       currentStep: 0,
+      minStep: 0,
+      maxStep: 1,
       planType: PlanTypes.Subscription,
       prepaidMonths: 1
     })
   }
 
+  /** Advance to the next purchase step */
   nextStep(this: PurchaseStateStore): void {
     this.update((store) => {
-      store.currentStep++
+      if (store.currentStep < store.maxStep) {
+        store.currentStep++
+      }
       return store
     })
   }
-
-  /** Update the plan type and number of prepaid months to be purchased (if purchasing a prepaid plan) */
-  setPlan(this: PurchaseStateStore, planType: PlanTypes, prepaidMonths: number): void {
+  /** Go back to the previous purchase step */
+  lastStep(this: PurchaseStateStore): void {
     this.update((store) => {
-      store.planType = planType
-      store.prepaidMonths = prepaidMonths
+      if (store.currentStep > store.minStep) {
+        store.currentStep--
+      }
       return store
     })
   }

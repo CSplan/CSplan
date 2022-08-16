@@ -1,5 +1,5 @@
 <script lang="ts">
-  import SideMenu from '$components/settings/side-menu.svelte'
+  import SideMenu from '$components/purchase/side-menu.svelte'
 </script>
 
 <main class="container">
@@ -10,15 +10,12 @@
 </main>
 
 <style lang="scss">
-  @import '../../scss/colors.scss';
-  @import '../../components/settings/layout.scss'; 
-
+  @import '../../components/settings/layout.scss';
 
   .container {
     @include settings-grid();
   }
-
-  .current-menu { 
+  .current-menu {
     @include current-menu();
   }
 </style>
