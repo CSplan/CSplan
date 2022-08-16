@@ -105,7 +105,7 @@
   {:else if !open}
     <span class="verified-message">
       <i class="far fa-envelope-circle-check"></i>
-      This email address is verified.
+      Email address is verified.
     </span>
   {/if}
 

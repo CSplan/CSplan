@@ -53,7 +53,7 @@
     {/if}
   </section>
 
-  <a href="/payment/purchase">
+  <a href="/purchase">
     <button class="purchase-button" style:background="var(--{isPaid ? 'background-alt' : 'success-green'})">
       {isPaid ? 'Buy more Time' : 'Buy CSplan Pro'}
     </button>

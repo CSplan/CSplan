@@ -1,0 +1,168 @@
+<script lang="ts">
+  import purchaseState, { PlanTypes } from '../state'
+
+  let planType: PlanTypes = PlanTypes.Prepaid
+  let prepaidMonths = 1
+
+  function next(): void {
+    purchaseState.setPlan(planType, prepaidMonths)
+    purchaseState.nextStep()
+  }
+</script>
+
+<article>
+  <section class="subscription primary">
+    <h2>Subscription</h2>
+
+    <div class="price">
+      <span class="strikethrough">$10/month</span>
+      <br>
+      <span class="discount-price">$8</span>/month
+      <br>
+      <span class="discount-disclaimer">Offer is valid through September 30, 2022. Subscription users will receive the discounted rate for their first 3 months.</span>
+    </div>
+
+    <ul>
+      <li>Billed monthly</li>
+      <li>Card information linked to CSplan account</li>
+    </ul>
+
+    <i class="select-icon clickable
+    { planType === PlanTypes.Subscription ? 'fas fa-circle-check' : 'far fa-circle'}"
+    on:click={() => {
+      planType = PlanTypes.Subscription
+    }}></i>
+
+    {#if planType === PlanTypes.Subscription}
+      <p class="price">Total: $8</p>
+
+      <button class="bold next" on:click={next}>
+        Next
+        <i class="fas fa-chevron-right"/>
+      </button>
+    {/if}
+  </section>
+
+  <section class="prepaid primary">
+    <h2>Prepaid</h2>
+
+    <div class="price">
+      <span class="strikethrough">$10/month</span>
+      <br>
+      <span class="discount-price">$7</span>/month
+      <br>
+      <span class="discount-disclaimer">Offer is valid through September 30, 2022.</span>
+    </div>
+
+    <ul>
+      <li>One-time payment for 1-12 months</li>
+      <li>Card information not linked to CSplan account</li>
+    </ul>
+  
+    <i class="select-icon clickable
+    { planType === PlanTypes.Prepaid ? 'fas fa-circle-check add-pb' : 'far fa-circle'}"
+    on:click={() => {
+      planType = PlanTypes.Prepaid
+    }}></i>
+
+    {#if planType === PlanTypes.Prepaid}
+      <label class="select-months">
+        <p>Months</p>
+        <input type="number" min=1 max=12 bind:value={prepaidMonths} required>
+      </label>
+
+      <p class="price">Total: ${prepaidMonths * 7}</p>
+
+      <button class="bold next" on:click={next}>
+        Next
+        <i class="fas fa-chevron-right"/>
+      </button>
+    {/if}
+  </section>
+</article>
+
+<style lang="scss">
+  article {
+    display: grid;
+    @media (min-width: $desktop-min) {
+      grid-auto-flow: column;
+    }
+    @media (max-width: $mobile-max) {
+      grid-auto-flow: row;
+    }
+  }
+  section {
+    @media (min-width: $desktop-min) {
+      width: 410px;
+    }
+    height: fit-content;
+    text-align: center;
+    padding: $padding-m;
+    border: 1px solid $border-normal;
+    margin: 1.5rem;
+    h2,div.price {
+      padding: 0.5rem 0;
+    }
+    h2 {
+      border-bottom: 2px solid $border-alt;
+    }
+    ul {
+      padding-right: 20px;
+    }
+    li {
+      text-align: left;
+      font-size: 110%;
+      text-decoration: none;
+    }
+
+    i.select-icon {
+      font-size: 2rem;
+      display: block;
+      &.add-pb {
+        padding-bottom: 0.6rem; // Align with bottom border of adjacent section
+        border-bottom: 1px solid $border-alt;
+      }
+    }
+  }
+
+  div.price {
+    border-bottom: 1px solid $border-alt;
+    min-height: 130px;
+  }
+  span.strikethrough {
+    text-decoration: line-through;
+  }
+  span.discount-price {
+    font-size: 125%;
+    color: $success-green;
+  }
+  span.discount-disclaimer {
+    font-size: 75%;
+  }
+
+  label.select-months {
+    display: block;
+    margin: 0.5rem;
+    text-align: center;
+    font-size: 110%;
+    p {
+      margin: 0.6rem;
+    }
+    input {
+      border-radius: 0;
+      display: block;
+      width: auto;
+      margin-left: auto;
+      margin-right: auto;
+    }
+  }
+  p.price {
+    font-size: 120%;
+    margin: 0.3rem 0;
+    font-weight: bold;
+  }
+
+  button.next {
+    float: right;
+  }
+</style>

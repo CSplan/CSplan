@@ -1,13 +1,13 @@
 <script lang="ts">
   import settings from '$stores/settings'
-  import steps from './steps'
+  import steps from './state'
   import MenuGroup from './menu-group.svelte'
 </script>
 
 <article class="side-menu" class:shadow={!$settings.darkMode}>
   {#each $steps.steps as step, i}
     <MenuGroup
-    title={step}
+    title={step.title}
     icon={(() => {
       if (i === $steps.currentStep) {
         return 'fas fa-circle'
@@ -23,7 +23,9 @@
 
 <style lang="scss">
   .side-menu {
+    align-self: flex-start;
     background-color: $bg-dark;
+    color: white;
     display: flex;
     flex-direction: column;
     align-items: center;
