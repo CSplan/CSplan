@@ -42,11 +42,15 @@ class PurchaseStateStore extends Store<PurchaseState> {
           title: 'Billing ZIP'
         },
         {
+          id: 'confirm',
+          title: 'Confirm'
+        },
+        {
           id: 'pay',
           title: 'Pay'
         }
       ],
-      currentStep: 1,
+      currentStep: 0,
       minStep: 0,
       maxStep: 2,
       planType: PlanTypes.Subscription,
@@ -62,6 +66,7 @@ class PurchaseStateStore extends Store<PurchaseState> {
             const step = store.steps[i]
             if (step.id === 'billing_zip') {
               store.steps.splice(i, 1)
+              store.maxStep--
               unsubscribe()
               break
             }

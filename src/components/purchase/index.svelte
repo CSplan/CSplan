@@ -8,6 +8,7 @@
   import { goto } from '$app/navigation'
   import BillingZIP from './steps/billing-zip.svelte'
   import { onMount } from 'svelte'
+import Confirm from './steps/confirm.svelte'
 
   let currentStep: Step
   $: currentStep = $purchaseState.steps[$purchaseState.currentStep]
@@ -29,4 +30,6 @@
   <PlanType/>
 {:else if currentStep.id === 'billing_zip'}
   <BillingZIP/>
+{:else if currentStep.id === 'confirm'}
+  <Confirm/>
 {/if}
