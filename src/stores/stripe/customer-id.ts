@@ -57,9 +57,9 @@ class StripeCustomerIDStore extends Store<StripeCustomerID> {
       exists: true,
       id: await aes.decrypt(body.id, cryptoKey),
       address: await aes.deepDecrypt(body.address, cryptoKey),
+      userID: user.id,
       cryptoKey,
-      checksum: body.meta.checksum,
-      userID: user.id
+      checksum: body.meta.checksum
     }
     // Add to memory state
     this.set(final)
@@ -86,13 +86,13 @@ class StripeCustomerIDStore extends Store<StripeCustomerID> {
     const user = Store.get(userStore) as Assert<User, 'isLoggedIn'>
     const { privateKey } = await mustGetByKey<MasterKeys>('keys', user.id)
     const cryptoKey = await rsa.unwrapKey(body.meta.cryptoKey, privateKey, 'AES-GCM')
-    const final: StripeCustomerID & MetaState & KeyedObject<'userID'> = {
+    const final: StripeCustomerID & KeyedObject<'userID'> = {
       exists: true,
-      id: await aes.decrypt(body.id, cryptoKey),
-      address: await aes.deepDecrypt(body.address, cryptoKey),
+      id: await aes.decrypt(body.id, cryptoKey), // Stripe CID
+      address, 
+      userID: user.id,
       cryptoKey,
-      checksum: body.meta.checksum,
-      userID: user.id
+      checksum: body.meta.checksum
     }
     // Add to memory state
     this.set(final)

@@ -112,6 +112,7 @@
     padding: $padding-m;
     border: 1px solid $border-normal;
     margin: 1.5rem;
+    margin-top: 0;
     @media (max-width: $mobile-max) {
       margin: 1.5rem 0;
     }

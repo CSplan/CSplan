@@ -13,11 +13,11 @@
     title={step.title}
     icon={(() => {
       if (i === $purchaseState.currentStep) {
-        return 'fas fa-circle'
+        return 'fas fa-circle-dot'
       } else if (i < $purchaseState.currentStep) {
-        return 'fas fa-circle-check'
+        return 'fas fa-circle'
       } else {
-        return 'far fa-circle' 
+        return 'far fa-circle'
       }
     })()}
     />
