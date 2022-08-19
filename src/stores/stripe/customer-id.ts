@@ -103,10 +103,18 @@ class StripeCustomerIDStore extends Store<StripeCustomerID> {
   }
 
   // Update Stripe customer address
-  async updateAddress(address: StripeAddress): Promise<void> {
-    const res = await csfetch(route('/stripe/-customer-id'), {
+  async updateAddress(this: StripeCustomerIDStore, address: StripeAddress): Promise<void> {
+    // Get and encode stripe crypto key (needed for server to decrypt stripe CID)
+    const store = Store.get(this)
+    if (!store.exists) {
+      throw new Error('Customer address update requested when customer doesn\'t exist')
+    }
+    const res = await csfetch(route('/stripe/customer-id'), {
       method: 'PATCH',
-      body: JSON.stringify(address)
+      body: JSON.stringify(address),
+      headers: {
+        'X-Stripe-CryptoKey': await aes.exportKey(store.cryptoKey)
+      }
     })
     if (res.status !== 200) {
       throw new Error(await HTTPerror(res, 'Failed to update customer address with Stripe'))
@@ -117,6 +125,7 @@ class StripeCustomerIDStore extends Store<StripeCustomerID> {
     const user = Store.get(userStore) as Assert<User, 'isLoggedIn'>
     const final: Assert<StripeCustomerID, 'exists'> & KeyedObject<'userID'> = {
       ...await mustGetByKey('stripe/customer-id', user.id),
+      address,
       checksum: body.meta.checksum
     }
     // Commit changes

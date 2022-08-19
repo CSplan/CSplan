@@ -30,10 +30,17 @@
     message = ''
     state = States.Saving
     try {
-      await stripe.create({
-        country: billingCountry,
-        postalCode: billingZIP
-      })
+      if ($stripe.exists) {
+        await stripe.updateAddress({
+          country: billingCountry,
+          postalCode: billingZIP
+        })
+      } else {
+        await stripe.create({
+          country: billingCountry,
+          postalCode: billingZIP
+        })
+      }
     } catch (err) {
       state = States.Errored
       message = err instanceof Error ? err.message : `${err}`
