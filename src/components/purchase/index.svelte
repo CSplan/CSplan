@@ -8,7 +8,7 @@
   import { goto } from '$app/navigation'
   import BillingZIP from './steps/billing-zip.svelte'
   import { onMount } from 'svelte'
-import Confirm from './steps/confirm.svelte'
+  import Confirm from './steps/confirm.svelte'
 
   let currentStep: Step
   $: currentStep = $purchaseState.steps[$purchaseState.currentStep]

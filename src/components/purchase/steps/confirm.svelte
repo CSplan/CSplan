@@ -1,10 +1,49 @@
 <script lang="ts">
-  import purchaseState, { PlanTypes } from '../state'
+  import purchaseState, { PaymentMethods, PlanTypes } from '../state'
   import rates from '../rates'
-  let total = 0
   $: total = $purchaseState.planType === PlanTypes.Prepaid
     ? $purchaseState.prepaidMonths * rates.prepaid
     : rates.subscription
+
+  let paymentMethod = purchaseState.initialValue.paymentMethod
+  $: console.log(paymentMethod)
+  function setPaymentMethod(): void {
+    console.log(paymentMethod)
+    purchaseState.update((store) => {
+      store.paymentMethod = paymentMethod
+      return store
+    })
+  }
+
+  type PaymentMethod = {
+    name: string
+    color: string
+    icon: string
+    id: PaymentMethods
+    disabled?: boolean
+  }
+  const paymentMethods: PaymentMethod[] = [
+    {
+      name: 'Credit/Debit Card',
+      color: '#635bff',
+      icon: 'far fa-credit-card',
+      id: PaymentMethods.Stripe
+    },
+    {
+      name: 'Bitcoin',
+      color: '#f7931a',
+      icon: 'fab fa-bitcoin',
+      id: PaymentMethods.Bitcoin,
+      disabled: true
+    },
+    {
+      name: 'Monero',
+      color: '#f26822',
+      icon: 'fab fa-monero',
+      id: PaymentMethods.Monero,
+      disabled: true
+    }
+  ]
 </script>
 
 <article class="primary">
@@ -50,27 +89,66 @@
   </tr>
   </table>
 
+
+  <h3>Payment Method</h3>
+  <form class="payment-methods" on:submit|preventDefault>
+  {#each paymentMethods as method}
+    {@const selected = $purchaseState.paymentMethod === method.id}
+    <label class="button transparent" title={method.disabled ? 'Coming soon' : method.name}
+    style:background-color={method.color}
+    aria-disabled={method.disabled}
+    class:selected>
+      <i class={method.icon}></i>
+      {method.name}
+      <input type="radio"
+      disabled={method.disabled}
+      title={`${method.name}${method.disabled ? '(disabled)' : ''}`}
+      bind:group={paymentMethod} value={method.id} on:change={setPaymentMethod}>
+    </label>
+  {/each}
+  </form>
+
+  {#if $purchaseState.paymentMethod === PaymentMethods.Stripe}
+    <p>The next page will ask you to enter your card information.
+      This information will be sent to and processed by Stripe, Inc.
+      as described in <a href="/info/payment-policy">CSplan's payment policy</a>.
+      <b>No card information is ever sent to CSplan's servers.</b>
+      CSplan will never ask for your name or address (other than ZIP code for tax purposes).
+    </p>
+  {/if}
+
+  <p>
+    Continuing to payment constitutes having read and accepted <a href="/info/payment-policy">CSplan's payment policy</a>.
+  </p>
+
 </article>
 
 <style lang="scss">
   article {
     padding: $padding-m;
     @media (min-width: $desktop-min) {
-      min-width: 500px;
+      width: 800px;
     }
     border: 1px solid $border-normal;
   }
-  h2 {
+  h2,h3 {
     grid-column: 1 / span 2;
     padding: 0.5rem 0;
     width: 100%;
     text-align: center;
   }
+  h3 {
+    margin-top: 1.3rem;
+  }
+
   table {
     $border: 1px dashed $border-alt;
     width: 100%;
     tr:last-child,tr:first-child {
       border-top: 1px solid $border-alt;
+    }
+    tr:last-child {
+      border-bottom: 1px solid $border-alt;
     }
     tr.border-bottom {
       border-bottom: $border;
@@ -114,5 +192,23 @@
   }
   .promo-price {
     color: $success-green;
+  }
+  .payment-methods {
+    text-align: center;
+  }
+  label.button {
+    margin: 0 0.3rem;
+    line-height: 1.5;
+    transition: none; // Prevent terrible border animation from occuring for unknown reasons
+    &[aria-disabled="true"] {
+      filter: saturate(20%);
+      pointer-events: none;
+    }
+    :active {
+      box-shadow: none !important;
+    }
+    &.selected {
+      border: 2px solid white;
+    }
   }
 </style>

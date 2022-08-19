@@ -10,6 +10,12 @@ export enum PlanTypes {
   Prepaid
 }
 
+export enum PaymentMethods {
+  Stripe = 'stripe',
+  Bitcoin = 'bitcoin',
+  Monero = 'monero'
+}
+
 export type PurchaseState = {
   steps: Step[]
   currentStep: number
@@ -24,6 +30,9 @@ export type PurchaseState = {
   // Billing ZIP
   billingCountry: string
   billingZIP: string
+
+  // Payment method
+  paymentMethod: PaymentMethods
 }
 
 class PurchaseStateStore extends Store<PurchaseState> {
@@ -55,7 +64,8 @@ class PurchaseStateStore extends Store<PurchaseState> {
       planType: PlanTypes.Subscription,
       prepaidMonths: 1,
       billingCountry: 'US',
-      billingZIP: ''
+      billingZIP: '',
+      paymentMethod: PaymentMethods.Stripe
     })
   }
 
