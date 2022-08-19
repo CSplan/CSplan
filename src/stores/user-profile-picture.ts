@@ -86,7 +86,7 @@ function create(): Readable<UserPFP> & UserPFPStore {
         return store
       })
 
-      await db.updateWithKey('user-profile-picture', {
+      await db.addToStore('user-profile-picture', {
         id: user.id,
         image,
         checksum: meta.checksum,

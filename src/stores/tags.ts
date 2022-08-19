@@ -1,6 +1,6 @@
 import { writable, derived, get, Readable } from 'svelte/store'
 import { rsa, aes } from 'cs-crypto'
-import { addToStore, deleteFromStore, getByKey, mustGetByKey, updateWithKey } from '../db'
+import { addToStore, deleteFromStore, getByKey, mustGetByKey, addToStore } from '../db'
 import userStore, { User } from './user'
 import { HTTPerror, csfetch, route } from '$lib'
 import storage from '$db/storage'
@@ -64,7 +64,7 @@ function create(): Readable<Store> & TagStore {
           checksum: tag.meta.checksum
         }
 
-        await updateWithKey('tags', decrypted)
+        await addToStore('tags', decrypted)
         update((store: Store) => {
           store[tag.id] = decrypted
           return store
@@ -167,7 +167,7 @@ function create(): Readable<Store> & TagStore {
       tag.checksum = meta.checksum
 
       // Commit to IDB
-      await updateWithKey('tags', tag)
+      await addToStore('tags', tag)
       // Commit to local state
       update((store) => {
         store[id] = tag

@@ -101,6 +101,45 @@ class StripeCustomerIDStore extends Store<StripeCustomerID> {
 
     return final.id
   }
+
+  // Update Stripe customer address
+  async updateAddress(address: StripeAddress): Promise<void> {
+    const res = await csfetch(route('/stripe/-customer-id'), {
+      method: 'PATCH',
+      body: JSON.stringify(address)
+    })
+    if (res.status !== 200) {
+      throw new Error(await HTTPerror(res, 'Failed to update customer address with Stripe'))
+    }
+
+    // Decode response body
+    const body: { meta: { checksum: string } } = await res.json()
+    const user = Store.get(userStore) as Assert<User, 'isLoggedIn'>
+    const final: Assert<StripeCustomerID, 'exists'> & KeyedObject<'userID'> = {
+      ...await mustGetByKey('stripe/customer-id', user.id),
+      checksum: body.meta.checksum
+    }
+    // Commit changes
+    this.update((store) => {
+      if (store.exists) {
+        store.checksum = final.checksum
+      }
+      return store
+    })
+    await addToStore<'userID'>('stripe/customer-id', final)
+  }
+
+  // Format the user's Stripe customer address
+  formatAddress(): string {
+    const customer = Store.get(this)
+    if (!customer.exists) {
+      return ''
+    }
+    if (customer.address.postalCode != null) {
+      return `${customer.address.country}, ${customer.address.postalCode}`
+    }
+    return customer.address.country
+  }
 }
 
 export const stripe = new StripeCustomerIDStore()

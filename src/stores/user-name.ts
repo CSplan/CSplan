@@ -1,7 +1,7 @@
 import { aes, rsa } from 'cs-crypto'
 import { Readable, writable, get } from 'svelte/store'
 import { HTTPerror, DisplayNames, Visibilities, route, csfetch } from '$lib'
-import { mustGetByKey, addToStore, getByKey, updateWithKey } from '$db'
+import { mustGetByKey, addToStore, getByKey, addToStore } from '$db'
 import  userStore from './user'
 import type { User } from './user'
 import storage from '$db/storage'
@@ -83,7 +83,7 @@ function create(): Readable<Name> & SingleResourceStore<NameData> {
         checksum: document.meta.checksum
       }
       set(final)
-      await updateWithKey('user-name', final)
+      await addToStore('user-name', final)
       initialized = true
     },
     async create(name: NameData): Promise<void> {

@@ -1,7 +1,10 @@
 <script lang="ts">
   import purchaseState, { PlanTypes } from '../state'
+  import rates from '../rates'
   let total = 0
-  $: total = $purchaseState.planType === PlanTypes.Prepaid ? $purchaseState.prepaidMonths * 7 : 8
+  $: total = $purchaseState.planType === PlanTypes.Prepaid
+    ? $purchaseState.prepaidMonths * rates.prepaid
+    : rates.subscription
 </script>
 
 <article class="primary">
@@ -12,14 +15,16 @@
   <tr class="border-bottom">
   {#if $purchaseState.planType === PlanTypes.Prepaid}
     <td>CSplan Pro - 1 Month (Prepaid)</td>
-    <td class="price">$10</td>
+    <td class="price">${rates.stdPrepaid}</td>
     <td class="quantity">
-      <i class="fal fa-times"></i>
-      <span>{$purchaseState.prepaidMonths}</span>
+      <div>
+        <i class="fal fa-times"></i>
+        <span>{$purchaseState.prepaidMonths}</span>
+      </div>
     </td>
   {:else if $purchaseState.planType === PlanTypes.Subscription}
     <td>CSplan Pro - Monthly</td>
-    <td class="price">$8</td>
+    <td class="price">${rates.stdSubscription}</td>
     <td class="quantity">
       <div>
         <i class="fal fa-times"></i>

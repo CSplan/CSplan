@@ -15,7 +15,7 @@
 </script>
 
 <section class="account-type primary">
-  <a href="/settings/pro">
+  <a href="{$user.isLoggedIn && $user.accountType === AccountTypes.Pro ? '/payment' : '/payment/plans'}">
   <img src="/logo/plans/{$settings.darkMode ? 'Dark' : 'Light'}-CSplan-{planName}-noslogan.svg" alt="CSplan {planName} Graphic">
   </a>
 </section>

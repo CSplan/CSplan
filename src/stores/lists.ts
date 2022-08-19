@@ -1,5 +1,5 @@
 import { writable, derived, get, Readable } from 'svelte/store'
-import { addToStore, getByKey, updateWithKey, deleteFromStore, mustGetByKey } from '../db'
+import { addToStore, getByKey, addToStore, deleteFromStore, mustGetByKey } from '../db'
 import { aes, rsa } from 'cs-crypto'
 import { encryptList, decryptList } from './encryption'
 import storage from '$db/storage'
@@ -52,7 +52,7 @@ function create(): Readable<Store> & ListStore {
             console.log(`%cUsing cache for list ${encrypted.id}`, 'color: lightblue;')
           }
           // Add the cached version to state and continue
-          await updateWithKey('lists', { ...cached, id: encrypted.id, index: encrypted.meta.index }) // Update our index
+          await addToStore('lists', { ...cached, id: encrypted.id, index: encrypted.meta.index }) // Update our index
           update((store) => {
             // Clear any leftover flags
             cached.flags = {}
@@ -79,7 +79,7 @@ function create(): Readable<Store> & ListStore {
           cryptoKey
         }
         // Cache the decrypted list
-        await updateWithKey('lists', list)
+        await addToStore('lists', list)
         // Add to store
         update((store: Store) => {
           store[list.id] = list
@@ -221,7 +221,7 @@ function create(): Readable<Store> & ListStore {
         ...list,
         checksum: meta.checksum
       }
-      await updateWithKey('lists', final)
+      await addToStore('lists', final)
 
       // Update the list's checksum
       update((store: Store) => {
@@ -291,7 +291,7 @@ function create(): Readable<Store> & ListStore {
 
       // Fulfill IDBupdates
       for (const list of IDBupdates) {
-        await updateWithKey('lists', list)
+        await addToStore('lists', list)
       }
     }
   }

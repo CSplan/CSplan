@@ -142,22 +142,6 @@ export async function mustGetByKey<T, K = unknown>(storeName: string, key: strin
   return result
 }
 
-// Update an object store's record with an object including a key
-export async function updateWithKey<K>(storeName: string, data: KeyedObject<K extends string ? K : 'id'>): Promise<void> {
-  const db = await getDB()
-  return new Promise((resolve, reject) => {
-    const store = db.transaction(storeName, 'readwrite').objectStore(storeName)
-    const req = store.put(data)
-
-    req.onerror = () => {
-      reject(req.error)
-    }
-    req.onsuccess = () => {
-      resolve()
-    }
-  })
-}
-
 // Delete a record from an object store
 export async function deleteFromStore(storeName: string, key: string): Promise<void> {
   const db = await getDB()

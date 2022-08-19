@@ -1,5 +1,4 @@
 import { Store } from '$stores/store'
-import stripeCID from '$stores/stripe/customer-id'
 
 export type Step = {
   title: string
@@ -52,28 +51,11 @@ class PurchaseStateStore extends Store<PurchaseState> {
       ],
       currentStep: 0,
       minStep: 0,
-      maxStep: 2,
+      maxStep: 1,
       planType: PlanTypes.Subscription,
       prepaidMonths: 1,
       billingCountry: 'US',
       billingZIP: ''
-    })
-    // Remove the billing zip step if the user has already registered a billing zip
-    const unsubscribe = stripeCID.subscribe((customer) => {
-      if (customer.exists) {
-        this.update((store) => {
-          for (let i = 0; i < store.steps.length; i++) {
-            const step = store.steps[i]
-            if (step.id === 'billing_zip') {
-              store.steps.splice(i, 1)
-              store.maxStep--
-              unsubscribe()
-              break
-            }
-          }
-          return store
-        })
-      }
     })
   }
 
