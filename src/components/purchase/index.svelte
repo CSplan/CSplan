@@ -10,7 +10,7 @@
   import PlanType from './steps/plan-type.svelte'
   import BillingZIP from './steps/billing-zip.svelte'
   import Confirm from './steps/confirm.svelte'
-  import Pay from './steps/pay.svelte'
+  import Pay from './steps/pay-stripe.svelte'
 
   let currentStep: Step
   $: currentStep = $purchaseState.steps[$purchaseState.currentStep]

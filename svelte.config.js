@@ -49,7 +49,10 @@ const config = {
         exclude: ['cs-crypto']
       },
       define: {
-        __APP_VERSION__: `'Public Beta ${pkg.version}'`
+        __APP_VERSION__: `'Public Beta ${pkg.version}'`,
+        __STRIPE_API_KEY__: dev
+        ? '\'pk_test_51LIAg3ICwE4UU9tPvxBl94I8xrulhvCunTU7wu6l6PU0FqS2N6gAqKG4x7pV7AOD5qGqGwKf2DWobbP8gXYAClsr00Rm6KBzHP\''
+        : '\'\''
       }
     }
   },

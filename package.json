@@ -16,6 +16,7 @@
     "prepare-argon2": "[ ! -d static/argon2 ] && mkdir static/argon2; cp node_modules/@very-amused/argon2-wasm/build/* static/argon2/"
   },
   "dependencies": {
+    "@stripe/stripe-js": "^1.35.0",
     "@types/marked": "^2.0.0",
     "@typescript-eslint/eslint-plugin": "^4.29.2",
     "@typescript-eslint/parser": "^4.29.2",

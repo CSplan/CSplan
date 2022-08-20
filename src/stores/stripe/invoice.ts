@@ -58,6 +58,10 @@ class InvoiceStore extends Store<Invoice> {
 
   /** Open a new Stripe invoice for 1-12 months of a prepaid plan */
   async create(this: InvoiceStore, invoiceReq: PrepaidInvoiceReq): Promise<void> {
+    await this.init()
+    if (Store.get(this).exists) {
+      return
+    }
     // Ensure user has an existing Stripe CID to create an invoice using
     const stripeCID = Store.get(customerIDStore)
     if (!stripeCID.exists) {
