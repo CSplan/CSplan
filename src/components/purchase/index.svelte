@@ -1,14 +1,16 @@
 <script lang="ts">
   import purchaseState from './state'
   import stripeCID from '$stores/stripe/customer-id'
-  import PlanType from './steps/plan-type.svelte'
   import type { Step } from './state'
   import { browser } from '$app/env'
   import { page } from '$app/stores'
   import { goto } from '$app/navigation'
-  import BillingZIP from './steps/billing-zip.svelte'
   import { onMount } from 'svelte'
+  // Steps
+  import PlanType from './steps/plan-type.svelte'
+  import BillingZIP from './steps/billing-zip.svelte'
   import Confirm from './steps/confirm.svelte'
+  import Pay from './steps/pay.svelte'
 
   let currentStep: Step
   $: currentStep = $purchaseState.steps[$purchaseState.currentStep]
@@ -32,4 +34,6 @@
   <BillingZIP/>
 {:else if currentStep.id === 'confirm'}
   <Confirm/>
+{:else if currentStep.id === 'pay'}
+  <Pay/>
 {/if}

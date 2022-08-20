@@ -110,7 +110,7 @@
 
   {#if $purchaseState.paymentMethod === PaymentMethods.Stripe}
     <p>The next page will ask you to enter your card information.
-      This information will be sent to and processed by Stripe, Inc.
+      This information will be processed by Stripe, Inc.
       as described in <a href="/info/payment-policy">CSplan's payment policy</a>.
       <b>No card information is ever sent to CSplan's servers.</b>
       CSplan will never ask for your name or address (other than ZIP code for tax purposes).
@@ -120,6 +120,17 @@
   <p>
     Continuing to payment constitutes having read and accepted <a href="/info/payment-policy">CSplan's payment policy</a>.
   </p>
+
+  <div class="continue-container">
+    <button class="bold" on:click={() => {
+      purchaseState.update((store) => {
+        store.maxStep++
+        store.currentStep = store.maxStep
+        store.minStep = store.maxStep
+        return store
+      })
+    }}>Continue</button>
+  </div>
 
 </article>
 
@@ -210,5 +221,9 @@
     &.selected {
       border: 2px solid white;
     }
+  }
+  .continue-container {
+    width: 100%;
+    text-align: right;
   }
 </style>

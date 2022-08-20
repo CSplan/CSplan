@@ -51,7 +51,6 @@
     purchaseState.update((store) => {
       store.maxStep++
       store.currentStep++
-      store.minStep = store.maxStep
       return store
     })
   }

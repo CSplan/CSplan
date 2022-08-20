@@ -443,7 +443,7 @@ export class RegisterActions extends LoginActions {
       })
     })
     if (res.status !== 201) {
-      throw new Error(await HTTPerror(res, 'Failed to store master keypair'))
+      throw await HTTPerror(res, 'Failed to store master keypair')
     }
 
     // Store keys in IDB
@@ -600,7 +600,7 @@ export const UpgradeActions = {
       body: JSON.stringify(body)
     })
     if (res.status !== 200) {
-      throw new Error(await HTTPerror(res, 'TOTP authorization failure'))
+      throw await HTTPerror(res, 'TOTP authorization failure')
     }
     await sessionStore.init()
     sessionStore.setAuthLevel(AuthLevels.Upgraded)
@@ -618,7 +618,7 @@ export const UpgradeActions = {
       }
     })
     if (res.status !== 200) {
-      throw new Error(await HTTPerror(res, 'Failed to downgrade authentication level'))
+      throw await HTTPerror(res, 'Failed to downgrade authentication level')
     }
     await sessionStore.init()
     sessionStore.setAuthLevel(AuthLevels.Normal)
@@ -638,7 +638,7 @@ export const TOTPActions = {
       }
     })
     if (res.status !== 201) {
-      throw new Error(await HTTPerror(res, 'Failed to enable TOTP authentication'))
+      throw await HTTPerror(res, 'Failed to enable TOTP authentication')
     }
     return res.json()
   },
@@ -661,7 +661,7 @@ export const TOTPActions = {
       throw new Error('Invalid TOTP code')
     }
     if (res.status !== 200) {
-      throw new Error(await HTTPerror(res, 'Error verifying TOTP code'))
+      throw await HTTPerror(res, 'Error verifying TOTP code')
     }
   },
 
@@ -676,7 +676,7 @@ export const TOTPActions = {
       }
     })
     if (res.status !== 204) {
-      throw new Error(await HTTPerror(res, 'Failed to disable TOTP authentication'))
+      throw await HTTPerror(res, 'Failed to disable TOTP authentication')
     }
   },
   

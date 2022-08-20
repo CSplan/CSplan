@@ -110,7 +110,7 @@
   onMount(async () => {
     const res = await csfetch(route('/totp/status'))
     if (res.status !== 200) {
-      throw new Error(await HTTPerror(res, 'Failed to retrieve TOTP status'))
+      throw await HTTPerror(res, 'Failed to retrieve TOTP status')
     }
     const status: TOTPStatus = await res.json()
     enabled = status.enabled

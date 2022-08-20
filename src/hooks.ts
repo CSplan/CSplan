@@ -65,7 +65,7 @@ async function getUser(authCookie: string): Promise<User> {
     }
   })
   if (res.status !== 200) {
-    throw new Error(await HTTPerror(res, 'Failed backend authentication.'))
+    throw await HTTPerror(res, 'Failed backend authentication.')
   }
 
   const body: AuthorizedResponse = await res.json() // API responses have no 'isLoggedIn' property

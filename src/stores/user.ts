@@ -42,7 +42,7 @@ class UserStore extends Store<User> {
       method: 'POST'
     })
     if (res.status !== 204) {
-      throw new Error(await HTTPerror(res, 'Failed to send verification email.'))
+      throw await HTTPerror(res, 'Failed to send verification email.')
     }
   }
 }

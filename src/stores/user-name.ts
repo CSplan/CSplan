@@ -40,7 +40,7 @@ function create(): Readable<Name> & SingleResourceStore<NameData> {
         return
       }
       if (res.status !== 200) {
-        throw new Error(await HTTPerror(res, 'failed to retrieve name from server'))
+        throw await HTTPerror(res, 'failed to retrieve name from server')
       }
 
       const document: NameDocument = await res.json()
@@ -139,7 +139,7 @@ function create(): Readable<Name> & SingleResourceStore<NameData> {
         body: JSON.stringify(document)
       })
       if (res.status !== 200) {
-        throw new Error(await HTTPerror(res, 'failed to submit name to server'))
+        throw await HTTPerror(res, 'failed to submit name to server')
       }
 
       // Update local state and IDB
@@ -162,7 +162,7 @@ function create(): Readable<Name> & SingleResourceStore<NameData> {
         }
       })
       if (res.status !== 204) {
-        throw new Error(await HTTPerror(res, 'failed to delete name from server'))
+        throw await HTTPerror(res, 'failed to delete name from server')
       }
     }
   }

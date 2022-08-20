@@ -38,7 +38,7 @@ class StripeCustomerIDStore extends Store<StripeCustomerID> {
       this.initialized = true
       return
     } else if (res.status !== 200) {
-      throw new Error(await HTTPerror(res, 'Failed to retrieve Stripe customer ID.'))
+      throw await HTTPerror(res, 'Failed to retrieve Stripe customer ID.')
     }
 
     const body: Assert<StripeCustomerID<true>, 'exists'> & Meta = await res.json()
@@ -76,7 +76,7 @@ class StripeCustomerIDStore extends Store<StripeCustomerID> {
       body: JSON.stringify(address)
     })
     if (res.status !== 201) {
-      throw new Error(await HTTPerror(res, 'Failed to create customer ID with Stripe'))
+      throw await HTTPerror(res, 'Failed to create customer ID with Stripe')
     }
 
     // Decode the response body
@@ -117,7 +117,7 @@ class StripeCustomerIDStore extends Store<StripeCustomerID> {
       }
     })
     if (res.status !== 200) {
-      throw new Error(await HTTPerror(res, 'Failed to update customer address with Stripe'))
+      throw await HTTPerror(res, 'Failed to update customer address with Stripe')
     }
 
     // Decode response body

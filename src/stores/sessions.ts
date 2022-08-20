@@ -24,7 +24,7 @@ function create(): Readable<Store> & SessionStore {
       // Fetch sessions from API
       const res = await csfetch(route('/sessions'))
       if (res.status !== 200) {
-        throw new Error(await HTTPerror(res, 'Failed to csfetch sessions'))
+        throw await HTTPerror(res, 'Failed to csfetch sessions')
       }
       const sessions: SessionDocument[] = await res.json()
 
@@ -86,7 +86,7 @@ function create(): Readable<Store> & SessionStore {
         }
       })
       if (res.status !== 204) {
-        throw new Error(await HTTPerror(res, `Failed to log out of session ${id}`))
+        throw await HTTPerror(res, `Failed to log out of session ${id}`)
       }
       update((store) => {
         delete store[id]

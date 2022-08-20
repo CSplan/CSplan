@@ -123,7 +123,7 @@ function create(): Readable<Store> & ListStore {
         }
       })
       if (res.status !== 201) {
-        throw new Error(await HTTPerror(res, 'Failed to create list with server'))
+        throw await HTTPerror(res, 'Failed to create list with server')
       }
       const { id, meta }: IndexedMetaResponse = await res.json()
     
@@ -243,7 +243,7 @@ function create(): Readable<Store> & ListStore {
         }
       })
       if (res.status !== 204) {
-        throw new Error(await HTTPerror(res, 'Failed to delete list with server'))
+        throw await HTTPerror(res, 'Failed to delete list with server')
       }
 
       // Delete from IDB

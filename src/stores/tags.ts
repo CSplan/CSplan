@@ -161,7 +161,7 @@ function create(): Readable<Store> & TagStore {
         body: JSON.stringify(encrypted)
       })
       if (res.status !== 200) {
-        throw new Error(await HTTPerror(res, 'Failed to update tag with server'))
+        throw await HTTPerror(res, 'Failed to update tag with server')
       }
       const { meta }: Meta = await res.json()
       tag.checksum = meta.checksum
@@ -188,7 +188,7 @@ function create(): Readable<Store> & TagStore {
         }
       })
       if (res.status !== 204) {
-        throw new Error(await HTTPerror(res, 'Failed to delete tag from server'))
+        throw await HTTPerror(res, 'Failed to delete tag from server')
       }
 
       // Delete from IDB

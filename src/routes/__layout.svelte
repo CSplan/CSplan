@@ -44,7 +44,7 @@
         if (res.status === 401) {
           throw new AuthError(await HTTPerror(res, 'User is not logged in.'), AuthError.NotLoggedIn)
         } else if (res.status !== 200) {
-          throw new Error(await HTTPerror(res, 'Failed to authenticate'))
+          throw await HTTPerror(res, 'Failed to authenticate')
         }
         // If user does not authenticate for any reason, log out clientside
       } catch (err) {

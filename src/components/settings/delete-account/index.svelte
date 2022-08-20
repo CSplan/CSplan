@@ -58,7 +58,7 @@
         }
       })
       if (res.status !== 200) {
-        throw new Error(await HTTPerror(res, 'Failed to initialize account deletion'))
+        throw await HTTPerror(res, 'Failed to initialize account deletion')
       }
       // Store the deletion token, which is required to finalize account deletion
       const token = (await res.json() as DeleteToken).token

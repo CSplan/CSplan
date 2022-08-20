@@ -43,6 +43,7 @@ module.exports = {
     }],
     // Misc
     'no-return-await': 'error',
+    '@typescript-eslint/no-throw-literal': 'error',
     'unused-export-let': 'off',
     // Typescript specific rules
     '@typescript-eslint/no-unused-vars': 'error',
