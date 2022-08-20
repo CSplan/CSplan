@@ -1,6 +1,8 @@
 import { Store } from '../store'
+import customerIDStore from './customer-id'
 import AccountTypes from '$lib/account-types' 
 import { csfetch, HTTPerror, route } from '$lib'
+import { aes } from 'cs-crypto'
 
 export type PrepaidInvoiceReq = {
   plan: Exclude<AccountTypes, AccountTypes.Free>
@@ -37,7 +39,7 @@ class InvoiceStore extends Store<Invoice> {
     })
   }
 
-  async init(): Promise<void> {
+  async init(this: InvoiceStore): Promise<void> { // TODO: implement open Stripe invoice IDB caching
     const res = await csfetch(route('/stripe/invoice'))
     if (res.status === 404) {
       return
@@ -47,7 +49,54 @@ class InvoiceStore extends Store<Invoice> {
     }
 
     // Decode request body
-    const body: Assert<Invoice, 'exists'> = await res.json()
+    const body: Assert<Invoice, 'exists'> = {
+      ...await res.json(),
+      exists: true
+    }
+    this.set(body)
+  }
+
+  /** Open a new Stripe invoice for 1-12 months of a prepaid plan */
+  async create(this: InvoiceStore, invoiceReq: PrepaidInvoiceReq): Promise<void> {
+    // Ensure user has an existing Stripe CID to create an invoice using
+    const stripeCID = Store.get(customerIDStore)
+    if (!stripeCID.exists) {
+      throw new Error('No Stripe customer ID exists for this user.')
+    }
+
+    // Request the invoice's creation
+    const res = await csfetch(route('/stripe/invoice'), {
+      method: 'POST',
+      headers: {
+        'X-Stripe-CryptoKey': await aes.exportKey(stripeCID.cryptoKey)
+      },
+      body: JSON.stringify(invoiceReq)
+    })
+    if (res.status !== 201) {
+      throw await HTTPerror(res, 'Failed to create Stripe invoice.')
+    }
+    const body: Assert<Invoice, 'exists'> = {
+      ...await res.json(),
+      exists: true
+    }
+    this.set(body)
+  }
+
+  /** Void an open Stripe invoice (cannot be done after the invoice is paid). */
+  async void(this: InvoiceStore): Promise<void> {
+    // Ensure the invoice exists before attempting to void
+    if (!Store.get(this).exists) {
+      throw new Error('No open invoice exists for this user.')
+    }
+
+    // Request the invoice is void
+    const res = await csfetch(route('/stripe/invoice'), {
+      method: 'DELETE'
+    })
+    if (res.status !== 204) {
+      throw await HTTPerror(res, 'Failed to delete Stripe invoice.')
+    }
+    this.set(this.initialValue)
   }
 }
 

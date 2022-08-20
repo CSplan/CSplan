@@ -1,9 +1,17 @@
 <script lang="ts">
   import purchaseState, { PaymentMethods, PlanTypes } from '../state'
+  import stripeInvoice from '$stores/stripe/invoice'
+  import { FormStates as States } from '$lib'
+  import AccountTypes from '$lib/account-types'
+  import Spinner from '$components/spinner.svelte'
+
   import rates from '../rates'
   $: total = $purchaseState.planType === PlanTypes.Prepaid
     ? $purchaseState.prepaidMonths * rates.prepaid
     : rates.subscription
+
+  let state = States.Resting
+  let message = ''
 
   let paymentMethod = purchaseState.initialValue.paymentMethod
   $: console.log(paymentMethod)
@@ -44,6 +52,36 @@
       disabled: true
     }
   ]
+
+  async function confirm(): Promise<void> {
+    state = States.Saving
+    // Create the invoice with Stripe
+    try {
+      switch ($purchaseState.paymentMethod) {
+      case PaymentMethods.Stripe:
+        message = 'Creating Stripe Invoice'
+        await stripeInvoice.create({
+          plan: AccountTypes.Pro,
+          months: $purchaseState.prepaidMonths
+        })
+        break
+      default: 
+        throw new Error(`Unsupported payment method: ${$purchaseState.paymentMethod}`)
+      }
+      state = States.Saved
+      message = 'Ready for payment, proceed to next step'
+      // Advance to the next purchase step, the user is not able to go back from here because the invoice has been finalized
+      purchaseState.update((store) => {
+        store.maxStep++
+        store.currentStep = store.maxStep
+        store.minStep = store.maxStep
+        return store
+      })
+    } catch (err) {
+      state = States.Errored
+      message = `${err}`
+    }
+  }
 </script>
 
 <article class="primary">
@@ -122,15 +160,10 @@
   </p>
 
   <div class="continue-container">
-    <button class="bold" on:click={() => {
-      purchaseState.update((store) => {
-        store.maxStep++
-        store.currentStep = store.maxStep
-        store.minStep = store.maxStep
-        return store
-      })
-    }}>Continue</button>
+    <button class="bold" on:click={confirm}>Continue</button>
   </div>
+
+  <Spinner {state} {message}/>
 
 </article>
 

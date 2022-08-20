@@ -42,7 +42,7 @@
       try {
         const res = await csfetch(route('/whoami'))
         if (res.status === 401) {
-          throw new AuthError(await HTTPerror(res, 'User is not logged in.'), AuthError.NotLoggedIn)
+          throw new AuthError((await HTTPerror(res, 'User is not logged in.')).toString(), AuthError.NotLoggedIn)
         } else if (res.status !== 200) {
           throw await HTTPerror(res, 'Failed to authenticate')
         }

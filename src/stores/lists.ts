@@ -1,5 +1,5 @@
 import { writable, derived, get, Readable } from 'svelte/store'
-import { addToStore, getByKey, addToStore, deleteFromStore, mustGetByKey } from '../db'
+import { getByKey, addToStore, deleteFromStore, mustGetByKey } from '../db'
 import { aes, rsa } from 'cs-crypto'
 import { encryptList, decryptList } from './encryption'
 import storage from '$db/storage'

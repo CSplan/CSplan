@@ -54,6 +54,13 @@ const stores: { [name: string]: StoreTemplate } = {
       keyPath: 'userID',
       autoIncrement: false
     }
+  },
+  'stripe/invoice': {
+    scope: Scopes.User,
+    options: {
+      keyPath: 'userID',
+      autoIncrement: false
+    }
   }
 }
 
