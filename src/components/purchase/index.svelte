@@ -1,6 +1,8 @@
 <script lang="ts">
   import purchaseState from './state'
   import stripeCID from '$stores/stripe/customer-id'
+  import stripeInvoice from '$stores/stripe/invoice'
+  import stripeSubscription from '$stores/stripe/subscription'
   import type { Step } from './state'
   import { browser } from '$app/env'
   import { page } from '$app/stores'
@@ -25,6 +27,7 @@
 
   onMount(async () => {
     await stripeCID.init()
+    await Promise.all([stripeSubscription.init(), stripeInvoice.init()])
   })
 </script>
 

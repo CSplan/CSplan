@@ -6,11 +6,10 @@
   "type": "module",
   "private": true,
   "scripts": {
-    "dev": "svelte-kit dev --port=3030",
+    "dev": "vite dev --port=3030",
     "svelte-check": "svelte-check --use-new-transformation true --compiler-warnings 'css-unused-selector:ignore'",
     "lint": "eslint --fix src",
-    "build": "NODE_ENV=production svelte-kit build",
-    "export": "svelte-kit export",
+    "build": "NODE_ENV=production vite build",
     "start": "node build",
     "prepare-ed25519": "[ ! -d static/ed25519 ] && mkdir static/ed25519; cp node_modules/@very-amused/ed25519-wasm/build/* static/ed25519/",
     "prepare-argon2": "[ ! -d static/argon2 ] && mkdir static/argon2; cp node_modules/@very-amused/argon2-wasm/build/* static/argon2/"
@@ -34,7 +33,7 @@
   },
   "devDependencies": {
     "@sveltejs/adapter-node": "^1.0.0-next.77",
-    "@sveltejs/kit": "^1.0.0-next.346",
+    "@sveltejs/kit": "1.0.0-next.405",
     "@types/cookie": "^0.5.1",
     "@types/dompurify": "^2.3.1",
     "@types/js-cookie": "^3.0.2",
@@ -49,7 +48,8 @@
     "mdsvex": "^0.10.6",
     "svelte": "^3.48.0",
     "svelte-check": "^2.8.0",
-    "svelte-preprocess": "^4.7.4"
+    "svelte-preprocess": "^4.7.4",
+    "vite": "^3.0.9"
   },
   "resolutions": {
     "hosted-git-info": "2.8.9"

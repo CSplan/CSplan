@@ -3,6 +3,7 @@
   import type { Stripe, StripeCardElement, StripeCardElementChangeEvent } from '@stripe/stripe-js'
   import { onMount } from 'svelte'
   import invoice from '$stores/stripe/invoice'
+  import purchaseState from '../state'
 
   // Format a price in cents for display
   function formatPrice(amount: number): string {
@@ -20,6 +21,7 @@
     if (!$invoice.exists) {
       return
     }
+    // Pay the invoice with Stripe
     const res = await stripe.confirmCardPayment($invoice.secret, {
       payment_method: {
         card: cardEl
@@ -29,6 +31,13 @@
       console.log('Success')
     }
   }
+
+  async function voidInvoice(): Promise<void> {
+    await invoice.void()
+    purchaseState.set(purchaseState.initialValue)
+    console.log($purchaseState)
+  }
+  console.log(purchaseState.initialValue)
 
   // Load Stripe.js
   let stripe: Stripe
@@ -87,6 +96,7 @@
   <div id="card-element"></div>
 
   <div class="submit-container">
+    <button class="void-button" on:click|preventDefault|stopPropagation={voidInvoice}>Cancel (void)</button>
     <input type="submit" value="Pay" disabled={!allowSubmit}>
   </div>
 </form>
@@ -120,9 +130,14 @@
     width: 100%;
     text-align: right;
     margin-top: 1.3rem;
-    input[type="submit"] {
+    input[type="submit"],button {
       min-width: 20%;
-      text-align: center;
+    }
+    button {
+      float: left;
+      background: $danger-red !important;
+    }
+    input[type="submit"] {
       background: $success-green !important;
       &:disabled {
         background: $text-disabled !important;

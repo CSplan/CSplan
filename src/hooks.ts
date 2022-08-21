@@ -27,7 +27,7 @@ type AuthorizedResponse = {
 
 // Create a full URL for use in SSR requests
 function serverRoute(path: string): string {
-  return dev ? 'http://localhost:3000' + path : route(path)
+  return dev ? `http://${process.env.CSPLAN_HOSTNAME}:3000` + path : route(path)
 }
 
 // Get user appearance settings

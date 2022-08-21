@@ -36,6 +36,7 @@ export type PurchaseState = {
 }
 
 class PurchaseStateStore extends Store<PurchaseState> {
+  declare set: Store<PurchaseState>['set']
   declare update: Store<PurchaseState>['update']
 
   constructor() {
