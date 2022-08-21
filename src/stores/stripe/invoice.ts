@@ -16,6 +16,7 @@ export type Invoice = {
   id: string // Invoice ID
   number: string // Invoice #, customer scoped
   status: InvoiceStatus
+  total: number
 
   items: InvoiceItem[]
 

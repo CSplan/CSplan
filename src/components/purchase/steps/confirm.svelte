@@ -14,7 +14,6 @@
   let message = ''
 
   let paymentMethod = purchaseState.initialValue.paymentMethod
-  $: console.log(paymentMethod)
   function setPaymentMethod(): void {
     console.log(paymentMethod)
     purchaseState.update((store) => {
@@ -79,7 +78,7 @@
       })
     } catch (err) {
       state = States.Errored
-      message = `${err}`
+      message = err instanceof Error ? err.message : `${err}`
     }
   }
 </script>
@@ -168,6 +167,7 @@
 </article>
 
 <style lang="scss">
+  @import './invoice-table.scss';
   article {
     padding: $padding-m;
     @media (min-width: $desktop-min) {
@@ -184,58 +184,8 @@
   h3 {
     margin-top: 1.3rem;
   }
-
   table {
-    $border: 1px dashed $border-alt;
-    width: 100%;
-    tr:last-child,tr:first-child {
-      border-top: 1px solid $border-alt;
-    }
-    tr:last-child {
-      border-bottom: 1px solid $border-alt;
-    }
-    tr.border-bottom {
-      border-bottom: $border;
-    }
-    td {
-      padding: 0.3em;
-      border-left: $border;
-      vertical-align: middle;
-      &:first-child {
-        border-left: none;
-      }
-    }
-    td.price {
-      text-align: center;
-      min-width: 3rem;
-      font-weight: bold;
-    }
-    td.quantity {
-      padding-right: 0.3rem;
-      div {
-        display: flex;
-        flex-direction: row;
-        align-items: center;
-        justify-content: center;
-        i {
-          margin-top: 0.1rem;
-          margin-right: 0.3rem;
-          font-size: 110%;
-          color: $border-alt;
-        }
-        span {
-          font-weight: bold;
-          margin-top: auto;
-          margin-bottom: auto;
-        }
-      }
-    }
-  }
-  .promo-text {
-    font-weight: bold;
-  }
-  .promo-price {
-    color: $success-green;
+    @include invoice-table;
   }
   .payment-methods {
     text-align: center;

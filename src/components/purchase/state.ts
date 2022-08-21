@@ -58,7 +58,7 @@ class PurchaseStateStore extends Store<PurchaseState> {
           title: 'Pay'
         }
       ],
-      currentStep: 0,
+      currentStep: 1,
       minStep: 0,
       maxStep: 1,
       planType: PlanTypes.Prepaid,
