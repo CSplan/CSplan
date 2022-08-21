@@ -2,8 +2,11 @@
   import { loadStripe } from '@stripe/stripe-js/pure'
   import type { Stripe, StripeCardElement, StripeCardElementChangeEvent } from '@stripe/stripe-js'
   import { onMount } from 'svelte'
-  import invoice from '$stores/stripe/invoice'
-  import purchaseState from '../state'
+  import stripeInvoice from '$stores/stripe/invoice'
+  import type { Invoice } from '$stores/stripe/invoice'
+  import subscription, { subscriptionInvoice } from '$stores/stripe/subscription'
+  import purchaseState, { PlanTypes } from '../state'
+  import type { Readable } from 'svelte/store'
   import { route } from '$lib'
   import paymentStatus, { PaymentStatus } from '$stores/payment-status'
   import { goto } from '$app/navigation'
@@ -12,6 +15,18 @@
 
   let state = States.Resting
   let message = ''
+
+  let invoice: Readable<Invoice>
+  let isSubscription = false
+  $: switch ($purchaseState.planType) {
+  case PlanTypes.Prepaid:
+    invoice = stripeInvoice
+    isSubscription = false
+    break
+  case PlanTypes.Subscription:
+    invoice = subscriptionInvoice
+    isSubscription = true
+  }
 
   // Format a price in cents for display
   function formatPrice(amount: number): string {
@@ -43,6 +58,7 @@
 
   // Hande form submission
   async function submit(): Promise<void> {
+    console.log($invoice)
     if (!$invoice.exists) {
       return
     }
@@ -51,13 +67,15 @@
     }
     state = States.Saving
     // Finalize the invoice to obtain a client secret
-    message = 'Finalizing Invoice'
-    try {
-      await invoice.finalize()
-    } catch (err) {
-      state = States.Errored
-      message = err instanceof Error ? err.message : `${err}`
-      return
+    if (!isSubscription) { 
+      message = 'Finalizing Invoice'
+      try {
+        await stripeInvoice.finalize()
+      } catch (err) {
+        state = States.Errored
+        message = err instanceof Error ? err.message : `${err}`
+        return
+      }
     }
 
     message = 'Processing Payment'
@@ -76,8 +94,12 @@
     }
   }
 
-  async function voidInvoice(): Promise<void> {
-    await invoice.delete()
+  async function cancel(): Promise<void> {
+    if (isSubscription) {
+      await subscription.cancel()
+    } else {
+      await stripeInvoice.delete()
+    }
     purchaseState.set(structuredClone(purchaseState.initialValue))
   }
 
@@ -139,7 +161,7 @@
   <div id="card-element"></div>
 
   <div class="submit-container" class:saving={state === States.Saving || state === States.Saved}>
-    <button class="void-button" on:click|preventDefault|stopPropagation={voidInvoice}>Cancel</button>
+    <button class="void-button" on:click|preventDefault|stopPropagation={cancel}>Cancel</button>
     <input type="submit" value="Pay" disabled={!allowSubmit}>
   </div>
 

@@ -4,10 +4,15 @@ import { Store } from '../store'
 import customerIDStore from './customer-id'
 import type { Invoice, InvoiceItem } from './invoice'
 import { aes } from 'cs-crypto'
+import { derived } from 'svelte/store'
 
 export type SubscriptionReq = {
   plan: AccountTypes
-  interval: 1 // 1 == monthly
+  interval: SubscriptionIntervals
+}
+
+export enum SubscriptionIntervals {
+  Monthly = 1
 }
 
 // A recurring subscription for CSplan Pro
@@ -79,8 +84,28 @@ class SubscriptionStore extends Store<Subscription> {
     }
     this.set(body)
   }
+
+  async cancel(this: SubscriptionStore): Promise<void> {
+    // Request subscription cancellation/deletion
+    const res = await csfetch(route('/stripe/subscription'), {
+      method: 'DELETE'
+    })
+    if (res.status !== 204) {
+      throw await HTTPerror(res, 'Failed to cancel subscription.')
+    }
+    this.set(structuredClone(this.initialValue))
+  }
 }
 
 export const subscription = new SubscriptionStore()
 
 export default subscription
+
+export const subscriptionInvoice = derived(subscription, (store) => {
+  return store.exists ? {
+    ...store.invoice,
+    exists: true
+  } as Invoice : {
+    exists: false
+  } as Invoice
+})

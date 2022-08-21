@@ -1,7 +1,11 @@
 <script lang="ts">
   import paymentStatus from '$stores/payment-status'
+  import stripeSubscription from '$stores/stripe/subscription'
   import settings from '$stores/settings'
   import AccountTypes from '$lib/account-types'
+  import Spinner from '$components/spinner.svelte'
+  import { FormStates as States } from '$lib'
+
   
   let isPaid = false
   let planName: string
@@ -27,6 +31,31 @@
     const offset = `UTC${offsetHours > 0 ? '+' : '-'}${Math.abs(offsetHours).toString().padStart(2, '0')}:${Math.abs(offsetMinutes).toString().padStart(2, '0')}`
     return `${pad(d.getHours())}:${pad(d.getMinutes())}, ${pad(d.getMonth())}/${pad(d.getDate())}/${d.getFullYear()} ${offset}`
   }
+
+  // State for the 'cancel subscription' button
+  let subCancelState = States.Resting
+  let message = ''
+  async function cancelSubscription(): Promise<void> {
+    // TODO: confirm sub cancellations
+    subCancelState = States.Saving
+    message = 'Cancelling Subscription'
+    try {
+      await stripeSubscription.cancel()
+      subCancelState = States.Saved
+      message = 'Your CSplan Pro subscription has been canceled.'
+      paymentStatus.update((store) => {
+        store.subscribed = 0
+        return store
+      })
+      setTimeout(() => {
+        subCancelState = States.Resting
+        message = ''
+      }, 3000)
+    } catch (err) {
+      subCancelState = States.Errored
+      message = err instanceof Error ? err.message : `${err}`
+    }
+  }
 </script>
 
 <article class="payment-status primary">
@@ -49,7 +78,7 @@
         <p class="value" title="All payments are truncated to midnight UTC for privacy purposes. Payment can be completed up to 24 hours later than this time before account features will be lost.">{formatTimestamp($paymentStatus.paidUntil)}</p>
       {/if}
       <p class="detail-label">Subscription:</p>
-      <p class="value">{$paymentStatus.subscribed > 0 ? 'Active' : 'None (Prepaid)'}</p>
+      <p class="value">{$paymentStatus.subscribed > 0 ? 'Active (Monthly)' : 'None (Prepaid)'}</p>
     {/if}
   </section>
 
@@ -60,9 +89,15 @@
   </a>
   <a href="/purchase">
     <button class="purchase-button" style:background="var(--{isPaid ? 'background-alt' : 'success-green'})">
-      {isPaid ? 'Buy more Time' : 'Buy CSplan Pro'}
+      {isPaid ? 'Purchase more Time' : 'Purchase CSplan Pro'}
     </button>
   </a>
+  {#if $paymentStatus.subscribed > 0 || subCancelState === States.Saved}
+    <button style:background="var(--danger-red)" on:click={cancelSubscription}>
+      Cancel Subscription
+    </button>
+    <Spinner state={subCancelState} {message}/>
+  {/if}
 </article>
 
 <style lang="scss">

@@ -1,6 +1,7 @@
 <script lang="ts">
   import purchaseState, { PaymentMethods, PlanTypes } from '../state'
   import stripeInvoice from '$stores/stripe/invoice'
+  import stripeSubscription, { SubscriptionIntervals } from '$stores/stripe/subscription'
   import { FormStates as States } from '$lib'
   import AccountTypes from '$lib/account-types'
   import Spinner from '$components/spinner.svelte'
@@ -59,10 +60,17 @@
       switch ($purchaseState.paymentMethod) {
       case PaymentMethods.Stripe:
         message = 'Creating Stripe Invoice'
-        await stripeInvoice.create({
-          plan: AccountTypes.Pro,
-          months: $purchaseState.prepaidMonths
-        })
+        if ($purchaseState.planType === PlanTypes.Prepaid) {
+          await stripeInvoice.create({
+            plan: AccountTypes.Pro,
+            months: $purchaseState.prepaidMonths
+          })
+        } else {
+          await stripeSubscription.create({
+            plan: AccountTypes.Pro,
+            interval: SubscriptionIntervals.Monthly
+          })
+        }
         break
       default: 
         throw new Error(`Unsupported payment method: ${$purchaseState.paymentMethod}`)
