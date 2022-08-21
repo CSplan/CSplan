@@ -8,12 +8,6 @@ export type PaymentStatus = {
   subscribed: number
 }
 
-export type PaymentNotification = ({
-  status?: 'paid' // Must be deletable for store updates
-} & PaymentStatus) | ({
-  status: 'error'
-})
-
 class PaymentStatusStore extends Store<PaymentStatus> {
   declare set: Store<PaymentStatus>['set']
   declare update: Store<PaymentStatus>['update']

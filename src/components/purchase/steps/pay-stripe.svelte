@@ -5,8 +5,13 @@
   import invoice from '$stores/stripe/invoice'
   import purchaseState from '../state'
   import { route } from '$lib'
-  import paymentStatus, { PaymentNotification } from '$stores/payment-status'
+  import paymentStatus, { PaymentStatus } from '$stores/payment-status'
   import { goto } from '$app/navigation'
+  import { FormStates as States } from '$lib'
+  import Spinner from '$components/spinner.svelte'
+
+  let state = States.Resting
+  let message = ''
 
   // Format a price in cents for display
   function formatPrice(amount: number): string {
@@ -23,16 +28,15 @@
 
   // Handle payment event ws notification
   function onPaymentNotif(evt: MessageEvent<string>): void {
-    const body: PaymentNotification = JSON.parse(evt.data)
-    switch (body.status) {
-    case 'paid':
-      delete body.status // Event status property doesn't exist for payment status store
-      paymentStatus.set(body)
+    const body: PaymentStatus = JSON.parse(evt.data)
+    paymentStatus.set(body)
+    state = States.Saved
+    message = 'Thank you for supporting CSplan! Redirecting in 5 seconds.'
+    setTimeout(() => {
       goto('/payment', {
         replaceState: true
       })
-    // TODO: add payment failure handler
-    }
+    }, 5000)
   }
 
   // Hande form submission
@@ -40,22 +44,30 @@
     if (!$invoice.exists) {
       return
     }
+    if (state === States.Saving || state === States.Saved) {
+      return
+    }
+    state = States.Saving
+    message = 'Processing Payment'
     // Open a websocket to receive payment confirmation on
     const ws = new WebSocket(route('/stripe/payment_notification', 'wss'))
     ws.onmessage = onPaymentNotif
     // Pay the invoice with Stripe
-    await stripe.confirmCardPayment($invoice.secret, {
+    const res = await stripe.confirmCardPayment($invoice.secret, {
       payment_method: {
         card: cardEl
       }
     })
+    if (res.error != null) {
+      state = States.Errored
+      message = res.error.message || 'Unknown payment failure.'
+    }
   }
 
   async function voidInvoice(): Promise<void> {
     await invoice.void()
     purchaseState.set(structuredClone(purchaseState.initialValue))
   }
-  console.log(purchaseState.initialValue)
 
   // Load Stripe.js
   let stripe: Stripe
@@ -115,10 +127,12 @@
   {/if}
   <div id="card-element"></div>
 
-  <div class="submit-container">
-    <button class="void-button" on:click|preventDefault|stopPropagation={voidInvoice}>Cancel (void)</button>
+  <div class="submit-container" class:saving={state === States.Saving || state === States.Saved}>
+    <button class="void-button" on:click|preventDefault|stopPropagation={voidInvoice}>Cancel</button>
     <input type="submit" value="Pay" disabled={!allowSubmit}>
   </div>
+
+  <Spinner {state} {message}/>
 </form>
 
 <style lang="scss">
@@ -162,6 +176,9 @@
       &:disabled {
         background: $text-disabled !important;
       }
+    }
+    &.saving {
+      pointer-events: none;
     }
   }
 </style>
