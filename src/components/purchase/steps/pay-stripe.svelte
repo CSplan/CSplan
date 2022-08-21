@@ -32,11 +32,12 @@
     paymentStatus.set(body)
     state = States.Saved
     message = 'Thank you for supporting CSplan! Redirecting in 5 seconds.'
-    setTimeout(() => {
-      purchaseState.set(structuredClone(purchaseState.initialValue))
-      goto('/payment', {
+    setTimeout(async () => {
+      // Navigate to payment status page, reset purchase state
+      await goto('/payment', {
         replaceState: true
       })
+      purchaseState.set(structuredClone(purchaseState.initialValue))
     }, 5000)
   }
 
