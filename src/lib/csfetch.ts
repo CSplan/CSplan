@@ -1,3 +1,4 @@
+import { dev } from '$app/env'
 import { storage } from '$db/storage'
 
 // Domains that credentials are allowed to be sent to (over HTTPS only)
@@ -8,32 +9,44 @@ const safeMethods: Record<string, boolean> = {
   OPTIONS: true
 }
 
-export function csfetch(input: RequestInfo, init?: RequestInit): Promise<Response> {
+type ReqInit = RequestInit & { 
+  headers?: Record<string, string>
+}
+
+function includeCredentials(init: ReqInit): ReqInit {
+  init.credentials = 'include'
+  if (!safeMethods[init.method || 'GET']) {
+    const csrfToken = storage.getCSRFtoken()
+    if (csrfToken != null) {
+      init.headers!['CSRF-Token'] = storage.getCSRFtoken()
+    }
+  }
+  return init
+}
+
+export function csfetch(input: RequestInfo, init?: ReqInit): Promise<Response> {
   if (init === undefined) {
     init = {}
   }
   if (init.headers === undefined) {
     init.headers = {}
   }
-  const headers = init.headers as Record<string, string>
 
   // Include credentials for requests to whitelisted domains
   for (const domain of credWhitelistedDomains) {
-    if (input.toString().startsWith(`https://${domain}`)) {
-      init.credentials = 'include'
-      if (!safeMethods[init.method || 'GET']) {
-        const csrfToken = storage.getCSRFtoken()
-        if (csrfToken != null) {
-          headers['CSRF-Token'] = storage.getCSRFtoken()
-        }
-      }
+    const url = input.toString()
+    if (url.startsWith(`https://${domain}`) || url.startsWith(`wss://${domain}`)) {
+      init = includeCredentials(init)
       break
     }
   }
+  if (dev) {
+    init = includeCredentials(init)
+  }
 
   // Requests have a default content type of application/json
-  if (init.body != null && headers['Content-Type'] === undefined) {
-    headers['Content-Type'] = 'application/json'
+  if (init.body != null && init.headers!['Content-Type'] === undefined) {
+    init.headers!['Content-Type'] = 'application/json'
   }
 
   return fetch(input, init)

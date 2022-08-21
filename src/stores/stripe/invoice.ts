@@ -14,14 +14,14 @@ export type Invoice = {
 } | {
   exists: true
   id: string // Invoice ID
-  number: string // Invoice #, customer scoped
+  number?: string // Invoice #, customer scoped
   status: InvoiceStatus
   total: number
 
   items: InvoiceItem[]
 
-  secret: string // Client secret for the underlying paymentintent
-  invoicePDF: string // PDF download URL
+  secret?: string // Client secret for the underlying paymentintent
+  invoicePDF?: string // PDF download URL
 }
 
 export type InvoiceStatus = 'draft' | 'open' | 'paid' | 'void' | 'uncollectable'
@@ -61,7 +61,7 @@ class InvoiceStore extends Store<Invoice> {
   async create(this: InvoiceStore, invoiceReq: PrepaidInvoiceReq): Promise<void> {
     await this.init()
     if (Store.get(this).exists) {
-      return
+      await this.delete()
     }
     // Ensure user has an existing Stripe CID to create an invoice using
     const stripeCID = Store.get(customerIDStore)
@@ -78,7 +78,7 @@ class InvoiceStore extends Store<Invoice> {
       body: JSON.stringify(invoiceReq)
     })
     if (res.status !== 201) {
-      throw await HTTPerror(res, 'Failed to create Stripe invoice.')
+      throw await HTTPerror(res, 'Failed to create invoice.')
     }
     const body: Assert<Invoice, 'exists'> = {
       ...await res.json(),
@@ -87,8 +87,26 @@ class InvoiceStore extends Store<Invoice> {
     this.set(body)
   }
 
-  /** Void an open Stripe invoice (cannot be done after the invoice is paid). */
-  async void(this: InvoiceStore): Promise<void> {
+  /** Finalize a Stripe invoice, should be called immediately before payment to obtain a client secret. */
+  async finalize(this: InvoiceStore): Promise<void> {
+    if (!Store.get(this).exists) {
+      return
+    }
+    const res = await csfetch(route('/stripe/invoice/finalize'), {
+      method: 'POST'
+    })
+    if (res.status !== 200) {
+      throw await HTTPerror(res, 'Failed to finalize invoice.')
+    }
+    const body: Assert<Invoice, 'exists'> = {
+      ...await res.json(),
+      exists: true
+    }
+    this.set(body)
+  }
+
+  /** Delete/Void an open Stripe invoice (cannot be done after the invoice is paid). */
+  async delete(this: InvoiceStore): Promise<void> {
     // Ensure the invoice exists before attempting to void
     if (!Store.get(this).exists) {
       throw new Error('No open invoice exists for this user.')

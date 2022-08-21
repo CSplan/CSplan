@@ -1,6 +1,6 @@
 import type { RequestHandler } from '@sveltejs/kit'
 
-export const get: RequestHandler = () => {
+export const GET: RequestHandler = () => {
   return {
     status: 302,
     headers: {

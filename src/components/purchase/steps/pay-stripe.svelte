@@ -33,6 +33,7 @@
     state = States.Saved
     message = 'Thank you for supporting CSplan! Redirecting in 5 seconds.'
     setTimeout(() => {
+      purchaseState.set(structuredClone(purchaseState.initialValue))
       goto('/payment', {
         replaceState: true
       })
@@ -48,12 +49,22 @@
       return
     }
     state = States.Saving
+    // Finalize the invoice to obtain a client secret
+    message = 'Finalizing Invoice'
+    try {
+      await invoice.finalize()
+    } catch (err) {
+      state = States.Errored
+      message = err instanceof Error ? err.message : `${err}`
+      return
+    }
+
     message = 'Processing Payment'
     // Open a websocket to receive payment confirmation on
     const ws = new WebSocket(route('/stripe/payment_notification', 'wss'))
     ws.onmessage = onPaymentNotif
     // Pay the invoice with Stripe
-    const res = await stripe.confirmCardPayment($invoice.secret, {
+    const res = await stripe.confirmCardPayment($invoice.secret!, {
       payment_method: {
         card: cardEl
       }
@@ -65,7 +76,7 @@
   }
 
   async function voidInvoice(): Promise<void> {
-    await invoice.void()
+    await invoice.delete()
     purchaseState.set(structuredClone(purchaseState.initialValue))
   }
 
@@ -123,7 +134,6 @@
         <td class="price" colspan=2>{formatPrice($invoice.total)}</td>
       </tr>
     </table>
-    <a href={$invoice.invoicePDF} download>Invoice PDF</a>
   {/if}
   <div id="card-element"></div>
 
