@@ -1,6 +1,6 @@
 <script lang="ts">
   import { loadStripe } from '@stripe/stripe-js/pure'
-  import type { Stripe } from '@stripe/stripe-js'
+  import type { Stripe, StripeCardElement, StripeCardElementChangeEvent } from '@stripe/stripe-js'
   import { onMount } from 'svelte'
   import invoice from '$stores/stripe/invoice'
 
@@ -11,6 +11,25 @@
     return `$${dollars}.${cents}`
   }
 
+  let cardEl: StripeCardElement
+  let allowSubmit = false
+  function onchange(event: StripeCardElementChangeEvent): void {
+    allowSubmit = event.complete
+  }
+  async function submit(): Promise<void> {
+    if (!$invoice.exists) {
+      return
+    }
+    const res = await stripe.confirmCardPayment($invoice.secret, {
+      payment_method: {
+        card: cardEl
+      }
+    })
+    if (res.paymentIntent?.status === 'succeeded') {
+      console.log('Success')
+    }
+  }
+
   // Load Stripe.js
   let stripe: Stripe
   onMount(async () => {
@@ -19,7 +38,7 @@
     loadStripe.setLoadParameters({ advancedFraudSignals: false }) // Disable Stripe's fraud detection tracking
     stripe = await loadStripe(__STRIPE_API_KEY__) as Stripe
     const elements = stripe.elements()
-    const cardEl = elements.create('card', {
+    cardEl = elements.create('card', {
       style: {
         base: {
           fontSize: '1.1rem',
@@ -29,13 +48,15 @@
             color: `${style.getPropertyValue('--text-disabled')}`
           }
         }
-      }
+      },
+      hidePostalCode: true
     })
     cardEl.mount('#card-element')
+    cardEl.on('change', onchange)
   })
 </script>
 
-<form class="primary" on:submit|preventDefault>
+<form class="primary" on:submit|preventDefault={submit}>
   <h2>Purchase</h2>
   <!--Invoice table-->
   {#if $invoice.exists}
@@ -61,11 +82,12 @@
         <td class="price" colspan=2>{formatPrice($invoice.total)}</td>
       </tr>
     </table>
+    <a href={$invoice.invoicePDF} download>Invoice PDF</a>
   {/if}
   <div id="card-element"></div>
 
   <div class="submit-container">
-    <input type="submit" value="Pay">
+    <input type="submit" value="Pay" disabled={!allowSubmit}>
   </div>
 </form>
 
@@ -100,8 +122,11 @@
     margin-top: 1.3rem;
     input[type="submit"] {
       min-width: 20%;
-      background: $success-green !important;
       text-align: center;
+      background: $success-green !important;
+      &:disabled {
+        background: $text-disabled !important;
+      }
     }
   }
 </style>
