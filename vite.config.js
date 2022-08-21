@@ -10,8 +10,8 @@ export default {
     proxy: dev ? {
       '/api': {
         target: `http://${process.env.CSPLAN_HOSTNAME}:3000`,
-        changeOrigin: true,
-        rewrite: path => path.replace(/^\/api/, '')
+        rewrite: path => path.replace(/^\/api/, ''),
+        ws: true
       }
     } : {},
     https: process.env.CSPLAN_CERTSDIR != null ? {
@@ -33,6 +33,7 @@ export default {
   },
   define: {
     __APP_VERSION__: `'Public Beta ${pkg.version}'`,
+    __DEV_HOSTNAME__: dev ? `'${process.env.CSPLAN_HOSTNAME}'` : '\'\'',
     __STRIPE_API_KEY__: dev
     ? '\'pk_test_51LIAg3ICwE4UU9tPvxBl94I8xrulhvCunTU7wu6l6PU0FqS2N6gAqKG4x7pV7AOD5qGqGwKf2DWobbP8gXYAClsr00Rm6KBzHP\''
     : '\'\''

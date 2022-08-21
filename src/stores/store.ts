@@ -13,8 +13,8 @@ export class Store<T> implements Readable<T> {
   protected static readonly get = get
 
   constructor(initialValue: T) {
-    this.initialValue = initialValue
-    const store = writable(this.initialValue)
+    this.initialValue = structuredClone(initialValue)
+    const store = writable(initialValue)
     this.subscribe = store.subscribe
     this.update = store.update
     this.set = store.set

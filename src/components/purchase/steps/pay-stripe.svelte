@@ -4,6 +4,9 @@
   import { onMount } from 'svelte'
   import invoice from '$stores/stripe/invoice'
   import purchaseState from '../state'
+  import { route } from '$lib'
+  import paymentStatus, { PaymentNotification } from '$stores/payment-status'
+  import { goto } from '$app/navigation'
 
   // Format a price in cents for display
   function formatPrice(amount: number): string {
@@ -17,25 +20,40 @@
   function onchange(event: StripeCardElementChangeEvent): void {
     allowSubmit = event.complete
   }
+
+  // Handle payment event ws notification
+  function onPaymentNotif(evt: MessageEvent<string>): void {
+    const body: PaymentNotification = JSON.parse(evt.data)
+    switch (body.status) {
+    case 'paid':
+      delete body.status // Event status property doesn't exist for payment status store
+      paymentStatus.set(body)
+      goto('/payment', {
+        replaceState: true
+      })
+    // TODO: add payment failure handler
+    }
+  }
+
+  // Hande form submission
   async function submit(): Promise<void> {
     if (!$invoice.exists) {
       return
     }
+    // Open a websocket to receive payment confirmation on
+    const ws = new WebSocket(route('/stripe/payment_notification', 'wss'))
+    ws.onmessage = onPaymentNotif
     // Pay the invoice with Stripe
-    const res = await stripe.confirmCardPayment($invoice.secret, {
+    await stripe.confirmCardPayment($invoice.secret, {
       payment_method: {
         card: cardEl
       }
     })
-    if (res.paymentIntent?.status === 'succeeded') {
-      console.log('Success')
-    }
   }
 
   async function voidInvoice(): Promise<void> {
     await invoice.void()
-    purchaseState.set(purchaseState.initialValue)
-    console.log($purchaseState)
+    purchaseState.set(structuredClone(purchaseState.initialValue))
   }
   console.log(purchaseState.initialValue)
 
@@ -44,7 +62,9 @@
   onMount(async () => {
     const style = getComputedStyle(document.querySelector(':root')!)
 
-    loadStripe.setLoadParameters({ advancedFraudSignals: false }) // Disable Stripe's fraud detection tracking
+    try {
+      loadStripe.setLoadParameters({ advancedFraudSignals: false }) // Disable Stripe's fraud detection tracking
+    } catch {}
     stripe = await loadStripe(__STRIPE_API_KEY__) as Stripe
     const elements = stripe.elements()
     cardEl = elements.create('card', {
