@@ -62,7 +62,7 @@ class PurchaseStateStore extends Store<PurchaseState> {
       currentStep: 0,
       minStep: 0,
       maxStep: 1,
-      planType: PlanTypes.Prepaid,
+      planType: PlanTypes.Subscription,
       prepaidMonths: 1,
       billingCountry: 'US',
       billingZIP: '',

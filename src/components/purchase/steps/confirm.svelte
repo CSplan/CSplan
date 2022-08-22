@@ -16,7 +16,6 @@
 
   let paymentMethod = purchaseState.initialValue.paymentMethod
   function setPaymentMethod(): void {
-    console.log(paymentMethod)
     purchaseState.update((store) => {
       store.paymentMethod = paymentMethod
       return store

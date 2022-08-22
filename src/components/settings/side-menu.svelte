@@ -6,7 +6,7 @@
 <div class="side-menu" class:shadow={!$settings.darkMode}>
   <MenuGroup href="/settings/account" title="Account" icon="fas fa-user"/>
   <MenuGroup href="/settings/appearance" title="Appearance" icon="fas fa-palette"/>
-  <MenuGroup href="/payment/plans" title="CSplan Pro" icon="fad fa-credit-card" color="var(--success-green)"/>
+  <MenuGroup href="/payment" title="CSplan Pro" icon="fad fa-credit-card" color="var(--success-green)"/>
   <MenuGroup href="/settings/2fa" title="2FA" icon="fas fa-mobile-screen-button"/>
   <MenuGroup href="/settings/keys" title="Keys & Backup" icon="fas fa-key"/>
   <MenuGroup href="/settings/sessions" title="Sessions" icon="fas fa-desktop"/>

@@ -4,10 +4,12 @@
   import { HTTPerror, csfetch } from '$lib'
   import Spinner from '$components/spinner.svelte'
   import { FormStates as States } from '$lib/form-states'
-  import { formatError } from '$lib'
   import { LoginActions, UpgradeActions } from '$lib/auth-actions'
   import userStore from '$stores/user'
   import { goto } from '$app/navigation'
+  import paymentStatus from '$stores/payment-status'
+  import AccountTypes from '$lib/account-types'
+  import stripeCID from '$stores/stripe/customer-id'
 
   // #region Mount
   // #endregion
@@ -22,6 +24,14 @@
 
   // Show the box to enter username or email to confirm account deletion
   let showConfirm = false
+  let paidAccountConfirm = {
+    show: false,
+    confirmed: false
+  }
+  let paidUntilTimestamp = ''
+  $: if ($paymentStatus.accountType !== AccountTypes.Free) {
+    paidUntilTimestamp = paymentStatus.formatTimestamp($paymentStatus.paidUntil!)
+  }
   // Password used to upgrade to level 2 auth
   let password = ''
 
@@ -33,6 +43,16 @@
   // #endregion
 
   // #region Logic
+
+  async function preConfirm(): Promise<void> {
+    await paymentStatus.init()
+    if ($paymentStatus.accountType !== AccountTypes.Free && !paidAccountConfirm.confirmed) {
+      paidAccountConfirm.show = true
+      'You will lose this time with no refund upon account deletion.'
+      return
+    }
+    showConfirm = true
+  }
 
   async function deleteAccount(): Promise<void> {
     state = States.Saving
@@ -50,21 +70,34 @@
       // TODO: use TOTP upgrade if available
       await UpgradeActions.passwordUpgrade(actions, password)
 
-      // Request deletion token
-      let res = await csfetch(route('/delete_my_account_please'), {
-        method: 'DELETE',
-        headers: {
-          'CSRF-Token': storage.getCSRFtoken()
-        }
-      })
-      if (res.status !== 200) {
-        throw await HTTPerror(res, 'Failed to initialize account deletion')
+      // Delete Stripe account
+      await stripeCID.init()
+      if ($stripeCID.exists) {
+        await stripeCID.delete()
       }
-      // Store the deletion token, which is required to finalize account deletion
-      const token = (await res.json() as DeleteToken).token
+
+      // Confirm deletion if paid time exists
+      let token: string
+      {
+        const headers: Record<string, string> = {}
+        if ($paymentStatus.accountType !== AccountTypes.Free && paidAccountConfirm.confirmed) {
+          headers['X-Delete-Paid-Account'] = 'true'
+        }
+
+        // Request deletion token
+        const res = await csfetch(route('/delete_my_account_please'), {
+          method: 'DELETE',
+          headers
+        })
+        if (res.status !== 200) {
+          throw await HTTPerror(res, 'Failed to initialize account deletion')
+        }
+        // Store the deletion token, which is required to finalize account deletion
+        token = (await res.json() as DeleteToken).token
+      }
 
       // Finalize deletion
-      res = await csfetch(route('/delete_my_account_please'), {
+      const res = await csfetch(route('/delete_my_account_please'), {
         method: 'DELETE',
         headers: {
           'CSRF-Token': storage.getCSRFtoken(),
@@ -73,23 +106,20 @@
       })
       if (res.status !== 200) {
         state = States.Errored
-        message = await HTTPerror(res, 'Failed to finalize account deletion')
-        return
+        throw await HTTPerror(res, 'Failed to finalize account deletion')
       }
       // Show the user notification that their account has been deleted
       state = States.Saved
-      message = 'Your account has been deleted; you will be redirected in 5 seconds.'
+      message = 'Your account has been deleted. You will be redirected in 5 seconds.'
+      userStore.logout()
+      setTimeout(() => {
+        goto('/')
+      }, 5000)
     } catch (err) {
       state = States.Errored
-      message = formatError(err instanceof Error ? err.message : (err as string).toString())
+      message = err instanceof Error ? err.message : `${err}`
       await UpgradeActions.downgrade() // If the account wasn't deleted, auth should be downgraded
-      return
     }
-
-    userStore.logout()
-    setTimeout(() => {
-      goto('/')
-    }, 5000)
   }
 
 
@@ -100,7 +130,6 @@
 <section class="settings-menu-container">
   <article class="delete-account">
     <h2>
-      <i class="fas fa-exclamation-circle"></i>
         Delete Account
     </h2>
   
@@ -111,11 +140,43 @@
     {#if state === States.Resting && !showConfirm}
     <button class="delete-account" 
       on:click={() => {
-        showConfirm = true
+        paidAccountConfirm.confirmed = false
+        preConfirm()
       }}
     >
       Delete CSplan Account
     </button>
+    {/if}
+
+    {#if paidAccountConfirm.show} 
+      <section class="confirmation">
+        <h3>
+          <i class="fas fa-exclamation-triangle"></i>
+          WARNING: Paid Account Deletion
+          <i class="fas fa-exclamation-triangle"></i>
+        </h3>
+
+        <p class="confirm-paid-account">
+          This account has paid for CSplan Pro until {paidUntilTimestamp}.
+          <br>
+          You will lose this time with no refund upon account deletion.
+          <br>
+          <b>Are you sure you wish to proceed?</b>
+        </p>
+
+          <button class="delete-account confirm-paid-account"
+          on:click={() => {
+            paidAccountConfirm.show = false
+            paidAccountConfirm.confirmed = true
+            preConfirm()
+          }}>Yes, I'm sure</button>
+      <button class="cancel" on:click={() => {
+        paidAccountConfirm.show = false
+      }}>
+        <i class="far fa-arrow-left"></i>
+        Cancel
+      </button>
+      </section>
     {/if}
 
     {#if showConfirm}
@@ -166,6 +227,9 @@
     border: 1px solid $danger-red;
     padding: $padding-m;
   }
+  p {
+    line-height: 1.5;
+  }
   article,section {
     display: flex;
     flex-direction: column;
@@ -176,13 +240,13 @@
     width: 100%;
     text-align: center;
     border-bottom: 1px solid $danger-red;
-    i {
-      color: $danger-red;
-    }
   }
   h3 {
     width: 100%;
     text-align: center;
+    i {
+      color: $danger-red;
+    }
     
     padding: 0.5rem 0;
     margin: 0.3rem 0;
@@ -202,5 +266,12 @@
     padding-top: 1rem;
     margin-top: 1rem;
     border-top: 1px solid $border-normal;
+  }
+  p.confirm-paid-account {
+    text-align: center;
+    margin-top: 0 !important;
+  }
+  button.confirm-paid-account{
+    background: $bg-alt;
   }
 </style>

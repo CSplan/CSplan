@@ -138,6 +138,22 @@ class StripeCustomerIDStore extends Store<StripeCustomerID> {
     await addToStore<'userID'>('stripe/customer-id', final)
   }
 
+  async delete(this: StripeCustomerIDStore): Promise<void> {
+    const store = Store.get(this)
+    if (!store.exists) {
+      throw new Error('Stripe customer ID doesn\t exist.')
+    }
+    const res = await csfetch(route('/stripe/customer-id'), {
+      method: 'DELETE',
+      headers: {
+        'X-Stripe-CryptoKey': await aes.exportKey(store.cryptoKey)
+      }
+    })
+    if (res.status !== 204) {
+      throw await HTTPerror(res, 'Failed to delete Stripe customer ID.')
+    }
+  }
+
   // Format the user's Stripe customer address
   formatAddress(): string {
     const customer = Store.get(this)

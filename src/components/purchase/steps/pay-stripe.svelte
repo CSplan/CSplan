@@ -58,7 +58,6 @@
 
   // Hande form submission
   async function submit(): Promise<void> {
-    console.log($invoice)
     if (!$invoice.exists) {
       return
     }

@@ -20,17 +20,6 @@
     break
   }
 
-  function formatTimestamp(timestamp: number): string {
-    const d = new Date(timestamp * 1000)
-    
-    // eslint-disable-next-line @typescript-eslint/explicit-function-return-type
-    const pad = (s: number) => s.toString().padStart(2, '0')
-
-    const offsetHours = Math.floor(d.getTimezoneOffset()/60)
-    const offsetMinutes = Math.floor(d.getTimezoneOffset()%60)
-    const offset = `UTC${offsetHours > 0 ? '+' : '-'}${Math.abs(offsetHours).toString().padStart(2, '0')}:${Math.abs(offsetMinutes).toString().padStart(2, '0')}`
-    return `${pad(d.getHours())}:${pad(d.getMinutes())}, ${pad(d.getMonth())}/${pad(d.getDate())}/${d.getFullYear()} ${offset}`
-  }
 
   // State for the 'cancel subscription' button
   let subCancelState = States.Resting
@@ -75,7 +64,7 @@
     {#if isPaid}
       {#if $paymentStatus.paidUntil != null}
         <p class="detail-label">Paid Until:</p>
-        <p class="value" title="All payments are truncated to midnight UTC for privacy purposes. Payment can be completed up to 24 hours later than this time before account features will be lost.">{formatTimestamp($paymentStatus.paidUntil)}</p>
+        <p class="value" title="All payments are truncated to midnight UTC for privacy purposes. Payment can be completed up to 24 hours later than this time before account features will be lost.">{paymentStatus.formatTimestamp($paymentStatus.paidUntil)}</p>
       {/if}
       <p class="detail-label">Subscription:</p>
       <p class="value">{$paymentStatus.subscribed > 0 ? 'Active (Monthly)' : 'None (Prepaid)'}</p>
@@ -87,16 +76,17 @@
       Plans
     </button>
   </a>
-  <a href="/purchase">
-    <button class="purchase-button" style:background="var(--{isPaid ? 'background-alt' : 'success-green'})">
-      {isPaid ? 'Purchase more Time' : 'Purchase CSplan Pro'}
-    </button>
-  </a>
   {#if $paymentStatus.subscribed > 0 || subCancelState === States.Saved}
     <button style:background="var(--danger-red)" on:click={cancelSubscription}>
       Cancel Subscription
     </button>
     <Spinner state={subCancelState} {message}/>
+  {:else}
+    <a href="/purchase">
+      <button class="purchase-button" style:background="var(--{isPaid ? 'background-alt' : 'success-green'})">
+        {isPaid ? 'Purchase more Time' : 'Purchase CSplan Pro'}
+      </button>
+    </a>
   {/if}
 </article>
 

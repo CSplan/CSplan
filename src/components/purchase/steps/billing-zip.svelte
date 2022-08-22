@@ -13,7 +13,7 @@
   let updateRequested = false
 
   // Allow advancing to the next step if a tax location has been saved for the user
-  $: if ($stripe.exists) {
+  $: if ($stripe.exists && state === States.Resting) {
     purchaseState.update((store) => {
       if (store.maxStep === store.currentStep) {
         store.maxStep++
@@ -49,10 +49,12 @@
     message = 'Successfully registered billing country/ZIP with Stripe'
     state = States.Saved
     purchaseState.update((store) => {
-      store.maxStep++
-      store.currentStep++
+      if (store.maxStep === store.currentStep) {
+        store.maxStep++
+      }
       return store
     })
+    purchaseState.nextStep()
   }
 </script>
 

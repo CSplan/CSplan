@@ -11,6 +11,7 @@ declare type ErrorResponse = {
   title: string
   message: string
   status: number
+  code?: string
 }
 
 declare type MasterKeys = {
