@@ -36,7 +36,8 @@ async function getSettings(authCookie: string): Promise<Settings|undefined> {
     headers: {
       // Cookies have to manually be passed in serverside fetch requests
       Cookie: `Authorization=${authCookie}`
-    }
+    },
+    credentials: 'include'
   })
   if (res.status !== 200) {
     return
@@ -49,7 +50,8 @@ async function getPaymentStatus(authCookie: string): Promise<PaymentStatus|undef
   const res = await fetch(serverRoute('/payment-status'), {
     headers: {
       Cookie: `Authorization=${authCookie}`
-    }
+    },
+    credentials: 'include'
   })
   if (res.status !== 200) {
     return
@@ -62,7 +64,8 @@ async function getUser(authCookie: string): Promise<User> {
   const res = await fetch(serverRoute('/whoami'), {
     headers: {
       Cookie: `Authorization=${authCookie}`
-    }
+    },
+    credentials: 'include'
   })
   if (res.status !== 200) {
     throw await HTTPerror(res, 'Failed backend authentication.')
@@ -85,7 +88,8 @@ export const handle: Handle = async ({ event, resolve }) => {
   // If an authorization cookie is present, assume the user is logged in
   const cookies = cookie.parse(
     event.request.headers.get('cookie') || '') as Record<string, string|undefined>
-  const authCookie = cookies['Authorization']
+  const authCookie = cookies['Authorization-SSR']
+  console.log(cookies)
   locals.isLoggedIn = authCookie !== undefined && authCookie.length > 0
 
   try {
@@ -94,7 +98,8 @@ export const handle: Handle = async ({ event, resolve }) => {
       locals.settings = await getSettings(authCookie)
       locals.paymentStatus = await getPaymentStatus(authCookie)
     }
-  } catch {
+  } catch (err) {
+    console.error(err)
     locals.isLoggedIn = false
     locals.settings = {
       darkMode: cookies['DarkMode'] !== 'false'
