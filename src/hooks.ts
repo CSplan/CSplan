@@ -88,7 +88,7 @@ export const handle: Handle = async ({ event, resolve }) => {
   // If an authorization cookie is present, assume the user is logged in
   const cookies = cookie.parse(
     event.request.headers.get('cookie') || '') as Record<string, string|undefined>
-  const authCookie = cookies['Authorization-SSR']
+  const authCookie = cookies['Authorization']
   console.log(cookies)
   locals.isLoggedIn = authCookie !== undefined && authCookie.length > 0
 
