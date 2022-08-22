@@ -72,7 +72,8 @@
   </section>
 
   <a href="/payment/plans">
-    <button style:background="var(--background-lessdark)" style:border="1px solid var(--border-normal)">
+    <button style:background="var(--{$settings.darkMode ? 'background-lessdark' : 'background-dark'})"
+    style:border={$settings.darkMode ? '1px solid var(--border-normal)' : 'none'}>
       Plans
     </button>
   </a>
