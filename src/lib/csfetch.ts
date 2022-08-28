@@ -2,7 +2,7 @@ import { dev } from '$app/env'
 import { storage } from '$db/storage'
 
 // Domains that credentials are allowed to be sent to (over HTTPS only)
-const credWhitelistedDomains = ['api.csplan.co', 'api.staging.csplan.co']
+const credWhitelistedDomains = ['api.csplan.co', 'api.staging.csplan.dev']
 const safeMethods: Record<string, boolean> = {
   GET: true,
   HEAD: true,
