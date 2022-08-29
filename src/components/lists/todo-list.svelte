@@ -12,6 +12,8 @@
   import DOMPurify from 'dompurify'
   import { FormStates as States } from '$lib/form-states'
   import Limits from '$lib/limits'
+  import user from '$stores/user'
+  import AccountTypes from '$lib/account-types'
 
   export let id: string
 
@@ -213,7 +215,8 @@
   // #region Limits
   let itemLimitHit = false
   $: if (list != null) {
-    itemLimitHit = list.items.length >= Limits.free.itemsPerList || $itemsTotal >= Limits.free.totalItems
+    const l = $user.isLoggedIn && $user.accountType === AccountTypes.Pro ? Limits.pro : Limits.free
+    itemLimitHit = list.items.length >= l.itemsPerList || $itemsTotal >= l.totalItems
   }
   // #endregion 
 

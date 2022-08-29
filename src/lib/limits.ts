@@ -13,9 +13,8 @@ type LimitSet = {
   // Max total tags
   tags: number
 }
-type AccountType = 'free'
 
-export const Limits: Record<AccountType, LimitSet> = {
+export const Limits: Record<string, LimitSet> = {
   free: {
     lists: 10,
     itemsPerList: 10,
@@ -23,6 +22,13 @@ export const Limits: Record<AccountType, LimitSet> = {
     itemDescriptionLen: 2000,
 
     tags: 10
+  },
+  pro: {
+    lists: 100,
+    itemsPerList: 100,
+    totalItems: Number.MAX_SAFE_INTEGER,
+    itemDescriptionLen: 4000,
+    tags: 100
   }
 }
 
