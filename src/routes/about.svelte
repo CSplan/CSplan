@@ -10,6 +10,7 @@
     user: string // Username on the website
     href: string
     icon?: string
+    iconDark?: string
   }
 
   const version = __APP_VERSION__
@@ -23,7 +24,8 @@
           title: 'GitHub',
           user: 'very-amused',
           href: 'https://github.com/very-amused',
-          icon: '/vendor/GitHub/GitHub-Mark/PNG/GitHub-Mark-64px.png'
+          icon: '/vendor/GitHub/GitHub-Mark/PNG/GitHub-Mark-64px.png',
+          iconDark: '/vendor/GitHub/GitHub-Mark/PNG/GitHub-Mark-Light-64px.png'
         },
         {
           title: 'Email',
@@ -71,7 +73,9 @@
       {#if credit.links !== undefined}
         <div class="links">
           {#each credit.links as link}
-            {#if link.icon !== undefined}
+            {#if $settings.darkMode && link.iconDark != null}
+              <img src={link.iconDark} class="icon" alt="{link.title} icon" title={link.title}>
+            {:else if link.icon !== undefined}
               <img src={link.icon} class="icon" alt="{link.title} icon" title={link.title}>
             {/if}
             <span>{link.title}: <a rel="external" href={link.href}>{link.user}</a></span>

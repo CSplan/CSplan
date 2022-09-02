@@ -91,8 +91,8 @@
     margin-bottom: 0;
     width: max-content;
     border-radius: $br-light !important;
-    box-shadow: -0.5rem 0.3rem 1rem $border-alt;
-    z-index: 1;
+    box-shadow: -0.3rem 0.3rem 1rem #000;
+    z-index: 99;
   }
   button:not(.in-row) {
     display: grid;
