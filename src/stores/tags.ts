@@ -1,6 +1,6 @@
 import { writable, derived, get, Readable } from 'svelte/store'
 import { rsa, aes } from 'cs-crypto'
-import { addToStore, deleteFromStore, getByKey, mustGetByKey, addToStore } from '../db'
+import { deleteFromStore, getByKey, mustGetByKey, addToStore } from '../db'
 import userStore, { User } from './user'
 import { HTTPerror, csfetch, route } from '$lib'
 import storage from '$db/storage'
@@ -149,8 +149,8 @@ function create(): Readable<Store> & TagStore {
       // Encrypt and commit to API
       const encrypted = await aes.deepEncrypt({
         name: tag.name,
-        color: tag.color || '#FFFFFF' // TODO: tag color should be guaranteed, 
-        // this guard is here because tag colors are not implemented and should be removed in the future
+        color: tag.color, 
+        textColor: tag.textColor
       }, tag.cryptoKey)
       const res = await csfetch(route(`/tags/${id}`), {
         method: 'PATCH',
