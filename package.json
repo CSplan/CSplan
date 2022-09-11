@@ -48,6 +48,7 @@
     "mdsvex": "^0.10.6",
     "svelte": "^3.48.0",
     "svelte-check": "^2.8.0",
+    "svelte-migrate": "^1.0.0-next.12",
     "svelte-preprocess": "^4.7.4",
     "vite": "^3.0.9"
   },

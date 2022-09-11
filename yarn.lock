@@ -1776,7 +1776,12 @@ json5@^2.1.2:
   dependencies:
     minimist "^1.2.5"
 
-kleur@^4.1.5:
+kleur@^3.0.3:
+  version "3.0.3"
+  resolved "https://registry.yarnpkg.com/kleur/-/kleur-3.0.3.tgz#a79c9ecc86ee1ce3fa6206d1216c501f147fc07e"
+  integrity sha512-eTIzlVOSUR+JxdDFepEYcBMtZ9Qqdef+rnzWdRZuMbOywu5tO2w2N7rqjoANZ5k9vywhL6Br1VRjUIgTQx4E8w==
+
+kleur@^4.1.4, kleur@^4.1.5:
   version "4.1.5"
   resolved "https://registry.yarnpkg.com/kleur/-/kleur-4.1.5.tgz#95106101795f7050c6c650f350c683febddb1780"
   integrity sha512-o+NO+8WrRiQEE4/7nwRJhN1HWpVmJm511pBHUxPLtp0BUISzlBplORYSmTclCnJvQq2tKu/sgl3xVpkc7ZWuQQ==
@@ -2159,6 +2164,14 @@ progress@^2.0.0:
   resolved "https://registry.yarnpkg.com/progress/-/progress-2.0.3.tgz#7e8cf8d8f5b8f239c1bc68beb4eb78567d572ef8"
   integrity sha512-7PiHtLll5LdnKIMw100I+8xJXR5gW2QwWYkT6iJva0bXitZKa/XMrSbdmg3r2Xnaidz9Qumd0VPaMrZlF9V9sA==
 
+prompts@^2.4.2:
+  version "2.4.2"
+  resolved "https://registry.yarnpkg.com/prompts/-/prompts-2.4.2.tgz#7b57e73b3a48029ad10ebd44f74b01722a4cb069"
+  integrity sha512-NxNv/kLguCA7p3jE8oL2aEBsrJWgAakBpgmgK6lpPWV+WuOmY6r2/zbAVnP+T8bQlA0nzHXSJSJW0Hq7ylaD2Q==
+  dependencies:
+    kleur "^3.0.3"
+    sisteransi "^1.0.5"
+
 punycode@^2.1.0:
   version "2.1.1"
   resolved "https://registry.yarnpkg.com/punycode/-/punycode-2.1.1.tgz#b58b010ac40c22c5657616c8d2c2c02c7bf479ec"
@@ -2352,6 +2365,11 @@ side-channel@^1.0.4:
     get-intrinsic "^1.0.2"
     object-inspect "^1.9.0"
 
+sisteransi@^1.0.5:
+  version "1.0.5"
+  resolved "https://registry.yarnpkg.com/sisteransi/-/sisteransi-1.0.5.tgz#134d681297756437cc05ca01370d3a7a571075ed"
+  integrity sha512-bLGGlR1QxBcynn2d5YmDX4MGjlZvy2MRBDRNHLJ8VI6l6+9FUiyTFNJ0IveOSP0bcXgVDPRcfGqA0pjaqUpfVg==
+
 slash@^3.0.0:
   version "3.0.0"
   resolved "https://registry.yarnpkg.com/slash/-/slash-3.0.0.tgz#6539be870c165adbd5240220dbe361f1bc4d4634"
@@ -2509,6 +2527,17 @@ svelte-hmr@^0.14.12:
   resolved "https://registry.yarnpkg.com/svelte-hmr/-/svelte-hmr-0.14.12.tgz#a127aec02f1896500b10148b2d4d21ddde39973f"
   integrity sha512-4QSW/VvXuqVcFZ+RhxiR8/newmwOCTlbYIezvkeN6302YFRE8cXy0naamHcjz8Y9Ce3ITTZtrHrIL0AGfyo61w==
 
+svelte-migrate@^1.0.0-next.12:
+  version "1.0.0-next.12"
+  resolved "https://registry.yarnpkg.com/svelte-migrate/-/svelte-migrate-1.0.0-next.12.tgz#3bee1c79e07bacc2e9b2fcf02cc80d4f87975ebd"
+  integrity sha512-mdtAnK5ETFuyaOuKQuxNuKIoDtW2Bx39IYjCNMS3ZC/Ppe5QOtnCxG581X2cFZ0ALcVw7Lm9QciDnRe5NwmKkA==
+  dependencies:
+    kleur "^4.1.4"
+    magic-string "^0.26.2"
+    prompts "^2.4.2"
+    tiny-glob "^0.2.9"
+    typescript "^4.7.4"
+
 svelte-preprocess@^4.0.0:
   version "4.10.7"
   resolved "https://registry.yarnpkg.com/svelte-preprocess/-/svelte-preprocess-4.10.7.tgz#3626de472f51ffe20c9bc71eff5a3da66797c362"
@@ -2632,6 +2661,11 @@ typescript@^4.3.5:
   version "4.5.2"
   resolved "https://registry.yarnpkg.com/typescript/-/typescript-4.5.2.tgz#8ac1fba9f52256fdb06fb89e4122fa6a346c2998"
   integrity sha512-5BlMof9H1yGt0P8/WF+wPNw6GfctgGjXp5hkblpyT+8rkASSmkUKMXrxR0Xg8ThVCi/JnHQiKXeBaEwCeQwMFw==
+
+typescript@^4.7.4:
+  version "4.8.3"
+  resolved "https://registry.yarnpkg.com/typescript/-/typescript-4.8.3.tgz#d59344522c4bc464a65a730ac695007fdb66dd88"
+  integrity sha512-goMHfm00nWPa8UvR/CPSvykqf6dVV8x/dp0c5mFTMTIu0u0FlGWRioyy7Nn0PGAdHxpJZnuO/ut+PpQ8UiHAig==
 
 uc.micro@^1.0.1, uc.micro@^1.0.5:
   version "1.0.6"
