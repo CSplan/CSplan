@@ -19,4 +19,9 @@ export class Store<T> implements Readable<T> {
     this.update = store.update
     this.set = store.set
   }
+
+  /** Reset the store to its initial value. */
+  reset(this: Store<T>): void {
+    this.set(structuredClone(this.initialValue))
+  }
 }

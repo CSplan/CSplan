@@ -10,12 +10,18 @@
     // If the user is logged in, initialize settings from cookies
     if (s.isLoggedIn) {
       user.set(s.user)
-      if (s.paymentStatus != null) {
-        paymentStatus.set(s.paymentStatus)
-      }
+    } else {
+      user.reset()
+    }
+    if (s.isLoggedIn && s.paymentStatus != null) {
+      paymentStatus.set(s.paymentStatus)
+    } else {
+      paymentStatus.reset()
     }
     if (s.settings != null) {
       settings.set(s.settings) 
+    } else {
+      settings.reset()
     }
 
     return {}
