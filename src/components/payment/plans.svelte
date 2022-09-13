@@ -1,7 +1,7 @@
 <script lang="ts">
   import AccountTypes from '$lib/account-types'
   import settings from '$stores/settings'
-  import user from '$stores/user'
+  export let user: App.Locals['user']
 </script>
 
 <article class="plans">
@@ -65,7 +65,7 @@
     <ul class="bullet-points">
       <li>Reminder push notifications on iOS</li>
     </ul>
-    {#if $user.isLoggedIn && $user.accountType === AccountTypes.Pro}
+    {#if user?.accountType === AccountTypes.Pro}
       <hr>
       <b>You've already bought CSplan Pro, thank you for your support!</b>
       <a href="/payment">

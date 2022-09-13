@@ -1,11 +1,13 @@
 <script lang="ts">
-  import user from '$stores/user'
   import settings from '$stores/settings'
   import QuickActions from './quick-actions.svelte'
   import cookie from 'js-cookie'
   import { afterNavigate } from '$app/navigation'
   import { onMount } from 'svelte'
   
+  export let user: App.Locals['user']
+  $: isLoggedIn = user != null
+
   function toggleDarkModeCookie(): void {
     // Current value of the setting before being toggled
     const v = cookie.get('DarkMode') === `${true}`
@@ -70,13 +72,13 @@
   <a href="/" class="logo-container">
     <img src="/logo/Dark-CSplan-noslogan.svg" alt="CSplan logo" class="logo">
   </a>
-  {#if $user.isLoggedIn}
-    <span class="account-text-mobile">{$user.email}</span>
+  {#if user != null}
+    <span class="account-text-mobile">{user.email}</span>
   {/if}
   {#each links as link}
-    {#if link.needsLogin && $user.isLoggedIn}
+    {#if link.needsLogin && isLoggedIn}
       <a class="pseudo button" sveltekit:prefetch href={link.href}>{link.title}</a>
-    {:else if !link.needsLogin && !$user.isLoggedIn}
+    {:else if !link.needsLogin && !isLoggedIn}
       <a class="pseudo button" sveltekit:prefetch href={link.href}>{link.title}</a>
     {:else if link.needsLogin == null}
       <a class="pseudo button" sveltekit:prefetch href={link.href}>{link.title}</a>
@@ -84,8 +86,8 @@
   {/each}
 
   <div class="right">
-    {#if $user.isLoggedIn}
-      <span>{$user.email}</span>
+    {#if user != null}
+      <span>{user.email}</span>
       <!-- Quick actions dropdown -->
       <QuickActions/>
     {:else}

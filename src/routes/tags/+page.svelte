@@ -5,36 +5,31 @@
   import Loading from '$components/loading.svelte'
   import Modal from '$components/modals/create-tag-modal.svelte'
   import VerificationBanner from '$components/banner/verification-banner.svelte'
+  import { FormStates as States } from '$lib/form-states'
   import type { PageData } from './$types'
   export let data: PageData
 
   let showModal = false
 
-  const states = {
-    init: 0,
-    resting: 1,
-    error: 2
-  }
-  let state = states.init
-  let stateMsg = ''
+  let state = States.Loading
+  let message = ''
 
   onMount(async () => {
     try {
       await tags.init()
+      state = States.Resting
     } catch (err) {
-      state = state.error
-      stateMsg = err
-      return
+      state = States.Errored
+      message = err instanceof Error ? err.message : `${err}`
     }
-    state = states.resting
   })
 </script>
 
 <Modal bind:show={showModal}/>
 
-{#if state === states.init}
+{#if state === States.Loading}
   <Loading/>
-{:else if state === states.resting}
+{:else if state === States.Resting}
 <main class="container">
   {#if $ordered.length > 0}
     {#each $ordered as tag (tag.id)}
@@ -53,9 +48,9 @@
     <i class="fas fa-plus"></i>
   </div>
 </main>
-{:else if state === states.error}
+{:else if state === States.Errored}
   <main class="container">
-    <pre>{stateMsg}</pre>
+    <pre>{message}</pre>
   </main>
 {/if}
 

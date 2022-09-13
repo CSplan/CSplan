@@ -11,7 +11,7 @@
 </a>
 
 <main class="container">
-  <TodoList id={data.id}/>
+  <TodoList id={data.id} user={data.user}/>
 </main>
 
 <VerificationBanner user={data.user}/>

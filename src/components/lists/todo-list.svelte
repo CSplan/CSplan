@@ -12,10 +12,11 @@
   import DOMPurify from 'dompurify'
   import { FormStates as States } from '$lib/form-states'
   import Limits from '$lib/limits'
-  import user from '$stores/user'
   import AccountTypes from '$lib/account-types'
 
   export let id: string
+  export let user: App.Locals['user']
+  $: isLoggedIn = user != null
 
   // #region State
   let list: List
@@ -215,7 +216,7 @@
   // #region Limits
   let itemLimitHit = false
   $: if (list != null) {
-    const l = $user.isLoggedIn && $user.accountType === AccountTypes.Pro ? Limits.pro : Limits.free
+    const l = isLoggedIn && user!.accountType === AccountTypes.Pro ? Limits.pro : Limits.free
     itemLimitHit = list.items.length >= l.itemsPerList || $itemsTotal >= l.totalItems
   }
   // #endregion 

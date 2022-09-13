@@ -1,7 +1,8 @@
 <script lang="ts">
-  import user from '$stores/user'
   import settings from '$stores/settings'
   let showFeatureCardsMobile = false
+  import type { PageData } from './$types'
+  export let data: PageData
 </script>
 
 <main class="container">
@@ -59,10 +60,10 @@
     </div>
   </section>
 
-  {#if !$user.isLoggedIn}
-  <section class="register-prompt">
-    <a href="/register" class="button bold" title="Register an Account">Register</a>
-  </section>
+  {#if data.user == null}
+    <section class="register-prompt">
+      <a href="/register" class="button bold" title="Register an Account">Register</a>
+    </section>
   {/if}
 </main>
 

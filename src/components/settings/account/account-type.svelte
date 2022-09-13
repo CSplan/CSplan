@@ -1,10 +1,10 @@
 <script lang="ts">
-  import user from '$stores/user'
   import settings from '$stores/settings'
   import AccountTypes from '$lib/account-types'
+  export let user: App.Locals['user']
 
   let planName: string
-  $: if ($user.isLoggedIn) switch ($user.accountType) {
+  $: switch (user?.accountType) {
   case AccountTypes.Pro:
     planName = 'Pro'
     break
@@ -15,7 +15,7 @@
 </script>
 
 <section class="account-type primary">
-  <a href="{$user.isLoggedIn && $user.accountType === AccountTypes.Pro ? '/payment' : '/payment/plans'}">
+  <a href="{user?.accountType === AccountTypes.Pro ? '/payment' : '/payment/plans'}">
   <img src="/logo/plans/{$settings.darkMode ? 'Dark' : 'Light'}-CSplan-{planName}-noslogan.svg" alt="CSplan {planName} Graphic">
   </a>
 </section>
