@@ -21,7 +21,6 @@
     "@typescript-eslint/parser": "^4.29.2",
     "@very-amused/argon2-wasm": "^0.3.1",
     "@very-amused/ed25519-wasm": "^0.1.0",
-    "cookie": "^0.5.0",
     "cs-crypto": "^0.8.0",
     "dompurify": "^2.3.8",
     "js-cookie": "^3.0.1",
@@ -33,7 +32,7 @@
   },
   "devDependencies": {
     "@sveltejs/adapter-node": "^1.0.0-next.77",
-    "@sveltejs/kit": "1.0.0-next.405",
+    "@sveltejs/kit": "^1.0.0-next.480",
     "@types/cookie": "^0.5.1",
     "@types/dompurify": "^2.3.1",
     "@types/js-cookie": "^3.0.2",

@@ -3,7 +3,7 @@
   import { PasswordChangeActions } from '$lib/auth-actions'
   import { makeSalt } from 'cs-crypto'
   import { slide } from 'svelte/transition'
-  import { dev } from '$app/env'
+  import { dev } from '$app/environment'
   import Spinner from '$components/spinner.svelte'
 
   let open = false

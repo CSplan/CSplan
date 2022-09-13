@@ -1,23 +1,11 @@
-<script context="module" lang="ts">
-  import type { Load } from '@sveltejs/kit'
-  export const load: Load = ({ error, status }) => {
-    return {
-      props: {
-        status,
-        message: error?.message
-      }
-    }
-  }
-</script>
-
 <script lang="ts">
-  export let message: string
-  export let status: number
+  import { page } from '$app/stores'
+  $: error = $page.error! // Assert that the error exists, this behavior is found in official SK examples
 </script>
 
 <main class="container">
-  <h1>Error {status}</h1>
-  <pre>{message}</pre>
+  <h1>Error {$page.status}</h1>
+  <pre>{error.message}</pre>
   <a class="pseudo button" sveltekit:prefetch href="/">
     <button class="alt">Go Home</button>
   </a>

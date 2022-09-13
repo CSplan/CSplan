@@ -1,21 +1,7 @@
-import type { Handle, GetSession } from '@sveltejs/kit'
-import type { Settings } from '$stores/settings'
-import type { PaymentStatus } from '$stores/payment-status'
-import type { User } from '$stores/user'
-import AccountTypes from '$lib/account-types'
-import cookie from 'cookie'
+import type { Handle } from '@sveltejs/kit'
+import type AccountTypes from '$lib/account-types'
 import { HTTPerror, route } from '$lib'
-import { dev } from '$app/env'
-
-export type RenderSession = ({
-  isLoggedIn: true
-  user: User
-  paymentStatus?: PaymentStatus
-} | {
-  isLoggedIn: false
-}) & {
-  settings?: Settings
-}
+import { dev } from '$app/environment'
 
 type AuthorizedResponse = {
   userID: string
@@ -31,7 +17,7 @@ function serverRoute(path: string): string {
 }
 
 // Get user appearance settings
-async function getSettings(authCookie: string): Promise<Settings|undefined> {
+async function getSettings(authCookie: string): Promise<App.Locals['settings']|undefined> {
   const res = await fetch(serverRoute('/settings?filter=appearance'), {
     headers: {
       // Cookies have to manually be passed in serverside fetch requests
@@ -45,7 +31,7 @@ async function getSettings(authCookie: string): Promise<Settings|undefined> {
 }
 
 // Get user payment status
-async function getPaymentStatus(authCookie: string): Promise<PaymentStatus|undefined> {
+async function getPaymentStatus(authCookie: string): Promise<App.Locals['paymentStatus']|undefined> {
   const res = await fetch(serverRoute('/payment-status'), {
     headers: {
       Cookie: `Authorization=${authCookie}`
@@ -58,7 +44,7 @@ async function getPaymentStatus(authCookie: string): Promise<PaymentStatus|undef
 }
 
 // Get user and session info
-async function getUser(authCookie: string): Promise<User> {
+async function getUser(authCookie: string): Promise<App.Locals['user']> {
   const res = await fetch(serverRoute('/whoami'), {
     headers: {
       Cookie: `Authorization=${authCookie}`
@@ -70,7 +56,6 @@ async function getUser(authCookie: string): Promise<User> {
 
   const body: AuthorizedResponse = await res.json() // API responses have no 'isLoggedIn' property
   return {
-    isLoggedIn: true,
     id: body.userID,
     email: body.email,
     verified: body.verified,
@@ -80,43 +65,27 @@ async function getUser(authCookie: string): Promise<User> {
 
 // Serverside request hook, used to fetch SSR data
 export const handle: Handle = async ({ event, resolve }) => {
-  const locals = event.locals as RenderSession
-
   // If an authorization cookie is present, assume the user is logged in
-  const cookies = cookie.parse(
-    event.request.headers.get('cookie') || '') as Record<string, string|undefined>
-  const authCookie = cookies['Authorization']
-  locals.isLoggedIn = authCookie !== undefined && authCookie.length > 0
+  const authCookie = event.cookies.get('Authorization')
+  event.locals.isLoggedIn = authCookie !== undefined && authCookie.length > 0
 
-  try {
-    if (locals.isLoggedIn && authCookie != null) {
-      locals.user = await getUser(authCookie)
-      locals.settings = await getSettings(authCookie)
-      locals.paymentStatus = await getPaymentStatus(authCookie)
-    }
-  } catch (err) {
-    locals.isLoggedIn = false
-    locals.settings = {
-      darkMode: cookies['DarkMode'] !== 'false'
+  if (authCookie != null && authCookie.length > 0) {
+    try {
+      event.locals.isLoggedIn = true
+      event.locals.user = await getUser(authCookie)
+      event.locals.settings = await getSettings(authCookie) || {
+        darkMode: event.cookies.get('DarkMode') !== 'false'
+      }
+      event.locals.paymentStatus = await getPaymentStatus(authCookie)
+      return resolve(event)
+    } catch {
+      // pass
     }
   }
 
+  event.locals.isLoggedIn = false
+  event.locals.settings = {
+    darkMode: event.cookies.get('DarkMode') !== 'false'
+  }
   return resolve(event)
-}
-
-// Return a session object based on SSR locals set from cookies
-export const getSession: GetSession = (event) => {
-  const locals = event.locals as RenderSession
-  
-  const session: RenderSession = locals.isLoggedIn ? {
-    isLoggedIn: locals.isLoggedIn,
-    settings: locals.settings,
-    paymentStatus: locals.paymentStatus,
-    user: locals.user
-  } : {
-    isLoggedIn: locals.isLoggedIn,
-    settings: locals.settings
-  }
-  
-  return session
 }

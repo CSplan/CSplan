@@ -1,50 +1,20 @@
-<script context="module" lang="ts">
-  import type { Load } from '@sveltejs/kit'
-  import type { RenderSession } from '$hooks'
-  import settings from '$stores/settings'
-  import paymentStatus from '$stores/payment-status'
-  import user from '$stores/user'
-
-  export const load: Load = ({ session }) => {
-    const s = session as RenderSession
-    // If the user is logged in, initialize settings from cookies
-    if (s.isLoggedIn) {
-      user.set(s.user)
-    } else {
-      user.reset()
-    }
-    if (s.isLoggedIn && s.paymentStatus != null) {
-      paymentStatus.set(s.paymentStatus)
-    } else {
-      paymentStatus.reset()
-    }
-    if (s.settings != null) {
-      settings.set(s.settings) 
-    } else {
-      settings.reset()
-    }
-
-    return {}
-  }
-</script>
-
 <script lang="ts">
-  import type { User } from '$stores/user'
   import Navbar from '$components/navbar/navbar.svelte'
   import { onMount } from 'svelte'
   import { route, csfetch, HTTPerror } from '$lib'
   import AuthError from '$lib/auth-error'
+  import type { LayoutServerData } from './$types'
+  export let data: LayoutServerData
 
   // Authenticate the user before providing clientside login information
   onMount(async () => {
-    if ($user.isLoggedIn) {
+    if (data.isLoggedIn) {
       return
     }
     // eslint-disable-next-line @typescript-eslint/strict-boolean-expressions
-    const localUser: User = JSON.parse(localStorage.getItem('user') || '{}')
+    const localUser: LayoutServerData['user'] = JSON.parse(localStorage.getItem('user') || '{}')
 
     if (localUser.isLoggedIn) {
-      user.set(localUser)
       try {
         const res = await csfetch(route('/whoami'))
         if (res.status === 401) {
@@ -66,7 +36,7 @@
 
 <svelte:head>
   <title>CSplan</title>
-  <link rel="stylesheet" href="/css/theme/{$settings.darkMode ? 'dark' : 'light'}.css">
+  <link rel="stylesheet" href="/css/theme/{data.settings.darkMode ? 'dark' : 'light'}.css">
 </svelte:head>
 
 <Navbar/>

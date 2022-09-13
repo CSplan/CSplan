@@ -1,4 +1,4 @@
-import { dev } from '$app/env'
+import { dev } from '$app/environment'
 import { storage } from '$db/storage'
 
 // Domains that credentials are allowed to be sent to (over HTTPS only)

@@ -8,7 +8,7 @@ import { get } from 'svelte/store'
 import { route, HTTPerror, csfetch } from '$lib'
 import qrcodegen from './qrcodegen'
 import storage from '$db/storage'
-import { dev } from '$app/env'
+import { dev } from '$app/environment'
 import { AuthLevels } from './auth-levels'
 import AccountTypes from '$lib/account-types'
 

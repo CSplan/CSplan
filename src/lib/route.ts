@@ -1,4 +1,4 @@
-import { dev } from '$app/env'
+import { dev } from '$app/environment'
 const staging = import.meta.env.MODE === 'staging'
 
 // Shape routes based on path

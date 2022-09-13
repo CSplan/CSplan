@@ -4,7 +4,7 @@
   import { onMount } from 'svelte'
   import user from '$stores/user'
   import { goto, prefetch } from '$app/navigation'
-  import { dev } from '$app/env'
+  import { dev } from '$app/environment'
   import Spinner from '$components/spinner.svelte'
   import { FormStates as States } from '$lib/form-states'
 

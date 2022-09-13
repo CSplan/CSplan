@@ -1,6 +1,6 @@
 <script>
   import { onMount } from 'svelte'
-  import { dev } from '$app/env'
+  import { dev } from '$app/environment'
   import { csfetch } from '$lib'
 
   onMount(async () => {

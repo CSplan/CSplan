@@ -4,7 +4,7 @@
   import stripeInvoice from '$stores/stripe/invoice'
   import stripeSubscription from '$stores/stripe/subscription'
   import type { Step } from './state'
-  import { browser } from '$app/env'
+  import { browser } from '$app/environment'
   import { page } from '$app/stores'
   import { goto } from '$app/navigation'
   import { onMount } from 'svelte'

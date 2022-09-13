@@ -1,14 +1,6 @@
-<script context="module">
-  export function load({ params }) {
-    return {
-      props: {
-        id: params.id
-      }
-    }
-  }
-</script>
-
 <script>
+  throw new Error("@migration task: Add data prop (https://github.com/sveltejs/kit/discussions/5774#discussioncomment-3292707)");
+
   import TodoList from '$components/lists/todo-list.svelte'
   import VerificationBanner from '$components/banner/verification-banner.svelte'
 
