@@ -1,10 +1,13 @@
-<script>
+<script lang="ts">
   import Tag from '$components/tag.svelte'
   import { onMount } from 'svelte'
   import { ordered, tags } from '$stores/tags'
   import Loading from '$components/loading.svelte'
   import Modal from '$components/modals/create-tag-modal.svelte'
   import VerificationBanner from '$components/banner/verification-banner.svelte'
+  import type { PageData } from './$types'
+  export let data: PageData
+
   let showModal = false
 
   const states = {
@@ -56,8 +59,7 @@
   </main>
 {/if}
 
-<VerificationBanner/>
-
+<VerificationBanner user={data.user}/>
 
 <style lang="scss">
   .card {

@@ -1,8 +1,8 @@
 <script lang="ts">
-  import user from '$stores/user'
+  export let user: App.Locals['user']
 </script>
 
-{#if $user.isLoggedIn && !$user.verified}
+{#if user != null && !user.verified}
   <footer class="verification-banner">
     <i class="fas fa-triangle-exclamation"></i>
     <span>Please verify your CSplan account's email address. Go to <a href="/settings/account">settings</a> to resend a verification email.</span>

@@ -2,7 +2,6 @@
   import { LoginActions, AuthConditions } from '$lib/auth-actions'
   import TwoFactorForm from './2fa-form.svelte'
   import { onMount } from 'svelte'
-  import user from '$stores/user'
   import { goto, prefetch } from '$app/navigation'
   import { dev } from '$app/environment'
   import Spinner from '$components/spinner.svelte'
@@ -72,11 +71,6 @@
   }
 
   onMount(async () => {
-    if ($user.isLoggedIn) {
-      // TODO: Redirects based on login state can be improved with SSR
-      goto('/', { replaceState: true })
-    }
-
     // Initialize argon2 and ed25519 web workers
     const workerScript =
       dev ? 'worker.js' : 'worker.min.js'

@@ -1,6 +1,5 @@
 <script lang="ts">
   import { goto } from '$app/navigation'
-  import user from '$stores/user'
   import { makeSalt } from 'cs-crypto'
   import { onMount } from 'svelte'
   import { RegisterActions } from '$lib/auth-actions'
@@ -55,7 +54,6 @@
       await actions.confirmAccount()
     } catch (err) {
       console.error(err)
-      user.logout()
       state = States.Errored
       message = err instanceof Error ? err.message : err as string
       return
@@ -65,9 +63,6 @@
 
   // Mount
   onMount(async () => {
-    if ($user.isLoggedIn) {
-      goto('/')
-    }
     // Initialize argon2 and ed25519 workers
     const argon2 = new Worker(RegisterActions.Argon2_WorkerPath)
     const ed25519 = new Worker(RegisterActions.ED25519_WorkerPath)

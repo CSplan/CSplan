@@ -1,10 +1,9 @@
-<script>
-  throw new Error("@migration task: Add data prop (https://github.com/sveltejs/kit/discussions/5774#discussioncomment-3292707)");
+<script lang="ts">
+  import type { PageData } from './$types'
+  export let data: PageData
 
   import TodoList from '$components/lists/todo-list.svelte'
   import VerificationBanner from '$components/banner/verification-banner.svelte'
-
-  export let id
 </script>
 
 <a class="back-button" href="/lists" sveltekit:prefetch>
@@ -12,10 +11,10 @@
 </a>
 
 <main class="container">
-  <TodoList {id}/>
+  <TodoList id={data.id}/>
 </main>
 
-<VerificationBanner/>
+<VerificationBanner user={data.user}/>
 
 <style>
   .back-button i {

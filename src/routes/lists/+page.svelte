@@ -1,7 +1,9 @@
-<script>
+<script lang="ts">
   /* eslint-disable */
   import TitleView from '$components/lists/title-view.svelte'
   import VerificationBanner from '$components/banner/verification-banner.svelte'
+  import type { PageData } from './$types'
+  export let data: PageData
 
   // FIXME: this entire route is pretty bad
 </script>
@@ -10,7 +12,7 @@
   <TitleView/>
 </main>
 
-<VerificationBanner/>
+<VerificationBanner user={data.user}/>
 
 <style lang="scss">
   @media all and (min-width: $desktop-min) {
