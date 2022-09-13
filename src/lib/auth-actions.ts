@@ -2,15 +2,14 @@ import { Argon2 } from '@very-amused/argon2-wasm'
 import { ED25519 } from '@very-amused/ed25519-wasm'
 import { encode, aes, rsa, Algorithms, decode, makeSalt } from 'cs-crypto'
 import * as db from '../db'
-import userStore, { type User } from '$stores/user'
 import { sessions as sessionStore } from '$stores/sessions'
-import { get } from 'svelte/store'
 import { route, HTTPerror, csfetch } from '$lib'
 import qrcodegen from './qrcodegen'
 import storage from '$db/storage'
 import { dev } from '$app/environment'
 import { AuthLevels } from './auth-levels'
-import AccountTypes from '$lib/account-types'
+import type AccountTypes from '$lib/account-types'
+import { pageStorage } from './page'
 
 // #region Types
 
@@ -281,15 +280,13 @@ export class LoginActions {
     storage.setCSRFtoken(csrfToken)
 
     // Set logged in state
-    const session: User = {
-      isLoggedIn: true,
+    const session: App.Locals['user'] = {
       email: user.email,
       id: response.userID,
       verified: response.verified,
       accountType: response.accountType
     }
-    userStore.set(session)
-    storage.setUser(session)
+    pageStorage.setJSON('user', session)
     return AuthConditions.Success
   }
 
@@ -321,7 +318,7 @@ export class LoginActions {
 
     // Store keys in IDB
     if (!extractablePrivateKey) { // Extractable private keys are only used for export, and shouldn't be stored
-      const user = get(userStore) as Assert<User, 'isLoggedIn'>
+      const user = pageStorage.getJSON('user')!
       await db.addToStore('keys', {
         id: user.id,
         publicKey,
@@ -448,7 +445,7 @@ export class RegisterActions extends LoginActions {
 
     // Store keys in IDB
     // TODO: store checksum with master keypair
-    const user = get(userStore) as Assert<User, 'isLoggedIn'>
+    const user = pageStorage.getJSON('user')!
     db.addToStore('keys', {
       id: user.id,
       publicKey,
@@ -461,7 +458,7 @@ export class RegisterActions extends LoginActions {
    * accounts will be pruned within one minute of registration if this endpoint isn't hit by then
    */
   async confirmAccount(): Promise<void> {
-    const user = get(userStore) as Assert<User, 'isLoggedIn'>
+    const user = pageStorage.getJSON('user')!
     const res = await csfetch(route(`/confirm_account/${user.id}`), {
       method: 'POST'
     })
@@ -561,10 +558,9 @@ export const EmailChangeActions = {
       const err: ErrorResponse = await res.json()
       throw new Error(err.message || 'Unknown error changing email.')
     }
-    userStore.update((store) => {
-      (store as Assert<User, 'isLoggedIn'>).email = newEmail
-      return store
-    })
+    const user = pageStorage.getJSON('user')!
+    user.email = newEmail
+    pageStorage.setJSON('user', user)
 
     await UpgradeActions.downgrade()
   }
@@ -702,7 +698,7 @@ export const TOTPActions = {
    */
   qr2svg(qr: qrcodegen.QrCode, svg: SVGSVGElement, border: number, lightColor: string, darkColor: string): void {
     if (border < 0) {
-      throw 'Border must be non-negative'
+      throw new Error('Border must be non-negative')
     }
     const parts: string[] = []
     for (let y = 0; y < qr.size; y++) {
