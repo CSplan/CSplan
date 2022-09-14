@@ -1,8 +1,7 @@
 <script lang="ts">
   import SubmitCancel from '$components/forms/submit-cancel.svelte'
   import Modal from './modal.svelte'
-  import userStore from '$stores/user'
-  import { goto } from '$app/navigation'
+  import { userActions } from '$lib/page'
 
   export let show = false
 
@@ -13,8 +12,7 @@
 
 <Modal bind:show>
   <form class="logout" on:submit|preventDefault={() => {
-    userStore.logout()
-    goto('/')
+    userActions.logout()
   }}>
     <h2>Are you sure you want to log out?</h2>
     <SubmitCancel on:cancel={cancel}/>

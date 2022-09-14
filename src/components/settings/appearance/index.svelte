@@ -1,21 +1,35 @@
 <script lang="ts">
-  import settings from '$stores/settings'
+  import { invalidate } from '$app/navigation'
+  import { csfetch, route } from '$lib'
+  export let settings: App.Locals['settings']
+
+  async function saveDarkMode(value: boolean): Promise<void> {
+    const body: App.Locals['settings'] = {
+      darkMode: value
+    }
+    const url = route('/settings')
+    await csfetch(url, {
+      method: 'PATCH',
+      body: JSON.stringify(body)
+    })
+    await invalidate(url)
+  }
 </script>
 
 <section class="settings-menu-container">
   <article class="appearance-menu">
     <div class="setting">
-      <i class="{$settings.darkMode ? 'fas' : 'far'} fa-moon"></i>
+      <i class="{settings.darkMode ? 'fas' : 'far'} fa-moon"></i>
       <header>Dark Mode:
-        <span style:color={$settings.darkMode ? 'var(--success-green)' : 'var(--danger-red)'}>
-          {$settings.darkMode ? 'Enabled' : 'Disabled'} 
+        <span style:color={settings.darkMode ? 'var(--success-green)' : 'var(--danger-red)'}>
+          {settings.darkMode ? 'Enabled' : 'Disabled'} 
         </span>
       </header>
       
-      <i class="clickable checkbox fas {$settings.darkMode ? 'fa-circle-check' : 'fa-circle-xmark'}" on:click={async () => {
-        await settings.saveAndCommit({ darkMode: !$settings.darkMode })
+      <i class="clickable checkbox fas {settings.darkMode ? 'fa-circle-check' : 'fa-circle-xmark'}" on:click={async () => {
+        saveDarkMode(!settings.darkMode)
       }}></i>
-    </div>     
+    </div>
   </article>
 </section>
 

@@ -1,7 +1,7 @@
 <script lang="ts">
-  import settings from '$stores/settings'
   import AccountTypes from '$lib/account-types'
   export let user: App.Locals['user']
+  export let settings: App.Locals['settings']
 
   let planName: string
   $: switch (user?.accountType) {
@@ -16,7 +16,7 @@
 
 <section class="account-type primary">
   <a href="{user?.accountType === AccountTypes.Pro ? '/payment' : '/payment/plans'}">
-  <img src="/logo/plans/{$settings.darkMode ? 'Dark' : 'Light'}-CSplan-{planName}-noslogan.svg" alt="CSplan {planName} Graphic">
+  <img src="/logo/plans/{settings.darkMode ? 'Dark' : 'Light'}-CSplan-{planName}-noslogan.svg" alt="CSplan {planName} Graphic">
   </a>
 </section>
 

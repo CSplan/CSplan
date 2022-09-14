@@ -4,17 +4,19 @@
   import EmailForm from './email-form.svelte'
   import PasswordForm from './password-form.svelte'
   import NameForm from './name-form.svelte'
+  export let user: App.Locals['user']
+  export let settings: App.Locals['settings']
 </script>
 
 <section class="account-menu">
   <article class="submenu account-card">
 
     <ProfilePictureForm/>
-    <AccountTypeGraphic/>
+    <AccountTypeGraphic {user} {settings}/>
     
     <section class="user-details primary" on:submit|preventDefault>
 
-      <EmailForm/>
+      <EmailForm {user}/>
       <hr>
       <PasswordForm/>
       <hr>

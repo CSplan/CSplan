@@ -3,11 +3,10 @@
   import { onMount, tick } from 'svelte'
   import { slide } from 'svelte/transition'
   import { LoginActions, TOTPActions, UpgradeActions } from '$lib/auth-actions'
-  import userStore from '$stores/user'
-  import type { User } from '$stores/user'
   import SecretModal from '$components/modals/totp-secret-modal.svelte'
   import Spinner from '$components/spinner.svelte'
-  import qrcodegen from '$lib/qrcodegen'
+  import type qrcodegen from '$lib/qrcodegen'
+  export let user: App.Locals['user']
 
   // Form state
   let enabled = false
@@ -73,7 +72,7 @@
     // Enable TOTP and display the result
     totpInfo = await TOTPActions.enable()
     state = States.Resting
-    const uri = TOTPActions.URI('CSplan', ($userStore as Assert<User, 'isLoggedIn'>).email, totpInfo.secret)
+    const uri = TOTPActions.URI('CSplan', user!.email, totpInfo.secret)
     qrCode = TOTPActions.qrCode(uri)
     await tick()
     showSecretModal = true

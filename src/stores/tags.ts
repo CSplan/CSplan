@@ -1,7 +1,8 @@
-import { writable, derived, get, Readable } from 'svelte/store'
+import { writable, derived, get } from 'svelte/store'
+import type { Readable } from 'svelte/store'
 import { rsa, aes } from 'cs-crypto'
 import { deleteFromStore, getByKey, mustGetByKey, addToStore } from '../db'
-import userStore, { User } from './user'
+import { pageStorage } from '$lib/page'
 import { HTTPerror, csfetch, route } from '$lib'
 import storage from '$db/storage'
 
@@ -45,7 +46,7 @@ function create(): Readable<Store> & TagStore {
         }
 
         // Decrypt the AES key
-        const user = get(userStore) as Assert<User, 'isLoggedIn'>
+        const user = pageStorage.getJSON('user')!
         const { privateKey } = await mustGetByKey<MasterKeys>('keys', user.id)
         const cryptoKey = await rsa.unwrapKey(tag.meta.cryptoKey, privateKey)
 
@@ -79,7 +80,7 @@ function create(): Readable<Store> & TagStore {
 
       // Encrypt
       const cryptoKey = await aes.generateKey('AES-GCM')
-      const user = get(userStore) as Assert<User, 'isLoggedIn'>
+      const user = pageStorage.getJSON('user')!
       const { publicKey } = await mustGetByKey<MasterKeys>('keys', user.id)
       const encrypted: TagData = await aes.deepEncrypt({
         name: tag.name,

@@ -1,10 +1,11 @@
 import { HTTPerror, route, csfetch } from '$lib'
-import { derived, Readable, writable, get } from 'svelte/store'
+import { derived, writable, get } from 'svelte/store'
+import type { Readable } from 'svelte/store'
 import { aes, rsa } from 'cs-crypto'
 import { mustGetByKey } from '$db'
 import storage from '$db/storage'
-import userStore, { User } from '$stores/user'
-import { AuthLevels } from '$lib/auth-levels'
+import { pageStorage } from '$lib/page'
+import type { AuthLevels } from '$lib/auth-levels'
 
 type Store = {
   [id: string]: Session
@@ -29,7 +30,7 @@ function create(): Readable<Store> & SessionStore {
       const sessions: SessionDocument[] = await res.json()
 
       // Retrieve master cryptokey
-      const user = get(userStore) as Assert<User, 'isLoggedIn'>
+      const user = pageStorage.getJSON('user')!
       const { privateKey } = await mustGetByKey<MasterKeys>('keys', user.id)
 
       for (const session of sessions) {

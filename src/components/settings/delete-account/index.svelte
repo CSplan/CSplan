@@ -5,15 +5,23 @@
   import Spinner from '$components/spinner.svelte'
   import { FormStates as States } from '$lib/form-states'
   import { LoginActions, UpgradeActions } from '$lib/auth-actions'
-  import userStore from '$stores/user'
-  import { goto } from '$app/navigation'
-  import paymentStatus from '$stores/payment-status'
+  import { goto, invalidateAll } from '$app/navigation'
   import AccountTypes from '$lib/account-types'
   import stripeCID from '$stores/stripe/customer-id'
+  export let paymentStatus: App.Locals['paymentStatus']
 
-  // #region Mount
-  // #endregion
-  
+  function formatTimestamp(timestamp: number): string {
+    const d = new Date(timestamp * 1000)
+    
+    // eslint-disable-next-line @typescript-eslint/explicit-function-return-type
+    const pad = (s: number) => s.toString().padStart(2, '0')
+
+    const offsetHours = Math.floor(d.getTimezoneOffset()/60)
+    const offsetMinutes = Math.floor(d.getTimezoneOffset()%60)
+    const offset = `UTC${offsetHours > 0 ? '+' : '-'}${Math.abs(offsetHours).toString().padStart(2, '0')}:${Math.abs(offsetMinutes).toString().padStart(2, '0')}`
+    return `${pad(d.getHours())}:${pad(d.getMinutes())}, ${pad(d.getMonth())}/${pad(d.getDate())}/${d.getFullYear()} ${offset}`
+  }
+
   // #region State
 
   let state = States.Resting
@@ -29,8 +37,8 @@
     confirmed: false
   }
   let paidUntilTimestamp = ''
-  $: if ($paymentStatus.accountType !== AccountTypes.Free) {
-    paidUntilTimestamp = paymentStatus.formatTimestamp($paymentStatus.paidUntil!)
+  $: if (paymentStatus!.accountType !== AccountTypes.Free) {
+    paidUntilTimestamp = formatTimestamp(paymentStatus!.paidUntil!)
   }
   // Password used to upgrade to level 2 auth
   let password = ''
@@ -45,8 +53,7 @@
   // #region Logic
 
   async function preConfirm(): Promise<void> {
-    await paymentStatus.init()
-    if ($paymentStatus.accountType !== AccountTypes.Free && !paidAccountConfirm.confirmed) {
+    if (paymentStatus!.accountType !== AccountTypes.Free && !paidAccountConfirm.confirmed) {
       paidAccountConfirm.show = true
       'You will lose this time with no refund upon account deletion.'
       return
@@ -80,7 +87,7 @@
       let token: string
       {
         const headers: Record<string, string> = {}
-        if ($paymentStatus.accountType !== AccountTypes.Free && paidAccountConfirm.confirmed) {
+        if (paymentStatus!.accountType !== AccountTypes.Free && paidAccountConfirm.confirmed) {
           headers['X-Delete-Paid-Account'] = 'true'
         }
 
@@ -111,8 +118,8 @@
       // Show the user notification that their account has been deleted
       state = States.Saved
       message = 'Your account has been deleted. You will be redirected in 5 seconds.'
-      userStore.logout()
-      setTimeout(() => {
+      setTimeout(async () => {
+        await invalidateAll()
         goto('/')
       }, 5000)
     } catch (err) {

@@ -2,7 +2,7 @@ import { csfetch } from '$lib/csfetch'
 import { HTTPerror } from '$lib/error-format'
 import { route } from '$lib/route'
 import { clearAll } from '$db/index'
-import { goto } from '$app/navigation'
+import { goto, invalidateAll } from '$app/navigation'
 
 export const userActions = {
   async logout(): Promise<void> {
@@ -15,6 +15,8 @@ export const userActions = {
     // Clear IDB and localstorage
     await clearAll()
     localStorage.clear()
+    // Invalidate state
+    await invalidateAll()
     // Redirect to home
     goto('/', {
       replaceState: true

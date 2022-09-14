@@ -1,9 +1,10 @@
 <script lang="ts">
   import KeysMenu from './keys-menu.svelte'
+  export let user: App.Locals['user']
 </script>
 
 <section class="settings-menu-container">
-  <KeysMenu/>
+  <KeysMenu {user}/>
 </section>
 
 <style lang="scss">

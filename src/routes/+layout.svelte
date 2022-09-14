@@ -39,6 +39,6 @@
   <link rel="stylesheet" href="/css/theme/{data.settings.darkMode ? 'dark' : 'light'}.css">
 </svelte:head>
 
-<Navbar user={data.user}/>
+<Navbar user={data.user} settings={data.settings}/>
 
 <slot></slot>

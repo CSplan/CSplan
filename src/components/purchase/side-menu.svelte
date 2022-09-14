@@ -1,13 +1,13 @@
 <script lang="ts">
-  import settings from '$stores/settings'
   import purchaseState from './state'
   import MenuGroup from './menu-group.svelte'
+  export let settings: App.Locals['settings']
 
   $: canMoveBack = $purchaseState.currentStep > $purchaseState.minStep
   $: canMoveForward = $purchaseState.currentStep < $purchaseState.maxStep
 </script>
 
-<article class="side-menu" class:shadow={!$settings.darkMode}>
+<article class="side-menu" class:shadow={!settings.darkMode}>
   {#each $purchaseState.steps as step, i}
     <MenuGroup
     title={step.title}

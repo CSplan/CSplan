@@ -1,5 +1,7 @@
 <script lang="ts">
-  import settings from '$stores/settings'
+  import type { PageData } from './$types'
+  export let data: PageData
+
   type Credit = {
     name: string
     work: string
@@ -54,7 +56,7 @@
 <main class="container">
   <div class="title">
     <h1 class="title">About</h1>
-    <img src="/logo/{$settings.darkMode ? 'Dark' : 'Light'}-CSplan-noslogan.svg" alt="CSplan Logo" class="CSplan-logo">
+    <img src="/logo/{data.settings.darkMode ? 'Dark' : 'Light'}-CSplan-noslogan.svg" alt="CSplan Logo" class="CSplan-logo">
   </div>
 
   <article class="card">
@@ -73,7 +75,7 @@
       {#if credit.links !== undefined}
         <div class="links">
           {#each credit.links as link}
-            {#if $settings.darkMode && link.iconDark != null}
+            {#if data.settings.darkMode && link.iconDark != null}
               <img src={link.iconDark} class="icon" alt="{link.title} icon" title={link.title}>
             {:else if link.icon !== undefined}
               <img src={link.icon} class="icon" alt="{link.title} icon" title={link.title}>

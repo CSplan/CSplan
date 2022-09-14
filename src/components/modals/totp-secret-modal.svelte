@@ -3,7 +3,7 @@
   import { TOTPActions } from '$lib/auth-actions'
   import { tick, createEventDispatcher } from 'svelte'
   import { FormStates as States } from '$lib'
-  import qrcodegen from '$lib/qrcodegen'
+  import type qrcodegen from '$lib/qrcodegen'
   import Modal from './modal.svelte'
 
   const dispatch = createEventDispatcher()

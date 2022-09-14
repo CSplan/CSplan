@@ -1,12 +1,12 @@
 <script lang="ts">
   import AccountTypes from '$lib/account-types'
-  import settings from '$stores/settings'
   export let user: App.Locals['user']
+  export let settings: App.Locals['settings']
 </script>
 
 <article class="plans">
   <div class="plan-info primary">
-    <img src="/logo/plans/{$settings.darkMode ? 'Dark' : 'Light'}-CSplan-Free-noslogan.svg" alt="CSplan Free Logo">
+    <img src="/logo/plans/{settings.darkMode ? 'Dark' : 'Light'}-CSplan-Free-noslogan.svg" alt="CSplan Free Logo">
     <hr>
     <div class="price">
       <span style="font-size: 125%">Free</span>
@@ -31,7 +31,7 @@
   </div>
 
   <div class="plan-info primary">
-    <img src="/logo/plans/{$settings.darkMode ? 'Dark' : 'Light'}-CSplan-Pro-noslogan.svg" alt="CSplan Pro Logo">
+    <img src="/logo/plans/{settings.darkMode ? 'Dark' : 'Light'}-CSplan-Pro-noslogan.svg" alt="CSplan Pro Logo">
     <hr>
     <div class="price">
       <span class="strikethrough">$10/month</span>

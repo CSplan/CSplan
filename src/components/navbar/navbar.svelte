@@ -1,21 +1,23 @@
 <script lang="ts">
-  import settings from '$stores/settings'
   import QuickActions from './quick-actions.svelte'
   import cookie from 'js-cookie'
   import { afterNavigate } from '$app/navigation'
   import { onMount } from 'svelte'
+  import { invalidate } from '$app/navigation'
+  import { route } from '$lib'
   
   export let user: App.Locals['user']
+  export let settings: App.Locals['settings']
   $: isLoggedIn = user != null
 
-  function toggleDarkModeCookie(): void {
+  async function toggleDarkModeCookie(): Promise<void> {
     // Current value of the setting before being toggled
     const v = cookie.get('DarkMode') === `${true}`
     // Update the value in memory state and set a new cookie
-    settings.localPatch( { darkMode: !v })
     cookie.set('DarkMode', `${!v}`, {
       sameSite: 'strict'
     })
+    await invalidate(route('/settings'))
   }
   
   // Re-hide navbar after page navigation
@@ -61,7 +63,7 @@
   }
 </script>
 
-<nav class:dark={$settings.darkMode}>
+<nav class:dark={settings.darkMode}>
   <!-- Magic stuff for mobile -->
   <input id="bmenub" type="checkbox" class="show" bind:checked={show}>
   <label for="bmenub" class="burger pseudo button">
@@ -77,11 +79,11 @@
   {/if}
   {#each links as link}
     {#if link.needsLogin && isLoggedIn}
-      <a class="pseudo button" sveltekit:prefetch href={link.href}>{link.title}</a>
+      <a class="pseudo button" data-sveltekit-prefetch href={link.href}>{link.title}</a>
     {:else if !link.needsLogin && !isLoggedIn}
-      <a class="pseudo button" sveltekit:prefetch href={link.href}>{link.title}</a>
+      <a class="pseudo button" data-sveltekit-prefetch href={link.href}>{link.title}</a>
     {:else if link.needsLogin == null}
-      <a class="pseudo button" sveltekit:prefetch href={link.href}>{link.title}</a>
+      <a class="pseudo button" data-sveltekit-prefetch href={link.href}>{link.title}</a>
     {/if}
   {/each}
 
@@ -91,11 +93,11 @@
       <!-- Quick actions dropdown -->
       <QuickActions/>
     {:else}
-      <i class="darkmode-indicator clickable {$settings.darkMode ? 'fas' : 'far'} fa-moon" on:click={() => {
+      <i class="darkmode-indicator clickable {settings.darkMode ? 'fas' : 'far'} fa-moon" on:click={() => {
         toggleDarkModeCookie()
       }}></i>
-      <a class="pseudo button login" sveltekit:prefetch href="/login">Log In</a>
-      <a class="pseudo button register" sveltekit:prefetch href="/register">Register</a>
+      <a class="pseudo button login" data-sveltekit-prefetch href="/login">Log In</a>
+      <a class="pseudo button register" data-sveltekit-prefetch href="/register">Register</a>
     {/if}
   </div>
   </div>

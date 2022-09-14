@@ -6,7 +6,7 @@
   import VerificationBanner from '$components/banner/verification-banner.svelte'
 </script>
 
-<a class="back-button" href="/lists" sveltekit:prefetch>
+<a class="back-button" href="/lists" data-sveltekit-prefetch>
   <i class="fas fa-arrow-left"></i>
 </a>
 

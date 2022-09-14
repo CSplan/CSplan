@@ -6,7 +6,7 @@
 <main class="container">
   <h1>Error {$page.status}</h1>
   <pre>{error.message}</pre>
-  <a class="pseudo button" sveltekit:prefetch href="/">
+  <a class="pseudo button" data-sveltekit-prefetch href="/">
     <button class="alt">Go Home</button>
   </a>
 </main>

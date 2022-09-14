@@ -1,10 +1,11 @@
 <script lang="ts">
   import TOTPForm from './totp-form.svelte'
+  export let user: App.Locals['user']
 </script>
 
 <section class="settings-menu-container">
   <article class="twofactor-menu">
-    <TOTPForm/>
+    <TOTPForm {user}/>
   </article>
 </section>
 

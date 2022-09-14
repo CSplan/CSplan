@@ -1,9 +1,9 @@
 <script lang="ts">
   import MenuGroup from './menu-group.svelte'
-  import settings from '$stores/settings'
+  export let settings: App.Locals['settings']
 </script>
 
-<div class="side-menu" class:shadow={!$settings.darkMode}>
+<div class="side-menu" class:shadow={!settings.darkMode}>
   <MenuGroup href="/settings/account" title="Account" icon="fas fa-user"/>
   <MenuGroup href="/settings/appearance" title="Appearance" icon="fas fa-palette"/>
   <MenuGroup href="/payment" title="CSplan Pro" icon="fad fa-credit-card" color="var(--success-green)"/>

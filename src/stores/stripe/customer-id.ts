@@ -1,8 +1,8 @@
 import { mustGetByKey, addToStore, getByKey } from '$db'
 import { csfetch, HTTPerror, route } from '$lib'
-import userStore, { User } from '$stores/user'
 import { Store } from '../store'
 import { aes, rsa } from 'cs-crypto'
+import { pageStorage } from '$lib/page'
 
 export type StripeCustomerID<E extends boolean = false> = (E extends true ? Meta : MetaState) & {
   exists: true
@@ -43,7 +43,7 @@ class StripeCustomerIDStore extends Store<StripeCustomerID> {
 
     const body: Assert<StripeCustomerID<true>, 'exists'> & Meta = await res.json()
     // Decrypt the customer ID information
-    const user = Store.get(userStore) as Assert<User, 'isLoggedIn'>
+    const user = pageStorage.getJSON('user')!
     const cached = await getByKey<StripeCustomerID & MetaState>('stripe/customer-id', user.id)
     if (cached != null && cached.exists && cached.checksum === body.meta.checksum) {
       this.set(cached)
@@ -83,7 +83,7 @@ class StripeCustomerIDStore extends Store<StripeCustomerID> {
     const body: Assert<StripeCustomerID<true>, 'exists'> & Meta = await res.json()
 
     // Decrypt the response body
-    const user = Store.get(userStore) as Assert<User, 'isLoggedIn'>
+    const user = pageStorage.getJSON('user')!
     const { privateKey } = await mustGetByKey<MasterKeys>('keys', user.id)
     const cryptoKey = await rsa.unwrapKey(body.meta.cryptoKey, privateKey, 'AES-GCM')
     const final: StripeCustomerID & KeyedObject<'userID'> = {
@@ -122,7 +122,7 @@ class StripeCustomerIDStore extends Store<StripeCustomerID> {
 
     // Decode response body
     const body: { meta: { checksum: string } } = await res.json()
-    const user = Store.get(userStore) as Assert<User, 'isLoggedIn'>
+    const user = pageStorage.getJSON('user')!
     const final: Assert<StripeCustomerID, 'exists'> & KeyedObject<'userID'> = {
       ...await mustGetByKey('stripe/customer-id', user.id),
       address,

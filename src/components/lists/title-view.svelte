@@ -8,7 +8,7 @@
   import DeleteConfirmationModal from '$components/modals/confirm-modal.svelte'
   // Only used on mobile
   import EditMenu from './list-edit-dropdown.svelte'
-  import settings from '$stores/settings'
+  export let settings: App.Locals['settings']
 
   let showDeleteConfirmationModal = false
 
@@ -61,7 +61,6 @@
   let initPromise: Promise<void>
   onMount(() => {
     initPromise = store.init()
-    isMobile = window.outerWidth <= 849
   })
 
   // Delete confirmation
@@ -91,8 +90,6 @@
   }
 
   // #region Mobile mode-based interface
-
-  let isMobile = false
 
   let showEditMenu: { [id: string]: boolean } = {}
 
@@ -133,7 +130,7 @@
   {#if $ordered.length > 0}
   {#each $ordered as list, i (list.id)}
     <div animate:flip={{ duration: 200 }} class="row list-{list.id} {!list.title.length && 'empty'}"
-      class:highlighted={highlightRow[list.id]} class:dark={$settings.darkMode}
+      class:highlighted={highlightRow[list.id]} class:dark={settings.darkMode}
       on:dragover|preventDefault={() => ondragover(list.id)}
       on:dragleave|preventDefault={() => ondragleave(list.id)}
       on:dragexit|preventDefault={() => ondragleave(list.id)}
@@ -144,7 +141,7 @@
           <p class="item-count">{completedItems(list.items)}/{list.items.length}</p>
         </div>
 
-        <a href="/lists/{list.id}" sveltekit:prefetch draggable="false" class="list-link"><div></div></a> <!-- draggable="false" is needed to override default the default html assumption that links can be dragged,
+        <a href="/lists/{list.id}" data-sveltekit-prefetch draggable="false" class="list-link"><div></div></a> <!-- draggable="false" is needed to override default the default html assumption that links can be dragged,
           inside div supresses compiler warning that <a> elements must contain children -->
         
       </div>
@@ -170,7 +167,7 @@
       <!-- Group the clickable white space to the right of the list title and the drag/delete buttons to the side for alignment purposes -->
       <div class="row-end">
 
-        <a href="/lists/{list.id}" sveltekit:prefetch draggable="false" class="list-link"><div></div></a>
+        <a href="/lists/{list.id}" data-sveltekit-prefetch draggable="false" class="list-link"><div></div></a>
 
         <div class="icons">
           <!-- Up-down arrows for moving list position -->
@@ -227,11 +224,11 @@
       <div class="row"><Spinner size="1.5rem" vm="0.5rem"/></div>
     {/if}
   {:else}
-    <div class="row-center border" class:dark={$settings.darkMode}>
+    <div class="row-center border" class:dark={settings.darkMode}>
       <header>It's empty here...</header>
     </div>
   {/if}
-  <CreateListForm>
+  <CreateListForm {settings}>
     <svelte:fragment slot="icon">
       {#if $ordered.length === 0}
         <button class="bold">Create List</button>

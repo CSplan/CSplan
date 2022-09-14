@@ -1,8 +1,5 @@
 <script lang="ts">
   import LoginForm from '$components/auth/login-form.svelte'
-  import type { PageData } from './$types'
-
-  export let data: PageData
 </script>
 
 <main>

@@ -1,5 +1,4 @@
-import { AuthLevels } from '$lib/auth-levels'
-import { User } from '$stores/user'
+import type { AuthLevels } from '$lib/auth-levels'
 
 /** localStorage keys */
 export const enum Keys {
@@ -15,13 +14,6 @@ export const storage = {
   },
   setCSRFtoken(token: string): void {
     localStorage.setItem(Keys.CSRF, token)
-  },
-
-  getUser(): User {
-    return JSON.parse(localStorage.getItem(Keys.User)!)
-  },
-  setUser(user: User): void {
-    localStorage.setItem(Keys.User, JSON.stringify(user))
   },
 
   getAuthLevel(): AuthLevels {

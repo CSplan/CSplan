@@ -3,8 +3,9 @@
   import { FormStates as States } from '$lib/form-states'
   import { slide } from  'svelte/transition'
   import Spinner from '$components/spinner.svelte'
-  import userStore from '$stores/user'
   import { EmailChangeActions, LoginActions } from '$lib/auth-actions'
+  import { userActions } from '$lib/page'
+  export let user: App.Locals['user']
 
   let open = false
   $: open = $navState.isEditing === FormIDs.ChangeEmail
@@ -17,7 +18,7 @@
   }
 
   let unverified = false
-  $: unverified = $userStore.isLoggedIn && !$userStore.verified
+  $: unverified = !user?.verified
 
   let form: HTMLFormElement
   let newEmail: HTMLInputElement
@@ -67,7 +68,7 @@
   async function sendVerificationEmail(): Promise<void> {
     try {
       state = States.Saving
-      await userStore.sendVerificationEmail()
+      await userActions.sendVerificationEmail()
     } catch (err) {
       state = States.Errored
       message = err instanceof Error ? err.message : `${err}`
@@ -83,12 +84,12 @@
 
 </script>
 
-{#if $userStore.isLoggedIn}
+{#if user != null}
 <form class="email-form" novalidate on:submit|preventDefault={changeEmail} bind:this={form}>
   <label for="email">
     <span>Email</span>
     <div class="input-group">
-      <input id="email" type="email" value={$userStore.email} disabled={true} class:unverified>
+      <input id="email" type="email" value={user.email} disabled={true} class:unverified>
       <i class="fas fa-edit clickable" class:open on:click={toggleOpen}></i>
     </div>
   </label>

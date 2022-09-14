@@ -1,10 +1,10 @@
 import { aes, rsa } from 'cs-crypto'
-import { Readable, writable, get } from 'svelte/store'
+import { writable } from 'svelte/store'
+import type { Readable } from 'svelte/store'
 import { HTTPerror, DisplayNames, Visibilities, route, csfetch } from '$lib'
-import { mustGetByKey, addToStore, getByKey, addToStore } from '$db'
-import  userStore from './user'
-import type { User } from './user'
+import { mustGetByKey, getByKey, addToStore } from '$db'
 import storage from '$db/storage'
+import { pageStorage } from '$lib/page'
 
 function create(): Readable<Name> & SingleResourceStore<NameData> {
   let initialized = false
@@ -28,7 +28,7 @@ function create(): Readable<Name> & SingleResourceStore<NameData> {
         return
       }
 
-      const user = get(userStore) as Assert<User, 'isLoggedIn'>
+      const user = pageStorage.getJSON('user')!
       const res = await csfetch(route('/name'), {
         method: 'GET',
         headers: {
@@ -92,7 +92,7 @@ function create(): Readable<Name> & SingleResourceStore<NameData> {
         throw new TypeError(`Expected type object, received type ${typeof name}`)
       }
       // Get the user's ID
-      const user = get(userStore) as Assert<User, 'isLoggedIn'>
+      const user = pageStorage.getJSON('user')!
 
       // Generate a key if there are any fields that need to be encrypted
       const visibility = name.visibility

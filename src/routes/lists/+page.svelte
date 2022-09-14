@@ -9,7 +9,7 @@
 </script>
 
 <main class="container">
-  <TitleView/>
+  <TitleView settings={data.settings}/>
 </main>
 
 <VerificationBanner user={data.user}/>

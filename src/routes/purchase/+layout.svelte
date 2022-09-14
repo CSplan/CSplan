@@ -1,9 +1,11 @@
 <script lang="ts">
   import SideMenu from '$components/purchase/side-menu.svelte'
+  import type { LayoutData } from './$types'
+  export let data: LayoutData
 </script>
 
 <main class="container">
-  <SideMenu/>
+  <SideMenu settings={data.settings}/>
   <div class="current-menu">
     <slot></slot>
   </div>

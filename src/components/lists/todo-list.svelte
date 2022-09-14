@@ -184,12 +184,12 @@
     evt.dataTransfer!.setData('text/plain', index.toString())
   }
 
-  function ondragover(evt: DragEvent, index: number): void {
+  function ondragover(_: DragEvent, index: number): void {
     // Apply a blue higlight
     highlightRow[index] = true
   }
 
-  function ondragleave(evt: DragEvent, index: number): void {
+  function ondragleave(_: DragEvent, index: number): void {
     // Remove highlight
     highlightRow[index] = false
   }

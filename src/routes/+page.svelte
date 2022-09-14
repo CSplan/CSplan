@@ -1,12 +1,11 @@
 <script lang="ts">
-  import settings from '$stores/settings'
   let showFeatureCardsMobile = false
   import type { PageData } from './$types'
   export let data: PageData
 </script>
 
 <main class="container">
-  <img src="/logo/{$settings.darkMode ? 'Dark' : 'Light'}-CSplan.svg" alt="CSplan: Own your time." class="title-logo">
+  <img src="/logo/{data.settings.darkMode ? 'Dark' : 'Light'}-CSplan.svg" alt="CSplan: Own your time." class="title-logo">
 
   <section class="summary">
     <p>

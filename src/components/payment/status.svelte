@@ -1,15 +1,27 @@
 <script lang="ts">
-  import paymentStatus from '$stores/payment-status'
   import stripeSubscription from '$stores/stripe/subscription'
-  import settings from '$stores/settings'
   import AccountTypes from '$lib/account-types'
   import Spinner from '$components/spinner.svelte'
-  import { FormStates as States } from '$lib'
+  import { FormStates as States, route } from '$lib'
+  import { invalidate } from '$app/navigation'
+  export let settings: App.Locals['settings']
+  export let paymentStatus: App.Locals['paymentStatus']
 
+  function formatTimestamp(timestamp: number): string {
+    const d = new Date(timestamp * 1000)
+    
+    // eslint-disable-next-line @typescript-eslint/explicit-function-return-type
+    const pad = (s: number) => s.toString().padStart(2, '0')
+
+    const offsetHours = Math.floor(d.getTimezoneOffset()/60)
+    const offsetMinutes = Math.floor(d.getTimezoneOffset()%60)
+    const offset = `UTC${offsetHours > 0 ? '+' : '-'}${Math.abs(offsetHours).toString().padStart(2, '0')}:${Math.abs(offsetMinutes).toString().padStart(2, '0')}`
+    return `${pad(d.getHours())}:${pad(d.getMinutes())}, ${pad(d.getMonth())}/${pad(d.getDate())}/${d.getFullYear()} ${offset}`
+  }
   
   let isPaid = false
   let planName: string
-  $: switch ($paymentStatus.accountType) {
+  $: switch (paymentStatus!.accountType) {
   case AccountTypes.Pro:
     planName = 'Pro'
     isPaid = true
@@ -32,13 +44,10 @@
       await stripeSubscription.cancel()
       subCancelState = States.Saved
       message = 'Your CSplan Pro subscription has been canceled.'
-      paymentStatus.update((store) => {
-        store.subscribed = 0
-        return store
-      })
-      setTimeout(() => {
+      setTimeout(async () => {
         subCancelState = States.Resting
         message = ''
+        invalidate(route('/payment-status'))
       }, 3000)
     } catch (err) {
       subCancelState = States.Errored
@@ -48,9 +57,9 @@
 </script>
 
 <article class="payment-status primary">
-  <img src="/logo/plans/{$settings.darkMode ? 'Dark' : 'Light'}-CSplan-{planName}-noslogan.svg" alt="CSplan {planName} Graphic">
+  <img src="/logo/plans/{settings.darkMode ? 'Dark' : 'Light'}-CSplan-{planName}-noslogan.svg" alt="CSplan {planName} Graphic">
   <p>
-    {#if $paymentStatus.accountType === AccountTypes.Free}
+    {#if paymentStatus?.accountType === AccountTypes.Free}
       You're using CSplan's free version. <a href="/payment/plans">Upgrade to CSplan Pro</a> to store more plans and unlock additional features.
     {:else}
       <span style:color="var(--success-green)">You're using CSplan {planName}.</span> Thank you for the support!
@@ -61,23 +70,23 @@
     <p class="detail-label">Account Type:</p>
     <p class="value">CSplan {planName}</p>
 
-    {#if isPaid}
-      {#if $paymentStatus.paidUntil != null}
+    {#if isPaid && paymentStatus != null}
+      {#if paymentStatus.paidUntil != null}
         <p class="detail-label">Paid Until:</p>
-        <p class="value" title="All payments are truncated to midnight UTC for privacy purposes. Payment can be completed up to 24 hours later than this time before account features will be lost.">{paymentStatus.formatTimestamp($paymentStatus.paidUntil)}</p>
+        <p class="value" title="All payments are truncated to midnight UTC for privacy purposes. Payment can be completed up to 24 hours later than this time before account features will be lost.">{formatTimestamp(paymentStatus.paidUntil)}</p>
       {/if}
       <p class="detail-label">Subscription:</p>
-      <p class="value">{$paymentStatus.subscribed > 0 ? 'Active (Monthly)' : 'None (Prepaid)'}</p>
+      <p class="value">{paymentStatus.subscribed > 0 ? 'Active (Monthly)' : 'None (Prepaid)'}</p>
     {/if}
   </section>
 
   <a href="/payment/plans">
-    <button style:background="var(--{$settings.darkMode ? 'background-lessdark' : 'background-dark'})"
-    style:border={$settings.darkMode ? '1px solid var(--border-normal)' : 'none'}>
+    <button style:background="var(--{settings.darkMode ? 'background-lessdark' : 'background-dark'})"
+    style:border={settings.darkMode ? '1px solid var(--border-normal)' : 'none'}>
       Plans
     </button>
   </a>
-  {#if $paymentStatus.subscribed > 0 || subCancelState === States.Saved}
+  {#if (paymentStatus != null && paymentStatus.subscribed > 0) || subCancelState === States.Saved}
     <button style:background="var(--danger-red)" on:click={cancelSubscription}>
       Cancel Subscription
     </button>

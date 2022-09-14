@@ -1,7 +1,7 @@
 <script lang="ts">
-  import user from '$stores/user'
   import { fly } from 'svelte/transition'
   import { userPFP } from '$stores/user-profile-picture'
+  import { userActions } from '$lib/page'
 
   let show = false
   function toggle(): void {
@@ -27,12 +27,12 @@
           <i class="fad fa-credit-card" style:color="var(--success-green)"/>
           CSplan Pro
         </a>
-        <a href="/info" sveltekit:prefetch>
+        <a href="/info" data-sveltekit-prefetch>
           <i class="fas fa-book"></i>
           Information
         </a>
         <button class="transparent" on:click={() => {
-          user.logout()
+          userActions.logout()
         }}>
           Log Out
         </button>

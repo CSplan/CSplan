@@ -8,8 +8,7 @@
   import purchaseState, { PlanTypes } from '../state'
   import type { Readable } from 'svelte/store'
   import { route } from '$lib'
-  import paymentStatus, { PaymentStatus } from '$stores/payment-status'
-  import { goto } from '$app/navigation'
+  import { goto, invalidate } from '$app/navigation'
   import { FormStates as States } from '$lib'
   import Spinner from '$components/spinner.svelte'
 
@@ -42,13 +41,12 @@
   }
 
   // Handle payment event ws notification
-  function onPaymentNotif(evt: MessageEvent<string>): void {
-    const body: PaymentStatus = JSON.parse(evt.data)
-    paymentStatus.set(body)
+  function onPaymentNotif(): void {
     state = States.Saved
     message = 'Thank you for supporting CSplan! Redirecting in 5 seconds.'
     setTimeout(async () => {
       // Navigate to payment status page, reset purchase state
+      await invalidate(route('/payment-status')) 
       await goto('/payment', {
         replaceState: true
       })

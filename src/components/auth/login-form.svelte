@@ -2,7 +2,7 @@
   import { LoginActions, AuthConditions } from '$lib/auth-actions'
   import TwoFactorForm from './2fa-form.svelte'
   import { onMount } from 'svelte'
-  import { goto, prefetch } from '$app/navigation'
+  import { goto, invalidateAll } from '$app/navigation'
   import { dev } from '$app/environment'
   import Spinner from '$components/spinner.svelte'
   import { FormStates as States } from '$lib/form-states'
@@ -49,7 +49,8 @@
       await actions.retrieveMasterKeypair(password.value)
       state = States.Saved
       message = 'Successfully logged in'
-      await prefetch('/')
+      await invalidateAll()
+      goto('/', { replaceState: true })
     } catch (err) {
       if (err instanceof Error) {
         message = err.message
@@ -59,7 +60,6 @@
       state = States.Errored
       return
     }
-    goto('/', { replaceState: true })
   }
 
   function onTOTPSubmit(evt: { detail: number }): void {
