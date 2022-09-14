@@ -13,6 +13,9 @@
       min-width: 800px;
       max-width: 1200px;
     }
+    @media (max-width: $mobile-max) {
+      width: 100%;
+    }
     :global {
       p {
         margin: 0.5rem;

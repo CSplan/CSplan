@@ -21,6 +21,4 @@ declare namespace App {
       darkMode: boolean
     }
   }
-
-  import LayoutServerData = App.Locals
 }

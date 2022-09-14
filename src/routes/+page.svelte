@@ -1,7 +1,8 @@
 <script lang="ts">
-  let showFeatureCardsMobile = false
+  import AccountTypes from '$lib/account-types'
   import type { PageData } from './$types'
   export let data: PageData
+  let showFeatureCardsMobile = false
 </script>
 
 <main class="container">
@@ -9,10 +10,38 @@
 
   <section class="summary">
     <p>
-      CSplan is a time management and project planning suite that stores data with <b>full zero-knowledge encryption.</b> With CSplan, you can create lists, write down plans (including titles, descriptions, and color-coded tags), and track progress for each item on every list. Time is always moving, CSplan helps you move with it.
+      CSplan is a time management and project planning suite that stores data with <b>zero-knowledge encryption.</b> With CSplan, you can create lists, write down plans (including titles, descriptions, and color-coded tags), and track progress for each item on every list.<br>
+      <span class="end"><u>Time is always moving, CSplan helps you move with it.</u></span>
     </p>
   </section>
 
+  {#if data.user != null}
+  <section class="action-buttons">
+    <a href="/lists" data-sveltekit-prefetch>
+      <button>
+        <i class="fas fa-list" style:color="var(--bold-blue)"></i>
+        My Lists
+      </button>
+    </a>
+    <a href="/tags" data-sveltekit-prefetch>
+      <button>
+        <i class="fas fa-tag" style:color="var(--bold-blue)"></i>
+        My Tags
+      </button>
+    </a>
+  </section> 
+  {#if data.paymentStatus?.accountType === AccountTypes.Free}
+  <section class="action-buttons">
+    <a href="/payment/plans">
+      <button>
+        <i class="fad fa-credit-card" style:color="var(--success-green)"></i>
+        CSplan Pro
+      </button>
+    </a>
+  </section>
+  {/if}
+
+  {:else}
   <button class="learn-more" class:rotate={showFeatureCardsMobile} on:pointerup={() => {
     showFeatureCardsMobile = !showFeatureCardsMobile
   }}>
@@ -58,6 +87,7 @@
       </p>
     </div>
   </section>
+  {/if}
 
   {#if data.user == null}
     <section class="register-prompt">
@@ -73,12 +103,20 @@
   }
 
   .summary {
-    padding-right: 10%;
     @media (min-width: $desktop-min) {
-      padding-left: 10%;
       text-align: center;
+      padding-left: 10%;
+      padding-right: 10%;
+    }
+    @media(max-width: $mobile-max) {
+      padding-right: 5%;
     }
     font-size: 110%;
+    span.end {
+      text-align: center;
+      display: inline-block;
+      line-height: 1.75;
+    }
   }
 
   button.learn-more {
@@ -162,6 +200,27 @@
       padding: 1rem 5rem;
       font-size: 150%;
       font-weight: bold;
+    }
+  }
+
+  .action-buttons {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    button {
+      padding: 1rem 3rem;
+      @media (min-width: $desktop-min) {
+        font-size: 140%;
+      }
+      @media (max-width: $mobile-max) {
+        font-size: 125%;
+      }
+      font-weight: bold;
+      background-color: $bg-primary;
+    }
+    a {
+      margin-right: 1rem;
+      margin-left: 1rem;
     }
   }
 

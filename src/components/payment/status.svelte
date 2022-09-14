@@ -104,15 +104,20 @@
   article.payment-status {
     @media (min-width: $desktop-min) {
       margin-top: 25px;
+      img {
+        max-width: 375px;
+      }
+    }
+    @media (max-width: $mobile-max) {
+      img {
+        max-width: 300px;
+      }
     }
     border: 1px solid $border-normal;
     padding: $padding-m;
     display: flex;
     flex-direction: column;
     align-items: center;
-    img {
-      max-width: 375px;
-    }
     >p {
       font-size: 110%;
       margin: 0.8rem;
@@ -120,6 +125,7 @@
     hr {
       width: 100%;
     }
+    max-width: 100%;
   }
 
   section.details {

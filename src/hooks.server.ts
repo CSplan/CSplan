@@ -70,7 +70,7 @@ async function getUser(authCookie: string): Promise<App.Locals['user']> {
 export const handle: Handle = async ({ event, resolve }) => {
   // If an authorization cookie is present, assume the user is logged in
   const authCookie = event.cookies.get('Authorization')
-  event.locals.isLoggedIn = authCookie !== undefined && authCookie.length > 0
+  event.locals.isLoggedIn = authCookie != null && authCookie.length > 0
 
   if (authCookie != null && authCookie.length > 0) {
     try {

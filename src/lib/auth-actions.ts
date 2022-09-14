@@ -30,6 +30,7 @@ export type ChallengeResponse = {
   sessionID: string
   verified: boolean
   accountType: AccountTypes
+  authLevel: number
 }
 type RegisterRequest = {
   email: string
@@ -284,7 +285,8 @@ export class LoginActions {
       email: user.email,
       id: response.userID,
       verified: response.verified,
-      accountType: response.accountType
+      accountType: response.accountType,
+      authLevel: response.authLevel
     }
     pageStorage.setJSON('user', session)
     return AuthConditions.Success
