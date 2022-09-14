@@ -10,6 +10,7 @@ declare namespace App {
       email: string
       verified: boolean
       accountType: import('$lib/account-types').AccountTypes
+      authLevel: number
     }
     paymentStatus?: {
       accountType: import('$lib/account-types').AccountTypes // TODO: dedup accountType prop

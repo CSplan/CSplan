@@ -9,6 +9,7 @@ type AuthorizedResponse = {
   email: string
   verified: boolean
   accountType: AccountTypes
+  authLevel: number
 }
 
 // Create a full URL for use in SSR requests
@@ -59,9 +60,11 @@ async function getUser(authCookie: string): Promise<App.Locals['user']> {
     id: body.userID,
     email: body.email,
     verified: body.verified,
-    accountType: body.accountType
+    accountType: body.accountType,
+    authLevel: body.authLevel
   }
 }
+
 
 // Serverside request hook, used to fetch SSR data
 export const handle: Handle = async ({ event, resolve }) => {
@@ -79,7 +82,8 @@ export const handle: Handle = async ({ event, resolve }) => {
       event.locals.paymentStatus = await getPaymentStatus(authCookie)
       return resolve(event)
     } catch {
-      // pass
+      delete event.locals.user
+      delete event.locals.paymentStatus
     }
   }
 
@@ -87,5 +91,6 @@ export const handle: Handle = async ({ event, resolve }) => {
   event.locals.settings = {
     darkMode: event.cookies.get('DarkMode') !== 'false'
   }
+
   return resolve(event)
 }

@@ -46,10 +46,10 @@
     message = 'Thank you for supporting CSplan! Redirecting in 5 seconds.'
     setTimeout(async () => {
       // Navigate to payment status page, reset purchase state
-      await invalidateAll()
       await goto('/payment', {
         replaceState: true
       })
+      await invalidateAll()
       purchaseState.set(structuredClone(purchaseState.initialValue))
     }, 5000)
   }

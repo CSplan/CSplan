@@ -3,7 +3,6 @@
   import cookie from 'js-cookie'
   import { afterNavigate, invalidateAll } from '$app/navigation'
   import { onMount } from 'svelte'
-  import { route } from '$lib'
   
   export let user: App.Locals['user']
   export let settings: App.Locals['settings']

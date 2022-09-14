@@ -15,12 +15,12 @@ export const userActions = {
     // Clear IDB and localstorage
     await clearAll()
     localStorage.clear()
-    // Invalidate state
-    await invalidateAll()
     // Redirect to home
-    goto('/', {
+    await goto('/', {
       replaceState: true
     })
+    // Invalidate state
+    await invalidateAll()
   },
   async sendVerificationEmail(): Promise<void> {
     const res = await csfetch(route('/send-verification-email'), {

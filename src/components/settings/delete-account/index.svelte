@@ -119,8 +119,8 @@
       state = States.Saved
       message = 'Your account has been deleted. You will be redirected in 5 seconds.'
       setTimeout(async () => {
+        await goto('/')
         await invalidateAll()
-        goto('/')
       }, 5000)
     } catch (err) {
       state = States.Errored

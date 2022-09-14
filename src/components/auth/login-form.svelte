@@ -49,8 +49,8 @@
       await actions.retrieveMasterKeypair(password.value)
       state = States.Saved
       message = 'Successfully logged in'
+      await goto('/lists', { replaceState: true })
       await invalidateAll()
-      goto('/', { replaceState: true })
     } catch (err) {
       if (err instanceof Error) {
         message = err.message
