@@ -1,9 +1,8 @@
 <script lang="ts">
   import QuickActions from './quick-actions.svelte'
   import cookie from 'js-cookie'
-  import { afterNavigate } from '$app/navigation'
+  import { afterNavigate, invalidateAll } from '$app/navigation'
   import { onMount } from 'svelte'
-  import { invalidate } from '$app/navigation'
   import { route } from '$lib'
   
   export let user: App.Locals['user']
@@ -17,7 +16,7 @@
     cookie.set('DarkMode', `${!v}`, {
       sameSite: 'strict'
     })
-    await invalidate(route('/settings'))
+    await invalidateAll()
   }
   
   // Re-hide navbar after page navigation

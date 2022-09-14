@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { invalidate } from '$app/navigation'
+  import { invalidateAll } from '$app/navigation'
   import { csfetch, route } from '$lib'
   export let settings: App.Locals['settings']
 
@@ -7,12 +7,11 @@
     const body: App.Locals['settings'] = {
       darkMode: value
     }
-    const url = route('/settings')
-    await csfetch(url, {
+    await csfetch(route('/settings'), {
       method: 'PATCH',
       body: JSON.stringify(body)
     })
-    await invalidate(url)
+    await invalidateAll()
   }
 </script>
 

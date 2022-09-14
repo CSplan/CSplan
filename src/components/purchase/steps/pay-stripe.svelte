@@ -8,7 +8,7 @@
   import purchaseState, { PlanTypes } from '../state'
   import type { Readable } from 'svelte/store'
   import { route } from '$lib'
-  import { goto, invalidate } from '$app/navigation'
+  import { goto, invalidateAll } from '$app/navigation'
   import { FormStates as States } from '$lib'
   import Spinner from '$components/spinner.svelte'
 
@@ -46,7 +46,7 @@
     message = 'Thank you for supporting CSplan! Redirecting in 5 seconds.'
     setTimeout(async () => {
       // Navigate to payment status page, reset purchase state
-      await invalidate(route('/payment-status')) 
+      await invalidateAll()
       await goto('/payment', {
         replaceState: true
       })

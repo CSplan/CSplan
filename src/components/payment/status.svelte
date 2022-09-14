@@ -2,8 +2,8 @@
   import stripeSubscription from '$stores/stripe/subscription'
   import AccountTypes from '$lib/account-types'
   import Spinner from '$components/spinner.svelte'
-  import { FormStates as States, route } from '$lib'
-  import { invalidate } from '$app/navigation'
+  import { FormStates as States } from '$lib'
+  import { invalidateAll } from '$app/navigation'
   export let settings: App.Locals['settings']
   export let paymentStatus: App.Locals['paymentStatus']
 
@@ -47,7 +47,7 @@
       setTimeout(async () => {
         subCancelState = States.Resting
         message = ''
-        invalidate(route('/payment-status'))
+        await invalidateAll()
       }, 3000)
     } catch (err) {
       subCancelState = States.Errored
