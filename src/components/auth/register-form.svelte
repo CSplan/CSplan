@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { goto } from '$app/navigation'
+  import { goto, invalidateAll } from '$app/navigation'
   import { makeSalt } from 'cs-crypto'
   import { onMount } from 'svelte'
   import { RegisterActions } from '$lib/auth-actions'
@@ -58,7 +58,8 @@
       message = err instanceof Error ? err.message : err as string
       return
     }
-    goto('/')
+    await goto('/lists', { replaceState: true })
+    await invalidateAll()
   }
 
   // Mount
