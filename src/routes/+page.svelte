@@ -3,14 +3,21 @@
   import type { PageData } from './$types'
   export let data: PageData
   let showFeatureCardsMobile = false
+
+  const description = 'CSplan is a fast, modular, and uncompromisingly secure digital planner. With CSplan, you can create lists, write down plans (including titles, descriptions, and color-coded tags), and track progress for each item on every list. While this is happening, all of your data is encrypted using a key derived from your password before being sent to any servers. This process (zero-knowledge encryption) ensures that your plans are kept private and secure by default, no compromises.'
 </script>
+
+<svelte:head>
+  <meta name="description" content={description}>
+</svelte:head>
 
 <main class="container">
   <img src="/logo/{data.settings.darkMode ? 'Dark' : 'Light'}-CSplan.svg" alt="CSplan: Own your time." class="title-logo">
 
   <section class="summary">
     <p>
-      CSplan is a time management and project planning suite that stores data with <b>zero-knowledge encryption.</b> With CSplan, you can create lists, write down plans (including titles, descriptions, and color-coded tags), and track progress for each item on every list.<br>
+      {description}
+      <br>
       <span class="end"><u>Time is always moving, CSplan helps you move with it.</u></span>
     </p>
   </section>
@@ -105,17 +112,18 @@
   .summary {
     @media (min-width: $desktop-min) {
       text-align: center;
-      padding-left: 10%;
-      padding-right: 10%;
+      max-width: 800px;
     }
     @media(max-width: $mobile-max) {
       padding-right: 5%;
+      padding-left: 5%;
     }
     font-size: 110%;
     span.end {
       text-align: center;
       display: inline-block;
-      line-height: 1.75;
+      line-height: 2;
+      font-size: 110%;
     }
   }
 
