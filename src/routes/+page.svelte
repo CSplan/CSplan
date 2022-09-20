@@ -8,7 +8,7 @@
 </script>
 
 <svelte:head>
-  <meta name="description" content={description}>
+  <meta name="description" content="{description}">
 </svelte:head>
 
 <main class="container">
