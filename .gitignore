@@ -13,3 +13,4 @@ static/**
 !static/fonts
 !static/css/theme
 !static/css/theme/*.css
+!static/app.webmanifest
