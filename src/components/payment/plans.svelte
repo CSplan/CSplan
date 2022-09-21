@@ -67,7 +67,7 @@
         <button style:background="var(--background-alt)">Go to Payment Management</button>
       </a>
     {:else}
-      <a href="/payment/buy" class="purchase-button">
+      <a href="/purchase" class="purchase-button">
         <button style:background="var(--success-green)">Buy CSplan Pro</button>
       </a>
     {/if}
