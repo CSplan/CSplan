@@ -146,8 +146,8 @@
       </tr>
       {/each}
       <tr>
-        <td class="promo-text">CSplan Launch Promo</td>
-        <td class="price promo-price" colspan=2>-30%</td>
+        <td class="promo-text">Public Beta Promo</td>
+        <td class="price promo-price" colspan=2>-50%</td>
       </tr>
       <tr>
         <td>Total</td>

@@ -118,13 +118,8 @@
   </tr>
 
   <tr>
-  {#if $purchaseState.planType === PlanTypes.Prepaid}
-    <td class="promo-text">CSplan Launch Promo</td>
-    <td class="price promo-price" colspan=2>-30%</td>
-  {:else if $purchaseState.planType === PlanTypes.Subscription}
-    <td class="promo-text">CSplan Launch Promo</td>
-    <td class="price promo-price" colspan=2>-20%</td>
-  {/if}
+    <td class="promo-text">Public Beta Promo</td>
+    <td class="price promo-price" colspan=2>-50%</td>
   </tr>
 
   <tr>

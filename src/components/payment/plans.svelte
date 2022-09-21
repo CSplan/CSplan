@@ -36,14 +36,9 @@
     <div class="price">
       <span class="strikethrough">$10/month</span>
       <br>
-      <span class="discount-price">$8</span>/month (monthly)
-      <br>
-      OR
-      <br>
-      <span class="discount-price">$7</span>/month (prepaid)
+      <span class="discount-price">$5</span>/month
     </div>
     <br>
-    <span class="discount-disclaimer">Offer is valid through September 30, 2022. Subscription users will receive the discounted rate for their first 3 months.</span>
     <hr>
     <span>Everything in CSplan Free, and...</span>
     <ul class="bullet-points">

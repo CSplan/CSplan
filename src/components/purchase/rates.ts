@@ -3,8 +3,8 @@ export const rates = {
   stdPrepaid: 10,
   stdSubscription: 10,
   // Live rates
-  prepaid: 7,
-  subscription: 8
+  prepaid: 5,
+  subscription: 5
 }
 
 export default rates

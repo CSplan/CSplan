@@ -19,14 +19,13 @@
     <div class="price">
       <span class="strikethrough">$10/month</span>
       <br>
-      <span class="discount-price">$8</span>/month
+      <span class="discount-price">$5</span>/month
       <br>
-      <span class="discount-disclaimer">Offer is valid through September 30, 2022. Subscription users will receive the discounted rate for their first 3 months.</span>
+      <span class="discount-disclaimer">Offer is valid through December 31, 2022.</span>
     </div>
 
     <ul>
       <li>Billed monthly</li>
-      <li>Card information linked to CSplan account</li>
     </ul>
 
     <i class="select-icon clickable
@@ -36,7 +35,7 @@
     }}></i>
 
     {#if $purchaseState.planType === PlanTypes.Subscription}
-      <p class="price">Total: $8</p>
+      <p class="price">Total: $5</p>
 
       <button class="bold next" on:click={() => {
         purchaseState.nextStep()
@@ -53,9 +52,9 @@
     <div class="price">
       <span class="strikethrough">$10/month</span>
       <br>
-      <span class="discount-price">$7</span>/month
+      <span class="discount-price">$5</span>/month
       <br>
-      <span class="discount-disclaimer">Offer is valid through September 30, 2022.</span>
+      <span class="discount-disclaimer">Offer is valid through December 31, 2022.</span>
     </div>
 
     <ul>
@@ -81,7 +80,7 @@
         }}>
       </label>
 
-      <p class="price">Total: ${prepaidMonths * 7}</p>
+      <p class="price">Total: ${prepaidMonths * 5}</p>
 
       <button class="bold next" on:click={() => {
         purchaseState.nextStep()
@@ -143,7 +142,6 @@
 
   div.price {
     border-bottom: 1px solid $border-alt;
-    min-height: 130px;
   }
   span.strikethrough {
     text-decoration: line-through;
