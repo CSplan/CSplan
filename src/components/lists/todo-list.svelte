@@ -13,7 +13,7 @@
   import { FormStates as States } from '$lib/form-states'
   import Limits from '$lib/limits'
   import AccountTypes from '$lib/account-types'
-  import { html2txt, txt2html } from '$lib/contenteditable'
+  import { html2txt, txt2html } from '$lib/contenteditable/html'
 
   export let id: string
   export let user: App.Locals['user']

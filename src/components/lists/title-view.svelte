@@ -6,7 +6,7 @@
   import Spinner from '../spinner.svelte'
   import CreateListForm from './create-list-form.svelte'
   import DeleteConfirmationModal from '$components/modals/confirm-modal.svelte'
-  import { html2txt } from '$lib/contenteditable'
+  import { html2txt } from '$lib/contenteditable/html'
   // Only used on mobile
   import EditMenu from './list-edit-dropdown.svelte'
   export let settings: App.Locals['settings']
