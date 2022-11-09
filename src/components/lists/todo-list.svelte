@@ -5,7 +5,7 @@
   import tags from '$stores/tags'
   import Spinner from '$components/spinner.svelte'
   import TagForm from '$components/tag-form.svelte'
-  import { CEkeypress, CEtrim } from '../../lib/contenteditable-deprecated'
+  import { CEkeypress } from '../../lib/contenteditable-deprecated'
   import { formElementIsFocused } from '$lib'
   import { fade } from 'svelte/transition'
   import { flip } from 'svelte/animate'
@@ -13,6 +13,7 @@
   import { FormStates as States } from '$lib/form-states'
   import Limits from '$lib/limits'
   import AccountTypes from '$lib/account-types'
+  import { html2txt, txt2html } from '$lib/contenteditable'
 
   export let id: string
   export let user: App.Locals['user']
@@ -32,8 +33,10 @@
     }
   }
 
+  const titleHTML: Map<number, string> = new Map()
+  const descriptionHTML: Map<number, string> = new Map()
+
   function updateTitle(evt: SafeEvent): void {
-    CEtrim(evt)
     // If the title is null or empty, set it to the last known value
     const title = evt.currentTarget
     if (title.textContent == null || !title.textContent.length) {
@@ -42,22 +45,13 @@
     }
     list.title = title.textContent
   }
-  function updateItemTitle(evt: SafeEvent, i: number): void {
-    CEtrim(evt)
-    const title = evt.currentTarget
-    if (title.textContent == null || !title.textContent.length) {
-      if (list.items[i].title.length === 0) {
-        list.items[i].title = 'Untitled Item'
-        list.items = list.items
-      }
-      title.textContent = list.items[i].title
-      return
-    }
-    list.items[i].title = title.textContent
+  // TODO: save title/description updates on blur
+  function updateItemTitle(index: number): void {
+    list.items[index].title = html2txt(titleHTML.get(index))
   }
-  function updateItemDescription(evt: SafeEvent, i: number): void {
-    const description = CEtrim(evt) // Will be sanitized before API storage
-    list.items[i].description = description
+  function updateItemDescription(index: number): void {
+    list.items[index].description = html2txt(descriptionHTML.get(index))
+    console.log(list.items[index].description)
   }
 
   // Toggle an item's completion
@@ -262,9 +256,25 @@
 
     <!-- Content -->
     <section class="content">
-      <header data-index={i} contenteditable={editMode} spellcheck="false" on:keypress={CEkeypress} on:blur={e => updateItemTitle(e, i)}>{item.title}</header>
-      <p class="no-empty-effect" contenteditable={editMode} spellcheck="false" on:blur={(e) => updateItemDescription(e, i)}>
-        {@html DOMPurify.sanitize(item.description.replaceAll('\n', '<br>'))}
+      <header data-index={i}
+      contenteditable={editMode} spellcheck="false"
+      on:input|capture={(evt) => {
+        titleHTML.set(i, evt.currentTarget.innerHTML) 
+      }}
+      on:keypress={CEkeypress} on:blur={() => updateItemTitle(i)}>
+        {item.title}
+      </header>
+
+      <p class="no-empty-effect"
+      contenteditable={editMode} spellcheck="false"
+      on:input|self|capture={(evt) => {
+        descriptionHTML.set(i, evt.currentTarget.innerHTML)
+      }}
+      on:blur={(evt) => {
+        evt.currentTarget.innerHTML = evt.currentTarget.innerHTML.replace(/<br>$/, '') // Trim trailing line break to restore empty placeholder
+        updateItemDescription(i)
+      }}>
+        {@html DOMPurify.sanitize(txt2html(item.description))}
       </p>
     </section>
 
