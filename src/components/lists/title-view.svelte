@@ -2,10 +2,11 @@
   import { onMount, tick } from 'svelte'
   import { flip } from 'svelte/animate'
   import { lists as store, ordered } from '$stores/lists'
-  import { CEkeypress } from '../../misc/contenteditable'
+  import { CEkeypress } from '../../lib/contenteditable-deprecated'
   import Spinner from '../spinner.svelte'
   import CreateListForm from './create-list-form.svelte'
   import DeleteConfirmationModal from '$components/modals/confirm-modal.svelte'
+  import { html2txt } from '$lib/contenteditable'
   // Only used on mobile
   import EditMenu from './list-edit-dropdown.svelte'
   export let settings: App.Locals['settings']
@@ -19,9 +20,10 @@
   let isLoading = false
 
   // Update event handlers
-  async function onblur(evt: SafeEvent, id: string): Promise<void> {
+  async function onblur(id: string): Promise<void> {
     delete showEditableHeader[id]
-    store.update(id, { title: evt.currentTarget.textContent || '' })
+    const title = html2txt(titleHTML[id] || '')
+    store.update(id, { title })
     await store.commit(id)
   }
 
@@ -42,15 +44,15 @@
   }
 
   async function ondrop(evt: DragEvent, index: number, id: string): Promise<void> {
-    const origin = evt.dataTransfer!.getData('text/plain')
-    await moveItem(origin, index)
     highlightRow[id] = false
+    const dt = evt.dataTransfer!
+    const origin = dt.getData('text/plain')
+    await move(origin, index)
   }
 
   // Move the list identified by id to index
-  async function moveItem(id: string, index: number): Promise<void> {
+  async function move(id: string, index: number): Promise<void> {
     await store.move(id, index)
-    await store.commit(id)
   }
 
   function completedItems(items: ListItem[]): number {
@@ -88,6 +90,13 @@
   function onDeleteCancel(): void {
     deletePendingID = ''
   }
+
+  // #region Contenteditable elements
+
+  // Map of id -> title innerHTML value, used with svelte CE bindings
+  const titleHTML: Record<string, string> = {}
+
+  // #endregion
 
   // #region Mobile mode-based interface
 
@@ -133,7 +142,6 @@
       class:highlighted={highlightRow[list.id]} class:dark={settings.darkMode}
       on:dragover|preventDefault={() => ondragover(list.id)}
       on:dragleave|preventDefault={() => ondragleave(list.id)}
-      on:dragexit|preventDefault={() => ondragleave(list.id)}
       on:drop|capture|preventDefault={e => ondrop(e, i, list.id)}>
 
       <div class="row-start">
@@ -152,7 +160,8 @@
           contenteditable on:keypress={CEkeypress}
           spellcheck="false" draggable="false"
           bind:this={headerElements[list.id]}
-          on:blur={e => onblur(e, list.id)}
+          bind:innerHTML={titleHTML[list.id]}
+          on:blur={() => onblur(list.id)}
         >
           {list.title}
         </header>
@@ -175,12 +184,12 @@
           <div class="arrow-icons">
             {#if i > 0}
               <i class="fas fa-arrow-up clickable no-transform" title="Move item up"
-              on:click={() => moveItem(list.id, i-1)}>
+              on:click={() => move(list.id, i-1)}>
             </i>
             {/if}
             {#if i + 1 < $ordered.length}
               <i class="fas fa-arrow-down clickable no-transform" title="Move item down"
-              on:click={() => moveItem(list.id, i+1)}>
+              on:click={() => move(list.id, i+1)}>
             </i>
             {/if}
           </div>

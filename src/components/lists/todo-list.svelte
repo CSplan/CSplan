@@ -5,7 +5,7 @@
   import tags from '$stores/tags'
   import Spinner from '$components/spinner.svelte'
   import TagForm from '$components/tag-form.svelte'
-  import { CEkeypress, CEtrim } from '../../misc/contenteditable'
+  import { CEkeypress, CEtrim } from '../../lib/contenteditable-deprecated'
   import { formElementIsFocused } from '$lib'
   import { fade } from 'svelte/transition'
   import { flip } from 'svelte/animate'
@@ -254,7 +254,6 @@
   <div class="row item-title marginless {item.tags.length === 0 ? 'tagless' : ''}" animate:flip={{ duration: 200 }}
     class:highlighted={highlightRow[i]}
     on:dragover|preventDefault={e => ondragover(e, i)}
-    on:dragexit|preventDefault={e => ondragleave(e, i)}
     on:dragleave|preventDefault={e => ondragleave(e, i)}
     on:drop|capture|preventDefault={e => ondrop(e, i)}>
 

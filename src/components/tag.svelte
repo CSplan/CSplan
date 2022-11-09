@@ -4,7 +4,7 @@
   import tags from '$stores/tags'
   import { states } from './js/states'
   import ColorPicker from './color-picker/color-picker.svelte'
-  import { CEkeypress } from '../misc/contenteditable'
+  import { CEkeypress } from '../lib/contenteditable-deprecated'
   import { onMount } from 'svelte'
   import { parseLightness } from './color-picker/parse-lightness'
   import { hexToRGB } from '$lib/hex-rgb'

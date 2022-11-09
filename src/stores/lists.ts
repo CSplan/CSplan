@@ -264,35 +264,72 @@ function create(): Readable<Store> & ListStore {
       }
     },
     async move(id: string, index: number): Promise<void> {
-      const oldIndex = (<Store>get(this))[id].index
-      const oldOrdered = <List[]>get(ordered)
-      // Validate the index
-      if (index >= oldOrdered.length || index < 0 || index === oldIndex) {
-        return
+      // Get the ordered state
+      const state = get(ordered)
+      // Validate move destination
+      if (index > state.length-1) {
+        throw new Error('Destination index exceeds list max')
       }
 
-      // Magic shifting calculations (see this svelte repl for detailed comments) - https://svelte.dev/repl/b086c8cc851045d59c948e08786c40be?version=3.42.4
-      const IDBupdates: List[] = []
-      if (index > oldIndex){
-        for (let i = oldIndex; i <= index; i++) {
-          oldOrdered[i].index -= 1
-          this.update(oldOrdered[i].id, { index: oldOrdered[i].index })
-          IDBupdates.push(oldOrdered[i])
+      // New and old positions
+      const n = index
+      let o: number|null = null
+      // Create a map of index (original) -> id
+      const indexMap: Record<number, string> = {}
+      for (let i = 0; i < state.length; i++) {
+        indexMap[i] = state[i].id
+        if (state[i].id === id) {
+          o = i
         }
-      } else {
-        for (let i = index; i < oldIndex; i++) {
-          oldOrdered[i].index += 1
-          this.update(oldOrdered[i].id, { index: oldOrdered[i].index })
-          IDBupdates.push(oldOrdered[i])
+      }
+      if (o === null) {
+        throw new Error('Non-existant id passed')
+      }
+
+      // Move o -> max+1
+      update((store) => {
+        store[id].index = state.length
+        return store
+      })
+
+
+      if (n > o) {
+        // move (o, n] -1
+        for (let i = o+1; i <= n; i++) {
+          update((store) => {
+            const lid = indexMap[i]
+            store[lid].index--
+            return store
+          })
+        }
+      } else if (n < o) {
+        // move [n, o) +1
+        for (let i = o-1; i >= n; i--) {
+          update((store) => {
+            const lid = indexMap[i]
+            store[lid].index++
+            return store
+          })
         }
       }
 
-      // Move the selected item to the new index
-      this.update(id, { index })
+      // move o -> n
+      update((store) => {
+        store[id].index = n
+        return store
+      })
 
-      // Fulfill IDBupdates
-      for (const list of IDBupdates) {
-        await addToStore('lists', list)
+      // Commit changes
+      const res = await csfetch(route(`/todos/${id}`), {
+        method: 'PATCH',
+        body: JSON.stringify({
+          meta: {
+            index: n
+          }
+        })
+      })
+      if (res.status !== 200) {
+        throw await HTTPerror(res, `Failed to commit index movement of list ${id} to index ${n}`)
       }
     }
   }
