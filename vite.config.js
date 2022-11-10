@@ -45,9 +45,6 @@ export default defineConfig(({ mode }) => {
         output: {
           manualChunks
         }
-      },
-      modulePreload: {
-        polyfill: false
       }
     },
     ssr: {
