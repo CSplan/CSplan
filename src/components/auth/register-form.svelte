@@ -25,19 +25,13 @@
   let actions: RegisterActions
 
   async function register(): Promise<void> {
-    if (!form.checkValidity()) {
-      return
-    }
-
     // Compare password fields
     if (password.value !== confirmPassword.value) {
       confirmPassword.setCustomValidity('Password confirmation isn\'t the same as password')
-      return
-    } else {
-      // Empty string marks the field as valid
+      confirmPassword.reportValidity()
       confirmPassword.setCustomValidity('')
+      return
     }
-
 
     state = States.Saving
     message = ''
