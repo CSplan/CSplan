@@ -1,3 +1,11 @@
+<script lang="ts" context="module">
+  export function focus(): void {
+    codeInput.focus()
+  }
+
+  let codeInput: HTMLInputElement
+</script>
+
 <script lang="ts">
   import type { FormStates } from '$lib'
   import Spinner from '$components/spinner.svelte'
@@ -5,8 +13,6 @@
 
   export let state: FormStates
   export let message: string
-
-  let codeInput: HTMLInputElement
 
   const dispatch = createEventDispatcher()
 

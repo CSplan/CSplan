@@ -1,7 +1,7 @@
 <script lang="ts">
   import { LoginActions, AuthConditions } from '$lib/auth-actions'
-  import TwoFactorForm from './2fa-form.svelte'
-  import { onMount } from 'svelte'
+  import TwoFactorForm, { focus as focus2fa } from './2fa-form.svelte'
+  import { onMount, tick } from 'svelte'
   import { goto, invalidateAll } from '$app/navigation'
   import { dev } from '$app/environment'
   import Spinner from '$components/spinner.svelte'
@@ -44,6 +44,8 @@
         state = States.Resting
         message = ''
         showTOTPForm = true
+        await tick()
+        focus2fa()
         return
       }
       await actions.retrieveMasterKeypair(password.value)
