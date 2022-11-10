@@ -257,8 +257,8 @@
   .card {
     background: $bg-primary;
     @media all and (min-width: $desktop-min) {
-      min-width: 75%;
-      max-width: 100%;
+      min-width: 800px;
+      max-width: 1200px;
       margin-top: 25px;
     }
     @media all and (max-width: $mobile-max) {

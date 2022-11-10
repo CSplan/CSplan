@@ -19,6 +19,7 @@
 <style>
   .back-button i {
     padding: 1.25rem;
+    padding-bottom: 0;
   }
   .back-button i:hover {
     transform: scale(1.25);
