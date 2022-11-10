@@ -4,8 +4,17 @@ import pkg from './package.json'
 import { sveltekit } from '@sveltejs/kit/vite'
 import { defineConfig } from 'vite'
 
+// Manual chunks containing modules excluded from build transforms and code-splitting
+const manualChunks = {
+  'cs-crypto': ['cs-crypto'],
+  'argon2-wasm': ['@very-amused/argon2-wasm'],
+  'ed25519-wasm': ['@very-amused/ed25519-wasm']
+}
+const flatManualChunks = Object.values(manualChunks).flat()
+
 export default defineConfig(({ mode }) => {
   const dev = mode === 'development'
+  console.log(flatManualChunks)
 
   /** @type {import('vite').UserConfig} */
   const config = {
@@ -31,8 +40,21 @@ export default defineConfig(({ mode }) => {
         '$hooks': path.resolve('src/hooks')
       }
     },
+    build: {
+      rollupOptions: {
+        output: {
+          manualChunks
+        }
+      },
+      modulePreload: {
+        polyfill: false
+      }
+    },
+    ssr: {
+      noExternal: flatManualChunks
+    },
     optimizeDeps: {
-      exclude: ['cs-crypto']
+      exclude: flatManualChunks
     },
     define: {
       __APP_VERSION__: `'Public Beta ${pkg.version}'`,

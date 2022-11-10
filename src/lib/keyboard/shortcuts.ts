@@ -52,10 +52,8 @@ export class Shortcuts extends Map<[key: string, withCtrl?: boolean], () => void
       }
     }
     // Normalize key name to lowercase if case insensitive
-    if (this.caseInsensitive) {
-      evt.key = evt.key.toLowerCase()
-    }
-    const fn = super.get([evt.key, evt.ctrlKey])
+    const key = this.caseInsensitive ? evt.key.toLowerCase() : evt.key
+    const fn = super.get([key, evt.ctrlKey])
     if (fn !== undefined) { // If the shortcut handler exists, run it
       fn()
     }

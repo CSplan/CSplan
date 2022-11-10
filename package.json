@@ -10,9 +10,8 @@
     "svelte-check": "svelte-check --use-new-transformation true --compiler-warnings 'css-unused-selector:ignore'",
     "lint": "eslint --fix src",
     "build": "NODE_ENV=production vite build",
-    "start": "node build",
-    "prepare-ed25519": "[ ! -d static/ed25519 ] && mkdir static/ed25519; cp node_modules/@very-amused/ed25519-wasm/build/* static/ed25519/",
-    "prepare-argon2": "[ ! -d static/argon2 ] && mkdir static/argon2; cp node_modules/@very-amused/argon2-wasm/build/* static/argon2/"
+    "postbuild": "./prepare-static.sh",
+    "start": "node build"
   },
   "dependencies": {
     "@stripe/stripe-js": "^1.35.0",
@@ -21,7 +20,7 @@
     "@typescript-eslint/eslint-plugin": "^4.29.2",
     "@typescript-eslint/parser": "^4.29.2",
     "@very-amused/argon2-wasm": "^0.3.1",
-    "@very-amused/ed25519-wasm": "^0.1.0",
+    "@very-amused/ed25519-wasm": "^0.1.3",
     "cookie": "^0.5.0",
     "cs-crypto": "^0.8.0",
     "dompurify": "^2.3.8",
@@ -49,7 +48,7 @@
     "svelte-check": "^2.8.0",
     "svelte-migrate": "^1.0.0-next.12",
     "svelte-preprocess": "^4.7.4",
-    "vite": "^3.1.0"
+    "vite": "^3.2.3"
   },
   "resolutions": {
     "hosted-git-info": "2.8.9"
