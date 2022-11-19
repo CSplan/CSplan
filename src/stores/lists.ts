@@ -106,7 +106,7 @@ function create(): Readable<Store> & ListStore {
       const encrypted: EncryptedListData = await encryptList(list, cryptoKey)
 
       // Encrypt and format the list for storage
-      const document: ListDocument<MetaRequest> = {
+      const document: ListDocument<Legacy_MetaRequest> = {
         title: encrypted.title,
         items: encrypted.items,
         meta: {
@@ -126,7 +126,7 @@ function create(): Readable<Store> & ListStore {
       if (res.status !== 201) {
         throw await HTTPerror(res, 'Failed to create list with server')
       }
-      const { id, meta }: IndexedMetaResponse = await res.json()
+      const { id, meta }: Legacy_IndexedMetaResponse = await res.json()
     
       // Update the list with server generated values
       const final: List = {
@@ -180,7 +180,7 @@ function create(): Readable<Store> & ListStore {
       // Encrypt the entire list and send the changes as a PATCH request
       // TODO: use flags.changes to make more precise and efficient patches
       const encrypted: EncryptedListData = await encryptList(list, list.cryptoKey)
-      const document: ListDocument<IndexedMetaUpdate> = {
+      const document: ListDocument<Legacy_IndexedMetaUpdate> = {
         title: encrypted.title,
         items: encrypted.items,
         meta: {
@@ -217,7 +217,7 @@ function create(): Readable<Store> & ListStore {
       }, 500)
 
       // Update the list's checksum
-      const { meta }: IndexedMetaResponse = await res.json()
+      const { meta }: Legacy_IndexedMetaResponse = await res.json()
       const final: List = {
         ...list,
         checksum: meta.checksum

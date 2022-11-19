@@ -29,6 +29,6 @@ declare type NameVisibility = {
   lastName: import('$lib').Visibilities
 }
 
-declare type Name = Omit<MetaState, 'cryptoKey'> & {
+declare type Name = Omit<Legacy_MetaState, 'cryptoKey'> & {
   cryptoKey?: CryptoKey
 } & NameData

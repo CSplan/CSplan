@@ -4,9 +4,12 @@ import { Store } from '../store'
 import { aes, rsa } from 'cs-crypto'
 import { pageStorage } from '$lib/page'
 
-export type StripeCustomerID<E extends boolean = false> = (E extends true ? Meta : MetaState) & {
+export type StripeCustomerID<E extends boolean = false> = {
   exists: true
+  id: string
+  userID: E extends false ? string : never
   address: StripeAddress
+  meta: Meta<E>
 } | {
   exists: false
 }
@@ -28,7 +31,7 @@ class StripeCustomerIDStore extends Store<StripeCustomerID> {
     })
   }
 
-  async init(): Promise<void> {
+  async init(this: StripeCustomerIDStore): Promise<void> {
     if (this.initialized) {
       return
     }
@@ -41,11 +44,11 @@ class StripeCustomerIDStore extends Store<StripeCustomerID> {
       throw await HTTPerror(res, 'Failed to retrieve Stripe customer ID.')
     }
 
-    const body: Assert<StripeCustomerID<true>, 'exists'> & Meta = await res.json()
+    const body: Assert<StripeCustomerID<true>, 'exists'> = await res.json()
     // Decrypt the customer ID information
     const user = pageStorage.getJSON('user')!
-    const cached = await getByKey<StripeCustomerID & MetaState>('stripe/customer-id', user.id)
-    if (cached != null && cached.exists && cached.checksum === body.meta.checksum) {
+    const cached = await getByKey<StripeCustomerID>('stripe/customer-id', user.id)
+    if (cached != null && cached.exists && cached.meta.checksum === body.meta.checksum) {
       this.set(cached)
       return
     }
@@ -53,23 +56,25 @@ class StripeCustomerIDStore extends Store<StripeCustomerID> {
     // Decrypt the response body
     const { privateKey } = await mustGetByKey<MasterKeys>('keys', user.id)
     const cryptoKey = await rsa.unwrapKey(body.meta.cryptoKey, privateKey, 'AES-GCM')
-    const final: StripeCustomerID & MetaState & KeyedObject<'userID'> = {
+    const stripeCID: StripeCustomerID = { 
       exists: true,
       id: await aes.decrypt(body.id, cryptoKey),
       address: await aes.deepDecrypt(body.address, cryptoKey),
       userID: user.id,
-      cryptoKey,
-      checksum: body.meta.checksum
+      meta: {
+        cryptoKey,
+        checksum: body.meta.checksum
+      }
     }
     // Add to memory state
-    this.set(final)
+    this.set(stripeCID)
     // Add to IDB
-    await addToStore<'userID'>('stripe/customer-id', final)
+    await addToStore<'userID'>('stripe/customer-id', stripeCID)
 
     this.initialized = true
   }
 
-  async create(address: StripeAddress): Promise<string> {
+  async create(this: StripeCustomerIDStore, address: StripeAddress): Promise<string> {
     // Create customer ID with Stripe via API
     const res = await csfetch(route('/stripe/customer-id'), {
       method: 'POST',
@@ -80,19 +85,21 @@ class StripeCustomerIDStore extends Store<StripeCustomerID> {
     }
 
     // Decode the response body
-    const body: Assert<StripeCustomerID<true>, 'exists'> & Meta = await res.json()
+    const body: Assert<StripeCustomerID<true>, 'exists'>  = await res.json()
 
     // Decrypt the response body
     const user = pageStorage.getJSON('user')!
     const { privateKey } = await mustGetByKey<MasterKeys>('keys', user.id)
     const cryptoKey = await rsa.unwrapKey(body.meta.cryptoKey, privateKey, 'AES-GCM')
-    const final: StripeCustomerID & KeyedObject<'userID'> = {
+    const final: StripeCustomerID = { 
       exists: true,
       id: await aes.decrypt(body.id, cryptoKey), // Stripe CID
       address, 
       userID: user.id,
-      cryptoKey,
-      checksum: body.meta.checksum
+      meta: {
+        cryptoKey,
+        checksum: body.meta.checksum
+      }
     }
     // Add to memory state
     this.set(final)
@@ -113,7 +120,7 @@ class StripeCustomerIDStore extends Store<StripeCustomerID> {
       method: 'PATCH',
       body: JSON.stringify(address),
       headers: {
-        'X-Stripe-CryptoKey': await aes.exportKey(store.cryptoKey)
+        'X-Stripe-CryptoKey': await aes.exportKey(store.meta.cryptoKey)
       }
     })
     if (res.status !== 200) {
@@ -121,17 +128,17 @@ class StripeCustomerIDStore extends Store<StripeCustomerID> {
     }
 
     // Decode response body
-    const body: { meta: { checksum: string } } = await res.json()
+    const body: { meta: State } = await res.json()
     const user = pageStorage.getJSON('user')!
-    const final: Assert<StripeCustomerID, 'exists'> & KeyedObject<'userID'> = {
+    const final: Assert<StripeCustomerID, 'exists'> = {
       ...await mustGetByKey('stripe/customer-id', user.id),
-      address,
-      checksum: body.meta.checksum
+      address
     }
+    final.meta.checksum = body.meta.checksum
     // Commit changes
     this.update((store) => {
       if (store.exists) {
-        store.checksum = final.checksum
+        store.meta.checksum = final.meta.checksum
       }
       return store
     })
@@ -141,12 +148,12 @@ class StripeCustomerIDStore extends Store<StripeCustomerID> {
   async delete(this: StripeCustomerIDStore): Promise<void> {
     const store = Store.get(this)
     if (!store.exists) {
-      throw new Error('Stripe customer ID doesn\t exist.')
+      throw new Error('Stripe customer ID doesn\'t exist.')
     }
     const res = await csfetch(route('/stripe/customer-id'), {
       method: 'DELETE',
       headers: {
-        'X-Stripe-CryptoKey': await aes.exportKey(store.cryptoKey)
+        'X-Stripe-CryptoKey': await aes.exportKey(store.meta.cryptoKey)
       }
     })
     if (res.status !== 204) {
@@ -154,8 +161,8 @@ class StripeCustomerIDStore extends Store<StripeCustomerID> {
     }
   }
 
-  // Format the user's Stripe customer address
-  formatAddress(): string {
+  /** Format the user's Stripe customer address */
+  formatAddress(this: StripeCustomerIDStore): string {
     const customer = Store.get(this)
     if (!customer.exists) {
       return ''

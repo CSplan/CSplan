@@ -147,7 +147,7 @@ function create(): Readable<UserPFP> & UserPFPStore {
           throw new Error(`failed to create user profile picture (status ${res.status})`)
         }
       }
-      const body: Meta = await res.json()
+      const body: Legacy_Meta = await res.json()
       const checksum = body.meta.checksum
 
       // Update state

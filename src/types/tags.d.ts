@@ -1,7 +1,7 @@
 /**
  * @encrypted
  */
-declare type TagDocument<M = Meta> = M & TagData
+declare type TagDocument<M = Legacy_Meta> = M & TagData
 
 declare type TagData = {
   name: string
@@ -9,6 +9,6 @@ declare type TagData = {
   textColor: string
 }
 
-declare type Tag = Flags & MetaState & TagData
+declare type Tag = Flags & Legacy_MetaState & TagData
 
 declare type TagStore = SMSXStore<Tag, TagData>

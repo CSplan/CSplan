@@ -3,15 +3,7 @@
  * @encrypted
  * @param M Meta type used
  */
-declare type ListDocument<M = IndexedMetaResponse> = M & EncryptedListData
-
-/**
- * @encrypted
- */
-declare type EncryptedListData = {
-  title: string
-  items: ListItem<true>[]
-}
+declare type ListDocument<M = Legacy_IndexedMetaResponse> = M & EncryptedListData
 
 declare type ListItem<E extends boolean = false> = {
   title: string
@@ -20,12 +12,16 @@ declare type ListItem<E extends boolean = false> = {
   tags: string[]
 }
 
-declare type ListData = {
+declare type List<E extends boolean = false> = {
+  id: string
   title: string
-  items: ListItem<false>[]
+  items: ListItem<E>[]
 }
 
-declare type List = Flags & IndexedMetaState & ListData
+declare type ListData<E extends boolean = false> = {
+  title: string
+  items: ListItem<E>[]
+}
 
 declare type ListStore = SMSXStore<List, ListData> & {
   // Commit all instances of a resource that have flagged updates
