@@ -1,5 +1,9 @@
 const DB_NAME = 'CSplan'
-const DB_VER = 2
+const DB_VER = 3
+const clearStoresOnUpgrade = [
+  'stripe/customer-id',
+  'tags'
+] as const
 let cachedIDB: IDBDatabase|null = null
 
 const enum Scopes {
@@ -76,6 +80,11 @@ export function getDB(): Promise<IDBDatabase> {
     req.onupgradeneeded = () => {
       const db = req.result
       // Create stores from the declared templates
+      for (const name in clearStoresOnUpgrade) {
+        if (db.objectStoreNames.contains(name)) {
+          db.deleteObjectStore(name)
+        }
+      }
       for (const name in stores) {
         if (!db.objectStoreNames.contains(name)) {
           db.createObjectStore(name, stores[name].options)
@@ -157,7 +166,7 @@ export async function deleteFromStore(storeName: string, key: string): Promise<v
     const req = store.delete(key)
 
     req.onerror = () => {
-      reject(req.error)
+      reject(`Failed to delete from IDB store ${storeName}: ${req.error}`)
     }
     req.onsuccess = () => {
       resolve(req.result)
