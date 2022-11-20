@@ -78,6 +78,11 @@
       contenteditable
       spellcheck="false"
       bind:innerHTML={nameHTML}
+      on:keypress={(evt) => {
+        if (evt.key === 'Enter') {
+          evt.currentTarget.blur()
+        }
+      }}
       on:blur={save}>
       {$tags[id].name}
     </header>
