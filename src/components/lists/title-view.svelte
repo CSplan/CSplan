@@ -132,7 +132,7 @@
 
 <div class="card">
 {#await initPromise}
-  <div class="row">
+  <div class="row center">
     <div class="column">
       <header>Loading Content...</header>
       <Spinner size="3rem" vm="0.5rem"/>
@@ -152,7 +152,6 @@
         <div class="item-count-container">
           <p class="item-count">{completedItems(list.items)}/{list.items.length}</p>
         </div>
-        <p>Index: {i}</p>
 
         <a href="/lists/{list.id}" data-sveltekit-prefetch draggable="false" class="list-link"><div></div></a> <!-- draggable="false" is needed to override default the default html assumption that links can be dragged,
           inside div supresses compiler warning that <a> elements must contain children -->

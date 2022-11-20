@@ -11,7 +11,9 @@ export type List<E extends boolean = false> = ListData<E> & {
   meta: ListMeta<E>
 }
 
-export type ListMeta<E extends boolean = false> = OrderedMeta<E> & Partial<{
+export type ListMeta<E extends boolean = false> = OrderedMeta<E> & {
+  reverseItems: E extends true ? string : boolean
+} & Partial<{
   saveState: FormStates
 }>
 
@@ -27,7 +29,9 @@ export type ListItem<E extends boolean = false> = {
   tags: string[]
 }
 
-type ListRequest = Omit<List<true>, 'id' | 'meta'> & { meta: Required<MetaPatch> }
+type ListRequest = Omit<List<true>, 'id' | 'meta'> & { 
+  meta: Required<MetaPatch> & Pick<ListMeta<true>, 'reverseItems'>
+}
 type ListPatch = Omit<List<true>, 'id' | 'meta'> & { meta: OrderedMetaPatch }
 
 class ListStore extends Store<Record<string, List>> {
@@ -80,6 +84,7 @@ class ListStore extends Store<Record<string, List>> {
         meta: {
           index: encrypted.meta.index,
           checksum: encrypted.meta.checksum,
+          reverseItems: (await aes.decrypt(encrypted.meta.reverseItems, cryptoKey)) === 'true',
           cryptoKey
         }
       }
@@ -110,6 +115,7 @@ class ListStore extends Store<Record<string, List>> {
       title: encrypted.title,
       items: encrypted.items,
       meta: {
+        reverseItems: await aes.encrypt('false', cryptoKey),
         cryptoKey: await rsa.wrapKey(cryptoKey, publicKey)
       }
     }
@@ -131,6 +137,7 @@ class ListStore extends Store<Record<string, List>> {
       meta: {
         index: meta.index,
         checksum: meta.checksum,
+        reverseItems: false,
         cryptoKey
       }
     }
