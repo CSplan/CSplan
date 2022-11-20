@@ -65,7 +65,7 @@
   // Initialize the list store
   let initPromise: Promise<void>
   onMount(() => {
-    initPromise = store.init()
+    initPromise = store.init(settings.reverseLists)
   })
 
   // Delete confirmation
@@ -140,9 +140,10 @@
   </div>
 {:then}
   {#if $ordered.length > 0}
-  {#each $ordered as list, i (list.id)}
+  {#each $ordered as list (list.id)}
+  {@const i = list.meta.index}
     <div animate:flip={{ duration: 200 }} class="row list-{list.id} {!list.title.length && 'empty'}"
-      class:highlighted={highlightRow[list.id]} class:dark={settings.darkMode}
+      class:highlighted={highlightRow[list.id]}
       on:dragover|preventDefault={() => ondragover(list.id)}
       on:dragleave|preventDefault={() => ondragleave(list.id)}
       on:drop|capture|preventDefault={e => ondrop(e, i, list.id)}>
@@ -151,6 +152,7 @@
         <div class="item-count-container">
           <p class="item-count">{completedItems(list.items)}/{list.items.length}</p>
         </div>
+        <p>Index: {i}</p>
 
         <a href="/lists/{list.id}" data-sveltekit-prefetch draggable="false" class="list-link"><div></div></a> <!-- draggable="false" is needed to override default the default html assumption that links can be dragged,
           inside div supresses compiler warning that <a> elements must contain children -->
@@ -185,14 +187,14 @@
           <!-- Up-down arrows for moving list position -->
           {#if $ordered.length > 1}
           <div class="arrow-icons">
-            {#if i > 0}
+            {#if settings.reverseLists ? i < $ordered.length-1 : i > 0}
               <i class="fas fa-arrow-up clickable no-transform" title="Move item up"
-              on:click={() => move(list.id, i-1)}>
+              on:click={() => move(list.id, settings.reverseLists ? i+1 : i-1)}>
             </i>
             {/if}
-            {#if i + 1 < $ordered.length}
+            {#if settings.reverseLists ? i > 0 : i < $ordered.length-1}
               <i class="fas fa-arrow-down clickable no-transform" title="Move item down"
-              on:click={() => move(list.id, i+1)}>
+              on:click={() => move(list.id, settings.reverseLists ? i-1 : i+1)}>
             </i>
             {/if}
           </div>
@@ -278,14 +280,16 @@
     --side-margin: 5rem;
     color: initial;
     text-align: center;
-    display: grid;
-    @media all and (max-width: $mobile-max) {
-      grid-template-columns: minmax(min-content, 1fr) minmax(0, auto) 1fr;
+    &:not(.center) {
+      display: grid;
+      grid-auto-flow: column;
+      @media all and (max-width: $mobile-max) {
+        grid-template-columns: minmax(min-content, 1fr) minmax(0, auto) 1fr;
+      }
+      @media all and (min-width: $desktop-min) {
+        grid-template-columns: minmax(5rem, 1fr) minmax(0, auto) minmax(5rem, 1fr);
+      }
     }
-    @media all and (min-width: $desktop-min) {
-      grid-template-columns: minmax(5rem, 1fr) minmax(0, auto) minmax(5rem, 1fr);
-    }
-    grid-auto-flow: column;
     width: 100%;
   }
 
@@ -380,10 +384,7 @@
   }
 
   .row:hover, .row-center:hover {
-    background: whitesmoke;
-    &.dark {
-      background: $bg-lessdark;
-    }
+    background-color: $bg-hover;
   }
   /* Create separators */
   .row:not(:last-child),.row-center.border {

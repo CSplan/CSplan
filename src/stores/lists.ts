@@ -32,13 +32,17 @@ type ListPatch = Omit<List<true>, 'id' | 'meta'> & { meta: OrderedMetaPatch }
 
 class ListStore extends Store<Record<string, List>> {
   private initialized = false
+  reverseLists = false 
   declare update: Store<Record<string, List>>['update']
 
   constructor() {
     super({})
   }
 
-  async init(this: ListStore): Promise<void> {
+  async init(this: ListStore, reverseLists?: boolean): Promise<void> {
+    if (reverseLists != null) {
+      this.reverseLists = reverseLists
+    }
     if (this.initialized) {
       return
     }
@@ -236,9 +240,10 @@ class ListStore extends Store<Record<string, List>> {
     let o: number|null = null
     // Create a map of index (original) -> id
     const indexMap: Record<number, string> = {}
-    for (let i = 0; i < state.length; i++) {
-      indexMap[i] = state[i].id
-      if (state[i].id === id) {
+    for (const list of state) {
+      const i = list.meta.index
+      indexMap[i] = list.id
+      if (list.id === id) {
         o = i
       }
     }
@@ -299,7 +304,9 @@ export const lists = new ListStore()
 
 // Sort lists by the index property
 export const ordered = derived(lists, ($lists) => {
-  return Object.values($lists).sort((l1, l2) => l1.meta.index - l2.meta.index)
+  return Object.values($lists).sort((l1, l2) => lists.reverseLists
+    ? l2.meta.index - l1.meta.index
+    : l1.meta.index - l2.meta.index)
 })
 
 // The total number of items

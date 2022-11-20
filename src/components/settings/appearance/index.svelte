@@ -3,9 +3,10 @@
   import { csfetch, route } from '$lib'
   export let settings: App.Locals['settings']
 
-  async function saveDarkMode(value: boolean): Promise<void> {
-    const body: App.Locals['settings'] = {
-      darkMode: value
+
+  async function saveSetting(setting: keyof App.Locals['settings'], value: boolean): Promise<void> {
+    const body: Partial<App.Locals['settings']> = {
+      [setting]: value
     }
     await csfetch(route('/settings'), {
       method: 'PATCH',
@@ -26,7 +27,24 @@
       </header>
       
       <i class="clickable checkbox fas {settings.darkMode ? 'fa-circle-check' : 'fa-circle-xmark'}" on:click={async () => {
-        saveDarkMode(!settings.darkMode)
+        saveSetting('darkMode', !settings.darkMode)
+      }}></i>
+    </div>
+
+    <div class="setting">
+      <div class="icons-row">
+        <i class="far fa-square-list"></i>
+        <i class="fas {settings.reverseLists ? 'fa-arrow-up' : 'fa-arrow-down'}"></i>
+      </div>
+      <header>Reverse List Order:
+        <span style:color={settings.reverseLists ? 'var(--success-green)' : 'var(--danger-red)'}>
+          {settings.reverseLists ? 'Enabled' : 'Disabled'}
+        </span>
+      </header>
+
+      <i class="clickable checkbox fas {settings.reverseLists ? 'fa-circle-check' : 'fa-circle-xmark'}"
+      on:click={async () => {
+        await saveSetting('reverseLists', !settings.reverseLists)
       }}></i>
     </div>
   </article>
@@ -62,6 +80,7 @@
     grid-auto-flow: column;
     grid-template-columns: min-content auto min-content;
     column-gap: 0.5rem;
+    margin: 1rem 0;
     i {
       font-size: 1.75rem;
       &.checkbox {
@@ -70,6 +89,17 @@
     }
     header,i {
       margin: auto 0;
+    }
+  }
+  div.icons-row {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    i:not(:first-child) {
+      margin-left: 0.25rem;
+    }
+    i:not(:last-child) {
+      margin-right: 0.25rem;
     }
   }
 </style>

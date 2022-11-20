@@ -18,7 +18,9 @@ declare namespace App {
       subscribed: number
     }
     settings: {
+      storeSessionMeta: boolean
       darkMode: boolean
+      reverseLists: boolean
     }
   }
 }

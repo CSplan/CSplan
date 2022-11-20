@@ -77,7 +77,9 @@ export const handle: Handle = async ({ event, resolve }) => {
       event.locals.isLoggedIn = true
       event.locals.user = await getUser(authCookie)
       event.locals.settings = await getSettings(authCookie) || {
-        darkMode: event.cookies.get('DarkMode') !== 'false'
+        storeSessionMeta: false,
+        darkMode: event.cookies.get('DarkMode') !== 'false',
+        reverseLists: false
       }
       event.locals.paymentStatus = await getPaymentStatus(authCookie)
       return resolve(event)
@@ -89,7 +91,9 @@ export const handle: Handle = async ({ event, resolve }) => {
 
   event.locals.isLoggedIn = false
   event.locals.settings = {
-    darkMode: event.cookies.get('DarkMode') !== 'false'
+    storeSessionMeta: false,
+    darkMode: event.cookies.get('DarkMode') !== 'false',
+    reverseLists: false
   }
 
   return resolve(event)
