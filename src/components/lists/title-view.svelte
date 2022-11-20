@@ -142,6 +142,8 @@
   <!-- Top panel, contains display, filter, and search options -->
   <div class="row no-grid settings-panel">
     <button class="transparent"
+    class:enabled={settings.reverseLists}
+    title="Reverse List Order"
     on:click={async () => {
       await saveSetting('reverseLists', !settings.reverseLists)
     }}>

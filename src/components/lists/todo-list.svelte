@@ -227,6 +227,7 @@
     if (!editMode) {
       await save()
     }
+    await tick()
     preventAnimation = false
   }
   // #endregion
@@ -265,7 +266,7 @@
   <div class="row no-grid settings-panel">
     <button class="transparent"
     class:enabled={list.meta.reverseItems}
-    title={list.meta.reverseItems ? 'Items Reversed' : ''}
+    title="Reverse Item Order"
     on:click={async () => {
       await toggleReverseItems()
     }}>
@@ -282,7 +283,7 @@
     <div class="row-top centered">
       <i class="fas fa-times" style:color="var(--danger-red)"></i> 
       <div class="flex-break"></div>
-      <span>Free accounts are limited to 10 items per list.</span>
+      <span>Free accounts are limited to 10 items/list.</span>
     </div>
     {/if}
   {/if}
