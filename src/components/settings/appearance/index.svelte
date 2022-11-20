@@ -20,10 +20,7 @@
     </div>
 
     <div class="setting">
-      <div class="icons-row">
-        <i class="far fa-square-list"></i>
-        <i class="fas {settings.reverseLists ? 'fa-arrow-up' : 'fa-arrow-down'}"></i>
-      </div>
+      <i class="fad {settings.reverseLists ? 'fa-arrow-up-wide-short' : 'fa-arrow-down-short-wide'}"></i>
       <header>Reverse List Order:
         <span style:color={settings.reverseLists ? 'var(--success-green)' : 'var(--danger-red)'}>
           {settings.reverseLists ? 'Enabled' : 'Disabled'}
@@ -77,17 +74,6 @@
     }
     header,i {
       margin: auto 0;
-    }
-  }
-  div.icons-row {
-    display: flex;
-    flex-direction: row;
-    align-items: center;
-    i:not(:first-child) {
-      margin-left: 0.25rem;
-    }
-    i:not(:last-child) {
-      margin-right: 0.25rem;
     }
   }
 </style>
