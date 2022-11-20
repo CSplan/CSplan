@@ -32,7 +32,7 @@ export type ListItem<E extends boolean = false> = {
 type ListRequest = Omit<List<true>, 'id' | 'meta'> & { 
   meta: Required<MetaPatch> & Pick<ListMeta<true>, 'reverseItems'>
 }
-type ListPatch = Omit<List<true>, 'id' | 'meta'> & { meta: OrderedMetaPatch }
+type ListPatch = Omit<List<true>, 'id' | 'meta'> & { meta: Partial<Pick<ListMeta<true>, 'index' | 'reverseItems'>> }
 
 class ListStore extends Store<Record<string, List>> {
   private initialized = false
@@ -175,7 +175,8 @@ class ListStore extends Store<Record<string, List>> {
       title: encrypted.title,
       items: encrypted.items,
       meta: {
-        index: list.meta.index
+        index: list.meta.index,
+        reverseItems: await aes.encrypt(`${list.meta.reverseItems}`, list.meta.cryptoKey)
       }
     }
 
@@ -319,6 +320,14 @@ export const ordered = derived(lists, ($lists) => {
 // The total number of items
 export const itemsTotal = derived(lists, ($lists) => {
   return Object.values($lists).reduce((prev, v) => prev + v.items.length, 0)
+})
+
+// Items for each list, may be reversed based on per-list metadata
+export const items = derived(lists, ($lists) => {
+  return Object.values($lists).reduce<Record<string, ListItem[]>>((prev, v) => {
+    prev[v.id] = v.meta.reverseItems ? [...v.items].reverse() : v.items
+    return prev
+  }, {})
 })
 
 export default lists

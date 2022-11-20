@@ -1,0 +1,21 @@
+.settings-panel {
+  display: flex;
+  flex-direction: row;
+  padding: 0 !important;
+  border-bottom: 2px solid $border-alt !important;
+  &:hover {
+    background-color: initial !important;
+  }
+  button {
+    padding-left: 0.5rem;
+    padding-right: 0.5rem;
+    font-size: 110%;
+    margin: 0;
+    &.enabled {
+      color: $bold-blue;
+      * {
+        color: inherit;
+      }
+    }
+  }
+}

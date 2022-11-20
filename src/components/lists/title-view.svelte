@@ -141,7 +141,8 @@
 {:then}
   <!-- Top panel, contains display, filter, and search options -->
   <div class="row no-grid settings-panel">
-    <button class="transparent" on:click={async () => {
+    <button class="transparent"
+    on:click={async () => {
       await saveSetting('reverseLists', !settings.reverseLists)
     }}>
       <i class="fad {settings.reverseLists ? 'fa-arrow-up-wide-short' : 'fa-arrow-down-short-wide'}"></i>
@@ -275,6 +276,7 @@
 
 <style lang="scss">
   @import './icons.scss';
+  @import './options-panel.scss';
 
   .card {
     background: $bg-primary;
@@ -409,20 +411,5 @@
   }
   .row.empty {
     min-height: 3rem;
-  }
-  // TODO: Move settings panel to separate component
-  .settings-panel {
-    display: flex;
-    flex-direction: row;
-    border-bottom: 2px solid $border-alt !important;
-    &:hover {
-      background-color: initial;
-    }
-    button {
-      padding-left: 0.5rem;
-      padding-right: 0.5rem;
-      font-size: 110%;
-      margin: 0;
-    }
   }
 </style>

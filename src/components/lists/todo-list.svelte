@@ -1,7 +1,7 @@
 <script lang="ts">
   import { onMount, tick } from 'svelte'
   // import { flip } from 'svelte/animate'
-  import lists, { itemsTotal } from '$stores/lists'
+  import lists, { itemsTotal, items as listItems } from '$stores/lists'
   import type { List } from '$stores/lists'
   import tags from '$stores/tags'
   import Spinner from '$components/spinner.svelte'
@@ -18,6 +18,7 @@
 
   export let id: string
   export let user: App.Locals['user']
+  export let settings: App.Locals['settings']
   $: isLoggedIn = user != null
 
   // #region State
@@ -27,6 +28,7 @@
 
   // #region Editing/interactive
   let editMode = false
+  let preventAnimation = false
   async function toggleEditMode(): Promise<void> {
     editMode = !editMode
     if (!editMode) {
@@ -214,6 +216,21 @@
   }
   // #endregion 
 
+  // #region Metadata
+  async function toggleReverseItems(): Promise<void> {
+    preventAnimation = true
+    list.meta.reverseItems = !list.meta.reverseItems
+    lists.update((store) => {
+      store[id] = list
+      return store
+    })
+    if (!editMode) {
+      await save()
+    }
+    preventAnimation = false
+  }
+  // #endregion
+
   onMount(async () => {
     await lists.init()
     await tags.init()
@@ -235,6 +252,7 @@
     {/if}
   </div>
 
+  <!-- Title -->
   <section class="title">
     <div class="spacer"/>
     <header class="title" contenteditable={editMode} spellcheck="false" on:keypress={CEkeypress} on:blur={updateTitle}>{list.title}</header>
@@ -243,8 +261,38 @@
     </div>
   </section>
 
-  {#each list.items as item, i (item)}
-  <div class="row item-title marginless {item.tags.length === 0 ? 'tagless' : ''}" animate:flip={{ duration: 200 }}
+  <!-- Option panel -->
+  <div class="row no-grid settings-panel">
+    <button class="transparent"
+    class:enabled={list.meta.reverseItems}
+    title={list.meta.reverseItems ? 'Items Reversed' : ''}
+    on:click={async () => {
+      await toggleReverseItems()
+    }}>
+      <i class="fad {list.meta.reverseItems ? 'fa-arrow-up-wide-short' : 'fa-arrow-down-short-wide'}"></i>
+    </button> 
+  </div>
+
+  {#if editMode && list.meta.reverseItems}
+    {#if !itemLimitHit}
+    <div class="row-top centered clickable" on:click={addItem}>
+      <i class="fas fa-plus"></i>
+    </div>
+    {:else}
+    <div class="row-top centered">
+      <i class="fas fa-times" style:color="var(--danger-red)"></i> 
+      <div class="flex-break"></div>
+      <span>Free accounts are limited to 10 items per list.</span>
+    </div>
+    {/if}
+  {/if}
+
+  <!-- Items -->
+  {#each $listItems[id] as item, offset (item)}
+  {@const r = list.meta.reverseItems}
+  {@const i = r ? list.items.length - 1 - offset : offset}
+
+  <div class="row item-title marginless {item.tags.length === 0 ? 'tagless' : ''}" animate:flip={{ duration: preventAnimation ? 0 : 200 }}
     class:highlighted={highlightRow[i]}
     on:dragover|preventDefault={e => ondragover(e, i)}
     on:dragleave|preventDefault={e => ondragleave(e, i)}
@@ -280,11 +328,11 @@
     {#if editMode}
     <div class="icons">
       {#if list.items.length > 1}
-        {#if i > 0}
-          <i class="fas fa-arrow-up clickable" on:click={() => moveItem(i, i-1)} title="Move item up"></i>
+        {#if r ? i < list.items.length-1 : i > 0}
+          <i class="fas fa-arrow-up clickable" on:click={() => moveItem(i, r ? i+1 : i-1)} title="Move item up"></i>
         {/if}
-        {#if i < list.items.length - 1}
-          <i class="fas fa-arrow-down clickable" on:click={() => moveItem(i, i+1)} title="Move item down"></i>
+        {#if r ? i > 0 : i < list.items.length - 1}
+          <i class="fas fa-arrow-down clickable" on:click={() => moveItem(i, r ? i-1 : i+1)} title="Move item down"></i>
         {/if}
         <i class="fas fa-grip-vertical clickable drag-icon" draggable="true" on:dragstart={e => ondragstart(e, i)} title="This item is draggable"></i>
       {/if}
@@ -316,7 +364,7 @@
     {/if}
   </div>
   {/each}
-  {#if editMode}
+  {#if editMode && !list.meta.reverseItems}
     {#if !itemLimitHit}
     <div class="row-bottom centered clickable" on:click={addItem}>
       <i class="fas fa-plus"></i>
@@ -333,6 +381,7 @@
 {/if}
 
 <style lang="scss">
+  @import './options-panel.scss';
   header.title {
     font-size: 24px;
     text-align: center;
@@ -511,6 +560,11 @@
   .row-bottom {
     padding: 0.5rem;
     text-align: center;
+  }
+  .row-top {
+    padding: 0.5rem;
+    text-align: center;
+    border-bottom: 1px solid $border-alt;
   }
   // #endregion
 
