@@ -1,19 +1,7 @@
 <script lang="ts">
-  import { invalidateAll } from '$app/navigation'
-  import { csfetch, route } from '$lib'
+  import { saveSetting } from '$lib/settings'
   export let settings: App.Locals['settings']
 
-
-  async function saveSetting(setting: keyof App.Locals['settings'], value: boolean): Promise<void> {
-    const body: Partial<App.Locals['settings']> = {
-      [setting]: value
-    }
-    await csfetch(route('/settings'), {
-      method: 'PATCH',
-      body: JSON.stringify(body)
-    })
-    await invalidateAll()
-  }
 </script>
 
 <section class="settings-menu-container">

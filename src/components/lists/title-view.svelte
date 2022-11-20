@@ -8,6 +8,7 @@
   import CreateListForm from './create-list-form.svelte'
   import DeleteConfirmationModal from '$components/modals/confirm-modal.svelte'
   import { html2txt } from '$lib/contenteditable/html'
+  import { saveSetting } from '$lib/settings'
   // Only used on mobile
   import EditMenu from './list-edit-dropdown.svelte'
   export let settings: App.Locals['settings']
@@ -18,7 +19,6 @@
   const highlightRow: { [id: string]: boolean } = {}
 
   // State pulled from child components
-  let isLoading = false
 
   // Update event handlers
   async function onblur(id: string): Promise<void> {
@@ -132,13 +132,21 @@
 
 <div class="card">
 {#await initPromise}
-  <div class="row center">
+  <div class="row no-grid">
     <div class="column">
       <header>Loading Content...</header>
       <Spinner size="3rem" vm="0.5rem"/>
     </div>
   </div>
 {:then}
+  <!-- Top panel, contains display, filter, and search options -->
+  <div class="row no-grid settings-panel">
+    <button class="transparent" on:click={async () => {
+      await saveSetting('reverseLists', !settings.reverseLists)
+    }}>
+      <i class="fad {settings.reverseLists ? 'fa-arrow-up-wide-short' : 'fa-arrow-down-short-wide'}"></i>
+    </button> 
+  </div>
   {#if settings.reverseLists}
     <CreateListForm {settings}>
       <svelte:fragment slot="icon">
@@ -244,11 +252,8 @@
       </div>
     </div>
   {/each}
-    {#if isLoading}
-      <div class="row"><Spinner size="1.5rem" vm="0.5rem"/></div>
-    {/if}
   {:else}
-    <div class="row center" class:dark={settings.darkMode}>
+    <div class="row no-grid" class:dark={settings.darkMode}>
       <header>It's empty here...</header>
     </div>
   {/if}
@@ -292,7 +297,7 @@
     --side-margin: 5rem;
     color: initial;
     text-align: center;
-    &:not(.center) {
+    &:not(.no-grid) {
       display: grid;
       grid-auto-flow: column;
       @media all and (max-width: $mobile-max) {
@@ -404,5 +409,20 @@
   }
   .row.empty {
     min-height: 3rem;
+  }
+  // TODO: Move settings panel to separate component
+  .settings-panel {
+    display: flex;
+    flex-direction: row;
+    border-bottom: 2px solid $border-alt !important;
+    &:hover {
+      background-color: initial;
+    }
+    button {
+      padding-left: 0.5rem;
+      padding-right: 0.5rem;
+      font-size: 110%;
+      margin: 0;
+    }
   }
 </style>

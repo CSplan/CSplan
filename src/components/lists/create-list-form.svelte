@@ -93,6 +93,7 @@
       border-bottom: 1px solid $border-alt;
       button.create {
         border-bottom: none;
+        border-top: none;
       }
     }
     &:not(.top) {
