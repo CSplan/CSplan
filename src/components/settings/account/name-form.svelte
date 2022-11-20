@@ -2,7 +2,7 @@
   import navState, { FormIDs } from '../navigation-state'
   import { DisplayNames, Visibilities, FormStates as States } from '$lib'
   import VisibilityForm from '../visibility-form.svelte'
-  import nameStore from '$stores/user-name'
+  import nameStore from '$stores/user/name'
   import { onMount, tick } from 'svelte'
   import { slide } from 'svelte/transition'
   import Spinner from '$components/spinner.svelte'

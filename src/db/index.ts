@@ -45,7 +45,7 @@ const stores: { [name: string]: StoreTemplate } = {
       autoIncrement: false
     }
   },
-  'user-name': {
+  'user/name': {
     scope: Scopes.User,
     options: {
       keyPath: 'id',

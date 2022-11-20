@@ -44,7 +44,7 @@ function create(): Readable<Name> & SingleResourceStore<NameData> {
       }
 
       const document: NameDocument = await res.json()
-      const cached: Name|undefined = await getByKey('user-name', user.id)
+      const cached = await getByKey<Name>('user/name', user.id)
       if (cached != null && cached.checksum === document.meta.checksum) {
         set(cached)
         return
@@ -83,7 +83,7 @@ function create(): Readable<Name> & SingleResourceStore<NameData> {
         checksum: document.meta.checksum
       }
       set(final)
-      await addToStore('user-name', final)
+      await addToStore('user/name', final)
       initialized = true
     },
     async create(name: NameData): Promise<void> {
@@ -151,7 +151,7 @@ function create(): Readable<Name> & SingleResourceStore<NameData> {
         cryptoKey
       }
       set(final)
-      await addToStore('user-name', final)
+      await addToStore('user/name', final)
       initialized = true
     },
     async delete(): Promise<void> {
