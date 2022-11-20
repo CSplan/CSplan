@@ -22,7 +22,7 @@
     "@very-amused/argon2-wasm": "^0.3.1",
     "@very-amused/ed25519-wasm": "^0.1.3",
     "cookie": "^0.5.0",
-    "cs-crypto": "^0.8.0",
+    "cs-crypto": "^0.8.1",
     "dompurify": "^2.3.8",
     "js-cookie": "^3.0.1",
     "markdown-it": "^13.0.1",

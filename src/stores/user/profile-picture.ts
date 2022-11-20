@@ -1,8 +1,5 @@
 import { aes, rsa } from 'cs-crypto'
-import { writable } from 'svelte/store'
-import type { Readable, Writable } from 'svelte/store'
-import { mustGetByKey } from '../../db'
-import * as db from '../../db'
+import * as db from '$db'
 import { Visibilities, route, csfetch, HTTPerror } from '$lib'
 import storage from '$db/storage'
 import { pageStorage } from '$lib/page'
@@ -35,7 +32,7 @@ class UserPFPStore extends Store<UserPFP> {
     })
   }
 
-  async init(): Promise<void> {
+  async init(this: UserPFPStore): Promise<void> {
     if (this.initialized) {
       return
     }
@@ -93,88 +90,74 @@ class UserPFPStore extends Store<UserPFP> {
     await db.addToStore('user/profile-picture', final)
     this.initialized = true
   }
-}
 
-function create(): Readable<UserPFP> & UserPFPStore {
-  const initialState = {}
-  const { subscribe, update }: Writable<UserPFP> = writable(initialState)
+  async create(this: UserPFPStore, image: Blob, visibility: Visibilities): Promise<void> {
+    const encoding = image.type
 
-  return {
-    async create(image: Blob, visibility: Visibilities): Promise<void> {
-      const encoding = image.type
+    let rawImage: Uint8Array
+    let meta: Omit<UserPFPMeta<true>, 'checksum'>
+    const user = pageStorage.getJSON('user')!
 
-      let rawImage: Uint8Array
-      let meta: UserPFPMeta
-      const user = pageStorage.getJSON('user')!
+    // Encrypt/encode the image depending on visibility
+    let cryptoKey: CryptoKey|undefined
+    if (visibility === Visibilities.Encrypted) {
+      // Encrypt the image
+      cryptoKey = await aes.generateKey('AES-GCM')
+      rawImage = await aes.binaryEncrypt(new Uint8Array(await image.arrayBuffer()), cryptoKey)
 
-      // Encrypt/encode the image depending on visibility
-      if (visibility === Visibilities.Encrypted) {
-        // Encrypt the image
-        const key = await aes.generateKey('AES-GCM')
-        rawImage = await aes.ABencrypt(await image.arrayBuffer(), key)
-
-        // Wrap the cryptokey and encrypt image encoding info
-        const { publicKey } = await mustGetByKey<MasterKeys>('keys', user.id)
-        meta = {
-          visibility,
-          cryptoKey: await rsa.wrapKey(key, publicKey),
-          encoding: await aes.encrypt(encoding, key)
-        }
-      } else {
-        rawImage = new Uint8Array(await image.arrayBuffer())
-        meta = {
-          visibility,
-          encoding
-        }
+      // Wrap the cryptokey and encrypt image encoding info
+      const { publicKey } = await db.mustGetByKey<MasterKeys>('keys', user.id)
+      meta = {
+        visibility,
+        cryptoKey: await rsa.wrapKey(cryptoKey, publicKey),
+        encoding: await aes.encrypt(encoding, cryptoKey)
       }
-
-      // Store the encrypted data with the backend
-      const contentType = visibility === Visibilities.Encrypted ? 'application/octet-stream' : encoding
-      const res = await csfetch(route('/profile-picture'), {
-        method: 'PUT',
-        headers: {
-          'CSRF-Token': storage.getCSRFtoken(),
-          'Content-Type': contentType,
-          'X-Image-Meta': JSON.stringify(meta)
-        },
-        body: rawImage.buffer
-      })
-      if (res.status !== 200) {
-        if (res.status === 409) {
-          throw new Error('a user profile picture has already been created')
-        }
-        try {
-          const err: ErrorResponse = await res.json()
-          throw new Error(err.message)
-        } catch {
-          throw new Error(`failed to create user profile picture (status ${res.status})`)
-        }
-      }
-      const body: Legacy_Meta = await res.json()
-      const checksum = body.meta.checksum
-
-      // Update state
-      update((store) => {
-        store.image = image
-        store.checksum = checksum
-        store.visibility = visibility
-        store.encoding = encoding
-        return store
-      })
-    
-      // Update IDB
-      await db.addToStore('user-profile-picture', {
-        id: user.id,
-        image,
-        checksum,
+    } else {
+      rawImage = new Uint8Array(await image.arrayBuffer())
+      meta = {
         visibility,
         encoding
-      })
+      }
     }
+
+    // Store the encrypted data with the backend
+    const contentType = visibility === Visibilities.Encrypted ? 'application/octet-stream' : encoding
+    const res = await csfetch(route('/profile-picture'), {
+      method: 'PUT',
+      headers: {
+        'CSRF-Token': storage.getCSRFtoken(),
+        'Content-Type': contentType,
+        'X-Image-Meta': JSON.stringify(meta)
+      },
+      body: rawImage.buffer
+    })
+    if (res.status !== 200) {
+      if (res.status === 409) {
+        throw new Error('A user profile picture has already been created')
+      }
+      throw await HTTPerror(res, 'Failed to create user PFP')
+    }
+    const body: Omit<StateResponse, 'id'> = await res.json()
+
+    // Update state
+    const final: UserPFP = {
+      exists: true,
+      id: user.id,
+      image,
+      meta: {
+        cryptoKey,
+        visibility: meta.visibility,
+        encoding,
+        checksum: body.meta.checksum
+      }
+    }
+    this.set(final)
+  
+    // Update IDB
+    await db.addToStore('user/profile-picture', final)
   }
 }
 
-
-export const userPFP = create()
+export const userPFP = new UserPFPStore()
 
 export default userPFP
