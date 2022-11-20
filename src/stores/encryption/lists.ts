@@ -1,10 +1,12 @@
 import { aes } from 'cs-crypto'
+import type { ListData } from '../lists'
 
-export async function encryptList(list: ListData, key: CryptoKey): Promise<EncryptedListData> {
+/** Encrypt a todo list */
+export async function encryptList(list: ListData, key: CryptoKey): Promise<ListData<true>> {
   return {
     title: await aes.encrypt(list.title, key),
     items: await Promise.all(list.items.map( // obnoxious javascript-y way of expressing an async for loop declaratively
-      async (item: ListItem<false>) => {
+      async (item) => {
         return {
           title: await aes.encrypt(item.title, key),
           description: await aes.encrypt(item.description, key),
@@ -15,11 +17,12 @@ export async function encryptList(list: ListData, key: CryptoKey): Promise<Encry
   }
 }
 
-export async function decryptList(encrypted: EncryptedListData, key: CryptoKey): Promise<ListData> {
+/** Decrypt a todo list */
+export async function decryptList(encrypted: ListData<true>, key: CryptoKey): Promise<ListData> {
   return {
     title: await aes.decrypt(encrypted.title, key),
     items: await Promise.all(encrypted.items.map(
-      async (item: ListItem<true>) => {
+      async (item) => {
         return {
           title: await aes.decrypt(item.title, key),
           description: await aes.decrypt(item.description, key),
