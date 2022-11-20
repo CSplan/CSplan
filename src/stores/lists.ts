@@ -13,6 +13,7 @@ export type List<E extends boolean = false> = ListData<E> & {
 
 export type ListMeta<E extends boolean = false> = OrderedMeta<E> & {
   reverseItems: E extends true ? string : boolean
+  archived: boolean
 } & Partial<{
   saveState: FormStates
 }>
@@ -32,11 +33,12 @@ export type ListItem<E extends boolean = false> = {
 type ListRequest = Omit<List<true>, 'id' | 'meta'> & { 
   meta: Required<MetaPatch> & Pick<ListMeta<true>, 'reverseItems'>
 }
-type ListPatch = Omit<List<true>, 'id' | 'meta'> & { meta: Partial<Pick<ListMeta<true>, 'index' | 'reverseItems'>> }
+type ListPatch = Omit<Partial<List<true>>, 'id' | 'meta'> & { meta?: Partial<Pick<ListMeta<true>, 'index' | 'reverseItems' | 'archived'>> }
 
 class ListStore extends Store<Record<string, List>> {
   private initialized = false
-  reverseLists = false 
+  reverseLists = false
+  showArchived = false
   declare update: Store<Record<string, List>>['update']
 
   constructor() {
@@ -85,6 +87,7 @@ class ListStore extends Store<Record<string, List>> {
           index: encrypted.meta.index,
           checksum: encrypted.meta.checksum,
           reverseItems: (await aes.decrypt(encrypted.meta.reverseItems, cryptoKey)) === 'true',
+          archived: encrypted.meta.archived,
           cryptoKey
         }
       }
@@ -138,6 +141,7 @@ class ListStore extends Store<Record<string, List>> {
         index: meta.index,
         checksum: meta.checksum,
         reverseItems: false,
+        archived: false,
         cryptoKey
       }
     }
@@ -176,7 +180,8 @@ class ListStore extends Store<Record<string, List>> {
       items: encrypted.items,
       meta: {
         index: list.meta.index,
-        reverseItems: await aes.encrypt(`${list.meta.reverseItems}`, list.meta.cryptoKey)
+        reverseItems: await aes.encrypt(`${list.meta.reverseItems}`, list.meta.cryptoKey),
+        archived: list.meta.archived
       }
     }
 
@@ -233,6 +238,43 @@ class ListStore extends Store<Record<string, List>> {
       delete store[id]
       return store
     })
+  }
+
+  /** Archive a list */
+  async archive(id: string, unarchive = false): Promise<void> {
+    const body: ListPatch = {
+      meta: {
+        archived: !unarchive
+      }
+    }
+    this.update((store) => {
+      store[id].meta.archived = !unarchive
+      store[id].meta.saveState = FormStates.Saving
+      return store
+    })
+    const res = await csfetch(route(`/todos/${id}`), {
+      method: 'PATCH',
+      body: JSON.stringify(body)
+    })
+    if (res.status !== 200) {
+      throw await HTTPerror(res, 'Failed to archive list')
+    }
+    // Set the list's state as saved, clear after 500ms
+    this.update((store) => {
+      store[id].meta.saveState = FormStates.Saved
+      return store
+    })
+    setTimeout(() => {
+      this.update((store) => {
+        delete store[id].meta.saveState
+        return store
+      })
+    }, 500)
+  }
+
+  /** Unarchive a list */
+  async unarchive(id: string): Promise<void> {
+    return this.archive(id, true)
   }
 
   async move(id: string, index: number): Promise<void> {
@@ -312,7 +354,7 @@ export const lists = new ListStore()
 
 // Sort lists by the index property
 export const ordered = derived(lists, ($lists) => {
-  return Object.values($lists).sort((l1, l2) => lists.reverseLists
+  return Object.values($lists).filter(v => lists.showArchived || !v.meta.archived).sort((l1, l2) => lists.reverseLists
     ? l2.meta.index - l1.meta.index
     : l1.meta.index - l2.meta.index)
 })

@@ -230,6 +230,10 @@
               <Spinner size="1.2em" state={list.meta.saveState}/>
             </div>
           {:else}
+          <!-- Archive button for the list -->
+            <i class="far fa-box-archive clickable" on:click={async () => {
+              await store.archive(list.id)
+            }}></i>
             <!-- Delete button for the list -->
             <i class="fas fa-times clickable" on:click={() => deleteList(list.id)}></i>
           {/if}
@@ -401,6 +405,9 @@
     }
     .arrow-icons i:last-child {
       margin-left: 0.3rem;
+    }
+    i.fa-box-archive {
+      margin-right: 0;
     }
   }
 

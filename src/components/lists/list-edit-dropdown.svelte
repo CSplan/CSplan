@@ -75,6 +75,11 @@
     <span>Edit Title</span>
     <i class="fas fa-pencil"></i>
   </button>
+
+  <button class="transparent" on:click={async () => store.archive(id) }>
+    <span>Archive List</span>
+    <i class="far fa-box-archive"></i>
+  </button>
   <button class="transparent delete-button" on:click={deleteList}>
     <span>Delete List</span>
     <i class="fas fa-times"></i>
