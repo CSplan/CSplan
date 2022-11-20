@@ -53,6 +53,10 @@ main.container.vcenter {
   height: 70vh;
 }
 
+* {
+  box-sizing: border-box;
+}
+
 /* Margin shorthand */
 .marginless {
   margin: 0 !important;

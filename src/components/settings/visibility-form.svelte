@@ -93,7 +93,8 @@
     z-index: 1;
     right: 0;
     margin-top: 0.5rem;
-    border: 1px solid $border-alt;
+    border: 1px solid $border-normal;
+    box-shadow: -0.6rem 0.3rem 1rem black;
     border-radius: 3px;
     background: $bg-primary;
 
@@ -120,15 +121,15 @@
       }
       i.indicator {
         margin-left: auto;
-        font-size: 75%;
+        font-size: 90%;
       }
       &:hover {
         background: $bg-hover;
       }
     }
     header {
-      padding-bottom: 0.3rem;
-      font-size: 1rem;
+      font-size: 110%;
+      text-align: center;
     }
     label:last-of-type {
       border-bottom: none;

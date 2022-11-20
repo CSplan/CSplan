@@ -3,13 +3,21 @@
   import { DisplayNames, Visibilities, FormStates as States } from '$lib'
   import VisibilityForm from '../visibility-form.svelte'
   import nameStore from '$stores/user/name'
+  import type { NameData } from '$stores/user/name'
   import { onMount, tick } from 'svelte'
   import { slide } from 'svelte/transition'
   import Spinner from '$components/spinner.svelte'
 
   // Form state
-  let name: Name
-  name = cloneName($nameStore)
+  let name: NameData = {
+    firstName: '',
+    lastName: '',
+    visibility: {
+      firstName: Visibilities.Encrypted,
+      lastName: Visibilities.Encrypted
+    },
+    displayName: DisplayNames.Anonymous
+  }
   let open = false
   $: open = $navState.isEditing === FormIDs.ChangeName
   let disabled = !open
@@ -24,7 +32,7 @@
   }
 
   let state = States.Resting
-  let status = ''
+  let message = ''
 
   // State references used to decide available display name options
   let hasUsername = false
@@ -34,38 +42,28 @@
   $: hasPublicFirstName = name.firstName.length > 0 && name.visibility.firstName === Visibilities.Public
   $: hasPublicLastName = name.lastName.length > 0 && name.visibility.lastName === Visibilities.Public
 
-
-  // Copy a name object without any references (cryptoKey may still be a reference)
-  function cloneName(n: Name): Name {
-    return {
-      ...n,
-      visibility: { ...n.visibility }
-    }
-  }
-
   async function submit(): Promise<void> {
     try {
       state = States.Saving
-      status = 'Saving'
+      message = 'Saving Name'
       await nameStore.create(name)
-      // FIXME: visual indication of name form submission error/success
       state = States.Saved
-      status = 'Saved'
+      message = 'Saved'
       await tick()
       setTimeout(() => {
         state = States.Resting
-        status = ''
+        message = ''
         open = false
       }, 500)
     } catch (err) {
       state = States.Errored
-      status = err instanceof Error ? err.message : err as string
+      message = `${err}`
     }
   }
 
   onMount(async () => {
     await nameStore.init() 
-    name = cloneName($nameStore)
+    name = structuredClone($nameStore)
   })
 </script>
 
@@ -117,12 +115,7 @@
       </select>
       </div>
 
-    {#if state !== States.Resting}
-      <Spinner size="2rem" vm="0.25rem" {state}/>
-    {/if}
-    <p class="form-status" class:error={state === States.Errored} class:success={state === States.Saved} class:d-none={status.length === 0}>
-      {status}
-    </p>
+    <Spinner size="2rem" vm="0.25rem" {state} message={message}/>
 
     <input type="submit" value="Save" class:d-none={[States.Loading, States.Saved].includes(state)}>
   {/if}
