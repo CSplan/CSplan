@@ -57,9 +57,6 @@
   // Toggle an item's completion
   async function toggleItem(index: number): Promise<void> {
     list.items[index].done = !list.items[index].done
-    lists.update(id, {
-      items: list.items
-    })
     await save()
   }
 
@@ -145,8 +142,9 @@
     }
     // Wait .5s before showing a loading icon
     // Clientside sanitization is performed before display, and this is all encrypted serverside, so the only purpose this serves 
-    lists.update(id, {
-      ...list
+    lists.update((store) => {
+      store[id] = list
+      return store
     })
     if (!commit) {
       return

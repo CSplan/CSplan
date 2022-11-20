@@ -22,8 +22,10 @@
   // Update event handlers
   async function onblur(id: string): Promise<void> {
     delete showEditableHeader[id]
-    const title = html2txt(titleHTML[id] || '')
-    store.update(id, { title })
+    store.update((store) => {
+      store[id].title = html2txt(titleHTML[id])
+      return store
+    })
     await store.commit(id)
   }
 
@@ -198,10 +200,10 @@
           <!-- Drag and drop handle for moving list position-->
           <i class="fas fa-grip-vertical clickable" draggable="true" on:dragstart={e => ondragstart(e, list.id)} title="This item is draggable."></i>
 
-          {#if list.flags?.saveState != null}
+          {#if list.meta.saveState != null}
             <div class="spinner">
               <!-- Saving spinner, 1.2em vs 1.1em size on other icons makes spinner attract attention -->
-              <Spinner size="1.2em" state={list.flags.saveState}/>
+              <Spinner size="1.2em" state={list.meta.saveState}/>
             </div>
           {:else}
             <!-- Delete button for the list -->

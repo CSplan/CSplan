@@ -2,14 +2,18 @@ import { derived } from 'svelte/store'
 import * as db from '$db'
 import { aes, rsa } from 'cs-crypto'
 import { encryptList, decryptList } from './encryption'
-import { HTTPerror, route, csfetch } from '$lib'
+import { HTTPerror, route, csfetch, FormStates } from '$lib'
 import { Store } from './store'
 import { pageStorage } from '$lib/page'
 
 export type List<E extends boolean = false> = ListData<E> & {
   id: string
-  meta: OrderedMeta<E>
+  meta: ListMeta<E>
 }
+
+export type ListMeta<E extends boolean = false> = OrderedMeta<E> & Partial<{
+  saveState: FormStates
+}>
 
 export type ListData<E extends boolean = false> = {
   title: string
@@ -28,6 +32,7 @@ type ListPatch = Omit<List<true>, 'id' | 'meta'> & { meta: OrderedMetaPatch }
 
 class ListStore extends Store<Record<string, List>> {
   private initialized = false
+  declare update: Store<Record<string, List>>['update']
 
   constructor() {
     super({})
@@ -144,9 +149,18 @@ class ListStore extends Store<Record<string, List>> {
       throw new ReferenceError('List passed by ID does not exist')
     }
 
+    // Flag the list as saving if the commit operation lasts for more than 500ms
+    const savingFlagTimeout = setTimeout(() => {
+      this.update((store) => {
+        store[id].meta.saveState = FormStates.Saving
+        return store
+      })
+    }, 500)
+
     // Encrypt the entire list and send the changes as a PATCH request
+    // TODO: use flags.changes to make more precise patches
     const encrypted  = await encryptList(list, list.meta.cryptoKey)
-    const document: ListPatch = {
+    const body: ListPatch = {
       title: encrypted.title,
       items: encrypted.items,
       meta: {
@@ -157,11 +171,24 @@ class ListStore extends Store<Record<string, List>> {
     // Commit
     const res = await csfetch(route(`/todos/${id}`), {
       method: 'PATCH',
-      body: JSON.stringify(document)
+      body: JSON.stringify(body)
     })
+    clearTimeout(savingFlagTimeout)
     if (res.status !== 200) {
       throw await HTTPerror(res, 'Failed to update list')
     }
+
+    // Set the list's state as saved, clear after 500ms
+    this.update((store) => {
+      store[id].meta.saveState = FormStates.Saved
+      return store
+    })
+    setTimeout(() => {
+      this.update((store) => {
+        delete store[id].meta.saveState
+        return store
+      })
+    }, 500)
 
     // Update the list's checksum
     const { meta }: OrderedStateResponse = await res.json()
