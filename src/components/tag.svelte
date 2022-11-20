@@ -1,69 +1,62 @@
-<script>
-  /* eslint-disable */
-  export let id
+<script lang="ts">
   import tags from '$stores/tags'
-  import { states } from './js/states'
+  import { FormStates as States } from '$lib'
   import ColorPicker from './color-picker/color-picker.svelte'
-  import { CEkeypress } from '../lib/contenteditable-deprecated'
   import { onMount } from 'svelte'
-  import { parseLightness } from './color-picker/parse-lightness'
-  import { hexToRGB } from '$lib/hex-rgb'
+  import { html2txt } from '$lib/contenteditable/html'
 
-  let state = states.loading
-  let tag
+  
+  export let id: string
+
+  let state = States.Loading
+  
   let mountColorPicker = false
   let mountTextColorPicker = false
   let showColorPicker = false
   let showTextColorPicker = false
 
-  function toggleColorPicker() {
+  let nameHTML: string
+
+  async function toggleColorPicker(): Promise<void> {
     if (!mountColorPicker) {
       mountColorPicker = true
       mountTextColorPicker = false
     }
     showColorPicker = !showColorPicker
     if (!showColorPicker) {
-      tags.commit(id)
+      await save()
     }
   }
-  function toggleTextColorPicker() {
+  async function toggleTextColorPicker(): Promise<void> {
     if (!mountTextColorPicker) {
       mountTextColorPicker = true
       mountColorPicker = false
     }
     showTextColorPicker = !showTextColorPicker
     if (!showTextColorPicker) {
-      tags.commit(id)
+      await save()
     }
-  }
-  // TODO: use color picker palette to implement cleaner BW switching
-  function toggleTextBW() {
-    // Don't toggle BW while the color picker is showing
-    if (showTextColorPicker) {
-      return
-    }
-    const lightness = parseLightness(hexToRGB($tags[id].textColor))
-    if (lightness > 0.5) {
-      tags.update(id, { textColor: '#000' })
-    } else {
-      tags.update(id, { textColor: '#FFF' })
-    }
-    tags.commit(id)
   }
 
-  function getLightness(color) {
-    return parseLightness(hexToRGB($tags[id].textColor))
+  // Save the tag to the API
+  async function save(): Promise<void> {
+    state = States.Saving 
+    tags.update((store) => {
+      store[id].name = html2txt(nameHTML)
+      return store
+    })
+    await tags.commit(id)
+    state = States.Resting
   }
 
-  function deleteThis() {
+  function deleteThis(): void {
     // Unmount component HTML to avoid any errors caused by values disappearing asynchronously
-    state = states.destroyed
+    state = States.Loading
     tags.delete(id)
   }
 
   onMount(() => {
-    tag = $tags[id]
-    state = states.resting
+    state = States.Resting
   })
 </script>
 
@@ -76,7 +69,7 @@
   }
 }} />
 
-{#if state === states.resting || state === states.updating}
+{#if [States.Resting, States.Saving].includes(state)}
   <div class="card noborder" style="--background-color: {$tags[id].color}">
     <div class="handle" />
 
@@ -84,10 +77,9 @@
       style:color={$tags[id].textColor}
       contenteditable
       spellcheck="false"
-      on:keypress={CEkeypress}
-      on:input={(e) => tags.update(id, { name: e.target.textContent })}
-      on:blur={tags.commit(id)}>
-      {tag.name}
+      bind:innerHTML={nameHTML}
+      on:blur={save}>
+      {$tags[id].name}
     </header>
 
     <div class="end">
@@ -99,8 +91,11 @@
             on:pointerup|self={toggleTextColorPicker}/>
           {#if mountTextColorPicker}
             <ColorPicker size=small
-              on:colorchange={(e) => {
-                tags.update(id, { textColor: e.detail })
+              on:colorchange={(evt) => {
+                tags.update((store) => {
+                  store[id].textColor = evt.detail
+                  return store
+                })
               }}/>
           {/if}
         </div>
@@ -110,7 +105,12 @@
             on:pointerup|self={toggleColorPicker}/>
           {#if mountColorPicker}
             <ColorPicker
-              on:colorchange={(e) => tags.update(id, { color: e.detail })} />
+              on:colorchange={(evt) => {
+                tags.update((store) => {
+                  store[id].color = evt.detail
+                  return store
+                })
+              }}/>
           {/if}
         </div>
 
