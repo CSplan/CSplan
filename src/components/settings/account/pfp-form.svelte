@@ -1,6 +1,6 @@
 <script lang="ts">
   import { onMount, tick } from 'svelte'
-  import { userPFP } from '$stores/user-profile-picture'
+  import { userPFP } from '$stores/user/profile-picture'
   import { formatError, Visibilities, FormStates as States } from '$lib'
   import Spinner from '$components/spinner.svelte'
   import VisibilityForm from '$components/settings/visibility-form.svelte'

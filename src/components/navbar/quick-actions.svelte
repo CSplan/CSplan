@@ -1,6 +1,6 @@
 <script lang="ts">
   import { fly } from 'svelte/transition'
-  import { userPFP } from '$stores/user-profile-picture'
+  import { userPFP } from '$stores/user/profile-picture'
   import { userActions } from '$lib/page'
 
   let show = false

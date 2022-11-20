@@ -6,7 +6,8 @@ const DB_VER = 3
 const clearStoresOnUpgrade = [
   'stripe/customer-id',
   'tags',
-  'user-name'
+  'user-name',
+  'user-profile-picture'
 ] as const
 
 let cachedIDB: IDBDatabase|null = null
@@ -43,7 +44,7 @@ const stores: { [name: string]: StoreTemplate } = {
       autoIncrement: false
     }
   },
-  'user-profile-picture': {
+  'user/profile-picture': {
     scope: Scopes.User,
     options: {
       keyPath: 'id',
