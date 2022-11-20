@@ -40,7 +40,9 @@
 <svelte:window on:keydown={onkeydown}></svelte:window>
 
 {#if show}
-  <form bind:this={form} class="row-create-form" class:dark={settings.darkMode} novalidate on:submit|preventDefault={createList}>
+  <form bind:this={form} class="row-create-form"
+  class:dark={settings.darkMode} class:top={settings.reverseLists}
+  novalidate on:submit|preventDefault={createList}>
     <input type="text" bind:value={title} bind:this={titleInput} placeholder="Title" required>
     <button class="transparent create" title="Create List">
       <i class="fas fa-plus"></i>
@@ -51,7 +53,7 @@
     </div>
   </form>
 {:else}
-  <section class="row-center clickable" class:dark={settings.darkMode} on:click={toggleForm}>
+  <section class="row-center clickable" class:top={settings.reverseLists} class:dark={settings.darkMode} on:click={toggleForm}>
     <slot name="icon">
       <i class="fas fa-plus"></i>
     </slot>
@@ -70,6 +72,9 @@
     :global(i) {
       margin: 0.8rem;
     }
+    &.top {
+      border-bottom: 1px solid $border-alt;
+    }
   }
   .row-center:hover {
     background: whitesmoke;
@@ -84,6 +89,17 @@
     grid-auto-columns: minmax(max-content, 2fr) max-content;
     grid-auto-flow: column;
     width: 100%;
+    &.top {
+      border-bottom: 1px solid $border-alt;
+      button.create {
+        border-bottom: none;
+      }
+    }
+    &:not(.top) {
+      button.create {
+        border-top: none;
+      }
+    }
 
     >* {
       margin: 0;
@@ -109,7 +125,6 @@
       justify-content: center;
       padding: 0;
       border: 1px $border-alt solid;
-      border-top: none;
       border-radius: 0;
 
       i {

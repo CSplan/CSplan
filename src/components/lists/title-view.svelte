@@ -139,6 +139,17 @@
     </div>
   </div>
 {:then}
+  {#if settings.reverseLists}
+    <CreateListForm {settings}>
+      <svelte:fragment slot="icon">
+        {#if $ordered.length === 0}
+          <button class="bold">Create List</button>
+        {:else}
+          <i class="fas fa-plus"></i>
+        {/if}
+      </svelte:fragment>
+    </CreateListForm>
+  {/if}
   {#if $ordered.length > 0}
   {#each $ordered as list (list.id)}
   {@const i = list.meta.index}
@@ -237,19 +248,21 @@
       <div class="row"><Spinner size="1.5rem" vm="0.5rem"/></div>
     {/if}
   {:else}
-    <div class="row-center border" class:dark={settings.darkMode}>
+    <div class="row center" class:dark={settings.darkMode}>
       <header>It's empty here...</header>
     </div>
   {/if}
-  <CreateListForm {settings}>
-    <svelte:fragment slot="icon">
-      {#if $ordered.length === 0}
-        <button class="bold">Create List</button>
-      {:else}
-        <i class="fas fa-plus"></i>
-      {/if}
-    </svelte:fragment>
-  </CreateListForm>
+  {#if !settings.reverseLists}
+    <CreateListForm {settings}>
+      <svelte:fragment slot="icon">
+        {#if $ordered.length === 0}
+          <button class="bold">Create List</button>
+        {:else}
+          <i class="fas fa-plus"></i>
+        {/if}
+      </svelte:fragment>
+    </CreateListForm>
+  {/if}
 {:catch err}
   <pre>{err instanceof Error ? err : `Error: ${err}`}</pre>
 {/await}
