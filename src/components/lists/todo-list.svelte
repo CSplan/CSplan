@@ -2,6 +2,7 @@
   import { onMount, tick } from 'svelte'
   // import { flip } from 'svelte/animate'
   import lists, { itemsTotal } from '$stores/lists'
+  import type { List } from '$stores/lists'
   import tags from '$stores/tags'
   import Spinner from '$components/spinner.svelte'
   import TagForm from '$components/tag-form.svelte'

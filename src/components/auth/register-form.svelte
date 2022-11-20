@@ -16,7 +16,6 @@
   let state = States.Loading
   
   // Form elements
-  let form: HTMLFormElement
   let email: HTMLInputElement
   let password: HTMLInputElement
   let confirmPassword: HTMLInputElement
@@ -88,7 +87,7 @@
 
 <div class="card register-form">
   <header>Register</header>
-  <form bind:this={form} on:submit|preventDefault={register}>
+  <form on:submit|preventDefault={register}>
     <input
       type="email"
       required

@@ -56,13 +56,13 @@
 
   <header>Move List</header>
   <div class="arrow-buttons">
-    {#if $store[id].index > 0}
-      <button class="transparent in-row" on:click={() => moveItem(id, $store[id].index - 1)}>
+    {#if $store[id].meta.index > 0}
+      <button class="transparent in-row" on:click={() => moveItem(id, $store[id].meta.index - 1)}>
         <i class="fas fa-arrow-up"></i>
       </button> 
     {/if}
-    {#if $store[id].index < $ordered.length - 1}
-      <button class="transparent in-row" on:click={() => moveItem(id, $store[id].index + 1)}>
+    {#if $store[id].meta.index < $ordered.length - 1}
+      <button class="transparent in-row" on:click={() => moveItem(id, $store[id].meta.index + 1)}>
         <i class="fas fa-arrow-down"></i>
       </button>
     {/if}

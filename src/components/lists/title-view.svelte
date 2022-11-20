@@ -2,6 +2,7 @@
   import { onMount, tick } from 'svelte'
   import { flip } from 'svelte/animate'
   import { lists as store, ordered } from '$stores/lists'
+  import type { ListItem } from '$stores/lists'
   import { CEkeypress } from '../../lib/contenteditable-deprecated'
   import Spinner from '../spinner.svelte'
   import CreateListForm from './create-list-form.svelte'

@@ -2,6 +2,7 @@
   import Modal from './modal.svelte'
   import ModalContent from './modal-content.svelte'
   import tags from '$stores/tags'
+  import type { TagData } from '$stores/tags'
   import colors from '$components/color-picker/colors/colors'
   export let show = false
   // FIXME: Make tag creation similar to list creation
