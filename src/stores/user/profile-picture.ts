@@ -1,7 +1,6 @@
 import { aes, rsa } from 'cs-crypto'
 import * as db from '$db'
 import { Visibilities, route, csfetch, HTTPerror } from '$lib'
-import storage from '$db/storage'
 import { pageStorage } from '$lib/page'
 import { Store } from '../store'
 
@@ -125,7 +124,6 @@ class UserPFPStore extends Store<UserPFP> {
     const res = await csfetch(route('/profile-picture'), {
       method: 'PUT',
       headers: {
-        'CSRF-Token': storage.getCSRFtoken(),
         'Content-Type': contentType,
         'X-Image-Meta': JSON.stringify(meta)
       },
@@ -155,6 +153,17 @@ class UserPFPStore extends Store<UserPFP> {
   
     // Update IDB
     await db.addToStore('user/profile-picture', final)
+  }
+
+  async delete(this: UserPFPStore): Promise<void> {
+    const res = await csfetch(route('/profile-picture'), {
+      method: 'DELETE'
+    })
+    if (res.status !== 204) {
+      throw await HTTPerror(res, 'Failed to delete user PFP')
+    }
+    this.reset()
+    await db.clearStore('user/profile-picture')
   }
 }
 

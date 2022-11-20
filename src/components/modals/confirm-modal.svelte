@@ -33,5 +33,6 @@
     }
     margin-top: 35vh;
     align-self: center;
+    border: 1px solid $border-normal;
   }
 </style>

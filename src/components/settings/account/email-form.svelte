@@ -95,7 +95,7 @@
   </label>
   <!-- Avoid showing anything about verification status until we know it's accurate -->
   {#if unverified}
-    <span class="unverified-message">This email address isn't verified.</span>
+    <span class="unverified-message">Email not Verified</span>
     {#if !open}
       <button class="resend-verification" on:click={sendVerificationEmail} disabled={state !== States.Resting}>
         <i class="far fa-envelope"></i>
@@ -106,7 +106,7 @@
   {:else if !open}
     <span class="verified-message">
       <i class="far fa-envelope-circle-check"></i>
-      Email address is verified.
+      Email Verified
     </span>
   {/if}
 

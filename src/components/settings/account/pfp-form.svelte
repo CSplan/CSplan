@@ -4,6 +4,7 @@
   import { formatError, Visibilities, FormStates as States } from '$lib'
   import Spinner from '$components/spinner.svelte'
   import VisibilityForm from '$components/settings/visibility-form.svelte'
+  import DeleteConfirmationModal from '$components/modals/confirm-modal.svelte'
 
   let files: FileList
   let displayCanvas: HTMLCanvasElement
@@ -12,9 +13,10 @@
   let isEmpty = true
   let hasUpload = false
   let hasVisibilityChange = false
-  $: hasVisibilityChange = $userPFP.visibility != null && visibility !== $userPFP.visibility
+  $: hasVisibilityChange = $userPFP.exists && visibility !== $userPFP.meta.visibility
   let state = States.Loading
-  let errorMsg = ''
+  let message = ''
+  let showDeleteModal = false
 
   type CropDimensions = {
     sideLength: number
@@ -90,27 +92,32 @@
     }
   }
 
-  async function onSubmit(): Promise<void> {
-    if (state !== States.Resting && state !== States.Errored) {
+  async function createPFP(): Promise<void> {
+    if (![States.Resting, States.Errored].includes(state)) {
       return
-    } 
+    }
     state = States.Saving
     try {
       // If there is no new upload, create should be re-run with the same image but new visibility
-      await userPFP.create(hasUpload ? croppedImage! : $userPFP.image!, visibility)
+      if (croppedImage != null) {
+        await userPFP.create(croppedImage, visibility)
+      } else if ($userPFP.exists) {
+        await userPFP.create($userPFP.image, visibility)
+      } else {
+        state = States.Resting
+        return
+      }
     } catch (err) {
       state = States.Errored
-      if (err instanceof Error) {
-        errorMsg = err.message
-      } else {
-        errorMsg = err as string
-      }
+      message = `${err}`
       drawBorder(getComputedStyle(displayCanvas).getPropertyValue('--danger-red'))
       return
     }
     state = States.Saved
+    await tick()
     setTimeout(() => {
       state = States.Resting
+      message = ''
       setTimeout(() => {
         hasUpload = false
         hasVisibilityChange = false
@@ -119,14 +126,41 @@
     }, 350)
   }
 
+  async function deletePFP(): Promise<void> {
+    if (![States.Resting, States.Errored].includes(state)) {
+      return
+    }
+    state = States.Saving
+    try {
+      await userPFP.delete()
+    } catch (err) {
+      state = States.Errored
+      message = `${err}`
+      drawBorder(getComputedStyle(displayCanvas).getPropertyValue('--danger-red'))
+      return
+    }
+    state = States.Saved
+    isEmpty = true
+    await tick()
+    setTimeout(() => {
+      state = States.Resting
+      message = ''
+      setTimeout(() => {
+        hasUpload = false
+        hasVisibilityChange = false
+        croppedImage = undefined
+      }, 500)
+    }, 500)
+  }
+
   onMount(async () => {
     try {
       await userPFP.init()
-      if ($userPFP.image != null) {
+      if ($userPFP.exists) {
         await initCanvas()
 
         // Display the pfp visibility
-        visibility = $userPFP.visibility!
+        visibility = $userPFP.meta.visibility
 
         // Crop and draw the user's PFP
         const img = new Image()
@@ -140,11 +174,8 @@
       }
     } catch (err) {
       state = States.Errored
-      if (err instanceof Error) {
-        errorMsg = err.message
-      } else {
-        errorMsg = err as string
-      }
+      message = `${err}`
+      return
     }
     state = States.Resting
   })
@@ -201,38 +232,62 @@
 </script>
 
 
+<DeleteConfirmationModal
+  show={showDeleteModal}
+  message='Are you sure you want to delete your profile picture?'
+  on:submit={async () => {
+    await deletePFP()
+  }}
+></DeleteConfirmationModal>
+
 <div class="user-picture primary">
   {#if isEmpty}
     <i class="fas fa-user-circle"></i>
-  {/if}
-  <!-- svelte-ignore a11y-img-redundant-alt -->
-  <canvas id="pfp-display" class:d-none={isEmpty} alt="User Profile Picture" bind:this={displayCanvas}></canvas>
-  {#if state === States.Errored}
-    <span class="error">{formatError(errorMsg)}</span>
+  {:else}
+    <canvas id="pfp-display" class:d-none={isEmpty} alt="User Profile Picture" bind:this={displayCanvas}></canvas>
   {/if}
 
-  <form class="pfp-form" on:submit|preventDefault={onSubmit}>
+  {#if state === States.Errored}
+    <span class="error">{formatError(message)}</span>
+  {/if}
+
+  <form class="pfp-form" on:submit|preventDefault={createPFP}>
     <label for="pfp" title="Upload a profile picture">
       <i class="fas fa-upload"></i>
     </label>
     <input type="file" id="pfp" accept="image/png, image/jpeg" bind:files={files} on:change={onImageLoad}>
 
-    <VisibilityForm bind:visibility={visibility}/>
+    {#if $userPFP.exists}
+      <button class="transparent delete-button"
+      title='Delete'
+      on:click|preventDefault={() => {
+        showDeleteModal = true
+      }}>
+        <i class="fas fa-times"></i>
+      </button>
+    {/if}
 
+    {#if $userPFP.exists || hasUpload}
+      <VisibilityForm bind:visibility={visibility}/>
+    {/if}
+
+
+    {#if hasUpload || hasVisibilityChange}
     <input type="submit"
       id="pfp-submit"
-      class:d-none={!(hasUpload || hasVisibilityChange)}
       disabled={state === States.Saving}
       class:saved={state === States.Saved}
       value="Save">
+    {/if}
     {#if state === States.Saving}
-      <Spinner size="2.5rem" vm="0.5rem" message="Uploading" />
+      <Spinner size="2.5rem" vm="0.5rem" message="Uploading"/>
     {/if}
   </form>
 </div>
 
 <style lang="scss">
   .user-picture {
+    position: relative;
     padding: 0.4rem 0.8rem;
     border: 1px solid $border-alt;
     @media (min-width: $desktop-min) {
@@ -284,6 +339,12 @@
       }
       float: left;
       border-radius: $br-light;
+    }
+    button.delete-button {
+      color: $danger-red;
+      position: absolute;
+      top: 0;
+      right: 0;
     }
     input[type="file"] {
       display: none;

@@ -13,6 +13,7 @@ i.bold {
 }
 button.transparent {
   background: transparent;
+  box-shadow: none !important;
 }
 button.no-focus-highlight:focus {
   box-shadow: none !important;
