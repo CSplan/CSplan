@@ -1,173 +1,191 @@
 import { aes, rsa } from 'cs-crypto'
-import { writable } from 'svelte/store'
-import type { Readable } from 'svelte/store'
 import { HTTPerror, DisplayNames, Visibilities, route, csfetch } from '$lib'
 import { mustGetByKey, getByKey, addToStore } from '$db'
 import storage from '$db/storage'
 import { pageStorage } from '$lib/page'
+import { Store } from '../store'
 
-function create(): Readable<Name> & SingleResourceStore<NameData> {
-  let initialized = false
-  const initialState: Name = {
-    id: '',
-    firstName: '',
-    lastName: '',
-    displayName: DisplayNames.Anonymous,
-    visibility: {
-      firstName: Visibilities.Encrypted,
-      lastName: Visibilities.Encrypted
-    },
-    checksum: ''
+/** Name(s) associated with a user account */
+export type Name<E extends boolean = false> = NameData<E> & {
+  exists: true
+  id: string
+  meta: Omit<Meta<E>, 'cryptoKey'> & { cryptoKey?: Meta<E>['cryptoKey'] }
+} | {
+  exists: false
+}
+
+/** Multiple names for a user account and visibility information */
+export type NameData<E extends boolean = false> = {
+  firstName: string
+  lastName: string
+  username?: string
+
+  visibility: NameVisibility
+
+  displayName: import('$lib').DisplayNames
+  privateDisplayName?: E extends true ? string : import('$lib').DisplayNames
+}
+
+/** Visibility information for first/last name */
+export type NameVisibility = {
+  firstName: import('$lib').Visibilities
+  lastName: import('$lib').Visibilities
+}
+
+class NameStore extends Store<Name> {
+  private initialized = false
+
+  constructor() {
+    super({
+      exists: false
+    })
   }
-  const { subscribe, set }  = writable(initialState)
 
-  return {
-    subscribe,
-    async init() {
-      if (initialized) {
-        return
-      }
+  async init(this: NameStore): Promise<void> {
+    if (this.initialized) {
+      return
+    }
 
-      const user = pageStorage.getJSON('user')!
-      const res = await csfetch(route('/name'), {
-        method: 'GET',
-        headers: {
-          'CSRF-Token': storage.getCSRFtoken()
-        }
-      })
-      if (res.status === 204) {
-        initialized = true
-        return
-      }
-      if (res.status !== 200) {
-        throw await HTTPerror(res, 'failed to retrieve name from server')
-      }
+    const user = pageStorage.getJSON('user')!
+    const res = await csfetch(route('/name'))
+    if (res.status === 204) {
+      this.initialized = true
+      return
+    }
+    if (res.status !== 200) {
+      throw await HTTPerror(res, 'Failed to retrieve name from server')
+    }
 
-      const document: NameDocument = await res.json()
-      const cached = await getByKey<Name>('user/name', user.id)
-      if (cached != null && cached.checksum === document.meta.checksum) {
-        set(cached)
-        return
-      }
-    
-      const visibility = document.visibility
+    const body: Assert<Name<true>, 'exists'> = await res.json()
+    const cached = await getByKey<Name>('user/name', user.id)
+    if (cached != null && cached.exists && cached.meta.checksum === body.meta.checksum) {
+      this.set(cached)
+      return
+    }
+  
+    const visibility = body.visibility
 
-      const decryptFirstName = visibility.firstName === Visibilities.Encrypted
-      const decryptLastName = visibility.lastName === Visibilities.Encrypted
-      const hasEncryptedFields = decryptFirstName || decryptLastName || document.privateDisplayName != null
-      // Decrypt the cryptokey if needed
-      let cryptoKey: CryptoKey|undefined
-      if (hasEncryptedFields && document.meta.cryptoKey !== undefined) {
-        const { privateKey } = await mustGetByKey<MasterKeys>('keys', user.id)
-        cryptoKey = await rsa.unwrapKey(document.meta.cryptoKey, privateKey, 'AES-GCM')
-      }
+    const decryptFirstName = visibility.firstName === Visibilities.Encrypted
+    const decryptLastName = visibility.lastName === Visibilities.Encrypted
+    const hasEncryptedFields = decryptFirstName || decryptLastName || body.privateDisplayName != null
+    // Decrypt the cryptokey if needed
+    let cryptoKey: CryptoKey|undefined
+    if (hasEncryptedFields && body.meta.cryptoKey != null) {
+      const { privateKey } = await mustGetByKey<MasterKeys>('keys', user.id)
+      cryptoKey = await rsa.unwrapKey(body.meta.cryptoKey, privateKey, 'AES-GCM')
+    }
 
-      // Decrypt necessary fields
-      const firstName = decryptFirstName ? await aes.decrypt(document.firstName, cryptoKey!) : document.firstName
-      const lastName = decryptLastName ? await aes.decrypt(document.lastName, cryptoKey!) : document.lastName
-      let namePreference: DisplayNames|undefined
-      if (document.privateDisplayName != null) {
-        namePreference = parseInt(await aes.decrypt(document.privateDisplayName, cryptoKey!))
-      }
+    // Decrypt necessary fields
+    const firstName = decryptFirstName ? await aes.decrypt(body.firstName, cryptoKey!) : body.firstName
+    const lastName = decryptLastName ? await aes.decrypt(body.lastName, cryptoKey!) : body.lastName
+    let namePreference: DisplayNames|undefined
+    if (body.privateDisplayName != null) {
+      namePreference = parseInt(await aes.decrypt(body.privateDisplayName, cryptoKey!))
+    }
 
-      // Update local state
-      const final: Name = {
-        id: user.id,
-        firstName,
-        lastName,
-        username: document.username,
-        visibility,
-        privateDisplayName: namePreference,
-        displayName: document.displayName,
-        cryptoKey,
-        checksum: document.meta.checksum
+    // Update local state
+    const final: Name = {
+      exists: true,
+      id: user.id,
+      firstName,
+      lastName,
+      username: body.username,
+      visibility,
+      privateDisplayName: namePreference,
+      displayName: body.displayName,
+      meta: {
+        cryptoKey: cryptoKey,
+        checksum: body.meta.checksum
       }
-      set(final)
-      await addToStore('user/name', final)
-      initialized = true
-    },
-    async create(name: NameData): Promise<void> {
-      // Validate the name
-      if (typeof name !== 'object') {
-        throw new TypeError(`Expected type object, received type ${typeof name}`)
-      }
-      // Get the user's ID
-      const user = pageStorage.getJSON('user')!
+    }
+    this.set(final)
+    await addToStore('user/name', final)
+    this.initialized = true
+  }
 
-      // Generate a key if there are any fields that need to be encrypted
-      const visibility = name.visibility
-      const encryptFirstName = visibility.firstName === Visibilities.Encrypted
-      const encryptLastName = visibility.lastName === Visibilities.Encrypted
-      const hasEncryptedFields = encryptFirstName || encryptLastName || name.privateDisplayName != null
-      let cryptoKey: CryptoKey|undefined
-      if (hasEncryptedFields) {
-        cryptoKey = await aes.generateKey('AES-GCM')
-      } 
-      // Encrypt any necessary fields
-      const firstName = encryptFirstName ? await aes.encrypt(name.firstName, cryptoKey!) : name.firstName
-      const lastName = encryptLastName ? await aes.encrypt(name.lastName, cryptoKey!) : name.lastName
-      let namePreference: string|undefined
-      if (name.privateDisplayName != null){
-        namePreference = await aes.encrypt(name.privateDisplayName.toString(), cryptoKey!)
-      }
+  async create(name: NameData): Promise<string> {
+    // Get the user's ID
+    const user = pageStorage.getJSON('user')!
 
-      // Encrypt the cryptokey
-      let encryptedKey: string|undefined
-      if (cryptoKey != null) {
-        const { publicKey } = await mustGetByKey<MasterKeys>('keys', user.id)
-        encryptedKey = await rsa.wrapKey(cryptoKey!, publicKey)
-      }
+    // Generate a key if there are any fields that need to be encrypted
+    const visibility = name.visibility
+    const encryptFirstName = visibility.firstName === Visibilities.Encrypted
+    const encryptLastName = visibility.lastName === Visibilities.Encrypted
+    const hasEncryptedFields = encryptFirstName || encryptLastName || name.privateDisplayName != null
+    let cryptoKey: CryptoKey|undefined
+    if (hasEncryptedFields) {
+      cryptoKey = await aes.generateKey('AES-GCM')
+    } 
+    // Encrypt any necessary fields
+    const firstName = encryptFirstName ? await aes.encrypt(name.firstName, cryptoKey!) : name.firstName
+    const lastName = encryptLastName ? await aes.encrypt(name.lastName, cryptoKey!) : name.lastName
+    let privateDisplayName: string|undefined
+    if (name.privateDisplayName != null){
+      privateDisplayName = await aes.encrypt(name.privateDisplayName.toString(), cryptoKey!)
+    }
 
-      // Submit the document to the API
-      const document: NameDocument<NameMetaRequest> = {
-        firstName,
-        lastName,
-        username: name.username,
-        privateDisplayName: namePreference,
-        displayName: name.displayName,
-        visibility,
-        meta: {
-          cryptoKey: encryptedKey
-        }
-      }
-      const res = await csfetch(route('/name'), {
-        method: 'PATCH',
-        headers: {
-          'CSRF-Token': storage.getCSRFtoken(),
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(document)
-      })
-      if (res.status !== 200) {
-        throw await HTTPerror(res, 'failed to submit name to server')
-      }
+    // Encrypt the cryptokey
+    let encryptedKey: string|undefined
+    if (cryptoKey != null) {
+      const { publicKey } = await mustGetByKey<MasterKeys>('keys', user.id)
+      encryptedKey = await rsa.wrapKey(cryptoKey!, publicKey)
+    }
 
-      // Update local state and IDB
-      const { meta }: Legacy_Meta = await res.json()
-      const final: Name = {
-        ...name,
-        id: user.id,
+    // Create name with API
+    type NameRequest = Omit<Assert<Name<true>, 'exists'>, 'id' | 'meta'> & { meta: MetaPatch }
+    const body: NameRequest = {
+      firstName,
+      lastName,
+      username: name.username,
+      privateDisplayName: privateDisplayName,
+      displayName: name.displayName,
+      visibility,
+      meta: {
+        cryptoKey: encryptedKey
+      }
+    }
+    const res = await csfetch(route('/name'), {
+      method: 'PATCH',
+      headers: {
+        'CSRF-Token': storage.getCSRFtoken(),
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(body)
+    })
+    if (res.status !== 200) {
+      throw await HTTPerror(res, 'failed to submit name to server')
+    }
+
+    // Update local state and IDB
+    const { meta }: StateResponse = await res.json()
+    const final: Name = {
+      exists: true,
+      ...name,
+      id: user.id,
+      meta: {
         checksum: meta.checksum,
         cryptoKey
       }
-      set(final)
-      await addToStore('user/name', final)
-      initialized = true
-    },
-    async delete(): Promise<void> {
-      const res = await csfetch(route('/name'), {
-        method: 'DELETE',
-        headers: {
-          'CSRF-Token': storage.getCSRFtoken()
-        }
-      })
-      if (res.status !== 204) {
-        throw await HTTPerror(res, 'failed to delete name from server')
+    }
+    this.set(final)
+    await addToStore('user/name', final)
+    this.initialized = true
+    return user.id
+  }
+
+  async delete(): Promise<void> {
+    const res = await csfetch(route('/name'), {
+      method: 'DELETE',
+      headers: {
+        'CSRF-Token': storage.getCSRFtoken()
       }
+    })
+    if (res.status !== 204) {
+      throw await HTTPerror(res, 'Failed to delete name')
     }
   }
 }
 
-export const userName = create()
+export const name = new NameStore()
 
-export default userName
+export default name

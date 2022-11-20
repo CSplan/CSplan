@@ -1,9 +1,14 @@
+// The database name
 const DB_NAME = 'CSplan'
+// The current database version, increment by 1 to trigger a db upgrade
 const DB_VER = 3
+// Stores that will be deleted on database upgrade
 const clearStoresOnUpgrade = [
   'stripe/customer-id',
-  'tags'
+  'tags',
+  'user-name'
 ] as const
+
 let cachedIDB: IDBDatabase|null = null
 
 const enum Scopes {
