@@ -155,8 +155,12 @@
     <button class="transparent"
     class:enabled={settings.reverseLists}
     title="Reverse List Order"
-    on:click={async () => {
-      await saveSetting('reverseLists', !settings.reverseLists)
+    on:click={() => {
+      meta.update((store) => {
+        store.reverseLists = !$meta.reverseLists
+        return store
+      })
+      saveSetting('reverseLists', !settings.reverseLists)
     }}>
       <i class="fad {settings.reverseLists ? 'fa-arrow-up-wide-short' : 'fa-arrow-down-short-wide'}"></i>
     </button> 

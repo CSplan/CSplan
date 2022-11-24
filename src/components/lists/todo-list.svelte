@@ -18,7 +18,6 @@
 
   export let id: string
   export let user: App.Locals['user']
-  export let settings: App.Locals['settings']
   $: isLoggedIn = user != null
 
   // #region State
@@ -28,7 +27,6 @@
 
   // #region Editing/interactive
   let editMode = false
-  let preventAnimation = false
   async function toggleEditMode(): Promise<void> {
     editMode = !editMode
     if (!editMode) {
@@ -218,7 +216,6 @@
 
   // #region Metadata
   async function toggleReverseItems(): Promise<void> {
-    preventAnimation = true
     list.meta.reverseItems = !list.meta.reverseItems
     lists.update((store) => {
       store[id] = list
@@ -227,8 +224,6 @@
     if (!editMode) {
       await save()
     }
-    await tick()
-    preventAnimation = false
   }
   // #endregion
 
@@ -293,7 +288,7 @@
   {@const r = list.meta.reverseItems}
   {@const i = r ? list.items.length - 1 - offset : offset}
 
-  <div class="row item-title marginless {item.tags.length === 0 ? 'tagless' : ''}" animate:flip={{ duration: preventAnimation ? 0 : 200 }}
+  <div class="row item-title marginless {item.tags.length === 0 ? 'tagless' : ''}" animate:flip={{ duration: 200 }}
     class:highlighted={highlightRow[i]}
     on:dragover|preventDefault={e => ondragover(e, i)}
     on:dragleave|preventDefault={e => ondragleave(e, i)}
