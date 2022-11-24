@@ -46,6 +46,7 @@
 }}/>
 
 {#if show}
+{@const list = $store[id]}
 <section class="card" on:click|stopPropagation> <!-- Stop propagation to window click handler -->
   <button class="transparent close-button" on:click={() => {
     show = false
@@ -54,14 +55,14 @@
     <i class="fas fa-arrow-left"></i>
   </button>
 
-  <header>Move List</header>
+  <header>Move</header>
   <div class="arrow-buttons">
-    {#if $store[id].meta.index > 0}
+    {#if list.meta.index > 0}
       <button class="transparent in-row" on:click={() => moveItem(id, $store[id].meta.index - 1)}>
         <i class="fas fa-arrow-up"></i>
       </button> 
     {/if}
-    {#if $store[id].meta.index < $ordered.length - 1}
+    {#if list.meta.index < $ordered.length - 1}
       <button class="transparent in-row" on:click={() => moveItem(id, $store[id].meta.index + 1)}>
         <i class="fas fa-arrow-down"></i>
       </button>
@@ -76,14 +77,25 @@
     <i class="fas fa-pencil"></i>
   </button>
 
-  <button class="transparent" on:click={async () => store.archive(id) }>
-    <span>Archive List</span>
-    <i class="far fa-box-archive"></i>
+  <button class="transparent"
+  on:click={async () => {
+    if (list.meta.archived) {
+      await store.unarchive(list.id)
+    } else {
+      await store.archive(list.id)
+    }
+  }}>
+    <span>{list.meta.archived ? 'Unarchive' : 'Archive'}</span>
+    <i class="{list.meta.archived ? 'fas' : 'far'} fa-box-archive"></i>
   </button>
-  <button class="transparent delete-button" on:click={deleteList}>
-    <span>Delete List</span>
-    <i class="fas fa-times"></i>
-  </button>
+  <!-- Hide delete button if list is archived -->
+  {#if !list.meta.archived}
+    <button class="transparent"
+    on:click={deleteList}>
+      <span>Delete List</span>
+      <i class="fas fa-times"></i>
+    </button>
+  {/if}
 </section>
 {/if}
 
@@ -138,7 +150,8 @@
   button:not(:last-child) {
     border-bottom: 1px $border-normal solid;
   }
-  button.delete-button {
+  // Red delete/unarchive buttons
+  section>button:last-child>* {
     color: $danger-red;
   }
 </style>

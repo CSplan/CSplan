@@ -178,7 +178,7 @@
     <CreateListForm {settings}>
       <svelte:fragment slot="icon">
         {#if $ordered.length === 0}
-          <button class="bold">Create List</button>
+          <button class="bold create-list">Create List</button>
         {:else}
           <i class="fas fa-plus"></i>
         {/if}
@@ -304,7 +304,7 @@
     <CreateListForm {settings}>
       <svelte:fragment slot="icon">
         {#if $ordered.length === 0}
-          <button class="bold">Create List</button>
+          <button class="bold create-list">Create List</button>
         {:else}
           <i class="fas fa-plus"></i>
         {/if}
@@ -336,6 +336,9 @@
       color: red;
     }
     overflow: visible;
+  }
+  button.create-list {
+    font-size: 100%; // Undo picnic size of 110% on mobile
   }
   .row {
     --side-margin: 5rem;
