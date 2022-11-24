@@ -167,7 +167,7 @@
 
     <button class="transparent"
     class:enabled={$meta.showArchived}
-    title="Show Archived Lists"
+    title="{$meta.showArchived ? 'Hide' : 'Show'} Archived Lists"
     on:click={async () => {
       await meta.setShowArchived(!$meta.showArchived)
     }}>
@@ -233,12 +233,12 @@
           {#if $ordered.length > 1}
           <div class="arrow-icons">
             {#if settings.reverseLists ? i < $ordered.length-1 : i > 0}
-              <i class="fas fa-arrow-up clickable no-transform" title="Move item up"
+              <i class="fas fa-arrow-up clickable no-transform" title="Move list up"
               on:click={() => move(list.id, settings.reverseLists ? i+1 : i-1)}>
             </i>
             {/if}
             {#if settings.reverseLists ? i > 0 : i < $ordered.length-1}
-              <i class="fas fa-arrow-down clickable no-transform" title="Move item down"
+              <i class="fas fa-arrow-down clickable no-transform" title="Move list down"
               on:click={() => move(list.id, settings.reverseLists ? i-1 : i+1)}>
             </i>
             {/if}
@@ -246,7 +246,7 @@
           {/if}
 
           <!-- Drag and drop handle for moving list position-->
-          <i class="fas fa-grip-vertical clickable" draggable="true" on:dragstart={e => ondragstart(e, list.id)} title="This item is draggable."></i>
+          <i class="fas fa-grip-vertical clickable" draggable="true" on:dragstart={e => ondragstart(e, list.id)} title="Hold to drag list up/down"></i>
 
           {#if list.meta.saveState != null}
             <div class="spinner">
@@ -254,12 +254,24 @@
               <Spinner size="1.2em" state={list.meta.saveState}/>
             </div>
           {:else}
-          <!-- Archive button for the list -->
-            <i class="far fa-box-archive clickable" on:click={async () => {
-              await store.archive(list.id)
+            <!-- Archive button for the list -->
+            <i class="{list.meta.archived ? 'fas' : 'far'} fa-box-archive clickable"
+            class:archived={list.meta.archived}
+            title={`${list.meta.archived ? 'Unarchive' : 'Archive'} List`}
+            on:click={async () => {
+              if (list.meta.archived) {
+                await store.unarchive(list.id)
+              } else {
+                await store.archive(list.id)
+              }
             }}></i>
             <!-- Delete button for the list -->
-            <i class="fas fa-times clickable" on:click={() => deleteList(list.id)}></i>
+            {#if !list.meta.archived}
+              <i class="fas fa-times clickable"
+              on:click={() => deleteList(list.id)}
+              title="Delete List"
+              ></i>
+            {/if}
           {/if}
         </div>
 
@@ -431,7 +443,13 @@
       margin-left: 0.3rem;
     }
     i.fa-box-archive {
-      margin-right: 0;
+      margin-left: 0.3rem;
+      &:not(:last-child) {
+        margin-right: 0.3rem;
+      }
+      &.archived {
+        color: $danger-red;
+      }
     }
   }
 
