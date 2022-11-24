@@ -1,7 +1,7 @@
 // The database name
 const DB_NAME = 'CSplan'
 // The current database version, increment by 1 to trigger a db upgrade
-const DB_VER = 4
+const DB_VER = 5
 // Stores that will be deleted on database upgrade
 const clearStoresOnUpgrade = [
   'stripe/customer-id',
@@ -88,7 +88,7 @@ export function getDB(): Promise<IDBDatabase> {
     req.onupgradeneeded = () => {
       const db = req.result
       // Create stores from the declared templates
-      for (const name in clearStoresOnUpgrade) {
+      for (const name of clearStoresOnUpgrade) {
         if (db.objectStoreNames.contains(name)) {
           db.deleteObjectStore(name)
         }
