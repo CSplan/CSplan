@@ -1,5 +1,5 @@
 <script lang="ts">
-  import store, { ordered } from '$stores/lists'
+  import store, { ordered } from '$stores/lists/lists'
   import DeleteConfirmationModal from '$components/modals/confirm-modal.svelte'
   import { createEventDispatcher } from 'svelte'
 

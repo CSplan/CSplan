@@ -1,5 +1,5 @@
 import { aes } from 'cs-crypto'
-import type { ListData } from '../lists'
+import type { ListData } from '../lists/lists'
 
 /** Encrypt a todo list */
 export async function encryptList(list: ListData, key: CryptoKey): Promise<ListData<true>> {

@@ -1,8 +1,8 @@
 <script lang="ts">
   import { onMount, tick } from 'svelte'
   // import { flip } from 'svelte/animate'
-  import lists, { itemsTotal, items as listItems } from '$stores/lists'
-  import type { List } from '$stores/lists'
+  import lists, { itemsTotal, items as listItems } from '$stores/lists/lists'
+  import type { List } from '$stores/lists/lists'
   import tags from '$stores/tags'
   import Spinner from '$components/spinner.svelte'
   import TagForm from '$components/tag-form.svelte'

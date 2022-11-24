@@ -3,8 +3,8 @@ import type { AuthLevels } from '$lib/auth-levels'
 /** localStorage keys */
 export const enum Keys {
   CSRF = 'CSRF-Token',
-  User = 'user',
-  AuthLevel = 'authlevel'
+  AuthLevel = 'authlevel',
+  ShowArchivedLists = 'show-archived-lists'
 }
 
 /** Static getters and setters for localStorage */

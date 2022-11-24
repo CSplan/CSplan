@@ -1,8 +1,9 @@
 <script lang="ts">
   import { onMount, tick } from 'svelte'
   import { flip } from 'svelte/animate'
-  import { lists as store, ordered } from '$stores/lists'
-  import type { ListItem } from '$stores/lists'
+  import { lists as store, ordered } from '$stores/lists/lists'
+  import meta from '$stores/lists/titleview-meta'
+  import type { ListItem } from '$stores/lists/lists'
   import { CEkeypress } from '../../lib/contenteditable-deprecated'
   import Spinner from '../spinner.svelte'
   import CreateListForm from './create-list-form.svelte'
@@ -11,6 +12,7 @@
   import { saveSetting } from '$lib/settings'
   // Only used on mobile
   import EditMenu from './list-edit-dropdown.svelte'
+  import { Keys } from '$db/storage'
   export let settings: App.Locals['settings']
 
   let showDeleteConfirmationModal = false
@@ -65,7 +67,16 @@
   // Initialize the list store
   let initPromise: Promise<void>
   onMount(() => {
-    initPromise = store.init(settings.reverseLists)
+    // If the user has previously selected to show archived lists, fetch all instead of only unarchived lists
+    if (localStorage.getItem(Keys.ShowArchivedLists) === 'true') {
+      meta.update((store) => {
+        store.showArchived = true
+        return store
+      })
+      initPromise = store.init('all')
+    } else {
+      initPromise = store.init()
+    }
   })
 
   // Delete confirmation
@@ -149,6 +160,15 @@
     }}>
       <i class="fad {settings.reverseLists ? 'fa-arrow-up-wide-short' : 'fa-arrow-down-short-wide'}"></i>
     </button> 
+
+    <button class="transparent"
+    class:enabled={$meta.showArchived}
+    title="Show Archived Lists"
+    on:click={async () => {
+      await meta.setShowArchived(!$meta.showArchived)
+    }}>
+      <i class="far fa-box-archive"></i>
+    </button>
   </div>
   {#if settings.reverseLists}
     <CreateListForm {settings}>

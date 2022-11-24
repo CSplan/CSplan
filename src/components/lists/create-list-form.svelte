@@ -1,5 +1,5 @@
 <script lang="ts">
-  import store from '$stores/lists'
+  import store from '$stores/lists/lists'
   import { tick } from 'svelte'
   export let settings: App.Locals['settings']
 

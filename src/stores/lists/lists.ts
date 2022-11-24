@@ -1,10 +1,11 @@
 import { derived } from 'svelte/store'
 import * as db from '$db'
 import { aes, rsa } from 'cs-crypto'
-import { encryptList, decryptList } from './encryption'
+import { encryptList, decryptList } from '../encryption'
 import { HTTPerror, route, csfetch, FormStates } from '$lib'
-import { Store } from './store'
+import { Store } from '../store'
 import { pageStorage } from '$lib/page'
+import { titleViewMeta } from './titleview-meta'
 
 export type List<E extends boolean = false> = ListData<E> & {
   id: string
@@ -37,23 +38,22 @@ type ListPatch = Omit<Partial<List<true>>, 'id' | 'meta'> & { meta?: Partial<Pic
 
 class ListStore extends Store<Record<string, List>> {
   private initialized = false
-  reverseLists = false
-  showArchived = false
+  private archivedInitialized = false
   declare update: Store<Record<string, List>>['update']
 
   constructor() {
     super({})
   }
 
-  async init(this: ListStore, reverseLists?: boolean): Promise<void> {
-    if (reverseLists != null) {
-      this.reverseLists = reverseLists
-    }
-    if (this.initialized) {
+  async init(this: ListStore, filter: 'archived' | 'unarchived' | 'all' = 'unarchived'): Promise<void> {
+    if (this.initialized && filter === 'unarchived') {
       return
     }
-    // Get all todo lists from the API
-    const res = await csfetch(route('/todos'))
+    if (this.archivedInitialized) {
+      return
+    }
+    // Get all todo lists from the API, applying a filter is one is provided
+    const res = await csfetch(route('/todos' + (filter != null ? `?filter=${filter}` : '')))
     if (res.status !== 200) {
       throw await HTTPerror(res, 'Failed to fetch lists')
     }
@@ -100,6 +100,9 @@ class ListStore extends Store<Record<string, List>> {
       })
     }
     this.initialized = true
+    if (filter !== 'unarchived') {
+      this.archivedInitialized = true
+    }
   }
 
   async create(list: ListData): Promise<string> {
@@ -353,10 +356,11 @@ class ListStore extends Store<Record<string, List>> {
 export const lists = new ListStore()
 
 // Sort lists by the index property
-export const ordered = derived(lists, ($lists) => {
-  return Object.values($lists).filter(v => lists.showArchived || !v.meta.archived).sort((l1, l2) => lists.reverseLists
-    ? l2.meta.index - l1.meta.index
-    : l1.meta.index - l2.meta.index)
+export const ordered = derived([lists, titleViewMeta], ([$lists, $meta]) => {
+  return Object.values($lists).filter(v => $meta.showArchived || !v.meta.archived)
+    .sort((l1, l2) => $meta.reverseLists
+      ? l2.meta.index - l1.meta.index
+      : l1.meta.index - l2.meta.index)
 })
 
 // The total number of items
