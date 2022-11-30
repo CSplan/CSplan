@@ -1,6 +1,6 @@
 import { Store } from '../store'
 import customerIDStore from './customer-id'
-import AccountTypes from '$lib/account-types' 
+import type AccountTypes from '$lib/account-types' 
 import { csfetch, HTTPerror, route } from '$lib'
 import { aes } from 'cs-crypto'
 
@@ -50,11 +50,11 @@ class InvoiceStore extends Store<Invoice> {
     }
 
     // Decode request body
-    const body: Assert<Invoice, 'exists'> = {
-      ...await res.json(),
+    const body: Assert<Invoice, 'exists'> = await res.json()
+    this.set({
+      ...body,
       exists: true
-    }
-    this.set(body)
+    })
   }
 
   /** Open a new Stripe invoice for 1-12 months of a prepaid plan */
@@ -73,18 +73,18 @@ class InvoiceStore extends Store<Invoice> {
     const res = await csfetch(route('/stripe/invoice'), {
       method: 'POST',
       headers: {
-        'X-Stripe-CryptoKey': await aes.exportKey(stripeCID.cryptoKey)
+        'X-Stripe-CryptoKey': await aes.exportKey(stripeCID.meta.cryptoKey)
       },
       body: JSON.stringify(invoiceReq)
     })
     if (res.status !== 201) {
       throw await HTTPerror(res, 'Failed to create invoice.')
     }
-    const body: Assert<Invoice, 'exists'> = {
-      ...await res.json(),
+    const body: Assert<Invoice, 'exists'> = await res.json()
+    this.set({
+      ...body,
       exists: true
-    }
-    this.set(body)
+    })
   }
 
   /** Finalize a Stripe invoice, should be called immediately before payment to obtain a client secret. */
@@ -98,11 +98,11 @@ class InvoiceStore extends Store<Invoice> {
     if (res.status !== 200) {
       throw await HTTPerror(res, 'Failed to finalize invoice.')
     }
-    const body: Assert<Invoice, 'exists'> = {
-      ...await res.json(),
+    const body: Assert<Invoice, 'exists'> = await res.json()
+    this.set({
+      ...body,
       exists: true
-    }
-    this.set(body)
+    })
   }
 
   /** Delete/Void an open Stripe invoice (cannot be done after the invoice is paid). */

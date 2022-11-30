@@ -1,7 +1,7 @@
 export function formElementIsFocused(): boolean {
   const els = document.querySelectorAll('[contenteditable], [contenteditable="true"], input, textarea')
-  for (const el of els) {
-    if (el.contains(document.activeElement)) {
+  for (let i = 0; i < els.length; i++) {
+    if (els[i].contains(document.activeElement)) {
       return true
     }
   }

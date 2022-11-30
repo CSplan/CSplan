@@ -8,6 +8,7 @@
   "scripts": {
     "dev": "vite dev --port=3030",
     "svelte-check": "svelte-check --use-new-transformation true --compiler-warnings 'css-unused-selector:ignore'",
+    "ts-check": "tsc --noemit",
     "lint": "eslint --fix src",
     "build": "NODE_ENV=production vite build",
     "postbuild": "./prepare-static.sh",
@@ -28,8 +29,8 @@
     "markdown-it": "^13.0.1",
     "marked": "^4.0.10",
     "sass": "^1.38.2",
-    "tslib": "^2.3.1",
-    "typescript": "^4.3.5"
+    "tslib": "^2.4.1",
+    "typescript": "^4.9.3"
   },
   "devDependencies": {
     "@sveltejs/adapter-node": "^1.0.0-next.77",

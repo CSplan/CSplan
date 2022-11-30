@@ -1,5 +1,5 @@
 import { csfetch, HTTPerror, route } from '$lib'
-import AccountTypes from '$lib/account-types'
+import type AccountTypes from '$lib/account-types'
 import { Store } from '../store'
 import customerIDStore from './customer-id'
 import type { Invoice, InvoiceItem } from './invoice'
@@ -53,11 +53,11 @@ class SubscriptionStore extends Store<Subscription> {
       throw await HTTPerror(res, 'Failed to retrieve subscription data from Stripe.')
     }
 
-    const body: Assert<Subscription, 'exists'> = {
-      ...await res.json(),
+    const body: Assert<Subscription, 'exists'> = await res.json()
+    this.set({
+      ...body,
       exists: true
-    }
-    this.set(body)
+    })
   }
 
   async create(this: SubscriptionStore, subReq: SubscriptionReq): Promise<void> {
@@ -70,7 +70,7 @@ class SubscriptionStore extends Store<Subscription> {
     const res = await csfetch(route('/stripe/subscription'), {
       method: 'POST',
       headers: {
-        'X-Stripe-CryptoKey': await aes.exportKey(stripeCID.cryptoKey)
+        'X-Stripe-CryptoKey': await aes.exportKey(stripeCID.meta.cryptoKey)
       },
       body: JSON.stringify(subReq)
     })
@@ -78,11 +78,11 @@ class SubscriptionStore extends Store<Subscription> {
       throw await HTTPerror(res, 'Failed to create subscription.')
     }
     // Update subscription information
-    const body: Assert<Subscription, 'exists'> = {
-      ...await res.json(),
+    const body: Assert<Subscription, 'exists'> = await res.json()
+    this.set({
+      ...body,
       exists: true
-    }
-    this.set(body)
+    })
   }
 
   async cancel(this: SubscriptionStore): Promise<void> {
