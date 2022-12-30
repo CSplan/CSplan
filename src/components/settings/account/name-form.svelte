@@ -63,7 +63,16 @@
 
   onMount(async () => {
     await nameStore.init() 
-    name = structuredClone($nameStore)
+    if ($nameStore.exists) {
+      name = {
+        firstName: $nameStore.firstName,
+        lastName: $nameStore.lastName,
+        username: $nameStore.username,
+        visibility: $nameStore.visibility,
+        displayName: $nameStore.displayName,
+        privateDisplayName: $nameStore.privateDisplayName
+      }
+    }
   })
 </script>
 

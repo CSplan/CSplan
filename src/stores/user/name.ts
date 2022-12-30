@@ -103,6 +103,7 @@ class NameStore extends Store<Name> {
     this.initialized = true
   }
 
+  /** Create or update */
   async create(name: NameData): Promise<string> {
     // Get the user's ID
     const user = pageStorage.getJSON('user')!
@@ -132,11 +133,10 @@ class NameStore extends Store<Name> {
     }
 
     // Create name with API
-    type NameRequest = Omit<Assert<Name<true>, 'exists'>, 'id' | 'meta'> & { meta: MetaPatch }
+    type NameRequest = Omit<Assert<Name<true>, 'exists'>, 'id' | 'meta' | 'username'> & { meta: MetaPatch }
     const body: NameRequest = {
       firstName,
       lastName,
-      username: name.username,
       privateDisplayName: privateDisplayName,
       displayName: name.displayName,
       visibility,
@@ -145,11 +145,7 @@ class NameStore extends Store<Name> {
       }
     }
     const res = await csfetch(route('/name'), {
-      method: 'PATCH',
-      headers: {
-        'CSRF-Token': storage.getCSRFtoken(),
-        'Content-Type': 'application/json'
-      },
+      method: 'PUT',
       body: JSON.stringify(body)
     })
     if (res.status !== 200) {
@@ -160,8 +156,8 @@ class NameStore extends Store<Name> {
     const { meta }: StateResponse = await res.json()
     const final: Name = {
       exists: true,
-      ...name,
       id: user.id,
+      ...name,
       meta: {
         checksum: meta.checksum,
         cryptoKey
