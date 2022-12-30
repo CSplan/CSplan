@@ -59,10 +59,6 @@ module.exports = {
         delimiter: 'none'
       }
     }],
-    '@typescript-eslint/strict-boolean-expressions': ['warn', {
-      allowNullableObject: false,
-      allowNullableBoolean: true
-    }],
     '@typescript-eslint/explicit-member-accessibility': ['error', { 
       accessibility: 'no-public'
     }],
