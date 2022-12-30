@@ -39,8 +39,10 @@
   let hasPublicFirstName = false
   let hasPublicLastName = false
   $: hasUsername = name.username != null
-  $: hasPublicFirstName = name.firstName.length > 0 && name.visibility.firstName === Visibilities.Public
-  $: hasPublicLastName = name.lastName.length > 0 && name.visibility.lastName === Visibilities.Public
+  $: hasFirstName = name.firstName.length > 0
+  $: hasLastName = name.lastName.length > 0
+  $: hasPublicFirstName = hasFirstName && name.visibility.firstName === Visibilities.Public
+  $: hasPublicLastName = hasLastName && name.visibility.lastName === Visibilities.Public
 
   async function submit(): Promise<void> {
     try {
@@ -117,10 +119,18 @@
       <label for="private-name-pref">Private Display Name</label>
       <select id="name-pref" {disabled} bind:value={name.privateDisplayName}>
         <option value={DisplayNames.Anonymous}>None (use normal display name)</option>
-        <option value={DisplayNames.Username}>Username</option>
-        <option value={DisplayNames.FirstName}>First Name</option>
-        <option value={DisplayNames.LastName}>Last Name</option>
-        <option value={DisplayNames.FullName}>Full Name</option>
+        {#if hasUsername}
+          <option value={DisplayNames.Username}>Username</option>
+        {/if}
+        {#if hasFirstName}
+          <option value={DisplayNames.FirstName}>First Name</option>
+        {/if}
+        {#if hasLastName}
+          <option value={DisplayNames.LastName}>Last Name</option>
+        {/if}
+        {#if hasFirstName && hasLastName}
+          <option value={DisplayNames.FullName}>Full Name</option>
+        {/if}
       </select>
       </div>
 
