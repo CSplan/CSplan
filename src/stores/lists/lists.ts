@@ -281,12 +281,12 @@ class ListStore extends Store<Record<string, List>> {
   }
 
   async move(id: string, index: number): Promise<void> {
-    // Get the ordered state
-    const state = Store.get(ordered)
     // Validate move destination
-    if (index > state.length-1) {
-      throw new Error('Destination index exceeds list max')
+    if (index > Store.get(maxPosition)) {
+      throw new Error('Destination index exceeds list length')
     }
+    // Get ordered state
+    const state = Store.get(ordered)
 
     // New and old positions
     const n = index
@@ -301,7 +301,7 @@ class ListStore extends Store<Record<string, List>> {
       }
     }
     if (o === null) {
-      throw new Error('Non-existant id passed')
+      throw new Error('Non-existent id passed')
     }
 
     // Move o -> max+1
@@ -361,6 +361,11 @@ export const ordered = derived([lists, titleViewMeta], ([$lists, $meta]) => {
     .sort((l1, l2) => $meta.reverseLists
       ? l2.meta.index - l1.meta.index
       : l1.meta.index - l2.meta.index)
+})
+
+// The max position of any list, used for validation
+const maxPosition = derived(lists, ($lists) => {
+  return Object.values($lists).reduce((prev, v) => v.meta.index > prev ? v.meta.index : prev, 0)
 })
 
 // The total number of items
