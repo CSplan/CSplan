@@ -281,21 +281,22 @@ class ListStore extends Store<Record<string, List>> {
   }
 
   async move(id: string, index: number): Promise<void> {
-    // Validate move destination
-    if (index > Store.get(maxPosition)) {
-      throw new Error('Destination index exceeds list length')
-    }
     // Get ordered state
     const state = Store.get(ordered)
+    const max = state.length > 0 ? state[state.length-1].meta.index : 0
+    // Validate move destination
+    if (index > max) {
+      throw new Error('Destination index exceeds list length')
+    }
 
     // New and old positions
     const n = index
     let o: number|null = null
     // Create a map of index (original) -> id
-    const indexMap: Record<number, string> = {}
+    const indexMap = new Map<number, string>()
     for (const list of state) {
       const i = list.meta.index
-      indexMap[i] = list.id
+      indexMap.set(i, list.id)
       if (list.id === id) {
         o = i
       }
@@ -315,8 +316,10 @@ class ListStore extends Store<Record<string, List>> {
       // move (o, n] -1
       for (let i = o+1; i <= n; i++) {
         this.update((store) => {
-          const lid = indexMap[i]
-          store[lid].meta.index--
+          const lid = indexMap.get(i)
+          if (lid) {
+            store[lid].meta.index--
+          }
           return store
         })
       }
@@ -324,8 +327,10 @@ class ListStore extends Store<Record<string, List>> {
       // move [n, o) +1
       for (let i = o-1; i >= n; i--) {
         this.update((store) => {
-          const lid = indexMap[i]
-          store[lid].meta.index++
+          const lid = indexMap.get(i)
+          if (lid) {
+            store[lid].meta.index++
+          }
           return store
         })
       }
@@ -361,11 +366,6 @@ export const ordered = derived([lists, titleViewMeta], ([$lists, $meta]) => {
     .sort((l1, l2) => $meta.reverseLists
       ? l2.meta.index - l1.meta.index
       : l1.meta.index - l2.meta.index)
-})
-
-// The max position of any list, used for validation
-const maxPosition = derived(lists, ($lists) => {
-  return Object.values($lists).reduce((prev, v) => v.meta.index > prev ? v.meta.index : prev, 0)
 })
 
 // The total number of items

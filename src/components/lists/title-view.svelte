@@ -19,6 +19,9 @@
 
   // Map of list ID -> if the list's row should be highlighted
   const highlightRow: { [id: string]: boolean } = {}
+  // min/max list positions, for move arrow display
+  $: min = $ordered.length > 0 ? $ordered[0].meta.index : 0
+  $: max = $ordered.length > 0 ? $ordered[$ordered.length-1].meta.index : 0
 
   // State pulled from child components
 
@@ -232,12 +235,12 @@
           <!-- Up-down arrows for moving list position -->
           {#if $ordered.length > 1}
           <div class="arrow-icons">
-            {#if settings.reverseLists ? i < $ordered.length-1 : i > 0}
+            {#if settings.reverseLists ? i < max : i > min}
               <i class="fas fa-arrow-up clickable no-transform" title="Move list up"
               on:click={() => move(list.id, settings.reverseLists ? i+1 : i-1)}>
             </i>
             {/if}
-            {#if settings.reverseLists ? i > 0 : i < $ordered.length-1}
+            {#if settings.reverseLists ? i > min : i < max}
               <i class="fas fa-arrow-down clickable no-transform" title="Move list down"
               on:click={() => move(list.id, settings.reverseLists ? i-1 : i+1)}>
             </i>
