@@ -16,13 +16,7 @@
   <section class="subscription primary">
     <h2>Subscription</h2>
 
-    <div class="price">
-      <span class="strikethrough">$10/month</span>
-      <br>
-      <span class="discount-price">$5</span>/month
-      <br>
-      <span class="discount-disclaimer">Offer is valid through December 31, 2022.</span>
-    </div>
+    <p class="price"><b>$10</b>/month</p>
 
     <ul>
       <li>Billed monthly</li>
@@ -35,7 +29,7 @@
     }}></i>
 
     {#if $purchaseState.planType === PlanTypes.Subscription}
-      <p class="price">Total: $5</p>
+      <p class="total">Total: $5</p>
 
       <button class="bold next" on:click={() => {
         purchaseState.nextStep()
@@ -49,13 +43,7 @@
   <section class="prepaid primary">
     <h2>Prepaid</h2>
 
-    <div class="price">
-      <span class="strikethrough">$10/month</span>
-      <br>
-      <span class="discount-price">$5</span>/month
-      <br>
-      <span class="discount-disclaimer">Offer is valid through December 31, 2022.</span>
-    </div>
+    <p class="price"><b>$10</b>/month</p>
 
     <ul>
       <li>One-time payment for 1-12 months</li>
@@ -80,7 +68,7 @@
         }}>
       </label>
 
-      <p class="price">Total: ${prepaidMonths * 5}</p>
+      <p class="total">Total: ${prepaidMonths * 5}</p>
 
       <button class="bold next" on:click={() => {
         purchaseState.nextStep()
@@ -115,11 +103,8 @@
     @media (max-width: $mobile-max) {
       margin: 1.5rem 0;
     }
-    h2,div.price {
+    h2,div.total {
       padding: 0.5rem 0;
-    }
-    h2 {
-      border-bottom: 2px solid $border-alt;
     }
     ul {
       padding-right: 20px;
@@ -139,19 +124,12 @@
       }
     }
   }
-
-  div.price {
-    border-bottom: 1px solid $border-alt;
-  }
-  span.strikethrough {
-    text-decoration: line-through;
-  }
-  span.discount-price {
-    font-size: 125%;
-    color: $success-green;
-  }
-  span.discount-disclaimer {
-    font-size: 75%;
+  p.price {
+    font-size: 135%;
+    margin: 0;
+    padding: 0.3rem 0;
+    padding-bottom: 0;
+    border-top: 2px solid $bg-alt;
   }
 
   label.select-months {
@@ -170,9 +148,10 @@
       margin-right: auto;
     }
   }
-  p.price {
+  p.total {
     font-size: 120%;
     margin: 0.3rem 0;
+    margin-bottom: 0;
     font-weight: bold;
   }
 

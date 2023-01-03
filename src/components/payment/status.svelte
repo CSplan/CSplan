@@ -56,7 +56,7 @@
   }
 </script>
 
-<article class="payment-status primary">
+<article class="payment-status primary" class:csplan-pro={paymentStatus?.accountType === AccountTypes.Pro}>
   <img src="/logo/plans/{settings.darkMode ? 'Dark' : 'Light'}-CSplan-{planName}-noslogan.svg" alt="CSplan {planName} Graphic">
   <p>
     {#if paymentStatus?.accountType === AccountTypes.Free}
@@ -66,8 +66,8 @@
     {/if}
   </p>
   <section class="details">
-    <h3>Payment Information</h3>
-    <p class="detail-label">Account Type:</p>
+    <h3><i class="fas fa-circle-info"></i> Plan Info</h3>
+    <p class="detail-label">Current Plan:</p>
     <p class="value">CSplan {planName}</p>
 
     {#if isPaid && paymentStatus != null}
@@ -102,6 +102,7 @@
 
 <style lang="scss">
   article.payment-status {
+    max-width: 650px;
     @media (min-width: $desktop-min) {
       margin-top: 25px;
       img {
@@ -109,6 +110,7 @@
       }
     }
     @media (max-width: $mobile-max) {
+      width: 100%;
       img {
         max-width: 300px;
       }
@@ -122,18 +124,17 @@
       font-size: 110%;
       margin: 0.8rem;
     }
-    hr {
-      width: 100%;
-    }
-    max-width: 100%;
+  }
+
+  p {
+    word-break: break-word;
   }
 
   section.details {
     display: grid;
     width: 100%;
     padding: $padding-m;
-    grid-template-columns: repeat(2, auto);
-    border-top: 1px solid $border-alt;
+    grid-template-columns: repeat(2, 1fr);
 
     h3 {
       text-align: center;
@@ -141,6 +142,7 @@
     }
     p {
       margin: 0.3rem;
+      text-align: center;
     }
     p.detail-label {
       font-weight: 600;

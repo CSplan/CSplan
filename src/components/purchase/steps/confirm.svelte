@@ -118,13 +118,8 @@
   </tr>
 
   <tr>
-    <td class="promo-text">Public Beta Promo</td>
-    <td class="price promo-price" colspan=2>-50%</td>
-  </tr>
-
-  <tr>
-    <td>Total</td>
-    <td class="price" colspan={2}>${total}</td>
+    <td><b>Total</b></td>
+    <td class="price total" colspan={2}>${total}</td>
   </tr>
   </table>
 

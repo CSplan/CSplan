@@ -7,58 +7,51 @@
 <article class="plans">
   <div class="plan-info primary">
     <img src="/logo/plans/{settings.darkMode ? 'Dark' : 'Light'}-CSplan-Free-noslogan.svg" alt="CSplan Free Logo">
-    <hr>
-    <div class="price">
-      <span style="font-size: 125%">Free</span>
-    </div>
-    <hr>
+    <p class="price"><b>Free</b></p>
+
     <ul class="bullet-points">
       <li>Up to 10 lists</li>
       <li>Up to 10 items in each list</li>
       <li>Up to 10 customizable tags</li>
       <li>Up to 50 items total (across all lists)</li>
-      <li>Full zero knowledge (E2E) encryption</li>
-      <li>No ads or tracking</li>
-      <li>Customizable Appearance</li>
+      <li>Zero knowledge (E2E) data encryption</li>
+      <li>Zero ads or tracking</li>
+      <li>Customizable appearance</li>
       <li>2FA login support</li>
     </ul>
 
-    <p>Coming Fall 2022</p>
+    <p>Coming Q1 2023</p>
     <ul>
-      <li>Electron Desktop Application for Windows, MacOS, and Linux</li>
+      <li>Desktop app (Windows, MacOS, Linux)</li>
       <li>List sharing and collaboration</li>
+      <li>More features TBA, stay tuned!</li>
     </ul>
   </div>
 
   <div class="plan-info primary">
     <img src="/logo/plans/{settings.darkMode ? 'Dark' : 'Light'}-CSplan-Pro-noslogan.svg" alt="CSplan Pro Logo">
-    <hr>
-    <div class="price">
-      <span class="strikethrough">$10/month</span>
-      <br>
-      <span class="discount-price">$5</span>/month
-    </div>
-    <br>
-    <hr>
+    <p class="price"><b>$10</b>/month</p>
+
     <span>Everything in CSplan Free, and...</span>
     <ul class="bullet-points">
-      <li>Up to <b>100</b> lists (increasing to 250+ Fall 2022)</li>
+      <li>Up to <b>100</b> lists (increasing to 250+ soon)</li>
       <li>Up to <b>100</b> items in each list</li>
       <li>Up to <b>100</b> tags</li>
-      <li>No total item cap</li>
+      <li>No cumulative item limit</li>
       <li>Support a privacy-first, ad-free business model</li>
     </ul>
       
-    <p>Coming Early Fall 2022 <b>(CSplan Pro Only)</b></p>
+    <p>Coming Q1 2023</p>
     <ul class="bullet-points">
       <li>Reminders (with push notifications on Windows, MacOS, Linux, and Android)</li>
-      <li>Calendars</li>
       <li>Payment via Bitcoin and Monero</li>
     </ul>
 
-    <p>Coming Early 2023 <b>(CSplan Pro Only)</b></p>
+    <p>Coming Q2 2023</p>
     <ul class="bullet-points">
       <li>Reminder push notifications on iOS</li>
+      <li>Calendars</li>
+      <li>More features TBA, stay tuned!</li>
     </ul>
     {#if user?.accountType === AccountTypes.Pro}
       <hr>
@@ -68,7 +61,7 @@
       </a>
     {:else}
       <a href="/purchase" class="purchase-button">
-        <button style:background="var(--success-green)">Buy CSplan Pro</button>
+        <button style:background="var(--success-green)">Get CSplan Pro</button>
       </a>
     {/if}
   </div>
@@ -119,20 +112,8 @@
       width: 100%;
       font-size: 110%;
     }
-    div.price {
-      width: 100%;
-      text-align: center;
-    }
-    span.strikethrough {
-      text-decoration: line-through;
-    }
-    span.discount-price {
-      font-size: 125%;
-      color: $success-green;
-    }
-    span.discount-disclaimer {
-      font-size: 75%;
-
+    p.price {
+      font-size: 135%;
     }
   }
 </style>
