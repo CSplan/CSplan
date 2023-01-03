@@ -169,6 +169,15 @@ class NameStore extends Store<Name> {
     return user.id
   }
 
+  /**
+   * Register a unique, public username (if it's available).
+   * Requires auth lvl 2.
+   */
+  /* TODO:
+  async createUsername(username: string): Promise<void> {
+  }
+  */
+
   async delete(): Promise<void> {
     const res = await csfetch(route('/name'), {
       method: 'DELETE',
