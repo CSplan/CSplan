@@ -14,6 +14,33 @@
 <main class="container">
   <img src="/logo/{data.settings.darkMode ? 'Dark' : 'Light'}-CSplan.svg" alt="CSplan: Own your time." class="title-logo">
 
+  {#if data.user != null}
+    <section class="action-buttons">
+      <a href="/lists" data-sveltekit-prefetch>
+        <button>
+          <i class="fas fa-list" style:color="var(--bold-blue)"></i>
+          My Lists
+        </button>
+      </a>
+      <a href="/tags" data-sveltekit-prefetch>
+        <button>
+          <i class="fas fa-tag" style:color="var(--bold-blue)"></i>
+          My Tags
+        </button>
+      </a>
+    </section> 
+    {#if data.paymentStatus?.accountType === AccountTypes.Free}
+    <section class="action-buttons">
+      <a href="/payment/plans">
+        <button>
+          <i class="fad fa-credit-card" style:color="var(--success-green)"></i>
+          CSplan Pro
+        </button>
+      </a>
+    </section>
+    {/if}
+  {/if}
+
   <section class="summary">
     <p>
       {description}
@@ -22,33 +49,7 @@
     </p>
   </section>
 
-  {#if data.user != null}
-  <section class="action-buttons">
-    <a href="/lists" data-sveltekit-prefetch>
-      <button>
-        <i class="fas fa-list" style:color="var(--bold-blue)"></i>
-        My Lists
-      </button>
-    </a>
-    <a href="/tags" data-sveltekit-prefetch>
-      <button>
-        <i class="fas fa-tag" style:color="var(--bold-blue)"></i>
-        My Tags
-      </button>
-    </a>
-  </section> 
-  {#if data.paymentStatus?.accountType === AccountTypes.Free}
-  <section class="action-buttons">
-    <a href="/payment/plans">
-      <button>
-        <i class="fad fa-credit-card" style:color="var(--success-green)"></i>
-        CSplan Pro
-      </button>
-    </a>
-  </section>
-  {/if}
-
-  {:else}
+  {#if !data.user}
   <button class="learn-more" class:rotate={showFeatureCardsMobile} on:pointerup={() => {
     showFeatureCardsMobile = !showFeatureCardsMobile
   }}>
@@ -70,7 +71,7 @@
       </p>
     </div>
 
-    <div class="card darker feature-card" name="#test">
+    <div class="card darker feature-card">
       <div class="icons">
         <i class="fal fa-list-tree"></i>
       </div>
