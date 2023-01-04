@@ -4,4 +4,4 @@
   export let data: PageData
 </script>
 
-<Account user={data.user} settings={data.settings}/>
+<Account user={data.user}/>

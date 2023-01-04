@@ -3,8 +3,7 @@
   import navState, { FormIDs } from '../navigation-state'
 
   // Display confirmation button before making username editable
-  let showEditButton = false
-  let showCancel = false
+  let showEditButton = true
 
   let inputEl: HTMLInputElement
 
@@ -20,11 +19,9 @@
       await tick()
       $navState.isEditing = null
       showEditButton = false
-      showCancel = false
     } else {
       $navState.isEditing = FormIDs.ChangeUsername
       showEditButton = false
-      showCancel = true
       await tick()
       inputEl.focus()
     }
@@ -32,14 +29,14 @@
 </script>
 
 <section class="username primary">
-  <div class="input-group">
-    <div class="username-symbol" class:highlight={open} on:pointerdown={() => {
+  <div class="input-group" class:highlight={open}>
+    <div class="username-symbol" on:pointerdown={() => {
       showEditButton = !showEditButton
     }}>
       <i class="far fa-at"></i>
     </div>
 
-    <input type="text" class="username" class:highlight={open}
+    <input type="text" class="username"
     title="Username"
     placeholder="Anonymous"
     bind:this={inputEl}
@@ -48,8 +45,9 @@
 
   {#if showEditButton}
     <button class="open-form" on:pointerdown={toggleEditing}>Change Username</button>
-  {:else if showCancel}
+  {:else if open}
     <button class="cancel" on:pointerdown={toggleEditing}>Cancel</button>
+    <button class="save">Save</button>
   {/if}
 </section>
 
@@ -60,15 +58,21 @@
     padding: 0.8rem;
     padding-top: 0;
   }
+  div.input-group {
+    border: 1px solid $border-alt;
+    padding: 0;
+    &.highlight {
+      border-color: $bold-blue;
+    }
+    margin-bottom: 0.5rem;
+  }
   input.username {
     border-left: none;
     pointer-events: none;
     font-weight: 600;
     padding-left: 0.5rem;
-    &.highlight {
-      border-color: $bold-blue;
-      transition: none;
-    }
+    border: none;
+    margin: 0;
   }
   div.username-symbol {
     border: 1px solid $border-alt;
@@ -76,9 +80,7 @@
     height: 2.1em; // To match with input box height defined by picnic
     padding: .3em .6em; // Also to match with input box
     padding-right: 0;
-    &.highlight {
-      border-color: $bold-blue;
-    }
+    border: none;
     
     // Center icon
     display: flex;
@@ -101,5 +103,10 @@
   button.cancel {
     background-color: $danger-red;
     width: 100%;
+  }
+  button.save {
+    background-color: $bold-blue;
+    width: 100%;
+    margin-top: 0;
   }
 </style>

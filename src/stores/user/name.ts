@@ -1,7 +1,6 @@
 import { aes, rsa } from 'cs-crypto'
 import { HTTPerror, DisplayNames, Visibilities, route, csfetch } from '$lib'
 import { mustGetByKey, getByKey, addToStore } from '$db'
-import storage from '$db/storage'
 import { pageStorage } from '$lib/page'
 import { Store } from '../store'
 
@@ -173,17 +172,53 @@ class NameStore extends Store<Name> {
    * Register a unique, public username (if it's available).
    * Requires auth lvl 2.
    */
-  /* TODO:
   async createUsername(username: string): Promise<void> {
+    type UsernameReq = { username: string }
+    type Username = { username: string; meta: State }
+
+    const reqBody: UsernameReq = { username }
+    const res = await csfetch(route('/username'), {
+      method: 'POST',
+      body: JSON.stringify(reqBody)
+    })
+    if (res.status !== 201) {
+      throw await HTTPerror(res, 'Failed to create username')
+    }
+    const body: Username = await res.json()
+    // Update name checksum
+    this.update((store) => {
+      if (store.exists) {
+        store.username = body.username
+        store.meta.checksum = body.meta.checksum
+      }
+      return store
+    })
+    await addToStore('user/name', Store.get(this) as Assert<Name, 'exists'>)
   }
-  */
+
+  /**
+   * Delete the user's registered username.
+   * Required auth lvl 2.
+   */
+  async deleteUsername(): Promise<void> {
+    const res = await csfetch(route('/username'), {
+      method: 'DELETE'
+    })
+    if (res.status !== 204) {
+      throw await HTTPerror(res, 'Failed to delete username')
+    }
+    this.update((store) => {
+      if (store.exists) {
+        delete store.username
+      }
+      return store
+    })
+    await addToStore('user/name', Store.get(this) as Assert<Name, 'exists'>)
+  }
 
   async delete(): Promise<void> {
     const res = await csfetch(route('/name'), {
-      method: 'DELETE',
-      headers: {
-        'CSRF-Token': storage.getCSRFtoken()
-      }
+      method: 'DELETE'
     })
     if (res.status !== 204) {
       throw await HTTPerror(res, 'Failed to delete name')
