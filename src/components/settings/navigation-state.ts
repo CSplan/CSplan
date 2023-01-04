@@ -3,7 +3,8 @@ import { writable, type Writable } from 'svelte/store'
 export enum FormIDs {
   ChangeEmail,
   ChangePassword,
-  ChangeName
+  ChangeName,
+  ChangeUsername
 }
 
 type SettingsFormState = {

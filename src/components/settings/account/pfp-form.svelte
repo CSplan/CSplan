@@ -290,11 +290,9 @@
     position: relative;
     padding: 0.4rem 0.8rem;
     border: 1px solid $border-alt;
+    border-bottom: none;
     @media (min-width: $desktop-min) {
       border-right: none;
-    }
-    @media (max-width: $mobile-max) {
-      border-bottom: none;
     }
 
     line-height: 1;
