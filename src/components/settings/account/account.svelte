@@ -12,7 +12,7 @@
   <article class="submenu account-card">
 
     <ProfilePictureForm/>
-    <UsernameForm/>
+    <UsernameForm {user}/>
 
     
     <section class="user-details primary" on:submit|preventDefault>

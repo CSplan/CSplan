@@ -1,11 +1,20 @@
 <script lang="ts">
-  import { tick } from 'svelte'
+  import { onMount, tick } from 'svelte'
   import navState, { FormIDs } from '../navigation-state'
+  import { FormStates, FormStates as States } from '$lib'
+  import Spinner from '$components/spinner.svelte'
+  import UpgradeModal from '$components/modals/upgrade-modal.svelte'
+  import name from '$stores/user/name'
 
-  // Display confirmation button before making username editable
-  let showEditButton = true
+  export let user: App.Locals['user']
 
+  // Form state
   let inputEl: HTMLInputElement
+  let state = FormStates.Resting
+  let message = ''
+  let showUpgradeModal = false
+  // Display confirmation button before making username editable
+  let showEditButton = false
 
   // Handle navigation state
   let open = false
@@ -14,7 +23,10 @@
 
   // Toggle editing, closing other open forms
   async function toggleEditing(): Promise<void> {
-    if (open) {
+    if (!open && !$name.exists) {
+      return
+    }
+    if (open && [FormStates.Resting, FormStates.Errored].includes(state)) {
       inputEl.blur()
       await tick()
       $navState.isEditing = null
@@ -26,35 +38,74 @@
       inputEl.focus()
     }
   }
+
+  /** Create the username */
+  async function submit(): Promise<void> {
+    if (![FormStates.Resting, FormStates.Errored].includes(state)) {
+      return
+    }
+    try {
+      state = States.Saving
+      message = ''
+      await name.createUsername(inputEl.value)
+      await toggleEditing()
+      state = States.Saved
+      setTimeout(async () => {
+        state = States.Resting
+        message = ''
+      }, 300)
+    } catch (err) {
+      state = States.Errored
+      message = `${err}`
+    }
+  }
+
+  onMount(async () => {
+    await name.init()
+    if ($name.exists && $name.username && inputEl.value.length === 0) {
+      inputEl.value = $name.username
+    }
+  })
 </script>
+
+<UpgradeModal bind:show={showUpgradeModal}
+on:cancel={() => showEditButton = false }
+on:upgrade={() => toggleEditing()}
+/>
 
 <section class="username primary">
   <div class="input-group" class:highlight={open}>
     <div class="username-symbol" on:pointerdown={() => {
       showEditButton = !showEditButton
     }}>
-      <i class="far fa-at"></i>
+      <i class="far fa-at" class:disabled={!($name.exists || (user && user.username))}></i>
     </div>
 
     <input type="text" class="username"
     title="Username"
     placeholder="Anonymous"
+    value={(user && user.username) ? user.username : ''}
     bind:this={inputEl}
     {disabled}>
   </div>
 
   {#if showEditButton}
-    <button class="open-form" on:pointerdown={toggleEditing}>Change Username</button>
+    <button class="open-form" on:pointerdown={() => {
+      showUpgradeModal = true
+    }}>Change Username</button>
   {:else if open}
     <button class="cancel" on:pointerdown={toggleEditing}>Cancel</button>
-    <button class="save">Save</button>
+    <button class="save" on:pointerdown={submit}>Save</button>
   {/if}
+
+  <Spinner {state} {message}/>
 </section>
 
 <style lang="scss">
   section.username {
     border: 1px solid $border-normal;
     border-top: none;
+    border-right: none;
     padding: 0.8rem;
     padding-top: 0;
   }
@@ -68,7 +119,9 @@
   }
   input.username {
     border-left: none;
-    pointer-events: none;
+    &:disabled {
+      pointer-events: none;
+    }
     font-weight: 600;
     padding-left: 0.5rem;
     border: none;
@@ -90,6 +143,9 @@
     i {
       margin: 0 !important;
       cursor: pointer;
+      &.disabled {
+        color: $text-disabled;
+      }
     }
   }
   button:not(.transparent) {

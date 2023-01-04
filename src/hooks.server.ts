@@ -2,6 +2,7 @@ import type { Handle } from '@sveltejs/kit'
 import type AccountTypes from '$lib/account-types'
 import { HTTPerror, route } from '$lib'
 import { dev } from '$app/environment'
+import type { Username } from '$stores/user/name'
 
 type AuthorizedResponse = {
   userID: string
@@ -65,6 +66,26 @@ async function getUser(authCookie: string): Promise<App.Locals['user']> {
   }
 }
 
+/** Get username.
+ * TODO: Include displayName preference in SSR locals
+*/
+async function getUsername(authCookie: string): Promise<string|null|undefined> {
+  const res = await fetch(serverRoute('/username'), {
+    headers: {
+      Cookie: `Authorization=${authCookie}`
+    }
+  })
+
+  // Null represents an empty username value which was successfully obtained,
+  // undefined represents an error trying to obtain a username
+  if (res.status === 404) {
+    return null
+  } else if (res.status !== 200) {
+    return
+  }
+  const body: Username = await res.json()
+  return body.username
+}
 
 // Serverside request hook, used to fetch SSR data
 export const handle: Handle = async ({ event, resolve }) => {
@@ -72,10 +93,14 @@ export const handle: Handle = async ({ event, resolve }) => {
   const authCookie = event.cookies.get('Authorization')
   event.locals.isLoggedIn = authCookie != null && authCookie.length > 0
 
-  if (authCookie != null && authCookie.length > 0) {
+  if (authCookie && authCookie.length > 0) {
     try {
       event.locals.isLoggedIn = true
       event.locals.user = await getUser(authCookie)
+      // TODO: handle SSR errors accurately, which will allow moving the below coercion
+      if (event.locals.user) {
+        event.locals.user.username = await getUsername(authCookie) || undefined // Coerce null -> undefined
+      }
       event.locals.settings = await getSettings(authCookie) || {
         storeSessionMeta: false,
         darkMode: event.cookies.get('DarkMode') !== 'false',

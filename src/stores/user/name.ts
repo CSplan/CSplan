@@ -13,6 +13,13 @@ export type Name<E extends boolean = false> = NameData<E> & {
   exists: false
 }
 
+/** Structure describing username state in response to /username requests */
+export type Username = {
+  username: string
+  displayName?: NameData['displayName'] // Non-null in GET responses
+  meta?: State // Non-null in POST responses
+}
+
 /** Multiple names for a user account and visibility information */
 export type NameData<E extends boolean = false> = {
   firstName: string
@@ -174,7 +181,6 @@ class NameStore extends Store<Name> {
    */
   async createUsername(username: string): Promise<void> {
     type UsernameReq = { username: string }
-    type Username = { username: string; meta: State }
 
     const reqBody: UsernameReq = { username }
     const res = await csfetch(route('/username'), {
@@ -189,7 +195,7 @@ class NameStore extends Store<Name> {
     this.update((store) => {
       if (store.exists) {
         store.username = body.username
-        store.meta.checksum = body.meta.checksum
+        store.meta.checksum = body.meta!.checksum
       }
       return store
     })

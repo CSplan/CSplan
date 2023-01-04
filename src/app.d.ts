@@ -8,6 +8,7 @@ declare namespace App {
     user?: {
       id: string
       email: string
+      username?: string
       verified: boolean
       accountType: import('$lib/account-types').AccountTypes
       authLevel: number

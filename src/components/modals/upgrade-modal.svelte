@@ -68,7 +68,8 @@
     margin-right: auto;
     margin-left: auto;
 
-    padding: $padding-m;
+    padding: 0.8rem;
+    border: 1px solid $border-normal;
     text-align: left;
   }
 
