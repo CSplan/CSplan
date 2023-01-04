@@ -3,6 +3,7 @@
   import cookie from 'js-cookie'
   import { afterNavigate, invalidateAll } from '$app/navigation'
   import { onMount } from 'svelte'
+  import { DisplayNames } from '$lib'
   
   export let user: App.Locals['user']
   export let settings: App.Locals['settings']
@@ -87,7 +88,12 @@
 
   <div class="right">
     {#if user != null}
-      <span>{user.email}</span>
+      <i class="fas fa-circle-user" style:margin-right="0.5rem"></i>
+      {#if user.displayName === DisplayNames.Username}
+        <span>{user.username}</span>
+      {:else}
+        <span>{user.email}</span>
+      {/if}
       <!-- Quick actions dropdown -->
       <QuickActions/>
     {:else}

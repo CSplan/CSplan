@@ -2,6 +2,7 @@
 /* eslint-disable @typescript-eslint/consistent-type-definitions */
 
 /// <reference types="@sveltejs/kit"/>
+
 declare namespace App {
   interface Locals {
     isLoggedIn: boolean
@@ -9,6 +10,7 @@ declare namespace App {
       id: string
       email: string
       username?: string
+      displayName?: import('$lib').DisplayNames 
       verified: boolean
       accountType: import('$lib/account-types').AccountTypes
       authLevel: number

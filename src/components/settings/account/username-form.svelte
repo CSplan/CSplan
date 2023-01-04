@@ -74,15 +74,15 @@ on:upgrade={() => toggleEditing()}
 />
 
 <section class="username primary">
-  <div class="input-group" class:highlight={open}>
-    <div class="username-symbol" on:pointerdown={() => {
+  <div class="input-group" class:highlight={open} title="Username">
+    <div class="username-symbol" title="Change username"
+    on:pointerdown={() => {
       showEditButton = !showEditButton
     }}>
       <i class="far fa-at" class:disabled={!($name.exists || (user && user.username))}></i>
     </div>
 
     <input type="text" class="username"
-    title="Username"
     placeholder="Anonymous"
     value={(user && user.username) ? user.username : ''}
     bind:this={inputEl}

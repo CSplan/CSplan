@@ -69,7 +69,7 @@ async function getUser(authCookie: string): Promise<App.Locals['user']> {
 /** Get username.
  * TODO: Include displayName preference in SSR locals
 */
-async function getUsername(authCookie: string): Promise<string|null|undefined> {
+async function getUsername(authCookie: string): Promise<Required<Omit<Username, 'meta'>>|null|undefined> {
   const res = await fetch(serverRoute('/username'), {
     headers: {
       Cookie: `Authorization=${authCookie}`
@@ -83,8 +83,7 @@ async function getUsername(authCookie: string): Promise<string|null|undefined> {
   } else if (res.status !== 200) {
     return
   }
-  const body: Username = await res.json()
-  return body.username
+  return res.json()
 }
 
 // Serverside request hook, used to fetch SSR data
@@ -97,9 +96,12 @@ export const handle: Handle = async ({ event, resolve }) => {
     try {
       event.locals.isLoggedIn = true
       event.locals.user = await getUser(authCookie)
-      // TODO: handle SSR errors accurately, which will allow moving the below coercion
       if (event.locals.user) {
-        event.locals.user.username = await getUsername(authCookie) || undefined // Coerce null -> undefined
+        const username = await getUsername(authCookie)
+        if (username) {
+          event.locals.user.username = username.username
+          event.locals.user.displayName = username.displayName
+        }
       }
       event.locals.settings = await getSettings(authCookie) || {
         storeSessionMeta: false,
@@ -109,6 +111,7 @@ export const handle: Handle = async ({ event, resolve }) => {
       event.locals.paymentStatus = await getPaymentStatus(authCookie)
       return resolve(event)
     } catch {
+      // TODO: better SSR error handling
       delete event.locals.user
       delete event.locals.paymentStatus
     }
