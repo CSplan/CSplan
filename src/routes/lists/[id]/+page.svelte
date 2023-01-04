@@ -6,12 +6,12 @@
   import VerificationBanner from '$components/banner/verification-banner.svelte'
 </script>
 
-<a class="back-button" href="/lists" data-sveltekit-prefetch>
+<a class="back-button" href="/lists" data-sveltekit-preload-data>
   <i class="fas fa-arrow-left"></i>
 </a>
 
 <main class="container">
-  <TodoList id={data.id} user={data.user} settings={data.settings}/>
+  <TodoList id={data.id} user={data.user}/>
 </main>
 
 <VerificationBanner user={data.user}/>

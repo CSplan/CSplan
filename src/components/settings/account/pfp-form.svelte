@@ -244,7 +244,7 @@
   {#if isEmpty}
     <i class="fas fa-user-circle"></i>
   {:else}
-    <canvas id="pfp-display" class:d-none={isEmpty} alt="User Profile Picture" bind:this={displayCanvas}></canvas>
+    <canvas id="pfp-display" class:d-none={isEmpty} bind:this={displayCanvas}></canvas>
   {/if}
 
   {#if state === States.Errored}

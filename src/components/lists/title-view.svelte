@@ -202,7 +202,7 @@
           <p class="item-count">{completedItems(list.items)}/{list.items.length}</p>
         </div>
 
-        <a href="/lists/{list.id}" data-sveltekit-prefetch draggable="false" class="list-link"><div></div></a> <!-- draggable="false" is needed to override default the default html assumption that links can be dragged,
+        <a href="/lists/{list.id}" data-sveltekit-preload-data draggable="false" class="list-link"><div></div></a> <!-- draggable="false" is needed to override default the default html assumption that links can be dragged,
           inside div supresses compiler warning that <a> elements must contain children -->
         
       </div>
@@ -229,7 +229,7 @@
       <!-- Group the clickable white space to the right of the list title and the drag/delete buttons to the side for alignment purposes -->
       <div class="row-end">
 
-        <a href="/lists/{list.id}" data-sveltekit-prefetch draggable="false" class="list-link"><div></div></a>
+        <a href="/lists/{list.id}" data-sveltekit-preload-data draggable="false" class="list-link"><div></div></a>
 
         <div class="icons">
           <!-- Up-down arrows for moving list position -->

@@ -27,7 +27,7 @@
           <i class="fad fa-credit-card" style:color="var(--success-green)"/>
           CSplan Pro
         </a>
-        <a href="/info" data-sveltekit-prefetch>
+        <a href="/info" data-sveltekit-preload-data>
           <i class="fas fa-book"></i>
           Information
         </a>

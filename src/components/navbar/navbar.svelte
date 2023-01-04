@@ -77,11 +77,11 @@
   {/if}
   {#each links as link}
     {#if link.needsLogin && isLoggedIn}
-      <a class="pseudo button" data-sveltekit-prefetch href={link.href}>{link.title}</a>
+      <a class="pseudo button" data-sveltekit-preload-data href={link.href}>{link.title}</a>
     {:else if !link.needsLogin && !isLoggedIn}
-      <a class="pseudo button" data-sveltekit-prefetch href={link.href}>{link.title}</a>
+      <a class="pseudo button" data-sveltekit-preload-data href={link.href}>{link.title}</a>
     {:else if link.needsLogin == null}
-      <a class="pseudo button" data-sveltekit-prefetch href={link.href}>{link.title}</a>
+      <a class="pseudo button" data-sveltekit-preload-data href={link.href}>{link.title}</a>
     {/if}
   {/each}
 
@@ -94,8 +94,8 @@
       <i class="darkmode-indicator clickable {settings.darkMode ? 'fas' : 'far'} fa-moon" on:click={() => {
         toggleDarkModeCookie()
       }}></i>
-      <a class="pseudo button login" data-sveltekit-prefetch href="/login">Log In</a>
-      <a class="pseudo button register" data-sveltekit-prefetch href="/register">Register</a>
+      <a class="pseudo button login" data-sveltekit-preload-data href="/login">Log In</a>
+      <a class="pseudo button register" data-sveltekit-preload-data href="/register">Register</a>
     {/if}
   </div>
   </div>

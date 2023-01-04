@@ -1,8 +1,8 @@
 import { redirect } from '@sveltejs/kit'
 import type { LayoutServerLoad } from './$types'
 
-export const load: LayoutServerLoad = ({ locals, routeId }) => {
-  authenticateRoute(routeId, locals.user?.authLevel || 0)
+export const load: LayoutServerLoad = ({ locals, route }) => {
+  authenticateRoute(route.id, locals.user?.authLevel || 0)
   return locals
 }
 

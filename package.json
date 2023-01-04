@@ -15,8 +15,8 @@
     "start": "node build"
   },
   "dependencies": {
-    "@stripe/stripe-js": "^1.35.0",
-    "@sveltejs/kit": "^1.0.0-next.481",
+    "@stripe/stripe-js": "^1.46.0",
+    "@sveltejs/kit": "^1.0.1",
     "@types/marked": "^2.0.0",
     "@typescript-eslint/eslint-plugin": "^5.47.1",
     "@typescript-eslint/parser": "^5.47.1",
@@ -33,7 +33,7 @@
     "typescript": "^4.9.3"
   },
   "devDependencies": {
-    "@sveltejs/adapter-node": "^1.0.0-next.77",
+    "@sveltejs/adapter-node": "^1.0.0",
     "@types/dompurify": "^2.3.1",
     "@types/js-cookie": "^3.0.2",
     "eslint": "^8.30.0",
@@ -44,11 +44,10 @@
     "eslint-plugin-unicorn": "^45.0.2",
     "http-proxy-middleware": "^2.0.1",
     "mdsvex": "^0.10.6",
-    "svelte": "^3.48.0",
-    "svelte-check": "^2.8.0",
-    "svelte-migrate": "^1.0.0-next.12",
+    "svelte": "^3.55.0",
+    "svelte-check": "^3.0.1",
     "svelte-preprocess": "^4.7.4",
-    "vite": "^3.2.3"
+    "vite": "^4.0.4"
   },
   "resolutions": {
     "hosted-git-info": "2.8.9"

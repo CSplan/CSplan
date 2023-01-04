@@ -23,7 +23,7 @@
       return
     }
     const code = parseInt(codeInput.value, 10)
-    if (code === NaN) {
+    if (Number.isNaN(code)) {
       codeInput.setCustomValidity('Code must be a number.')
       return
     }

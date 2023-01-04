@@ -16,13 +16,13 @@
 
   {#if data.user != null}
     <section class="action-buttons">
-      <a href="/lists" data-sveltekit-prefetch>
+      <a href="/lists" data-sveltekit-preload-data>
         <button>
           <i class="fas fa-list" style:color="var(--bold-blue)"></i>
           My Lists
         </button>
       </a>
-      <a href="/tags" data-sveltekit-prefetch>
+      <a href="/tags" data-sveltekit-preload-data>
         <button>
           <i class="fas fa-tag" style:color="var(--bold-blue)"></i>
           My Tags

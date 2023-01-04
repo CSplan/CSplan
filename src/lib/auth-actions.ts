@@ -727,13 +727,6 @@ export const TOTPActions = {
 
 /** Class used to automatically calculate a set of Argon2 parameters for an account. */
 export class Argon2AutoParams {
-  private argon2: Argon2.WorkerConnection // Needed for hashPassword to work
-  private hashPassword: (password: string, salt: Uint8Array, hashParams?: Argon2HashParams) => Promise<Uint8Array>
-  private password: string
-  private salt: Uint8Array = makeSalt(16) // Random salt
-
-  private hashParams: Argon2HashParams = { ...Argon2AutoParams.BaseHashParams }
-
   /** The minimum memory parameter CSplan will use in automatically calculated hash parameters. Lower values can be selected in manual hash parameters. */
   static readonly MinMemory = 128 * 1024
   /** The maximum memory parameter CSplan will use in automatically calculated hash params. Higher values can be selected in manual hash parameters. */
@@ -741,7 +734,6 @@ export class Argon2AutoParams {
 
   /** https://github.com/P-H-C/phc-winner-argon2/blob/master/argon2-specs.pdf [Sec 5.6] */
   static readonly MinTime = 3
-
   private static readonly BaseHashParams: Readonly<Argon2HashParams> = Object.freeze({
     type: 'argon2i',
     timeCost: this.MinTime,
@@ -749,6 +741,13 @@ export class Argon2AutoParams {
     threads: 1,
     salt: ''
   })
+
+  private argon2: Argon2.WorkerConnection // Needed for hashPassword to work
+  private hashPassword: (password: string, salt: Uint8Array, hashParams?: Argon2HashParams) => Promise<Uint8Array>
+  private password: string
+  private salt: Uint8Array = makeSalt(16) // Random salt
+
+  private hashParams: Argon2HashParams = { ...Argon2AutoParams.BaseHashParams }
 
   constructor(argon2: Argon2.WorkerConnection, hashPassword: Argon2AutoParams['hashPassword'], password: string) {
     this.argon2 = argon2
