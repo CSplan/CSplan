@@ -10,6 +10,7 @@ type AuthorizedResponse = {
   email: string
   verified: boolean
   accountType: AccountTypes
+  admin?: boolean
   authLevel: number
 }
 
@@ -62,7 +63,8 @@ async function getUser(authCookie: string): Promise<App.Locals['user']> {
     email: body.email,
     verified: body.verified,
     accountType: body.accountType,
-    authLevel: body.authLevel
+    authLevel: body.authLevel,
+    admin: body.admin
   }
 }
 

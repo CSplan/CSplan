@@ -13,6 +13,7 @@ declare namespace App {
       displayName?: import('$lib').DisplayNames 
       verified: boolean
       accountType: import('$lib/account-types').AccountTypes
+      admin?: bool
       authLevel: number
     }
     paymentStatus?: {

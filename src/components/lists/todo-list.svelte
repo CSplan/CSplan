@@ -30,6 +30,12 @@
   async function toggleEditMode(): Promise<void> {
     editMode = !editMode
     if (!editMode) {
+      // Ensure no items have empty titles
+      for (let i = 0; i < list.items.length; i++) {
+        if (list.items[i].title.length === 0) {
+          list.items[i].title = 'Untitled'
+        }
+      }
       await save()
     }
   }
@@ -209,7 +215,7 @@
   // #region Limits
   let itemLimitHit = false
   $: if (list != null) {
-    const l = isLoggedIn && user!.accountType === AccountTypes.Pro ? Limits.pro : Limits.free
+    const l = user && (user.accountType === AccountTypes.Pro || user.admin) ? Limits.pro : Limits.free
     itemLimitHit = list.items.length >= l.itemsPerList || $itemsTotal >= l.totalItems
   }
   // #endregion 
