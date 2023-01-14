@@ -10,6 +10,23 @@
   export let show = false
   export let placeholder = 'Enter your password'
 
+  // Use the modal being opened as a mount trigger
+  let initialized = false
+  $: if (!initialized && show) (async () => {
+    actions = new LoginActions(
+      new Worker(LoginActions.Argon2_WorkerPath),
+      new Worker(LoginActions.ED25519_WorkerPath)
+    )
+    await actions.loadArgon2({
+      wasmRoot: LoginActions.Argon2_WASMRoot,
+      simd: true
+    })
+    await actions.loadED25519({
+      wasmPath: LoginActions.ED25519_WASMPath
+    })
+    passwordInput.focus()
+  })()
+
   const dispatch = createEventDispatcher()
 
   let actions: LoginActions
@@ -36,21 +53,11 @@
   }
 
   onMount(async () => {
-    actions = new LoginActions(
-      new Worker(LoginActions.Argon2_WorkerPath),
-      new Worker(LoginActions.ED25519_WorkerPath)
-    )
-    await actions.loadArgon2({
-      wasmRoot: LoginActions.Argon2_WASMRoot,
-      simd: true
-    })
-    await actions.loadED25519({
-      wasmPath: LoginActions.ED25519_WASMPath
-    })
   })
 </script>
 
 <Modal bind:show lock={true}>
+  <svelte:fragment>
   <form class="upgrade primary" novalidate on:submit|preventDefault={submit} bind:this={form}>
     <label>
       <header>Password</header>
@@ -59,6 +66,7 @@
     <Checkbox value="Show Password" bind:checked={showPassword}/>
     <SubmitCancel on:cancel={cancel}/>
   </form>
+  </svelte:fragment>
 </Modal>
 
 <style lang="scss">

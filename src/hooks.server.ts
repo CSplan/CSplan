@@ -12,6 +12,7 @@ type AuthorizedResponse = {
   accountType: AccountTypes
   admin?: boolean
   authLevel: number
+  lastUpgraded?: number
 }
 
 // Create a full URL for use in SSR requests
@@ -64,7 +65,8 @@ async function getUser(authCookie: string): Promise<App.Locals['user']> {
     verified: body.verified,
     accountType: body.accountType,
     authLevel: body.authLevel,
-    admin: body.admin
+    admin: body.admin,
+    lastUpgraded: body.lastUpgraded
   }
 }
 

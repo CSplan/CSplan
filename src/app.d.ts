@@ -15,6 +15,7 @@ declare namespace App {
       accountType: import('$lib/account-types').AccountTypes
       admin?: bool
       authLevel: number
+      lastUpgraded?: number
     }
     paymentStatus?: {
       accountType: import('$lib/account-types').AccountTypes // TODO: dedup accountType prop

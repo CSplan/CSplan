@@ -1,10 +1,11 @@
 <script lang="ts">
   import { onMount, tick } from 'svelte'
   import navState, { FormIDs } from '../navigation-state'
-  import { FormStates, FormStates as States } from '$lib'
+  import { DisplayNames, FormStates, FormStates as States } from '$lib'
   import Spinner from '$components/spinner.svelte'
   import UpgradeModal from '$components/modals/upgrade-modal.svelte'
-  import name from '$stores/user/name'
+  import name, { NameStore } from '$stores/user/name'
+  import { invalidateAll } from '$app/navigation'
 
   export let user: App.Locals['user']
 
@@ -19,6 +20,7 @@
   // Handle navigation state
   let open = false
   $: open = $navState.isEditing === FormIDs.ChangeUsername
+  $: hasUsername = $name.exists && $name.username && $name.username.length > 0 ? true : false
   $: disabled = !open
 
   // Toggle editing, closing other open forms
@@ -28,6 +30,9 @@
     }
     if (open && [FormStates.Resting, FormStates.Errored].includes(state)) {
       inputEl.blur()
+      if ($name.exists && hasUsername && inputEl.value !== $name.username) {
+        inputEl.value = $name.username!
+      }
       await tick()
       $navState.isEditing = null
       showEditButton = false
@@ -39,7 +44,7 @@
     }
   }
 
-  /** Create the username */
+  /** Create/change the username */
   async function submit(): Promise<void> {
     if (![FormStates.Resting, FormStates.Errored].includes(state)) {
       return
@@ -47,12 +52,37 @@
     try {
       state = States.Saving
       message = ''
+      // If no name structure exists for the user, create an empty name
+      if (!$name.exists) {
+        message = 'Creating empty name profile'
+        await name.create(NameStore.EmptyName)
+      }
+
+      message = 'Setting username'
+      let oldDisplayName: DisplayNames|null = null
+      // Delete old username if one exists
+      if ($name.exists && hasUsername) {
+        // Temporarily change account display name to not include username
+        if ([DisplayNames.Username, DisplayNames.FullNameAndUsername].includes($name.displayName)) {
+          oldDisplayName = $name.displayName
+          await name.updateDisplayName(DisplayNames.Anonymous)
+        }
+        await name.deleteUsername()
+      }
+
       await name.createUsername(inputEl.value)
-      await toggleEditing()
       state = States.Saved
+      message = 'Username set'
+      // Restore old account display name
+      if (oldDisplayName !== null) {
+        await name.updateDisplayName(oldDisplayName)
+        // Trigger navbar reload
+        await invalidateAll()
+      }
       setTimeout(async () => {
         state = States.Resting
         message = ''
+        await toggleEditing()
       }, 300)
     } catch (err) {
       state = States.Errored
@@ -90,12 +120,19 @@ on:upgrade={() => toggleEditing()}
   </div>
 
   {#if showEditButton}
-    <button class="open-form" on:pointerdown={() => {
-      showUpgradeModal = true
-    }}>Change Username</button>
+      <button class="open-form" on:pointerdown={() => {
+        showUpgradeModal = true
+      }}>Change Username</button>
+      <p class="warning">
+        <b style:color="var(--danger-red)">Warning:</b>
+        After changing or deleting your username, you may not be able to get your current one back.
+      </p>
   {:else if open}
-    <button class="cancel" on:pointerdown={toggleEditing}>Cancel</button>
-    <button class="save" on:pointerdown={submit}>Save</button>
+      <button class="cancel" on:pointerdown={toggleEditing}>Cancel</button>
+      <button class="save" on:pointerdown={submit}>Save</button>
+    {#if hasUsername}
+      <button class="delete">Delete Username</button>
+    {/if}
   {/if}
 
   <Spinner {state} {message}/>
@@ -156,6 +193,11 @@ on:upgrade={() => toggleEditing()}
     background-color: $bold-blue;
     width: 100%;
   }
+  p.warning {
+    line-height: 1.25;
+    margin-top: 0 !important;
+    margin-bottom: 0 !important;
+  }
   button.cancel {
     background-color: $danger-red;
     width: 100%;
@@ -164,5 +206,12 @@ on:upgrade={() => toggleEditing()}
     background-color: $bold-blue;
     width: 100%;
     margin-top: 0;
+  }
+  button.delete {
+    background-color: $bg-lessdark;
+    color: $danger-red;
+    border: 1px solid $danger-red;
+    width: 100%;
+    margin-top: 1rem;
   }
 </style>

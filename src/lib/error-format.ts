@@ -6,7 +6,9 @@ export async function HTTPerror(res: Response, fallbackMessage: string): Promise
   let message = `${fallbackMessage} (status ${res.status})`
   try {
     const err: ErrorResponse = await res.json()
-    message = err?.message || message 
+    if (err.title && err.message) {
+      message = `${err.title}: ${err.message}`
+    }
   } catch{}
   return new Error(message)
 }

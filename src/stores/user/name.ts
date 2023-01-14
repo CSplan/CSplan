@@ -38,8 +38,19 @@ export type NameVisibility = {
   lastName: import('$lib').Visibilities
 }
 
-class NameStore extends Store<Name> {
+export class NameStore extends Store<Name> {
   private initialized = false
+
+  // Name data used for creating empty names
+  static readonly EmptyName: NameData = {
+    firstName: '',
+    lastName: '',
+    visibility: {
+      firstName: Visibilities.Encrypted,
+      lastName: Visibilities.Encrypted
+    },
+    displayName: DisplayNames.Anonymous
+  }
 
   constructor() {
     super({
@@ -173,6 +184,32 @@ class NameStore extends Store<Name> {
     await addToStore('user/name', final)
     this.initialized = true
     return user.id
+  }
+
+  /** Update a user's public display name preference. */
+  async updateDisplayName(displayName: DisplayNames): Promise<void> {
+    type VisibilityUpdate = { displayName: DisplayNames }
+    const body: VisibilityUpdate = { displayName }
+    const res = await csfetch(route('/name/display-name'), {
+      method: 'PATCH',
+      body: JSON.stringify(body)
+    })
+    if (res.status !== 200) {
+      throw await HTTPerror(res, 'Failed to update display name preference.')
+    }
+
+    const { meta }: Omit<StateResponse, 'id'> = await res.json()
+    // Update store
+    this.update((store) => {
+      if (store.exists) {
+        store.displayName = displayName
+        store.meta.checksum = meta.checksum
+      }
+      return store
+    })
+
+    // Update IDB
+    await addToStore('user/name', Store.get(this) as Assert<Name, 'exists'>)
   }
 
   /**
