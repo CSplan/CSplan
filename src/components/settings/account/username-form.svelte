@@ -100,14 +100,18 @@
 
 <UpgradeModal bind:show={showUpgradeModal}
 on:cancel={() => showEditButton = false }
-on:upgrade={() => toggleEditing()}
+on:upgrade={async () => {
+  await invalidateAll()
+  await toggleEditing()
+}}
 />
 
 <section class="username primary">
   <div class="input-group" class:highlight={open} title="Username">
     <div class="username-symbol" title="Change username"
     on:pointerdown={() => {
-      showEditButton = !showEditButton
+      // If there is 1 minute or longer before the user's auth upgrade will expire, password input is not needed
+        showEditButton = !showEditButton
     }}>
       <i class="far fa-at" class:disabled={!($name.exists || (user && user.username))}></i>
     </div>
@@ -120,8 +124,15 @@ on:upgrade={() => toggleEditing()}
   </div>
 
   {#if showEditButton}
-      <button class="open-form" on:pointerdown={() => {
-        showUpgradeModal = true
+      <button class="open-form" on:pointerdown={async () => {
+        if (user
+        && user.authLevel === 2 && user.lastUpgraded !== undefined
+        && (Date.now() / 1000) - user.lastUpgraded < (9 * 60)) {
+          await toggleEditing()
+        } else {
+          // Upgrade required, prompt for password input
+          showUpgradeModal = true
+        }
       }}>Change Username</button>
       <p class="warning">
         <b style:color="var(--danger-red)">Warning:</b>
