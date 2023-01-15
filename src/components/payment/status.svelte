@@ -121,7 +121,6 @@
     flex-direction: column;
     align-items: center;
     >p {
-      font-size: 110%;
       margin: 0.8rem;
     }
   }

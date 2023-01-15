@@ -25,9 +25,6 @@
 
   // Toggle editing, closing other open forms
   async function toggleEditing(): Promise<void> {
-    if (!open && !$name.exists) {
-      return
-    }
     if (open && [FormStates.Resting, FormStates.Errored].includes(state)) {
       inputEl.blur()
       if ($name.exists && hasUsername && inputEl.value !== $name.username) {
@@ -37,6 +34,8 @@
       $navState.isEditing = null
       showEditButton = false
     } else {
+      state = States.Resting
+      message = ''
       $navState.isEditing = FormIDs.ChangeUsername
       showEditButton = false
       await tick()
@@ -45,7 +44,7 @@
   }
 
   /** Create/change the username */
-  async function submit(): Promise<void> {
+  async function setUsername(): Promise<void> {
     if (![FormStates.Resting, FormStates.Errored].includes(state)) {
       return
     }
@@ -90,6 +89,36 @@
     }
   }
 
+  /** Delete the user's username */
+  async function deleteUsername(): Promise<void> {
+    if (![FormStates.Resting, FormStates.Errored].includes(state)) {
+      return
+    }
+    if (!$name.exists) {
+      return
+    }
+    // If the user's display name includes their username, warn them without sending a request
+    if ([DisplayNames.Username, DisplayNames.FullNameAndUsername].includes($name.displayName)) {
+      state = States.Errored
+      message = 'Cannot delete username because it is included in your current display name preference. Change your display name to resolve this error.'
+      return
+    }
+    try {
+      await name.deleteUsername()
+      state = States.Saved
+      message = 'Username deleted'
+      setTimeout(async () => {
+        state = States.Resting
+        message = ''
+        inputEl.value = ''
+        await toggleEditing()
+      }, 300)
+    } catch (err) {
+      state = States.Errored
+      message = `${err}`
+    }
+  }
+
   onMount(async () => {
     await name.init()
     if ($name.exists && $name.username && inputEl.value.length === 0) {
@@ -108,13 +137,13 @@ on:upgrade={async () => {
 
 <section class="username primary">
   <div class="input-group" class:highlight={open} title="Username">
-    <div class="username-symbol" title="Change username"
-    on:pointerdown={() => {
+    <button class="transparent username-symbol" title="Change username"
+    on:click={() => {
       // If there is 1 minute or longer before the user's auth upgrade will expire, password input is not needed
         showEditButton = !showEditButton
     }}>
       <i class="far fa-at" class:disabled={!($name.exists || (user && user.username))}></i>
-    </div>
+    </button>
 
     <input type="text" class="username"
     placeholder="Anonymous"
@@ -124,7 +153,7 @@ on:upgrade={async () => {
   </div>
 
   {#if showEditButton}
-      <button class="open-form" on:pointerdown={async () => {
+      <button class="open-form" on:click={async () => {
         if (user
         && user.authLevel === 2 && user.lastUpgraded !== undefined
         && (Date.now() / 1000) - user.lastUpgraded < (9 * 60)) {
@@ -139,10 +168,10 @@ on:upgrade={async () => {
         After changing or deleting your username, you may not be able to get your current one back.
       </p>
   {:else if open}
-      <button class="cancel" on:pointerdown={toggleEditing}>Cancel</button>
-      <button class="save" on:pointerdown={submit}>Save</button>
+      <button class="cancel" on:click={toggleEditing}>Cancel</button>
+      <button class="save" on:click={setUsername}>Save</button>
     {#if hasUsername}
-      <button class="delete">Delete Username</button>
+      <button class="delete" on:click={deleteUsername}>Delete Username</button>
     {/if}
   {/if}
 
@@ -162,6 +191,9 @@ on:upgrade={async () => {
     padding: 0;
     &.highlight {
       border-color: $bold-blue;
+      button.username-symbol {
+        background-color: inherit;
+      }
     }
     margin-bottom: 0.5rem;
   }
@@ -175,7 +207,10 @@ on:upgrade={async () => {
     border: none;
     margin: 0;
   }
-  div.username-symbol {
+  button.username-symbol {
+    margin: 0;
+    transition: none;
+    background-color: $bg-darker;
     border: 1px solid $border-alt;
     border-right: none;
     height: 2.1em; // To match with input box height defined by picnic

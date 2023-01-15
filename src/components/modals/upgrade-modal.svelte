@@ -71,7 +71,10 @@
 
 <style lang="scss">
   form.upgrade {
-    margin-top: 50%;
+    @media (max-height: 1200px) {
+      margin-top: 50%;
+    }
+    margin-top: 30%;
     width: 25vw;
     margin-right: auto;
     margin-left: auto;

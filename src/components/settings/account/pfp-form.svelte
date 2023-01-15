@@ -342,7 +342,9 @@
       color: $danger-red;
       position: absolute;
       top: 0;
-      right: 0;
+      left: 0;
+      padding: 1rem;
+      padding-top: 0.25rem;
     }
     input[type="file"] {
       display: none;
