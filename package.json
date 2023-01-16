@@ -1,7 +1,7 @@
 {
   "name": "csplan",
   "description": "A fast, modular, and uncompromisingly secure digital planner.",
-  "version": "0.6.5",
+  "version": "0.6.6",
   "license": "UNLICENSED",
   "type": "module",
   "private": true,
