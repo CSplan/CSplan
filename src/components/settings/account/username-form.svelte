@@ -43,10 +43,20 @@
     }
   }
 
+  // Username regex
+  const usernameRegex = /^[A-Za-z0-9-_]+$/
+
   /** Create/change the username */
   async function setUsername(): Promise<void> {
     if (![FormStates.Resting, FormStates.Errored].includes(state)) {
       return
+    }
+    if (!usernameRegex.test(inputEl.value)) {
+      inputEl.setCustomValidity('Invalid username. Only alphanumeric characters and the following separators are allowed: -_')
+      inputEl.reportValidity()
+      return
+    } else {
+      inputEl.setCustomValidity('')
     }
     try {
       state = States.Saving
@@ -115,7 +125,11 @@
       }, 300)
     } catch (err) {
       state = States.Errored
-      message = `${err}`
+      if (err instanceof Error) {
+        message = err.message
+      } else {
+        message = `${err}`
+      }
     }
   }
 

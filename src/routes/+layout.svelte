@@ -10,7 +10,6 @@
   onMount(async () => {
     if (data.isLoggedIn) { // If SSR succeeded, we know the user is successfully logged in and all data is accurate
       pageStorage.setAll(data)
-      console.log(data.user)
       return
     }
 

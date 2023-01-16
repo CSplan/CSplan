@@ -58,7 +58,6 @@
   }
   function updateItemDescription(index: number): void {
     list.items[index].description = html2txt(descriptionHTML.get(index))
-    console.log(list.items[index].description)
   }
 
   // Toggle an item's completion
