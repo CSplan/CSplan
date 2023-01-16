@@ -162,12 +162,14 @@ on:upgrade={async () => {
           // Upgrade required, prompt for password input
           showUpgradeModal = true
         }
-      }}>Change Username</button>
-      <p class="warning">
-        <b style:color="var(--danger-red)">Warning:</b>
-        After changing or deleting your username, you may not be able to get your current one back.
-      </p>
-  {:else if open}
+      }}>{hasUsername ? 'Change' : 'Set'} Username</button>
+      {#if hasUsername}
+        <p class="warning">
+          <b style:color="var(--danger-red)">Warning:</b>
+          After changing or deleting your username, you may not be able to get your current one back.
+        </p>
+      {/if}
+  {:else if open && [States.Resting, States.Errored].includes(state)}
       <button class="cancel" on:click={toggleEditing}>Cancel</button>
       <button class="save" on:click={setUsername}>Save</button>
     {#if hasUsername}
