@@ -7,6 +7,7 @@
   import { onMount, tick } from 'svelte'
   import { slide } from 'svelte/transition'
   import Spinner from '$components/spinner.svelte'
+  import { invalidateAll } from '$app/navigation'
 
   // Form state
   let name: NameData = {
@@ -35,10 +36,9 @@
   let message = ''
 
   // State references used to decide available display name options
-  let hasUsername = false
   let hasPublicFirstName = false
   let hasPublicLastName = false
-  $: hasUsername = name.username != null
+  $: hasUsername = $nameStore.exists && $nameStore.username != null && $nameStore.username.length > 0
   $: hasFirstName = name.firstName.length > 0
   $: hasLastName = name.lastName.length > 0
   $: hasPublicFirstName = hasFirstName && name.visibility.firstName === Visibilities.Public
@@ -52,6 +52,7 @@
       state = States.Saved
       message = 'Saved'
       await tick()
+      await invalidateAll() // Reflect changes in navbar
       setTimeout(() => {
         state = States.Resting
         message = ''
@@ -95,7 +96,7 @@
 
   {#if open}
     <div class="editable" transition:slide={{ duration: 50 }}>
-      <!-- FIXME: HTML selects look terrible, but provide good keyboard and accessibility. These need to be replaced sooner than later with a custom component that doesn't sacrifice functoinality -->
+      <!-- FIXME: Custom select component, fallback to HTML selects for keyboard accessibility -->
       <label for="public-name-pref">Display Name</label>
       <select id="public-name-pref" {disabled} bind:value={name.displayName}>
         <option value={DisplayNames.Anonymous}>Anonymous</option>
