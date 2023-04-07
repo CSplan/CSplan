@@ -16,7 +16,7 @@
   },
   "dependencies": {
     "@stripe/stripe-js": "^1.46.0",
-    "@sveltejs/kit": "^1.0.1",
+    "@sveltejs/kit": "^1.15.2",
     "@types/marked": "^2.0.0",
     "@typescript-eslint/eslint-plugin": "^5.47.1",
     "@typescript-eslint/parser": "^5.47.1",
