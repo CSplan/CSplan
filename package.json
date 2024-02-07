@@ -5,15 +5,6 @@
   "license": "UNLICENSED",
   "type": "module",
   "private": true,
-  "scripts": {
-    "dev": "vite dev --port=3030",
-    "svelte-check": "svelte-check --use-new-transformation true --compiler-warnings 'css-unused-selector:ignore'",
-    "ts-check": "tsc --noemit",
-    "lint": "eslint src",
-    "build": "NODE_ENV=production vite build",
-    "postbuild": "./scripts/prepare-static.sh",
-    "start": "node build"
-  },
   "dependencies": {
     "@stripe/stripe-js": "^1.46.0",
     "@sveltejs/kit": "^1.15.2",

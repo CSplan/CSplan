@@ -14,7 +14,7 @@ const flatManualChunks = Object.values(manualChunks).flat()
 
 export default defineConfig(({ mode }) => {
   const dev = mode === 'development'
-  console.log(flatManualChunks)
+  console.log(`\x1b[1mManual chunks: ${flatManualChunks.join(', ')}\x1b[0m`)
 
   /** @type {import('vite').UserConfig} */
   const config = {

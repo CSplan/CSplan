@@ -55,11 +55,13 @@ function authenticateRoute(routeID: string|null, authLevel: number): void {
       if (authLevel === auth.authLevel) {
         return
       }
+      // eslint-disable-next-line @typescript-eslint/no-throw-literal
       throw redirect(303, '/lists')
     }
     if (authLevel >= auth.authLevel) {
       return
     }
+    // eslint-disable-next-line @typescript-eslint/no-throw-literal
     throw authLevel > 0 ? redirect(303, '/lists') : redirect(303, '/')
   }
 }
