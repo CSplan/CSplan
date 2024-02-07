@@ -11,7 +11,7 @@
     "ts-check": "tsc --noemit",
     "lint": "eslint src",
     "build": "NODE_ENV=production vite build",
-    "postbuild": "./prepare-static.sh",
+    "postbuild": "./scripts/prepare-static.sh",
     "start": "node build"
   },
   "dependencies": {
