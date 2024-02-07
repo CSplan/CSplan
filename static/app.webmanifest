@@ -6,8 +6,8 @@
   "description": "A modular, uncompromisingly secure planner.",
   "icons": [
     {
-      "src": "/logo/png/512x512.png",
-      "sizes": "512x512"
+      "src": "/logo/png/192x192.png",
+      "sizes": "192x192"
     },
     {
       "src": "/logo/Clock-CSplan.svg",
