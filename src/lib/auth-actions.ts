@@ -316,7 +316,7 @@ export class LoginActions {
     this.onMessage('Decrypting master keypair')
     const tempKeyMaterial = await this.hashPassword(normalizedPassword, decode(keys.hashParams.salt), keys.hashParams)
     const tempKey = await aes.importKeyMaterial(tempKeyMaterial, Algorithms.AES_GCM)
-    const privateKey = await rsa.unwrapPrivateKey(keys.privateKey, tempKey, extractablePrivateKey)
+    const privateKey = await aes.unwrapKey(keys.privateKey, tempKey, { extractable: true })
 
     // Store keys in IDB
     if (!extractablePrivateKey) { // Extractable private keys are only used for export, and shouldn't be stored
@@ -404,7 +404,7 @@ export class RegisterActions extends LoginActions {
     return
   }
 
-  /** 
+  /**
    * Generate a master keypair, wrapping the private key with a tempkey derived from password and salt
    * The salt used here MUST be different from the salt used for the authentication key, otherwise CSplan's encryption is rendered useless
    */
@@ -421,7 +421,7 @@ export class RegisterActions extends LoginActions {
     const exportedPublicKey = await rsa.exportPublicKey(publicKey!)
 
     // Encrypt and export the private key in pkcs8 format
-    const encryptedPrivateKey = await rsa.wrapPrivateKey(privateKey!, tempKey)
+    const encryptedPrivateKey = await aes.wrapKey(privateKey!, tempKey)
 
     // Store the keypair (along with the hash parameters used to reach them)
     const CSRFtoken = storage.getCSRFtoken()
@@ -504,7 +504,7 @@ export class PasswordChangeActions extends RegisterActions {
     // Re-encrypt the user's master private key
     const tempKeyMaterial = await this.hashPassword(normalizedNewPassword, cryptoSalt)
     const tempKey = await aes.importKeyMaterial(tempKeyMaterial, Algorithms.AES_GCM)
-    const encryptedPrivateKey = await rsa.wrapPrivateKey(privateKey!, tempKey)
+    const encryptedPrivateKey = await aes.wrapKey(privateKey, tempKey)
 
     // Update the authentication and private key with the API
     const res = await csfetch(route('/change_password' + (this.privateBetaAccount ? '?public_beta_transition' : '')), {
@@ -742,7 +742,8 @@ export class Argon2AutoParams {
     salt: ''
   })
 
-  private argon2: Argon2.WorkerConnection // Needed for hashPassword to work
+  // @ts-ignore: asdas
+  private argon2: Argon2.WorkerConnection
   private hashPassword: (password: string, salt: Uint8Array, hashParams?: Argon2HashParams) => Promise<Uint8Array>
   private password: string
   private salt: Uint8Array = makeSalt(16) // Random salt
@@ -762,7 +763,7 @@ export class Argon2AutoParams {
     const baseTime = await this.hashTime()
     // Store the ratio of the target hash time to the base hash time, which can be factored into multipliers for memory and time parameters
     const ratio = (targetTime / baseTime)
-    if (ratio < 1) {
+    if (ratio <= 1) {
       return this.hashParams
     }
 
