@@ -1,6 +1,6 @@
 import { Argon2 } from '@very-amused/argon2-wasm'
 import { ED25519 } from '@very-amused/ed25519-wasm'
-import { encode, aes, rsa, Algorithms, decode, makeSalt } from 'cs-crypto'
+import { base64 as b64, aes, rsa, Algorithms, makeSalt } from 'cs-crypto'
 import * as db from '../db'
 import { sessions as sessionStore } from '$stores/sessions'
 import { route, HTTPerror, csfetch } from '$lib'
@@ -227,7 +227,7 @@ export class LoginActions {
     this.privateBetaAccount = res.headers.get('X-Private-Beta-Account') != null
       
     // Load argon2 parameters and decode salt from the challenge
-    const salt = decode(challenge.hashParams.salt)
+    const salt = b64.decode(challenge.hashParams.salt)
     this.hashParams = challenge.hashParams
 
     // Hash the user's password (skip if authKey is already present)
@@ -247,7 +247,7 @@ export class LoginActions {
 
     // Sign the challenge data
     this.onMessage('Signing challenge')
-    const signature = await this.signChallenge(decode(challenge.data), this.signingKey)
+    const signature = await this.signChallenge(b64.decode(challenge.data), this.signingKey)
     this.onMessage('Submitting challenge')
     res = await csfetch(route(`/challenge/${challenge.id}?${upgrade ? 'type=upgrade&' : ''}action=submit`), {
       method: 'POST',
@@ -255,7 +255,7 @@ export class LoginActions {
         'Content-Type': 'application/json'
       },
       body: JSON.stringify(<SignedChallenge>{
-        signature: encode(signature)
+        signature: b64.encode(signature)
       }),
       credentials: 'include'
     })
@@ -314,7 +314,7 @@ export class LoginActions {
     // Decrypt master private key
     const normalizedPassword = this.privateBetaAccount ? password.normalize('NFKC') : password.normalize('NFC')
     this.onMessage('Decrypting master keypair')
-    const tempKeyMaterial = await this.hashPassword(normalizedPassword, decode(keys.hashParams.salt), keys.hashParams)
+    const tempKeyMaterial = await this.hashPassword(normalizedPassword, b64.decode(keys.hashParams.salt), keys.hashParams)
     const tempKey = await aes.importKeyMaterial(tempKeyMaterial, Algorithms.AES_GCM)
     const privateKey = await aes.unwrapKey(keys.privateKey, tempKey, { extractable: true })
 
@@ -331,7 +331,7 @@ export class LoginActions {
     if (this.privateBetaAccount && !noRecursiveTransition) {
       // Upgrade to level 2 auth
       await UpgradeActions.passwordUpgrade(this, normalizedPassword)
-      await this.publicBetaTransition(password, decode(keys.hashParams.salt))
+      await this.publicBetaTransition(password, b64.decode(keys.hashParams.salt))
     }
 
     return {
@@ -350,7 +350,7 @@ export class LoginActions {
     await UpgradeActions.passwordUpgrade(this, password)
     // Change the user's password and hash params
     const actions = new PasswordChangeActions(this.argon2Worker, this.ed25519Worker)
-    const authSalt = decode(this.hashParams.salt)
+    const authSalt = b64.decode(this.hashParams.salt)
     this.onMessage('Transitioning account to public beta')
     await actions.changePassword(password, password, authSalt, cryptoSalt, true)
   }
@@ -373,7 +373,7 @@ export class RegisterActions extends LoginActions {
     }
 
     // Hash the user's password
-    this.hashParams.salt = encode(salt)
+    this.hashParams.salt = b64.encode(salt)
     this.onMessage('Generating authentication key')
     this.hashResult = await this.hashPassword(normalizedPassword, salt)
 
@@ -384,7 +384,7 @@ export class RegisterActions extends LoginActions {
     // Register the user (use whatever hash parameters are set before calling)
     const registerRequest: RegisterRequest = {
       email: user.email,
-      key: encode(publicKey!),
+      key: b64.encode(publicKey!),
       hashParams: this.hashParams
     }
     const res = await csfetch(route('/register'), {
@@ -437,7 +437,7 @@ export class RegisterActions extends LoginActions {
         privateKey: encryptedPrivateKey,
         hashParams: {
           ...this.hashParams,
-          salt: encode(salt)
+          salt: b64.encode(salt)
         }
       })
     })
@@ -514,16 +514,16 @@ export class PasswordChangeActions extends RegisterActions {
         'CSRF-Token': storage.getCSRFtoken()
       },
       body: JSON.stringify(<PasswordUpdate>{
-        authKey: encode(publicKey!),
+        authKey: b64.encode(publicKey!),
         privateKey: encryptedPrivateKey,
         hashParams: {
           auth: {
             ...this.hashParams,
-            salt: encode(authSalt)
+            salt: b64.encode(authSalt)
           },
           crypto: {
             ...this.hashParams,
-            salt: encode(cryptoSalt)
+            salt: b64.encode(cryptoSalt)
           }
         }
       })
