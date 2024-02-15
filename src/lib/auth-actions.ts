@@ -742,7 +742,7 @@ export class Argon2AutoParams {
     salt: ''
   })
 
-  // @ts-ignore: asdas
+  // FIXME: refactor to remove the need to pass Argon2.WorkerConnection for hashPassword
   private argon2: Argon2.WorkerConnection
   private hashPassword: (password: string, salt: Uint8Array, hashParams?: Argon2HashParams) => Promise<Uint8Array>
   private password: string

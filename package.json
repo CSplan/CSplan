@@ -13,7 +13,7 @@
     "@typescript-eslint/parser": "^5.47.1",
     "@very-amused/argon2-wasm": "^0.3.4",
     "@very-amused/ed25519-wasm": "^0.1.3",
-    "cs-crypto": "^0.8.4",
+    "cs-crypto": "^0.8.5",
     "dompurify": "^2.3.8",
     "js-cookie": "^3.0.1",
     "markdown-it": "^13.0.1",
