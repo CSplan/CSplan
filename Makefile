@@ -7,10 +7,13 @@ build:
 	./scripts/prepare-static.sh
 .PHONY: build
 
+production: build
+.PHONY: production
+
 staging:
 	env NODE_ENV=production $(nodebin)/vite build --mode=staging
 	./scripts/prepare-static.sh
-.PHONY: build
+.PHONY: staging
 
 dev:
 	env NODE_ENV=development $(nodebin)/vite dev --port=$(PORT)
